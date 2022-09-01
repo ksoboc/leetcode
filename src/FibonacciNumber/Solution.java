@@ -1,0 +1,17 @@
+package FibonacciNumber;
+
+public class Solution {
+    public int fib(int n) {
+        if (n == 0)
+            return 0;
+        int fib1 = 1;
+        int fib0 = 0;
+        while (n > 1) {
+            int tmp = fib1;
+            fib1 = fib0 + fib1;
+            fib0 = tmp;
+            --n;
+        }
+        return fib1;
+    }
+}
