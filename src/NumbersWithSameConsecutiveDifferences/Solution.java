@@ -13,7 +13,7 @@ public class Solution {
 
 
         for (int i = 1; i <= 9; i++) {
-            dfs(i, n, 0, k, 0);
+            dfs(i, n, 1, k, i);
         }
 
         int[] res = new int[numbers.size()];
@@ -30,11 +30,16 @@ public class Solution {
             numbers.add(num);
             return;
         }
-        if (startNum < 0 || startNum > 9)
-            return;
 
-        dfs(startNum + k, n, pos + 1, k, num * 10 + startNum);
-        if (pos < n - 1 && k > 0)
-            dfs(startNum - k, n, pos + 1, k, num * 10 + startNum);
+        int nextDigit=startNum-k;
+        if (nextDigit>=0)
+            dfs(nextDigit,n,pos+1,k,num*10+nextDigit);
+        if (k>0) {
+            nextDigit = startNum + k;
+            if (nextDigit<=9)
+                dfs(nextDigit,n,pos+1,k,num*10+nextDigit);
+        }
+
+
     }
 }
