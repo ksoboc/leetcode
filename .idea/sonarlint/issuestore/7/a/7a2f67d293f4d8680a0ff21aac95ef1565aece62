@@ -1,0 +1,12 @@
+
+>
+java:S1116;"Remove this empty statement.(ôŸìúÿÿÿÿ8İ½äó°0
+z	java:S135"YReduce the total number of break and continue statements in this loop to use at most one.(Æ‰…Œùÿÿÿÿ8Õªãó°0
+m	java:S1173"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(àÛÀ¼8İ½äó°0
+r	java:S1177"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(šÜçÆüÿÿÿÿ8İ½äó°0
+r	java:S1177"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(šÜçÆüÿÿÿÿ8Ş½äó°0
+l
+java:S1104."OMake val a static final constant or non-public and provide accessors if needed.(Ô¸úÏ8Ş½äó°0
+q
+java:S1104/"TMake children a static final constant or non-public and provide accessors if needed.(ş“îÍ8Ş½äó°0
+o	java:S120"ZRename this package name to match the regular expression '^[a-z_]+(\.[a-z_][a-z0-9_]*)*$'.(ëæ‹ü

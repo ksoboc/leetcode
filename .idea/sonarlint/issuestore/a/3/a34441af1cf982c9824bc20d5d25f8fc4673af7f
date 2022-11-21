@@ -1,0 +1,10 @@
+
+m
+java:S3776"RRefactor this method to reduce its Cognitive Complexity from 29 to the 15 allowed.(ëöëøÿÿÿÿ
+h
+java:S3776_"RRefactor this method to reduce its Cognitive Complexity from 29 to the 15 allowed.(»ãØ­
+H
+java:S1144T"-Remove this unused private "isLadder" method.(­­ùÿÿÿÿ
+o
+java:S2293j"YReplace the type specification in this constructor call with the diamond operator ("<>").(‰¥ä
+t	java:S120"ZRename this package name to match the regular expression '^[a-z_]+(\.[a-z_][a-z0-9_]*)*$'.(‡°Â†ıÿÿÿÿ

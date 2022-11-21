@@ -1,0 +1,6 @@
+
+Z	java:S106"9Replace this use of System.out or System.err by a logger.(øù½¤ıÿÿÿÿ8á·æƒ¬0
+Z	java:S106"9Replace this use of System.out or System.err by a logger.(øù½¤ıÿÿÿÿ8ÃÔæƒ¬0
+_
+java:S1128"=Remove this unused import 'org.junit.jupiter.api.Assertions'.(âè¨ùÿÿÿÿ8•éæƒ¬0
+t	java:S120"ZRename this package name to match the regular expression '^[a-z_]+(\.[a-z_][a-z0-9_]*)*$'.(•‚ûÿÿÿÿÿ

@@ -1,5 +1,7 @@
 package SymmetricTree;
 
+import java.util.*;
+
 public class Solution {
     public boolean isSymmetric(TreeNode root) {
         var r=root.right;
@@ -11,7 +13,7 @@ public class Solution {
         if (r==null||l==null)
             return false;
         
-        return isSymmetric(l,r) && isSymmetric(r,l);
+        return isSymmetric(l,r);
 
     }
 
@@ -24,6 +26,34 @@ public class Solution {
         if (p.val!=q.val) return false;
 
         return isSymmetric(p.left,q.right) && isSymmetric(p.right,q.left);
+    }
+
+    public boolean isSymmetricBfs(TreeNode root) {
+        Deque<TreeNode> queue = new LinkedList<>();
+        queue.offer(root);
+
+        while (!queue.isEmpty()) {
+            int size = queue.size();
+            Integer[] list = new Integer[size];
+            int cnt=0;
+            while (cnt < size) {
+                var node = queue.poll();
+                if (node==null) {
+                    list[cnt++]=null;
+                    continue;
+                }
+                list[cnt++] = node.val;
+
+                queue.offer(node.left);
+                queue.offer(node.right);
+            }
+            for (int i = 0; i < size/2; i++) {
+                if (!Objects.equals(list[i], list[size - i - 1]))
+                    return false;
+            }
+        }
+        return true;
+
     }
 }
 

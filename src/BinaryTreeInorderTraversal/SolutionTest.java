@@ -13,6 +13,7 @@ class SolutionTest {
         root.right.left = new TreeNode(3);
 
         System.out.println("solution.inorderTraversal(root) = " + solution.inorderTraversal(root));
+        assertArrayEquals(new int[]{1,2,3},solution.inorderTraversal(root).stream().mapToInt(Integer::intValue).toArray());
     }
 
     @Test

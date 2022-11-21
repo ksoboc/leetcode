@@ -59,6 +59,10 @@ public class TreeUtil {
             }
 
         }
-        return list.toArray(new Integer[0]);
+        int j= list.size()-1;
+        while (j >0 && list.get(j)==null ) {
+            --j;
+        }
+        return list.subList(0,j+1).toArray(new Integer[0]);
     }
 }

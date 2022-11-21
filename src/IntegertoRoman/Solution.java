@@ -26,16 +26,16 @@ public class Solution {
             new Pair("M", 1000)};
 
     public String intToRoman(int num) {
-        var res = "";
+        var sb = new StringBuilder();
         for (var i = pairs.length - 1; i >= 0; --i) {
             Pair pair = pairs[i];
             if (num / pair.val > 0) {
                 int count = num / pair.val;
-                res += pair.sym.repeat(count);
+                sb.append(pair.sym.repeat(count)) ;
             }
             num %= pair.val;
         }
 
-        return res;
+        return sb.toString();
     }
 }

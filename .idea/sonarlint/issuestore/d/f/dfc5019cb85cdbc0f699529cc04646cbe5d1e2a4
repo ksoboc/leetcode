@@ -1,0 +1,12 @@
+
+F
+java:S5960"+Remove this assertion from production code.(ú¯âÁıÿÿÿÿ
+a
+java:S1192"FDefine a constant instead of duplicating this literal "apple" 3 times.(—ÎõÍøÿÿÿÿ
+d
+java:S1192"IDefine a constant instead of duplicating this literal "facebook" 3 times.(—ÎõÍøÿÿÿÿ
+d
+java:S1192"IDefine a constant instead of duplicating this literal "leetcode" 4 times.(—ÎõÍøÿÿÿÿ
+b
+java:S1192"GDefine a constant instead of duplicating this literal "google" 4 times.(—ÎõÍøÿÿÿÿ
+o	java:S120"ZRename this package name to match the regular expression '^[a-z_]+(\.[a-z_][a-z0-9_]*)*$'.(ç‘”Š

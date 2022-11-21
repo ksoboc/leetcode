@@ -1,0 +1,14 @@
+
+N	java:S106"9Replace this use of System.out or System.err by a logger.(γόπ£
+V	java:S125"<This block of commented-out lines of code should be removed.(“ψ¬Άύÿÿÿÿ
+N	java:S106"9Replace this use of System.out or System.err by a logger.(γόπ£
+V	java:S125"<This block of commented-out lines of code should be removed.(“ψ¬Άύÿÿÿÿ
+N	java:S106 "9Replace this use of System.out or System.err by a logger.(γόπ£
+V	java:S125"<This block of commented-out lines of code should be removed.(“ψ¬Άύÿÿÿÿ
+N	java:S106("9Replace this use of System.out or System.err by a logger.(γόπ£
+V	java:S125'"<This block of commented-out lines of code should be removed.(“ψ¬Άύÿÿÿÿ
+X
+java:S1128"=Remove this unused import 'org.junit.jupiter.api.Assertions'.(βθ¨ωÿÿÿÿ
+]
+java:S1192"GDefine a constant instead of duplicating this literal "res = " 4 times.(γόπ£
+t	java:S120"ZRename this package name to match the regular expression '^[a-z_]+(\.[a-z_][a-z0-9_]*)*$'.(‡°Β†ύÿÿÿÿ
