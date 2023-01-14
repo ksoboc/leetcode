@@ -1,10 +1,10 @@
 package BinaryTreeMaximumPathSum;
 
 public class Solution {
-    private int res=Integer.MIN_VALUE;
+    private int maxSoFar =Integer.MIN_VALUE;
     public int maxPathSum(TreeNode root) {
         dfs(root);
-        return res;
+        return maxSoFar;
     }
 
     private int dfs(TreeNode root) {
@@ -14,7 +14,7 @@ public class Solution {
         var leftMax = Math.max(dfs(root.left),0);
         var rightMax = Math.max(dfs(root.right),0);
 
-        res = Math.max(res,root.val+leftMax+rightMax);
+        maxSoFar = Math.max(maxSoFar,root.val+leftMax+rightMax);
 
         return root.val + Math.max(leftMax,rightMax);
     }
