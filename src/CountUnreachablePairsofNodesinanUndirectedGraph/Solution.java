@@ -1,8 +1,5 @@
 package CountUnreachablePairsofNodesinanUndirectedGraph;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class Solution {
     private static class UnionFind {
         private int[] parent;
@@ -53,20 +50,18 @@ public class Solution {
             uf.join(edge[0], edge[1]);
         }
 
-        Map<Integer, Integer> groups = new HashMap<>();
-        for (int node = 0; node < n; node++) {
-            int key = uf.find(node);
-            groups.put(key, groups.getOrDefault(key, 0) + 1);
-        }
-
+        boolean[] seenGroups = new boolean[n];
         long numberOfPaths = 0;
         long remainingNodes=n;
-
-        for (var value : groups.values()) {
-            remainingNodes-=value;
-            numberOfPaths +=  remainingNodes * value;
-
+        for (int i = 0; i < n; i++) {
+            int parent = uf.find(i);
+            if (!seenGroups[parent]) {
+                remainingNodes-=uf.rank[parent];
+                numberOfPaths +=  remainingNodes * uf.rank[parent];
+                seenGroups[parent]=true;
+            }
         }
+
         return numberOfPaths;
     }
 }
