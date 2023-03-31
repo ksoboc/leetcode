@@ -1,5 +1,6 @@
 package ConstructBinaryTreefromPreorderandInorderTraversal;
 
+import Common.TreeUtil;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -15,6 +16,7 @@ class SolutionTest {
 
         var root = solution.buildTree(preorder,inorder);
         System.out.println("root = " + root);
+        TreeUtil.printTree(root);
 
     }
 

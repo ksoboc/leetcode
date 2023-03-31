@@ -1,0 +1,15 @@
+
+o	java:S120"ZRename this package name to match the regular expression '^[a-z_]+(\.[a-z_][a-z0-9_]*)*$'.(ì–Æ
+P
+java:S1117"5Rename "n" which hides the field declared at line 10.(ùòË™üÿÿÿÿ
+L
+java:S1117"7Rename "ans" which hides the field declared at line 11.(„”˜ 
+F
+java:S1128"0Remove this unused import 'java.util.ArrayList'.(÷‰îƒ
+F
+java:S1128"+Remove this unused import 'java.util.List'.(Õë±Äøÿÿÿÿ
+@
+java:S1068
+"%Remove this unused "n" private field.(äÆİÜûÿÿÿÿ
+=
+java:S1068"'Remove this unused "ans" private field.(Àîğ¬

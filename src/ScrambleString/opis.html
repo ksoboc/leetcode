@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Scramble String</title>
+</head>
+<body>
+<h2 id="solution">Solution</h2>
+<hr>
+<h3 id="approach-dynamic-programming">Approach: Dynamic Programming</h3>
+<h4 id="intuition">Intuition</h4>
+<p>We have a recursive definition of scrambling a string <code>s</code>. First, we divide <code>s</code> into <code>x</code> and <code>y</code>. Then we either keep <code>s</code> as <code>x + y</code> or swap them and get <code>y + x</code>. After that, we scramble <code>x</code> and <code>y</code> independently. Let <code>x'</code> denote the scrambled <code>x</code> and <code>y'</code> denote the scrambled <code>y</code>. <code>s</code> will eventually become <code>x' + y'</code> or <code>y' + x'</code>.</p>
+<p><img src="diagram2.drawio.png" alt="split"></p>
+<p>How do we check whether a given string <code>t</code> is a scrambled string of <code>s</code>? First, we choose an index and cut <code>s</code> into <code>x</code> and <code>y</code> (<code>s = x + y</code>). Then, we see if we can cut <code>t</code> into <code>x'</code> and <code>y'</code> (<code>t = x' + y'</code> if we do not swap or <code>t = y' + x'</code> if we do). Since verifying that <code>x'</code> is a scrambled <code>x</code> and <code>y'</code> is scrambled <code>y</code> are smaller subproblems, we will solve the problem using dynamic programming.</p>
+<p>We have two strings <code>s1</code> and <code>s2</code>.</p>
+<p>For each given dp state, we need 3 variables: <code>length</code>, <code>i</code>, and <code>j</code>.</p>
+<p>Each state will focus on two substrings. The first one will be a substring of <code>s1</code>, starting at index <code>i</code> with length equal to <code>length</code> - let's call this substring <code>s</code>. The second one will be a substring of <code>s2</code>, starting at index <code>j</code> with <code>length</code> - let's call this substring <code>t</code>.</p>
+<p>Let <code>dp[length][i][j]</code> be a boolean representing whether <code>t</code> is a scrambled version of <code>s</code>.</p>
+<p>The base case, as defined by the problem is when <code>length = 1</code>. Here we do not have to split strings into smaller ones, so we can easily compare the corresponding characters: <code>dp[1][i][j]</code> is <code>true</code> when <code>s1[i]</code> equals <code>s2[j]</code>, and <code>false</code> otherwise.</p>
+<p>Now we need to write down the transitions of <code>dp</code>. We will use the following image as an example during the explanations.</p>
+<p><img src="diagram.drawio.png" alt="split"></p>
+<p>At each state, we need to perform a split on <code>s1</code>. We will consider all possible splits. If we are currently considering a substring with a length of <code>length</code>, then we could perform a split at any index <code>newLength</code>, where <code>0 &lt; newLength &lt; length</code>. (Here, <code>newLength</code> represents the length of the left string after the split). A split gives us two new strings:</p>
+<ul>
+  <li>
+    <p>A substring of <code>s1</code> starting at index <code>i</code> and ending with index <code>i + newLength - 1</code>. This string has a length of <code>newLength</code> (Blue in the picture)</p>
+  </li>
+  <li>
+    <p>A substring of <code>s1</code> starting at index <code>i + newLength</code> and ending at index <code>i + length - 1</code>. This string has a length of <code>length - newLength</code>. (Yellow in the picture)</p>
+  </li>
+</ul>
+<p>For each split, we have two cases:</p>
+<ul>
+  <li>Do not swap the blue and yellow parts. The corresponding substrings of <code>s2</code> must be scrambled versions of the substrings we just created by splitting <code>s1</code>. This means both <code>dp[newLength][i][j]</code> (representing the blue parts) and <code>dp[length - newLength][i + newLength][j + newLength]</code> (representing the yellow parts) must be true.</li>
+  <li>Swap the blue and yellow parts. As you can see in the image, this misaligns the blue and yellow parts between <code>s1</code> and <code>s2</code>, but we still need the parts to match (we still need the blue part of <code>s1</code> to be a scrambled version of the blue part of <code>s2</code>, same with the yellow part). What are the new starting indices? For blue, it's <code>s1</code> starting with <code>i</code> and <code>s2</code> starting with <code>j + length - newLength</code>. For yellow, it's <code>s1</code> starting with <code>i + newLength</code> and <code>s2</code> starting with <code>j</code>. Thus, we need both <code>dp[newLength][i][j+length-newLength]</code> and <code>dp[length-newLength][i+newLength][j]</code> to be <code>true</code>.</li>
+</ul>
+<p>Now we can formally write down the transitions. For <code>length &gt; 1</code>, <code>dp[length][i][j]</code> is <code>true</code> if and only if for at least one <code>newLength</code> where <code>0 &lt; newLength &lt; length</code>:</p>
+<p><code>(dp[newLength][i][j] &amp;&amp; dp[length-newLength][i+newLength][j+newLength]) || (dp[newLength][i][j+length-newLength] &amp;&amp; dp[length-newLength][i+newLength][j])</code> is <code>true</code>.</p>
+<p>Let <code>n</code> denote the length of the input strings. The answer to the problem is <code>dp[n][0][0]</code>, as starting at index <code>0</code> with length <code>n</code> is considering the entire input string.</p>
+<h4 id="algorithm">Algorithm</h4>
+<ol>
+  <li>Iterate <code>i</code> from <code>0</code> to <code>n-1</code>.
+    <ul>
+      <li>Iterate <code>j</code> from <code>0</code> to <code>n-1</code>.
+        <ul>
+          <li>Set <code>dp[1][i][j]</code> to the boolean value of <code>s1[i] == s2[j]</code>. (The base case of the DP).</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>Iterate <code>length</code> from <code>2</code> to <code>n</code>.
+    <ul>
+      <li>Iterate <code>i</code> from <code>0</code> to <code>n + 1 - length</code>.
+        <ul>
+          <li>Iterate <code>j</code> from <code>0</code> to <code>n + 1 - length</code>.
+            <ul>
+              <li>Iterate <code>newLength</code> from <code>1</code> to <code>length - 1</code>.
+                <ul>
+                  <li>If <code>dp[newLength][i][j] &amp;&amp; dp[length-newLength][i+newLength][j+newLength]) || (dp[newLength][i][j+l-newLength] &amp;&amp; dp[l-newLength][i+newLength][j]</code> is <code>true</code>, set <code>dp[length][i][j]</code> to <code>true</code>.</li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>Return <code>dp[n][0][0]</code>.</li>
+</ol>
+<h4 id="implementation">Implementation</h4>
+
+<pre>
+  <p>Java</p>
+  <code>
+    class Solution {
+    public boolean isScramble(String s1, String s2) {
+        int n = s1.length();
+        boolean dp[][][] = new boolean[n + 1][n][n];
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                dp[1][i][j] = s1.charAt(i) == s2.charAt(j);
+            }
+        }
+        for (int length = 2; length <= n; length++) {
+            for (int i = 0; i < n + 1 - length; i++) {
+                for (int j = 0; j < n + 1 - length; j++) {
+                    for (int newLength = 1; newLength < length; newLength++) {
+                        boolean dp1[] = dp[newLength][i];
+                        boolean dp2[] = dp[length - newLength][i + newLength];
+                        dp[length][i][j] |= dp1[j] && dp2[j + newLength];
+                        dp[length][i][j] |= dp1[j + length - newLength] && dp2[j];
+                    }
+                }
+            }
+        }
+        return dp[n][0][0];
+    }
+}
+  </code>
+  <p>C++</p>
+  <code>
+    class Solution {
+public:
+    bool isScramble(string s1, string s2) {
+        int n = s1.size();
+        vector dp(n + 1, vector(n, vector<int>(n)));
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                dp[1][i][j] = s1[i] == s2[j];
+            }
+        }
+        for (int length = 2; length <= n; length++) {
+            for (int i = 0; i < n + 1 - length; i++) {
+                for (int j = 0; j < n + 1 - length; j++) {
+                    for (int newLength = 1; newLength < length; newLength++) {
+                        const vector<int>& dp1 = dp[newLength][i];
+                        const vector<int>& dp2 = dp[length - newLength][i + newLength];
+                        dp[length][i][j] |= dp1[j] && dp2[j + newLength];
+                        dp[length][i][j] |= dp1[j + length - newLength] && dp2[j];
+                    }
+                }
+            }
+        }
+        return dp[n][0][0];
+    }
+};
+  </code>
+  <p>Python3</p>
+  <code>
+    class Solution:
+    def isScramble(self, s1: str, s2: str) -> bool:
+        n = len(s1)
+        dp = [[[False for j in range(n)] for i in range(n)]
+              for l in range(n+1)]
+        for i in range(n):
+            for j in range(n):
+                dp[1][i][j] = s1[i] == s2[j]
+        for length in range(2, n + 1):
+            for i in range(n + 1 - length):
+                for j in range(n + 1 - length):
+                    for new_length in range(1, length):
+                        dp1 = dp[new_length][i]
+                        dp2 = dp[length-new_length][i+new_length]
+                        dp[length][i][j] |= dp1[j] and dp2[j+new_length]
+                        dp[length][i][j] |= dp1[j+length-new_length] and dp2[j]
+        return dp[n][0][0]
+  </code>
+</pre>
+<h4 id="complexity-analysis">Complexity Analysis</h4>
+<ul>
+  <li>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n4)O(n^4)</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">4</span></span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span></span>.</li>
+</ul>
+<p>We have four nested for loops (for <code>length</code>, <code>i</code>, <code>j</code>, <code>newLength</code>), each doing <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> iterations.</p>
+<ul>
+  <li>Space complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n3)O(n^3)</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">3</span></span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span></span>.</li>
+</ul>
+<p>We store the matrix <code>dp[n+1][n][n]</code> for dynamic programming.</p>
+</body>
+</html>
