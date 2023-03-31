@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Number of ways of cutting a pizza</title>
+</head>
+<body>
+<h2 id="solution">Solution</h2>
+<hr>
+<h3 id="approach-1-dynamic-programming">Approach 1: Dynamic Programming</h3>
+<h4 id="intuition">Intuition</h4>
+<blockquote>
+  <p>We highly recommend you solve the problem <a href="https://leetcode.com/problems/range-sum-query-2d-immutable/" target="_blank">304. Range Sum Query 2D - Immutable</a> before trying this problem.</p>
+</blockquote>
+<p>When one cuts a rectangular part of pizza either vertically or horizontally, the remaining part is also a rectangle but a smaller one. Since we give a person the left or the upper part of the pizza, we always keep the bottom right part of the pizza.</p>
+<p>Because we have a smaller rectangle (pizza) after each cut, each cut creates a new subproblem. We will solve the problem using dynamic programming.</p>
+<p>What will be the state of dynamic programming? Or in other words, how can we describe the current state of the pizza?</p>
+<p>First, we need to know how many cuts are left to make. We will denote this number as <code>remain</code>.</p>
+<p>Second, we need to know what part of the pizza remains on the table. Let <code>row</code> denote its topmost row, and <code>col</code> denote its leftmost column. The remaining part is <code>pizza[row..rows-1][col..cols-1]</code>, where <code>rows</code> and <code>cols</code> denote the number of rows and columns in the original pizza respectively.</p>
+<p>The state of the DP is the triplet <code>(remain, row, col)</code>.</p>
+<p>Let <code>dp[remain][row][col]</code> be the number of ways to cut the rectangular part <code>pizza[row..rows-1][col..cols-1]</code> with <code>remain</code> cuts modulo <span class="math math-inline"><span class="katex"><span class="katex-mathml">109+710^9+7</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.8974em; vertical-align: -0.0833em;"></span><span class="mord">1</span><span class="mord"><span class="mord">0</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">9</span></span></span></span></span></span></span></span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">7</span></span></span></span></span>.</p>
+<p>The base case of the DP is <code>remain = 0</code> when one does not need to make any more cuts. If <code>pizza[row..rows-1][col..cols-1]</code> contains at least one apple, then <code>dp[0][row][col] = 1</code> – there is one way to make no cuts and give the piece to the last person. Otherwise, <code>pizza[row..rows-1][col..cols-1]</code> contains no apples, and there are no ways to give the piece to the person, thus <code>dp[0][row][col] = 0</code>.</p>
+<p>Now we need to write down the transitions of the DP.</p>
+<p><img src="cuts.drawio.png" alt="cuts"></p>
+<p>When one cuts the rectangle <code>pizza[row..rows-1][col..cols-1]</code> horizontally, one first chooses the row <code>next_row</code> (<code>row &lt; next_row &lt; rows</code>) where to cut. The upper part after the cut will be <code>pizza[row..next_row-1][col..cols-1]</code> and the bottom one – <code>pizza[next_row..rows-1][col..cols-1]</code>. Since we give the upper part to a person, the number of apples on <code>pizza[row..next_row-1][col..cols-1]</code> must be greater than zero.</p>
+<p>We can consider the vertical cut with the same logic: one first chooses the column <code>next_col</code> (<code>col &lt; next_col &lt; cols</code>) and cuts the pizza into two parts <code>pizza[row..rows-1][cols..next_col-1]</code> and <code>pizza[row..rows-1][next_col..cols-1]</code>. There must be at least one apple on <code>pizza[row..rows-1][col..next_col-1]</code>.</p>
+<p>Let's say we want to calculate <code>dp[remain][row][col]</code> with <code>remain &gt; 0</code>.</p>
+<p>We have to try all possible options for the first cut: the horizontal one at row <code>next_row</code> or the vertical one at column <code>next_col</code>. We iterate over all <code>next_row</code> such that <code>row &lt; next_row &lt; rows</code>. If <code>pizza[row..next_row-1][col..cols-1]</code> contains at least one apple, we can make the first cut into pieces <code>pizza[row..next_row-1][col..cols-1]</code> and <code>pizza[next_row..rows-1][col..cols-1]</code> and give the upper part to a person.</p>
+<p>After this cut, we have to make <code>remain - 1</code> cuts on the bottom part <code>pizza[next_row..rows-1][col..cols-1]</code>. Cutting the part <code>pizza[next_row..rows-1][col..cols-1]</code> with <code>remain - 1</code> cuts is a subproblem. It means, there is a transition from <code>dp[remain-1][next_row][col]</code> to <code>dp[remain][row][col]</code>.</p>
+<p>Similarly, for all <code>next_col</code> such that <code>col &lt; next_col &lt; cols</code>, if we have at least one apple on <code>pizza[row..rows-1][col..next_col-1] &gt; 0</code>, there is a transition from <code>dp[remain-1][row][next_col]</code> to <code>dp[remain][row][col]</code>.</p>
+<p>Having all transitions, one can conclude that the value <code>dp[remain][row][col]</code> equals the sum of <code>dp[remain-1][next_row][col]</code> and <code>dp[remain-1][row][next_col]</code> for all valid values of <code>next_row</code> and <code>next_col</code>.</p>
+<p>We almost have the solution, but we haven't talked about how to quickly verify if a rectangle has an apple.</p>
+<p>Let <code>apples[row][col]</code> denote the number of apples on <code>pizza[row..rows-1][col..cols-1]</code> (so <code>apples[0][0]</code> will be the number of apples on the original pizza).</p>
+<p>The matrix <code>apples</code> is the cumulative region sum matrix. One can calculate this matrix using the reccurrence relation <code>apples[row][col] = (pizza[row][col] == 'A') + apples[row + 1][col] + apples[row][col + 1] - apples[row + 1][col + 1]</code>. Refer to Approach 4 of the <a href="https://leetcode.com/problems/range-sum-query-2d-immutable/solutions/127813/" target="_blank">solution</a> of the problem <a href="https://leetcode.com/problems/range-sum-query-2d-immutable/" target="_blank">304. Range Sum Query 2D - Immutable</a> for details.</p>
+<p>Having the matrix <code>apples</code> one can find the number of apples on <code>pizza[row..next_row-1][col..cols-1]</code> as <code>apples[row][col] - apples[next_row][col]</code> and on <code>pizza[row..rows-1][col..next_col-1]</code> as <code>apples[row][col] - apples[row][next_col]</code>. For each cut, if the piece we are giving away has at least one apple, we can consider the cut.</p>
+<h4 id="algorithm">Algorithm</h4>
+<ol>
+  <li>Declare the matrices <code>apples[rows+1][cols+1]</code> and <code>dp[k][rows][cols]</code>.</li>
+  <li>First, calculate <code>apples</code>. Iterate <code>row</code> from <code>rows-1</code> to <code>0</code>.
+    <ul>
+      <li>Iterate <code>col</code> from <code>cols-1</code> to <code>0</code>.
+        <ul>
+          <li>Calculate <code>apples[row][col]</code> as <code>(pizza[row][col] == 'A') + apples[row + 1][col] + apples[row][col + 1] - apples[row + 1][col + 1]</code>.</li>
+          <li>If <code>apples[row][col] &gt; 0</code>, set <code>dp[0][row][col] = 1</code>, otherwise set <code>dp[0][row][col] = 0</code> (the base case of the DP).</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>Iterate <code>remain</code> from <code>1</code> to <code>k - 1</code>.
+    <ul>
+      <li>Iterate <code>row</code> from <code>0</code> to <code>rows-1</code>.
+        <ul>
+          <li>Iterate <code>col</code> from <code>0</code> to <code>cols-1</code>.
+            <ul>
+              <li>We will now calculate <code>dp[remain][row][col]</code> by considering all cuts.</li>
+              <li>Consider all horizontal cuts. Iterate <code>next_row</code> from <code>row+1</code> to <code>rows-1</code>.
+                <ul>
+                  <li>If the top piece has an apple, i.e. <code>apples[row][col] - apples[next_row][col] &gt; 0</code>, add <code>dp[remain-1][next_row][col]</code> to <code>dp[remain][row][col]</code>.</li>
+                </ul>
+              </li>
+              <li>Consider all vertical cuts. Iterate <code>next_col</code> from <code>col+1</code> to <code>cols-1</code>.
+                <ul>
+                  <li>If the left piece has an apple, i.e. <code>apples[row][col] - apples[row][next_col] &gt; 0</code>, add <code>dp[remain-1][row][next_col]</code> to <code>dp[remain][row][col]</code>.</li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>Return <code>dp[k-1][0][0]</code>. This represents the original pizza with <code>k - 1</code> cuts, which is what the original problem is asking for.</li>
+</ol>
+<h4 id="implementation">Implementation</h4>
+<pre>
+  Java
+  <code>
+   class Solution {
+    public int ways(String[] pizza, int k) {
+        int rows = pizza.length, cols = pizza[0].length();
+        int apples[][] = new int[rows + 1][cols + 1];
+        int dp[][][] = new int[k][rows][cols];
+        for (int row = rows - 1; row >= 0; row--) {
+            for (int col = cols - 1; col >= 0; col--) {
+                apples[row][col] = (pizza[row].charAt(col) == 'A' ? 1 : 0) + apples[row + 1][col] + apples[row][col + 1]
+                        - apples[row + 1][col + 1];
+                dp[0][row][col] = apples[row][col] > 0 ? 1 : 0;
+            }
+        }
+        int mod = 1000000007;
+        for (int remain = 1; remain < k; remain++) {
+            for (int row = 0; row < rows; row++) {
+                for (int col = 0; col < cols; col++) {
+                    for (int next_row = row + 1; next_row < rows; next_row++) {
+                        if (apples[row][col] - apples[next_row][col] > 0) {
+                            dp[remain][row][col] += dp[remain - 1][next_row][col];
+                            dp[remain][row][col] %= mod;
+                        }
+                    }
+                    for (int next_col = col + 1; next_col < cols; next_col++) {
+                        if (apples[row][col] - apples[row][next_col] > 0) {
+                            dp[remain][row][col] += dp[remain - 1][row][next_col];
+                            dp[remain][row][col] %= mod;
+                        }
+                    }
+                }
+            }
+        }
+        return dp[k - 1][0][0];
+    }
+}
+  </code>
+  C++
+  <code>
+    class Solution {
+public:
+    int ways(vector<string>& pizza, int k) {
+        int rows = pizza.size(), cols = pizza[0].size();
+        vector apples(rows + 1, vector<int>(cols + 1));
+        vector dp(k, vector(rows, vector<int>(cols)));
+        for (int row = rows - 1; row >= 0; row--) {
+            for (int col = cols - 1; col >= 0; col--) {
+                apples[row][col] = (pizza[row][col] == 'A') + apples[row + 1][col] +
+                                   apples[row][col + 1] - apples[row + 1][col + 1];
+                dp[0][row][col] = apples[row][col] > 0;
+            }
+        }
+        const int mod = 1000000007;
+        for (int remain = 1; remain < k; remain++) {
+            for (int row = 0; row < rows; row++) {
+                for (int col = 0; col < cols; col++) {
+                    for (int next_row = row + 1; next_row < rows; next_row++) {
+                        if (apples[row][col] - apples[next_row][col] > 0) {
+                            (dp[remain][row][col] += dp[remain - 1][next_row][col]) %= mod;
+                        }
+                    }
+                    for (int next_col = col + 1; next_col < cols; next_col++) {
+                        if (apples[row][col] - apples[row][next_col] > 0) {
+                            (dp[remain][row][col] += dp[remain - 1][row][next_col]) %= mod;
+                        }
+                    }
+                }
+            }
+        }
+        return dp[k - 1][0][0];
+    }
+};
+  </code>
+  Python3
+  <code>
+    class Solution:
+    def ways(self, pizza: List[str], k: int) -> int:
+        rows = len(pizza)
+        cols = len(pizza[0])
+        apples = [[0] * (cols + 1) for row in range(rows + 1)]
+        for row in range(rows - 1, -1, -1):
+            for col in range(cols - 1, -1, -1):
+                apples[row][col] = ((pizza[row][col] == 'A')
+                                    + apples[row + 1][col]
+                                    + apples[row][col + 1]
+                                    - apples[row + 1][col + 1])
+        dp = [[[0 for col in range(cols)] for row in range(rows)] for remain in range(k)]
+        dp[0] = [[int(apples[row][col] > 0) for col in range(cols)]
+             for row in range(rows)]
+        mod = 1000000007
+        for remain in range(1, k):
+            for row in range(rows):
+                for col in range(cols):
+                    val = 0
+                    for next_row in range(row + 1, rows):
+                        if apples[row][col] - apples[next_row][col] > 0:
+                            val += dp[remain - 1][next_row][col]
+                    for next_col in range(col + 1, cols):
+                        if apples[row][col] - apples[row][next_col] > 0:
+                            val += dp[remain - 1][row][next_col]
+                    dp[remain][row][col] = val % mod
+        return dp[k - 1][0][0]
+  </code>
+</pre>
+<h4 id="complexity-analysis">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span> denote the number of rows in <code>pizza</code> and <span class="math math-inline"><span class="katex"><span class="katex-mathml">mm</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">m</span></span></span></span></span> denote the number of columns in <code>pizza</code>.</p>
+<ul>
+  <li>
+    <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(k⋅n⋅m⋅(n+m))O(k \cdot n \cdot m \cdot (n + m))</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 0.4445em;"></span><span class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 0.4445em;"></span><span class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal">m</span><span class="mclose">))</span></span></span></span></span>.</p>
+    <p>There are <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(k⋅n⋅m)O(k \cdot n \cdot m)</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 0.4445em;"></span><span class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal">m</span><span class="mclose">)</span></span></span></span></span> states <code>[remain][row][col]</code>. <span class="math math-inline"><span class="katex"><span class="katex-mathml">kk</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord mathnormal" style="margin-right: 0.03148em;">k</span></span></span></span></span> for <code>remain</code>, <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span> for <code>row</code> and <span class="math math-inline"><span class="katex"><span class="katex-mathml">mm</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">m</span></span></span></span></span> for <code>col</code>. For each state, we iterate over <code>next_row</code> in <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> and over <code>next_col</code> in <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(m)O(m)</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">m</span><span class="mclose">)</span></span></span></span></span>.</p>
+  </li>
+  <li>
+    <p>Space complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅m⋅k)O(n \cdot m \cdot k)</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 0.4445em;"></span><span class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span class="mclose">)</span></span></span></span></span>.</p>
+    <p>We store the matrix <code>dp[k][rows][cols]</code>.</p>
+  </li>
+</ul>
+<hr>
+<h3 id="approach-2-dynamic-programming-with-optimized-space-complexity">Approach 2: Dynamic Programming with Optimized Space Complexity</h3>
+<h4 id="intuition-1">Intuition</h4>
+<p>Note that we calculate <code>dp[remain]</code> using only the values of <code>dp[remain-1]</code>.</p>
+<p>It allows us not to store all <code>k</code> "layers" in memory at once, but only two at a time to save space. We will keep two layers <code>dp[remain-1]</code> and <code>dp[remain]</code> in two matrices <code>f</code> (<code>f[row][col] = dp[remain-1][row][col]</code>) and <code>g</code> (<code>g[row][col] = dp[remain][row][col]</code>).</p>
+<h4 id="algorithm-1">Algorithm</h4>
+<ol>
+  <li>Declare the matrices <code>apples[rows+1][cols+1]</code> and <code>f[rows][cols]</code>.</li>
+  <li>First, calculate <code>apples</code>. Iterate <code>row</code> from <code>rows-1</code> to <code>0</code>.
+    <ul>
+      <li>Iterate <code>col</code> from <code>cols-1</code> to <code>0</code>.
+        <ul>
+          <li>Calculate <code>apples[row][col]</code> as <code>(pizza[row][col] == 'A') + apples[row + 1][col] + apples[row][col + 1] - apples[row + 1][col + 1]</code>.</li>
+          <li>If <code>apples[row][col] &gt; 0</code>, set <code>f[row][col] = 1</code>, otherwise set <code>f[row][col] = 0</code> (the base case of the DP).</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>Iterate <code>remain</code> from <code>1</code> to <code>k - 1</code>.
+    <ul>
+      <li>Declare the matrix <code>g[rows][cols]</code> and initialize it with zeros. (Here <code>f[row][col] = dp[remain-1][row][col]</code> and <code>g[row][col] = dp[remain][row][col]</code>).</li>
+      <li>Iterate <code>row</code> from <code>0</code> to <code>rows-1</code>.
+        <ul>
+          <li>Iterate <code>col</code> from <code>0</code> to <code>cols-1</code>.
+            <ul>
+              <li>Consider all horizontal cuts. Iterate <code>next_row</code> from <code>row+1</code> to <code>rows-1</code>.
+                <ul>
+                  <li>If the top piece has an apple, i.e. <code>apples[row][col] - apples[next_row][col] &gt; 0</code>, add <code>f[next_row][col]</code> to <code>g[row][col]</code>.</li>
+                </ul>
+              </li>
+              <li>Consider all vertical cuts. Iterate <code>next_col</code> from <code>col+1</code> to <code>cols-1</code>.
+                <ul>
+                  <li>If the left piece has an apple, i.e. <code>apples[row][col] - apples[row][next_col] &gt; 0</code>, add <code>f[row][next_col]</code> to <code>g[row][col]</code>.</li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+      <li>Copy the matrix <code>g</code> to <code>f</code>.</li>
+    </ul>
+  </li>
+  <li>Return <code>f[0][0]</code>.</li>
+</ol>
+<h4 id="implementation-1">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int ways(String[] pizza, int k) {
+        int rows = pizza.length, cols = pizza[0].length();
+        int apples[][] = new int[rows + 1][cols + 1];
+        int f[][] = new int[rows][cols];
+        for (int row = rows - 1; row >= 0; row--) {
+            for (int col = cols - 1; col >= 0; col--) {
+                apples[row][col] = (pizza[row].charAt(col) == 'A' ? 1 : 0) + apples[row + 1][col] + apples[row][col + 1]
+                        - apples[row + 1][col + 1];
+                f[row][col] = apples[row][col] > 0 ? 1 : 0;
+            }
+        }
+        int mod = 1000000007;
+        for (int remain = 1; remain < k; remain++) {
+            int g[][] = new int[rows][cols];
+            for (int row = 0; row < rows; row++) {
+                for (int col = 0; col < cols; col++) {
+                    for (int next_row = row + 1; next_row < rows; next_row++) {
+                        if (apples[row][col] - apples[next_row][col] > 0) {
+                            g[row][col] += f[next_row][col];
+                            g[row][col] %= mod;
+                        }
+                    }
+                    for (int next_col = col + 1; next_col < cols; next_col++) {
+                        if (apples[row][col] - apples[row][next_col] > 0) {
+                            g[row][col] += f[row][next_col];
+                            g[row][col] %= mod;
+                        }
+                    }
+                }
+            }
+            // copy g to f
+            f = Arrays.stream(g).map(int[]::clone).toArray(int[][]::new);
+        }
+        return f[0][0];
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int ways(vector<string>& pizza, int k) {
+        int rows = pizza.size(), cols = pizza[0].size();
+        vector apples(rows + 1, vector<int>(cols + 1));
+        vector f(rows, vector<int>(cols));
+        for (int row = rows - 1; row >= 0; row--) {
+            for (int col = cols - 1; col >= 0; col--) {
+                apples[row][col] = (pizza[row][col] == 'A') + apples[row + 1][col] +
+                                   apples[row][col + 1] - apples[row + 1][col + 1];
+                f[row][col] = apples[row][col] > 0;
+            }
+        }
+        const int mod = 1000000007;
+        for (int remain = 1; remain < k; remain++) {
+            vector g(rows, vector<int>(cols));
+            for (int row = 0; row < rows; row++) {
+                for (int col = 0; col < cols; col++) {
+                    for (int next_row = row + 1; next_row < rows; next_row++) {
+                        if (apples[row][col] - apples[next_row][col] > 0) {
+                            (g[row][col] += f[next_row][col]) %= mod;
+                        }
+                    }
+                    for (int next_col = col + 1; next_col < cols; next_col++) {
+                        if (apples[row][col] - apples[row][next_col] > 0) {
+                            (g[row][col] += f[row][next_col]) %= mod;
+                        }
+                    }
+                }
+            }
+            f = g;
+        }
+        return f[0][0];
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def ways(self, pizza: List[str], k: int) -> int:
+        rows = len(pizza)
+        cols = len(pizza[0])
+        apples = [[0] * (cols + 1) for row in range(rows + 1)]
+        for row in range(rows - 1, -1, -1):
+            for col in range(cols - 1, -1, -1):
+                apples[row][col] = ((pizza[row][col] == 'A')
+                                    + apples[row + 1][col]
+                                    + apples[row][col + 1]
+                                    - apples[row + 1][col + 1])
+        f = [[int(apples[row][col] > 0) for col in range(cols)]
+             for row in range(rows)]
+        mod = 1000000007
+        for remain in range(1, k):
+            g = [[0 for col in range(cols)] for row in range(rows)]
+            for row in range(rows):
+                for col in range(cols):
+                    for next_row in range(row + 1, rows):
+                        if apples[row][col] - apples[next_row][col] > 0:
+                            g[row][col] += f[next_row][col]
+                    for next_col in range(col + 1, cols):
+                        if apples[row][col] - apples[row][next_col] > 0:
+                            g[row][col] += f[row][next_col]
+                    g[row][col] %= mod
+            f = g
+        return f[0][0]
+    </code>
+</pre>
+
+
+
+<h4 id="complexity-analysis-1">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span> denote the number of rows in <code>pizza</code> and <span class="math math-inline"><span class="katex"><span class="katex-mathml">mm</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">m</span></span></span></span></span> denote the number of columns in <code>pizza</code>.</p>
+<ul>
+  <li>
+    <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(k⋅n⋅m⋅(n+m))O(k \cdot n \cdot m \cdot (n + m))</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 0.4445em;"></span><span class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 0.4445em;"></span><span class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal">m</span><span class="mclose">))</span></span></span></span></span>.</p>
+    <p>There are <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(k⋅n⋅m)O(k \cdot n \cdot m)</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 0.4445em;"></span><span class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal">m</span><span class="mclose">)</span></span></span></span></span> states <code>[remain][row][col]</code>. <span class="math math-inline"><span class="katex"><span class="katex-mathml">kk</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord mathnormal" style="margin-right: 0.03148em;">k</span></span></span></span></span> for <code>remain</code>, <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span> for <code>row</code> and <span class="math math-inline"><span class="katex"><span class="katex-mathml">mm</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">m</span></span></span></span></span> for <code>col</code>. For each state, we iterate over <code>next_row</code> in <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> and over <code>next_col</code> in <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(m)O(m)</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">m</span><span class="mclose">)</span></span></span></span></span>.</p>
+  </li>
+  <li>
+    <p>Space complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅m)O(n \cdot m)</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal">m</span><span class="mclose">)</span></span></span></span></span>.</p>
+    <p>We store the matrices <code>apples[rows+1][cols+1]</code>, <code>f[rows][cols]</code> and <code>g[rows][cols]</code>.</p>
+  </li>
+</ul>
+</body>
+</html>
