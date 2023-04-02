@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Successful Pairs of Spells and Potions</title>
+</head>
+<body>
+<div></div><div class="break-words"><div><div class="_16yfq _2YoR3"><h2 id="solution">Solution</h2>
+  <hr>
+  <h3 id="overview">Overview</h3>
+  <p>Given two arrays <code>spells</code> and <code>potions</code>, we need to find for each <code>spell</code> how many <code>potions</code> will form a <strong>successful pair</strong>.<br>
+    A spell and potion pair is considered successful if the product of their strengths is at least <code>success</code>.</p>
+  <p><img src="Slide1.PNG" alt="slide1"></p>
+  <hr>
+  <h3 id="approach-1-sorting--binary-search">Approach 1: Sorting + Binary Search</h3>
+  <h4 id="intuition">Intuition</h4>
+  <p>Let's assume for a given <span class="math math-inline"><span class="katex"><span class="katex-mathml">spell\text{spell}</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.8889em; vertical-align: -0.1944em;"></span><span class="mord text"><span class="mord">spell</span></span></span></span></span></span>, we have,  <span class="math math-inline"><span class="katex"><span class="katex-mathml">spell∗a&nbsp;=&nbsp;success\text{spell} * \text{a = success}</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.8889em; vertical-align: -0.1944em;"></span><span class="mord text"><span class="mord">spell</span></span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">∗</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord text"><span class="mord">a&nbsp;=&nbsp;success</span></span></span></span></span></span><br>
+    So, for all <span class="math math-inline"><span class="katex"><span class="katex-mathml">x\text{x}</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord text"><span class="mord">x</span></span></span></span></span></span>, where <span class="math math-inline"><span class="katex"><span class="katex-mathml">x≥a\text{x} \geq \text{a}</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.7719em; vertical-align: -0.136em;"></span><span class="mord text"><span class="mord">x</span></span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">≥</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord text"><span class="mord">a</span></span></span></span></span></span>, the result, <span class="math math-inline"><span class="katex"><span class="katex-mathml">spell∗x\text{spell} * \text{x} </span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.8889em; vertical-align: -0.1944em;"></span><span class="mord text"><span class="mord">spell</span></span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">∗</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord text"><span class="mord">x</span></span></span></span></span></span> will always be greater than or equal to <span class="math math-inline"><span class="katex"><span class="katex-mathml">success\text{success}</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord text"><span class="mord">success</span></span></span></span></span></span>.</p>
+  <p>This suggests if we know the minimum potion, <code>minPotion</code> in the <code>potions</code> array, whose product with a given <code>spell</code> is more than or equal to <code>success</code>, then all the potions which are greater than <code>minPotion</code> will also form successful pairs with it.</p>
+  <p>Now let's find what will be the value of <code>minPotion</code>.<br>
+    The product of <code>spell</code> and <code>minPotion</code> will be at least <code>success</code>.</p>
+  <p><span class="math math-inline"><span class="katex"><span class="katex-mathml">  ⟹  spell∗minPotion≥success\implies \text{spell} * \text{minPotion} \geq \text{success}</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.549em; vertical-align: -0.024em;"></span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">⟹</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 0.8889em; vertical-align: -0.1944em;"></span><span class="mord text"><span class="mord">spell</span></span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">∗</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 0.8193em; vertical-align: -0.136em;"></span><span class="mord text"><span class="mord">minPotion</span></span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">≥</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord text"><span class="mord">success</span></span></span></span></span></span><br>
+    <span class="math math-inline"><span class="katex"><span class="katex-mathml">  ⟹  minPotion≥success&nbsp;/&nbsp;spell\implies \text{minPotion} \geq \text{success / spell}</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.549em; vertical-align: -0.024em;"></span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">⟹</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 0.8193em; vertical-align: -0.136em;"></span><span class="mord text"><span class="mord">minPotion</span></span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">≥</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord text"><span class="mord">success&nbsp;/&nbsp;spell</span></span></span></span></span></span><br>
+    <span class="math math-inline"><span class="katex"><span class="katex-mathml">  ⟹  minPotion=ceil(success&nbsp;/&nbsp;spell)\implies \text{minPotion} = \text{ceil(success / spell)}</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.549em; vertical-align: -0.024em;"></span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">⟹</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord text"><span class="mord">minPotion</span></span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord text"><span class="mord">ceil(success&nbsp;/&nbsp;spell)</span></span></span></span></span></span></p>
+  <p>Now to easily search for a value in an array, we can use <strong>binary search</strong> if the array is sorted.<br>
+    Thus, we will sort the <code>potions</code> array and search the first index <code>index</code> of <code>minPotion</code> or the element just greater than <code>minPotion</code>.</p>
+  <p>As we know all the <code>potions</code> bigger than <code>minPotion</code> will also form a successful pair with the given <code>spell</code>,<br>
+    Thus, all the <code>potions</code> whose product with <code>spell</code> is greater than or equal to <code>success</code> will be all the elements from index <code>index</code> till the last element.</p>
+  <p><img src="Slide2.PNG" alt="slide2"></p>
+  <p>This sums up that, we will sort the <code>potions</code> array, then for each <code>spell</code> in the <code>spells</code> array, using binary search we will find the <code>index</code> as discussed and count all the potions from <code>index</code> till the end as successful potions for the current <code>spell</code>.</p>
+  <h4 id="algorithm">Algorithm</h4>
+  <ol>
+    <li>Sort the <code>potions</code> array in ascending order.</li>
+    <li>Initialize variables:
+      <ul>
+        <li><code>answer</code>, an array to store the result.</li>
+        <li><code>m</code>, length of the <code>potions</code> array.</li>
+        <li><code>maxPotion</code>, the maximum value in the <code>potions</code> array.</li>
+      </ul>
+    </li>
+    <li>For each <code>spell</code> in the <code>spells</code> array:
+      <ul>
+        <li>Calculate the minimum potion strength required to make the spell successful as <code>minPotion</code> using the formula <code>minPotion = ceil(success / spell)</code>.</li>
+        <li>If <code>minPotion</code> is greater than <code>maxPotion</code>, store <code>0</code> in the <code>answer</code> array and continue to the next spell.</li>
+        <li>Otherwise, find the index of the first element in the <code>potions</code> array that is greater than or equal to <code>minPotion</code> using the inbuilt lower bound methods like <code>lower_bound()</code>, <code>bisect.bisect_left()</code>, <code>sort.SearchInts()</code>, etc. or by implementing it on your own.</li>
+        <li>Calculate the number of successful pairs possible for the current <code>spell</code> as <code>(m - index)</code>.</li>
+        <li>Store the result in the <code>answer</code> vector.</li>
+      </ul>
+    </li>
+    <li>Return the <code>answer</code> array which contains the number of successful pairs for each <code>spell</code>.</li>
+  </ol>
+  <h4 id="implementation">Implementation</h4>
+  <pre>
+    Java
+    <code>
+      class Solution {
+    // Our implementation of lower bound method using binary search.
+    private int lowerBound(int[] arr, int key) {
+        int lo = 0;
+        int hi = arr.length;
+        while (lo < hi) {
+            int mid = lo + (hi - lo) / 2;
+            if (arr[mid] < key) {
+                lo = mid + 1;
+            } else {
+                hi = mid;
+            }
+        }
+        return lo;
+    }
+
+    public int[] successfulPairs(int[] spells, int[] potions, long success) {
+        // Sort the potions array in increasing order.
+        Arrays.sort(potions);
+        int[] answer = new int[spells.length];
+
+        int m = potions.length;
+        int maxPotion = potions[m - 1];
+
+        for (int i = 0; i < spells.length; i++) {
+            int spell = spells[i];
+            // Minimum value of potion whose product with current spell
+            // will be at least success or more.
+            long minPotion = (long) Math.ceil((1.0 * success) / spell);
+            // Check if we don't have any potion which can be used.
+            if (minPotion > maxPotion) {
+                answer[i] = 0;
+                continue;
+            }
+            // We can use the found potion, and all potion in its right
+            // (as the right potions are greater than the found potion).
+            int index = lowerBound(potions, (int) minPotion);
+            answer[i] = m - index;
+        }
+
+        return answer;
+    }
+}
+    </code>
+    C++
+    <code>
+      class Solution {
+public:
+    vector<int> successfulPairs(vector<int>& spells, vector<int>& potions, long long success) {
+        // Sort the potions array in increasing order.
+        sort(potions.begin(), potions.end());
+        vector<int> answer;
+
+        int m = potions.size();
+        int maxPotion = potions[m - 1];
+
+        for (auto& spell : spells) {
+            // Minimum value of potion whose product with current spell
+            // will be at least success or more.
+            long long minPotion = ceil((1.0 * success) / spell);
+            // Check if we don't have any potion which can be used.
+            if (minPotion > maxPotion) {
+                answer.push_back(0);
+                continue;
+            }
+            // We can use the found potion, and all potion in its right
+            // (as the right potions are greater than the found potion).
+            auto index = lower_bound(potions.begin(), potions.end(), minPotion) - potions.begin();
+            answer.push_back(m - index);
+        }
+
+        return answer;
+    }
+};
+    </code>
+    Python3
+    <code>
+      class Solution:
+    def successfulPairs(self, spells: List[int], potions: List[int], success: int) -> List[int]:
+        # Sort the potions array in increasing order.
+        potions.sort()
+        answer = []
+
+        m = len(potions)
+        maxPotion = potions[m - 1]
+
+        for spell in spells:
+            # Minimum value of potion whose product with current spell
+            # will be at least success or more.
+            minPotion = (success + spell - 1) // spell
+            # Check if we don't have any potion which can be used.
+            if minPotion > maxPotion:
+                answer.append(0)
+                continue
+            # We can use the found potion, and all potion in its right
+            # (as the right potions are greater than the found potion).
+            index = bisect.bisect_left(potions, minPotion)
+            answer.append(m - index)
+
+        return answer
+    </code>
+    Swift
+    <code>
+      class Solution {
+    func successfulPairs(_ spells: [Int], _ potions: [Int], _ success: Int) -> [Int] {
+        // Sort the potions array in increasing order.
+        let sortedPotions = potions.sorted()
+        var answer = [Int]()
+
+        let m = sortedPotions.count
+        let maxPotion = sortedPotions[m - 1]
+
+        for spell in spells {
+            // Minimum value of potion whose product with current spell
+            // will be at least success or more.
+            let minPotion = Int(ceil(Double(success) / Double(spell)))
+            // Check if we don't have any potion which can be used.
+            if minPotion > maxPotion {
+                answer.append(0)
+                continue
+            }
+            // We can use the found potion, and all potion in its right
+            // (as the right potions are greater than the found potion).
+            let index = lowerBound(in: sortedPotions, forValue: minPotion)
+            answer.append(m - index)
+        }
+
+        return answer
+    }
+
+    // Returns the lower bound of 'key' in the sorted array 'arr'.
+    private func lowerBound(in arr: [Int], forValue key: Int) -> Int {
+        var low = 0, high = arr.count
+        while low < high {
+            let mid = (low + high) / 2
+            if arr[mid] < key {
+                low = mid + 1
+            } else {
+                high = mid
+            }
+        }
+        return low
+    }
+}
+    </code>
+    JavaScript
+    <code>
+      var successfulPairs = function(spells, potions, success) {
+    // Sort the potions array in increasing order.
+    potions.sort((a, b) => a - b);
+    const answer = [];
+
+    const m = potions.length;
+    const maxPotion = potions[m - 1];
+
+    for (const spell of spells) {
+        // Minimum value of potion whose product with current spell
+        // will be at least success or more.
+        const minPotion = Math.ceil(success / spell);
+        // Check if we don't have any potion which can be used.
+        if (minPotion > maxPotion) {
+            answer.push(0);
+            continue;
+        }
+        // We can use the found potion, and all potion in its right
+        // (as the right potions are greater than the found potion).
+        const index = lowerBound(potions, minPotion);
+        answer.push(m - index);
+    }
+
+    return answer;
+};
+
+// Returns the lower bound of 'key' in the sorted array 'arr'.
+function lowerBound(arr, key) {
+    let low = 0, high = arr.length;
+    while (low < high) {
+        const mid = Math.floor((low + high) / 2);
+        if (arr[mid] < key) {
+            low = mid + 1;
+        } else {
+            high = mid;
+        }
+    }
+    return low;
+}
+    </code>
+    TypeScript
+    <code>
+      function successfulPairs(spells: number[], potions: number[], success: number): number[] {
+    // Sort the potions array in increasing order.
+    potions.sort((a, b) => a - b);
+    const answer: number[] = [];
+
+    const m = potions.length;
+    const maxPotion = potions[m - 1];
+
+    for (const spell of spells) {
+        // Minimum value of potion whose product with current spell
+        // will be at least success or more.
+        const minPotion = Math.ceil(success / spell);
+        // Check if we don't have any potion which can be used.
+        if (minPotion > maxPotion) {
+            answer.push(0);
+            continue;
+        }
+        // We can use the found potion, and all potion in its right
+        // (as the right potions are greater than the found potion).
+        const index = lowerBound(potions, minPotion);
+        answer.push(m - index);
+    }
+
+    return answer;
+};
+
+// Returns the lower bound of 'key' in the sorted array 'arr'.
+function lowerBound(arr: number[], key: number): number {
+    let low = 0, high = arr.length;
+    while (low < high) {
+        const mid = Math.floor((low + high) / 2);
+        if (arr[mid] < key) {
+            low = mid + 1;
+        } else {
+            high = mid;
+        }
+    }
+    return low;
+}
+    </code>
+  </pre>
+  <h4 id="complexity-analysis">Complexity Analysis</h4>
+  <p>Here, <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span> is the number of elements in the <code>spells</code> array, and <span class="math math-inline"><span class="katex"><span class="katex-mathml">mm</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">m</span></span></span></span></span> is the number of elements in the <code>potions</code> array.</p>
+  <ul>
+    <li>
+      <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O((m+n)⋅log⁡m)O((m + n) \cdot \log m )</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">((</span><span class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal">n</span><span class="mclose">)</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal">m</span><span class="mclose">)</span></span></span></span></span></p>
+      <ul>
+        <li>We sort the <code>potions</code> array which takes <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(mlog⁡m)O(m \log m)</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal">m</span><span class="mclose">)</span></span></span></span></span> time.</li>
+        <li>Then, for each element of the <code>spells</code> array using binary search we find the respective <code>minPotion</code> which takes <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡m)O(\log m)</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal">m</span><span class="mclose">)</span></span></span></span></span> time. So, for <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span> elements it takes <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(nlog⁡m)O(n \log m)</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal">m</span><span class="mclose">)</span></span></span></span></span> time.</li>
+        <li>Thus, overall we take <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(mlog⁡m+nlog⁡m)O(m \log m + n \log m)</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal">m</span><span class="mclose">)</span></span></span></span></span> time.</li>
+      </ul>
+    </li>
+    <li>
+      <p>Space complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡m)O(\log m)</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal">m</span><span class="mclose">)</span></span></span></span></span> or <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(m)O(m)</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">m</span><span class="mclose">)</span></span></span></span></span></p>
+      <ul>
+        <li>The output array <code>answer</code> is not considered as additional space usage.</li>
+        <li>But some extra space is used when we sort the <code>potions</code> array in place. The space complexity of the sorting algorithm depends on the programming language.
+          <ul>
+            <li>In Python, the sort() method sorts a list using the Timsort algorithm which has <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(m)O(m)</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">m</span><span class="mclose">)</span></span></span></span></span> additional space where <span class="math math-inline"><span class="katex"><span class="katex-mathml">mm</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">m</span></span></span></span></span> is the number of the elements.</li>
+            <li>In C++ and Swift, the sort() function is implemented as a hybrid of Quick Sort, Heap Sort, and Insertion Sort, with a worst-case space complexity of <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡m)O(\log m)</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal">m</span><span class="mclose">)</span></span></span></span></span>.</li>
+            <li>In Java, Arrays.sort() is implemented using a variant of the Quick Sort algorithm which has a space complexity of <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡m)O(\log m)</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal">m</span><span class="mclose">)</span></span></span></span></span>.</li>
+            <li>In JavaScript, the space complexity of sort() is <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡m)O(\log m)</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal">m</span><span class="mclose">)</span></span></span></span></span>.</li>
+          </ul>
+        </li>
+        <li>In Swift, we need to create an additional array for keeping sorted <code>potions</code> which will take <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(m)O(m)</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">m</span><span class="mclose">)</span></span></span></span></span> space.</li>
+      </ul>
+    </li>
+  </ul>
+  <hr>
+  <h3 id="approach-2-sorting--two-pointers">Approach 2: Sorting + Two Pointers</h3>
+  <h4 id="intuition-1">Intuition</h4>
+  <p>Let's say for a given <span class="math math-inline"><span class="katex"><span class="katex-mathml">spell&nbsp;=&nbsp;a\text{spell = a}</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.8889em; vertical-align: -0.1944em;"></span><span class="mord text"><span class="mord">spell&nbsp;=&nbsp;a</span></span></span></span></span></span> and <span class="math math-inline"><span class="katex"><span class="katex-mathml">minPotion&nbsp;=&nbsp;b\text{minPotion = b}</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord text"><span class="mord">minPotion&nbsp;=&nbsp;b</span></span></span></span></span></span>, we have,  <span class="math math-inline"><span class="katex"><span class="katex-mathml">spell∗minPotion=success\text{spell} * \text{minPotion} = \text{success}</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.8889em; vertical-align: -0.1944em;"></span><span class="mord text"><span class="mord">spell</span></span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">∗</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord text"><span class="mord">minPotion</span></span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord text"><span class="mord">success</span></span></span></span></span></span>.<br>
+    Then for a <span class="math math-inline"><span class="katex"><span class="katex-mathml">spell&nbsp;&gt;&nbsp;a\text{spell &gt; a}</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.8889em; vertical-align: -0.1944em;"></span><span class="mord text"><span class="mord">spell&nbsp;&gt;&nbsp;a</span></span></span></span></span></span>, the minimum required potion will be <span class="math math-inline"><span class="katex"><span class="katex-mathml">minPotion≤b\text{minPotion} \leq \text{b}</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.8193em; vertical-align: -0.136em;"></span><span class="mord text"><span class="mord">minPotion</span></span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">≤</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord text"><span class="mord">b</span></span></span></span></span></span>, (if we want result <span class="math math-inline"><span class="katex"><span class="katex-mathml">≥success\geq \text{success}</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.7719em; vertical-align: -0.136em;"></span><span class="mrel">≥</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord text"><span class="mord">success</span></span></span></span></span></span>).</p>
+  <p>So, if the <code>spells</code> and <code>potions</code> arrays are sorted in increasing order,<br>
+    and we know where the <code>minPotion</code> for the <span class="math math-inline"><span class="katex"><span class="katex-mathml">ithi^{th}</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.8491em;"></span><span class="mord"><span class="mord mathnormal">i</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.8491em;"><span style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">t</span><span class="mord mathnormal mtight">h</span></span></span></span></span></span></span></span></span></span></span></span></span> <code>spell</code> is present in the <code>potions</code> array, then the <code>minPotion</code> for the <span class="math math-inline"><span class="katex"><span class="katex-mathml">(i+1)th(i + 1)^{th}</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 1.0991em; vertical-align: -0.25em;"></span><span class="mord">1</span><span class="mclose"><span class="mclose">)</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.8491em;"><span style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">t</span><span class="mord mathnormal mtight">h</span></span></span></span></span></span></span></span></span></span></span></span></span> <code>spell</code> will be present at the same or smaller index as for the <span class="math math-inline"><span class="katex"><span class="katex-mathml">ithi^{th}</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.8491em;"></span><span class="mord"><span class="mord mathnormal">i</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.8491em;"><span style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">t</span><span class="mord mathnormal mtight">h</span></span></span></span></span></span></span></span></span></span></span></span></span> <code>spell</code>.</p>
+  <p>We start with two pointers, <strong>one pointing to the smallest spell</strong> and the <strong>other pointing to the largest potion</strong>.<br>
+    If the product of the current spell and potion is greater than or equal to <code>success</code>, then we keep on decreasing the second pointer to point to a smaller potion. We stop when they don't form a successful pair. Thus, we will have the second pointer pointing to the minimum required potion <code>minPotion</code> and we can count the number of potions that form the successful pairs with the current spell based on its index as we did in the previous approach.</p>
+  <p><img src="Slide3.PNG" alt="slide3"></p>
+  <p>Now, when we move to the next spell, as the next spell is greater than the previous spell, the potions which made a successful pair with the previous spell will also form a successful pair with the current spell (as we incremented one number in the product of two numbers, thus their product's result will also increase; it will be greater than <code>success</code>).<br>
+    Thus, we just need to continue decreasing the second pointer from its previous value until it points to the minimum required potion for the current spell again to count the potions.</p>
+  <p><img src="Slide4.PNG" alt="slide4"></p>
+  <p>We continue the above steps until we cover all the spells.</p>
+  <h4 id="algorithm-1">Algorithm</h4>
+  <ol>
+    <li>Create an array of pairs <code>sortedSpells</code> with the first element of each pair being a spell strength and the second element being its original index in the <code>spells</code> array.</li>
+    <li>Sort the <code>sortedSpells</code> and the <code>potions</code> arrays in ascending order.</li>
+    <li>Initialize variables:
+      <ul>
+        <li><code>answer</code>, an array of size <code>spells.size()</code> to store the result.</li>
+        <li><code>m</code>, length of the <code>potions</code> array.</li>
+        <li><code>potionIndex</code>, an integer initialized to <code>m - 1</code> to keep track of the index of the current potion in the <code>potions</code> array.</li>
+      </ul>
+    </li>
+    <li>For each <code>spell</code> and its original <code>index</code> in the <code>sortedSpells</code> array:
+      <ul>
+        <li>While we have not run out of potions and the product of the current <code>spell</code> strength and the strength of the potion at the <code>potionIndex</code> is greater than or equal to <code>success</code>, decrement <code>potionIndex</code> by <code>1</code>. We stop at <code>minPotion</code> for the current <code>spell</code>.</li>
+        <li>Calculate the number of successful pairs possible for the current <code>spell</code> as <code>m - (potionIndex + 1)</code> and store the result at the <code>index</code> position in the <code>answer</code> array.</li>
+      </ul>
+    </li>
+    <li>Return the <code>answer</code> array which contains the number of successful pairs for each <code>spell</code>.</li>
+  </ol>
+  <h4 id="implementation-1">Implementation</h4>
+
+  <pre>
+    Java
+    <code>
+      class Solution {
+    public int[] successfulPairs(int[] spells, int[] potions, long success) {
+        int n = spells.length;
+        int m = potions.length;
+
+        // Create an array of pairs containing spell and its original index
+        int[][] sortedSpells = new int[n][2];
+        for (int i = 0; i < n; i++) {
+            sortedSpells[i][0] = spells[i];
+            sortedSpells[i][1] = i;
+        }
+
+        // Sort the 'spells with index' and 'potions' array in increasing order
+        Arrays.sort(sortedSpells, (a, b) -> Integer.compare(a[0], b[0]));
+        Arrays.sort(potions);
+
+        // For each 'spell' find the respective 'minPotion' index
+        int[] answer = new int[n];
+        int potionIndex = m - 1;
+
+        for (int[] sortedSpell : sortedSpells) {
+            int spell = sortedSpell[0];
+            int index = sortedSpell[1];
+
+            while (potionIndex >= 0 && (long) spell * potions[potionIndex] >= success) {
+                potionIndex -= 1;
+            }
+            answer[index] = m - (potionIndex + 1);
+        }
+
+        return answer;
+    }
+}
+    </code>
+    C++
+    <code>
+      class Solution {
+public:
+    vector<int> successfulPairs(vector<int>& spells, vector<int>& potions, long long success) {
+        vector<pair<int,int>> sortedSpells;
+        for (int i = 0; i< spells.size(); ++i) {
+            sortedSpells.push_back({ spells[i], i });
+        }
+
+        // Sort the 'spells with index' and 'potions' array in increasing order.
+        sort(sortedSpells.begin(), sortedSpells.end());
+        sort(potions.begin(), potions.end());
+
+        vector<int> answer(spells.size());
+        int m = potions.size();
+        int potionIndex = m - 1;
+
+        // For each 'spell' find the respective 'minPotion' index.
+        for (const auto& [spell, index] : sortedSpells) {
+            while (potionIndex >= 0 && (long long) spell * potions[potionIndex] >= success) {
+                potionIndex -= 1;
+            }
+            answer[index] = m - (potionIndex + 1);
+        }
+
+        return answer;
+    }
+};
+    </code>
+    Python3
+    <code>
+      class Solution:
+    def successfulPairs(self, spells: List[int], potions: List[int], success: int) -> List[int]:
+        sortedSpells = [(spell, index) for index, spell in enumerate(spells)]
+
+        # Sort the 'spells with index' and 'potions' array in increasing order.
+        sortedSpells.sort()
+        potions.sort()
+
+        answer = [0] * len(spells)
+        m = len(potions)
+        potionIndex = m - 1
+
+        # For each 'spell' find the respective 'minPotion' index.
+        for spell, index in sortedSpells:
+            while potionIndex >= 0 and (spell * potions[potionIndex]) >= success:
+                potionIndex -= 1
+            answer[index] = m - (potionIndex + 1)
+
+        return answer
+    </code>
+    Swift
+    <code>
+      class Solution {
+    func successfulPairs(_ spells: [Int], _ potions: [Int], _ success: Int) -> [Int] {
+        var sortedSpells = [(spell: Int, index: Int)]()
+        for (index, spell) in spells.enumerated() {
+            sortedSpells.append((spell, index))
+        }
+
+        // Sort the 'spells with index' and 'potions' array in increasing order.
+        sortedSpells.sort { $0.spell < $1.spell }
+        let sortedPotions = potions.sorted()
+
+        var answer = Array(repeating: 0, count: spells.count)
+        var potionIndex = sortedPotions.count - 1
+
+        // For each 'spell' find the respective 'minPotion' index.
+        for (spell, index) in sortedSpells {
+            while potionIndex >= 0 && spell * sortedPotions[potionIndex] >= success {
+                potionIndex -= 1
+            }
+            answer[index] = sortedPotions.count - (potionIndex + 1)
+        }
+
+        return answer
+    }
+}
+    </code>
+    JavaScript
+    <code>
+      var successfulPairs = function(spells, potions, success) {
+    let sortedSpells = [];
+    for (let i = 0; i < spells.length; ++i) {
+        sortedSpells.push([spells[i], i]);
+    }
+
+    // Sort the 'spells with index' and 'potions' array in increasing order.
+    sortedSpells.sort((a, b) => a[0] - b[0]);
+    potions.sort((a, b) => a - b);
+
+    let answer = new Array(spells.length).fill(0);
+    let m = potions.length;
+    let potionIndex = m - 1;
+
+    // For each 'spell' find the respective 'minPotion' index.
+    for (const [spell, index] of sortedSpells) {
+        while (potionIndex >= 0 && (spell * potions[potionIndex]) >= success) {
+            potionIndex -= 1;
+        }
+        answer[index] = m - (potionIndex + 1);
+    }
+
+    return answer;
+};
+    </code>
+    TypeScript
+    <code>
+      function successfulPairs(spells: number[], potions: number[], success: number): number[] {
+    const sortedSpells: [number, number][] = spells.map((spell, i) => [spell, i]);
+
+    // Sort the 'spells with index' and 'potions' array in increasing order.
+    sortedSpells.sort((a, b) => a[0] - b[0]);
+    potions.sort((a, b) => a - b);
+
+    const answer: number[] = new Array(spells.length);
+    let m = potions.length;
+    let potionIndex = m - 1;
+
+    // For each 'spell' find the respective 'minPotion' index.
+    for (const [spell, index] of sortedSpells) {
+        while (potionIndex >= 0 && spell * potions[potionIndex] >= success) {
+            potionIndex -= 1;
+        }
+        answer[index] = m - (potionIndex + 1);
+    }
+
+    return answer;
+};
+    </code>
+  </pre>
+  <h4 id="complexity-analysis-1">Complexity Analysis</h4>
+  <p>Here, <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span> is the number of elements in the <code>spells</code> array, and <span class="math math-inline"><span class="katex"><span class="katex-mathml">mm</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">m</span></span></span></span></span> is the number of elements in the <code>potions</code> array.</p>
+  <ul>
+    <li>
+      <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(nlog⁡n+mlog⁡m)O(n \log n + m \log m)</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal">m</span><span class="mclose">)</span></span></span></span></span></p>
+      <ul>
+        <li>We create an array <code>sortedSpells</code> which takes <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> time, and then sort the <code>sortedSpells</code> and <code>potions</code> arrays which take <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(nlog⁡n)O(n \log n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> and <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(mlog⁡m)O(m \log m)</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal">m</span><span class="mclose">)</span></span></span></span></span> time respectively.</li>
+        <li>Then using two pointers we iterate on each element of the <code>sortedSpells</code> and <code>potions</code> arrays once which will take <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n+m)O(n + m)</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal">m</span><span class="mclose">)</span></span></span></span></span> time.</li>
+        <li>Thus, overall we take <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(nlog⁡n+mlog⁡m)O(n \log n + m \log m)</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal">m</span><span class="mclose">)</span></span></span></span></span> time.</li>
+      </ul>
+    </li>
+    <li>
+      <p>Space complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n+log⁡m)O(n + \log m)</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal">m</span><span class="mclose">)</span></span></span></span></span> or <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n+m)O(n + m)</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal">m</span><span class="mclose">)</span></span></span></span></span></p>
+      <ul>
+        <li>The output array <code>answer</code> is not considered as additional space usage.</li>
+        <li>But we create an additional array <code>sortedSpells</code> which will take <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> space.</li>
+        <li>And some extra space is used when we sort the <code>sortedSpells</code> and <code>potions</code> array in place. The space complexity of the sorting algorithm depends on the programming language.
+          <ul>
+            <li>In Python, the sort() method sorts a list using the Timsort algorithm which has <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(m)O(m)</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">m</span><span class="mclose">)</span></span></span></span></span> additional space where <span class="math math-inline"><span class="katex"><span class="katex-mathml">mm</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">m</span></span></span></span></span> is the number of the elements.</li>
+            <li>In C++ and Swift, the sort() function is implemented as a hybrid of Quick Sort, Heap Sort, and Insertion Sort, with a worst-case space complexity of <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡m)O(\log m)</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal">m</span><span class="mclose">)</span></span></span></span></span>.</li>
+            <li>In Java, Arrays.sort() is implemented using a variant of the Quick Sort algorithm which has a space complexity of <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡m)O(\log m)</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal">m</span><span class="mclose">)</span></span></span></span></span>.</li>
+            <li>In JavaScript, the space complexity of sort() is <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡m)O(\log m)</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal">m</span><span class="mclose">)</span></span></span></span></span>.</li>
+          </ul>
+        </li>
+        <li>Thus, sorting uses either <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡n+log⁡m)O(\log n + \log m)</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal">m</span><span class="mclose">)</span></span></span></span></span> or <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n+m)O(n + m)</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal">m</span><span class="mclose">)</span></span></span></span></span> space.</li>
+        <li>In Swift, we need to create an additional array for keeping sorted <code>potions</code> which will take an additional <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(m)O(m)</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">m</span><span class="mclose">)</span></span></span></span></span> space.</li>
+        <li>So, overall we usem <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n+log⁡n+log⁡m)=O(n+log⁡m)O(n + \log n + \log m) = O(n + \log m)</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 0.8889em; vertical-align: -0.1944em;"></span><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal">m</span><span class="mclose">)</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal">m</span><span class="mclose">)</span></span></span></span></span> or <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n+n+m)=O(n+m)O(n + n + m) = O(n + m)</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 0.6667em; vertical-align: -0.0833em;"></span><span class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal">m</span><span class="mclose">)</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal">m</span><span class="mclose">)</span></span></span></span></span> space.</li>
+      </ul>
+    </li>
+  </ul></div></div></div><div class="mb-4 flex w-full items-center justify-between"><div class="flex items-center gap-6"><div class="flex items-center gap-1 group cursor-pointer select-none"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" class="h-4.5 w-4.5 text-gray-7 dark:text-dark-gray-7 group-hover:text-gray-8 dark:group-hover:text-dark-gray-8"><path fill-rule="evenodd" d="M11.5 5.5a7 7 0 107 7 1 1 0 112 0 9 9 0 11-9-9 1 1 0 110 2z" clip-rule="evenodd"></path><path fill-rule="evenodd" d="M20.207 3.793a1 1 0 010 1.414l-7 7a1 1 0 01-1.414-1.414l7-7a1 1 0 011.414 0z" clip-rule="evenodd"></path><path fill-rule="evenodd" d="M14.5 4.5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 11-2 0v-3h-3a1 1 0 01-1-1z" clip-rule="evenodd"></path></svg><div class="text-label-2 dark:text-dark-label-2 text-md font-medium group-hover:text-label-1 dark:group-hover:text-dark-label-1">Share</div></div></div><div class="flex items-center gap-4"><a target="_blank" rel="noopener noreferrer" class="no-underline truncate text-gray-7 dark:text-dark-gray-7 hover:text-gray-7 dark:hover:text-dark-gray-7 flex h-6 w-6 items-center justify-center" href="https://github.com/LeetCode-Feedback/LeetCode-Feedback/issues/"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" class="h-4.5 w-4.5"><path fill-rule="evenodd" d="M19 2H5a3 3 0 00-3 3v16l.006.114c.087.814 1.099 1.196 1.701.593L7.414 18H19a3 3 0 003-3V5a3 3 0 00-3-3zM5 4h14a1 1 0 011 1v10a1 1 0 01-1 1H7l-.131.009a1 1 0 00-.576.284L4 18.584V5a1 1 0 011-1z" clip-rule="evenodd"></path><path d="M12 6a1 1 0 01.993.883L13 7v3a1 1 0 01-1.993.117L11 10V7a1 1 0 011-1zM11.31 12.295a.987.987 0 011.488 1.29l-.081.094-.027.027a.987.987 0 01-1.488-1.29l.081-.094.027-.027z"></path></svg></a><div class="relative" data-headlessui-state=""><div><button class="hover:text-label-1 dark:hover:text-dark-label-1 flex cursor-pointer items-center justify-center rounded-md w-4.5 h-4.5" id="headlessui-menu-button-:r88:" type="button" aria-haspopup="true" aria-expanded="false" data-headlessui-state=""><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" class="text-gray-7 dark:text-dark-gray-7 hover:text-gray-8 dark:hover:text-dark-gray-8 w-4.5 h-4.5"><path fill-rule="evenodd" d="M4.4 14a2 2 0 100-4 2 2 0 000 4zm9.6-2a2 2 0 11-4 0 2 2 0 014 0zm7.6 0a2 2 0 11-4 0 2 2 0 014 0z" clip-rule="evenodd"></path></svg></button></div></div></div></div>
+</body>
+</html>
