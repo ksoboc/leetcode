@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Optimal partition of string</title>
+</head>
+<body>
+<h2 id="solution">Solution</h2>
+<hr>
+<h3 id="overview">Overview</h3>
+<p>We are given a string <code>s</code>.</p>
+<p>Our task is to partition the string into one or more substrings such that the characters in each substring are unique.</p>
+<p>We have to return the minimum number of substrings in such a partition.</p>
+<hr>
+<h3 id="approach-greedy">Approach: Greedy</h3>
+<h4 id="intuition">Intuition</h4>
+<p>Intuitively, we can consider adding characters to a substring as long as we don't see a character that has already been added to the current substring. When we see a character that is already present in the substring, we start a new substring and repeat this process until we iterate over the entire string <code>s</code>.</p>
+<p>The intuition is correct because there is no point in not adding a character if it is not present in the current substring. We should add it so that it forms larger substrings, resulting in a lower total number of substrings formed.</p>
+<p>We'll use an array of size <code>26</code> to keep track of the characters in the ongoing substring. We will store the beginning of the current substring as well as keep track of the most recent position of each character. This allows us to determine whether the current character is already present in the current substring.</p>
+<p>Other data structures, such as a hash set, can be used for minor space optimization in cases where we may not have all of the <code>26</code> characters added to the hash set, but we must clear it completely at the start of each substring, resulting in some additional operations.</p>
+<h4 id="algorithm">Algorithm</h4>
+<ol>
+    <li>Create an array <code>lastSeen</code> of size <code>26</code> to keep track of the most recent position of each character. We fill it with <code>-1</code>.</li>
+    <li>Create an integer variable <code>count</code> to keep track of the number of substrings formed. We initialize it with <code>1</code> to start adding characters to the first substring until we can't add anymore.</li>
+    <li>Create another integer variable <code>substringStart</code> to hold the starting index of the substring under consideration. We initialize it to <code>0</code> because the first substring begins at index <code>0</code>.</li>
+    <li>Iterate over the string <code>s</code> and for each index <code>i</code>:
+        <ul>
+            <li>If the most recent position of the character <code>s[i]</code> is greater than or equal to the starting position of the substring, i.e. <code>lastSeen[s[i] - 'a'] &gt;= substringStart</code>, it means we have already included this character in this substring. As a result, we increase the <code>count</code> by <code>1</code> as we start a new substring and set <code>substringStart = i</code>.</li>
+            <li>We update <code>lastSeen</code> for the current character by performing <code>lastSeen[s[i] - 'a'] = i</code>.</li>
+        </ul>
+    </li>
+    <li>Return <code>count</code>.</li>
+</ol>
+<h4 id="implementation">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int partitionString(String s) {
+        int[] lastSeen = new int[26];
+        Arrays.fill(lastSeen, -1);
+        int count = 1, substringStart = 0;
+
+        for (int i = 0; i < s.length(); i++) {
+            if (lastSeen[s.charAt(i) - 'a'] >= substringStart) {
+                count++;
+                substringStart = i;
+            }
+            lastSeen[s.charAt(i) - 'a'] = i;
+        }
+
+        return count;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int partitionString(string s) {
+        vector<int> lastSeen(26, -1);
+        int count = 1, substringStart = 0;
+
+        for (int i = 0; i < s.length(); i++) {
+            if (lastSeen[s[i] - 'a'] >= substringStart) {
+                count++;
+                substringStart = i;
+            }
+            lastSeen[s[i] - 'a'] = i;
+        }
+
+        return count;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def partitionString(self, s: str) -> int:
+        lastSeen = [-1]*26
+        count = 1
+        substringStarting = 0
+
+        for i in range(len(s)):
+            if lastSeen[ord(s[i]) - ord('a')] >= substringStarting:
+                count += 1
+                substringStarting = i
+            lastSeen[ord(s[i]) - ord('a')] = i
+
+        return count
+    </code>
+</pre>
+<h4 id="complexity-analysis">Complexity Analysis</h4>
+<p>Here, <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span> is the length of the string <code>s</code>.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>It takes <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(26)=O(1)O(26) = O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord">26</span><span class="mclose">)</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span></span> to initialize the <code>lastSeen</code> array.</li>
+            <li>We iterate over the complete string <code>s</code> which takes <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> time.</li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(26)=O(1)O(26) = O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord">26</span><span class="mclose">)</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>We use the array <code>lastSeen</code> of size <span class="math math-inline"><span class="katex"><span class="katex-mathml">2626</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">26</span></span></span></span></span>.</li>
+        </ul>
+    </li>
+</ul>
+</body>
+</html>
