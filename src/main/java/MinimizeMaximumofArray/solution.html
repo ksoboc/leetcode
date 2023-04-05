@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Minimize Maximum of Array</title>
+</head>
+<body>
+<div></div><div class="break-words"><div><div class="_16yfq _2YoR3"><h2 id="solution">Solution</h2>
+  <hr>
+  <h3 id="overview">Overview</h3>
+  <p>As shown in the picture below, we can make two operations to decrease <code>nums[1]</code> by <code>2</code> and increase <code>nums[0]</code> by <code>2</code>, so the maximum value of <code>nums</code> is <code>5</code>. It can be shown that this is the minimum maximum value we can make.</p>
+  <p><img src="1.png" alt="img"></p>
+  <p>The example above is straightforward, how do we solve the problem given an arbitrary array?</p>
+  <hr>
+  <h3 id="approach-prefix-sum--greedy">Approach: Prefix Sum + Greedy.</h3>
+  <h4 id="intuition">Intuition</h4>
+  <blockquote>
+    <p>Here, "moving" a value refers to subtracting from one number and increasing another number.</p>
+  </blockquote>
+  <p>The given operation only allows us to 'move' values forward (left). Let's start with another version of the problem: let's say we have operations that allow us to move values both forward and backward. Then, we have full control over the values, and we can apply a greedy approach of evenly distributing the values across the array. The answer would be the average rounded up. This is similar to trapping rainwater in a basin and calculating the height of the water.</p>
+  <p><img src="rain.png" alt="img"></p>
+  <p>Now back to the original problem, we can still try minimizing the maximum value with a greedy approach using integer division, but we have to solve the problem from the front to the back. During the iteration, we record the prefix sum <code>prefixSum</code>, the total sum we try to distribute over all the numbers we have traversed so far.</p>
+  <p>At index <code>i</code>, it seems that we can try to evenly distribute <code>prefixSum</code> into <code>i + 1</code> integers evenly and find their maximum, which is <code>tmp = ceil(prefixSum / (i + 1))</code>. Can we keep updating <code>answer</code> as the smaller one between <code>answer</code> and <code>tmp</code> in the iteration?</p>
+  <p>No, quite the opposite. We update <code>answer</code> as the larger one of the two, that is <code>answer = max(answer, ceil(prefixSum / (i + 1)))</code>. Why?</p>
+  <p>Recall that the operation only allows us 'move' values forward, so the previous smallest possible maximum value we have obtained can't be further reduced by the following numbers.</p>
+  <p><img src="2.png" alt="img"></p>
+  <p>Take the picture below as an example, when we reach the index <code>1</code>, we have <code>prefixSum = 10</code>, but it doesn't mean we can reduce the maximum value to <code>10 / 2 = 5</code>. The value can't be moved from <code>nums[0]</code> to the following number <code>nums[1]</code>, thus <code>answer = 10</code> which we obtained when when iterating at index <code>0</code>.</p>
+  <p><img src="3.png" alt="img"></p>
+  <p>Without loss of generality, let's say that after reaching <code>nums[i]</code>, we have obtained the minimum maximum value as <code>answer_i</code> and the prefix sum <code>prefixSum_i</code>. Now we take into account the following number <code>nums[i + 1]</code>, according to the operation, it can only increase the prefix sum <code>prefixSum_i</code> as well as the <code>answer_i</code>. Therefore, the newly added number can't reduce the minimum maximum value, so we can't take the smaller one between <code>answer</code> and <code>ceil(prefixSum / (i + 1))</code>.</p>
+  <p>Please refer to the following slides for a detailed example:</p>
+  <p><div class="relative mx-auto mb-6 flex flex-col overflow-hidden rounded-lg border-[1px] border-label-1" style="max-width: 601px;"><div class="rounded-lg" style="max-height: 301px;"><img alt="Current" class="object-fit-contain !mb-0 max-h-full max-w-full" src="blob:2da12a35-5560-4810-ac2c-58d3ff917cd1.png"></div><div class="absolute top-[50%] left-[50%] flex h-12 w-12 translate-x-[-50%] translate-y-[-50%] items-center justify-center rounded-full bg-black/30"><div class="flex h-4 w-4 cursor-pointer items-center justify-center text-[35px]"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" class="h-full w-full text-white"><path fill-rule="evenodd" d="M18.97 12.871l-12.96 7.29a1 1 0 01-1.49-.87V4.71a1 1 0 011.49-.872l12.96 7.29a1 1 0 010 1.743z" clip-rule="evenodd"></path></svg></div></div><div class="relative flex h-8 select-none items-center justify-around bg-black"><div class="flex items-center space-x-7"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7"><path fill-rule="evenodd" d="M16.091 4.929l-7.057 7.078 7.057 7.064a1 1 0 01-1.414 1.414l-7.764-7.77a1 1 0 010-1.415l7.764-7.785a1 1 0 111.415 1.414z" clip-rule="evenodd"></path></svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7"><path fill-rule="evenodd" d="M18.97 12.871l-12.96 7.29a1 1 0 01-1.49-.87V4.71a1 1 0 011.49-.872l12.96 7.29a1 1 0 010 1.743z" clip-rule="evenodd"></path></svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7"><path fill-rule="evenodd" d="M7.913 19.071l7.057-7.078-7.057-7.064a1 1 0 011.414-1.414l7.764 7.77a1 1 0 010 1.415l-7.764 7.785a1 1 0 01-1.414-1.414z" clip-rule="evenodd"></path></svg></div><div class="absolute right-0 mr-5 text-xs font-medium text-white">1 / 5</div></div></div></p>
+  <br>
+  <h4 id="algorithm">Algorithm</h4>
+  <ol>
+    <li>Initialize <code>answer = 0</code> and <code>prefixSum = 0</code>.</li>
+    <li>Iterate over <code>nums</code>, for each index <code>i</code>:
+      <ul>
+        <li>
+          <p>Update the prefix sum as <code>prefixSum += nums[i]</code>.</p>
+        </li>
+        <li>
+          <p>Check the maximum value we can obtain by averaging <code>prefixSum</code> into <code>i + 1</code> evenly using ceiling division.</p>
+        </li>
+        <li>
+          <p>Take the larger one from <code>answer</code> and the result from the previous integer division.</p>
+        </li>
+      </ul>
+    </li>
+    <li>Return <code>answer</code>.</li>
+  </ol>
+  <h4 id="implementation">Implementation</h4>
+    <pre>
+      Java
+      <code>
+        class Solution {
+    public int minimizeArrayValue(int[] nums) {
+        // Initialize answer and the prefix sum.
+        long answer = 0, prefixSum = 0;
+
+        // Iterate over nums, update prefix sum and answer.
+        for (int i = 0; i < nums.length; ++i) {
+            prefixSum += nums[i];
+            answer = Math.max(answer, (prefixSum + i) / (i + 1));
+        }
+
+        return (int)answer;
+    }
+}
+      </code>
+      C++
+      <code>
+        class Solution {
+public:
+    int minimizeArrayValue(vector<int>& nums) {
+        // Initialize answer and the prefix sum.
+        long long answer = 0, prefixSum = 0;
+
+        // Iterate over nums, update prefix sum and answer.
+        for (int i = 0; i < nums.size(); ++i) {
+            prefixSum += nums[i];
+            answer = max(answer, (prefixSum + i) / (i + 1));
+        }
+
+        return answer;
+    }
+};
+      </code>
+      Python3
+      <code>
+        class Solution:
+    def minimizeArrayValue(self, nums: List[int]) -> int:
+        # Initialize answer and the prefix sum.
+        answer = 0
+        prefix_sum = 0
+
+        # Iterate over nums, update prefix sum and answer.
+        for i in range(len(nums)):
+            prefix_sum += nums[i]
+            answer = max(answer, math.ceil(prefix_sum / (i + 1)))
+
+        return answer
+      </code>
+    </pre>
+  <h4 id="complexity-analysis">Complexity Analysis</h4>
+  <p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span> be the length of the input array <code>nums</code>.</p>
+  <ul>
+    <li>
+      <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></p>
+      <ul>
+        <li>We need to traverse <code>nums</code> once.</li>
+        <li>At each step of the iteration, we update <code>prefixSum</code> and <code>answer</code> and it takes <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span></span> time.</li>
+        <li>To sum up, the overall time complexity is <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.</li>
+      </ul>
+    </li>
+    <li>
+      <p>Space complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span></span></p>
+      <ul>
+        <li>During the iteration, we only need to update the prefix sum <code>prefixSum</code> and update <code>answer</code>, it takes <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span></span> space.</li>
+      </ul>
+    </li>
+  </ul></div></div></div><div class="mb-4 flex w-full items-center justify-between"><div class="flex items-center gap-6"><div class="flex items-center gap-1 group cursor-pointer select-none"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" class="h-4.5 w-4.5 text-gray-7 dark:text-dark-gray-7 group-hover:text-gray-8 dark:group-hover:text-dark-gray-8"><path fill-rule="evenodd" d="M11.5 5.5a7 7 0 107 7 1 1 0 112 0 9 9 0 11-9-9 1 1 0 110 2z" clip-rule="evenodd"></path><path fill-rule="evenodd" d="M20.207 3.793a1 1 0 010 1.414l-7 7a1 1 0 01-1.414-1.414l7-7a1 1 0 011.414 0z" clip-rule="evenodd"></path><path fill-rule="evenodd" d="M14.5 4.5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 11-2 0v-3h-3a1 1 0 01-1-1z" clip-rule="evenodd"></path></svg><div class="text-label-2 dark:text-dark-label-2 text-md font-medium group-hover:text-label-1 dark:group-hover:text-dark-label-1">Share</div></div></div><div class="flex items-center gap-4"><a target="_blank" rel="noopener noreferrer" class="no-underline truncate text-gray-7 dark:text-dark-gray-7 hover:text-gray-7 dark:hover:text-dark-gray-7 flex h-6 w-6 items-center justify-center" href="https://github.com/LeetCode-Feedback/LeetCode-Feedback/issues/"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" class="h-4.5 w-4.5"><path fill-rule="evenodd" d="M19 2H5a3 3 0 00-3 3v16l.006.114c.087.814 1.099 1.196 1.701.593L7.414 18H19a3 3 0 003-3V5a3 3 0 00-3-3zM5 4h14a1 1 0 011 1v10a1 1 0 01-1 1H7l-.131.009a1 1 0 00-.576.284L4 18.584V5a1 1 0 011-1z" clip-rule="evenodd"></path><path d="M12 6a1 1 0 01.993.883L13 7v3a1 1 0 01-1.993.117L11 10V7a1 1 0 011-1zM11.31 12.295a.987.987 0 011.488 1.29l-.081.094-.027.027a.987.987 0 01-1.488-1.29l.081-.094.027-.027z"></path></svg></a><div class="relative" data-headlessui-state=""><div><button class="hover:text-label-1 dark:hover:text-dark-label-1 flex cursor-pointer items-center justify-center rounded-md w-4.5 h-4.5" id="headlessui-menu-button-:r23:" type="button" aria-haspopup="true" aria-expanded="false" data-headlessui-state=""><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" class="text-gray-7 dark:text-dark-gray-7 hover:text-gray-8 dark:hover:text-dark-gray-8 w-4.5 h-4.5"><path fill-rule="evenodd" d="M4.4 14a2 2 0 100-4 2 2 0 000 4zm9.6-2a2 2 0 11-4 0 2 2 0 014 0zm7.6 0a2 2 0 11-4 0 2 2 0 014 0z" clip-rule="evenodd"></path></svg></button></div></div></div></div>
+</body>
+</html>
