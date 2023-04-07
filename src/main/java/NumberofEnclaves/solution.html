@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Number of Enclaves</title>
+</head>
+<body>
+<h2 id="solution">Solution</h2>
+<hr>
+<h3 id="overview">Overview</h3>
+<p>We are given a 2D <code>grid</code>. Each cell of <code>grid</code> represents a water or land cell denoted by <code>0</code> and <code>1</code> respectively.</p>
+<p>Our task is to return the number of land cells for which we cannot walk off the boundary of the grid in any number of moves by moving left, top, right, bottom.</p>
+<hr>
+<h3 id="approach-1-depth-first-search">Approach 1: Depth First Search</h3>
+<h4 id="intuition">Intuition</h4>
+<p>The problem states that we can move in all four directions (left, top, right, and bottom), which leads us to model the problem as a graph.</p>
+<p>We can treat the 2D grid as an undirected graph. A land cell in <code>grid</code> corresponds to a node in such a graph with an undirected edge between horizontally or vertically adjacent land cells.</p>
+<p>If we begin to traverse in this graph from the nodes that are land cells on the boundary and keep on traversing as long as we can, we will visit all the land cells from which we can reach the boundary.</p>
+<p>The land cells which aren't visited will be the ones from which we cannot reach the boundary in any way. The count of all these unvisited land cells would be our answer.</p>
+<p>We can use a graph traversal algorithm like depth-first search (DFS) to traverse over the land cells. In DFS, we use a recursive function to explore nodes as far as possible along each branch. Upon reaching the end of a branch, we backtrack to the previous node and continue exploring the next branches.</p>
+<p>Once we encounter an unvisited node, we will take one of its neighbor nodes (if exists) as the next node on this branch. Recursively call the function to take the next node as the 'starting node' and solve the subproblem.</p>
+<p>If you are new to Depth First Search, please see our <a href="https://leetcode.com/explore/featured/card/graph/619/depth-first-search-in-graph/3882/" target="_blank">Leetcode Explore Card</a> for more information on it!</p>
+<p>We perform a DFS from every unvisited land cell at the boundary, treating it as a node. We traverse all the nodes that are present in the connected component of the starting node and mark them as visited.</p>
+<p>After the completion of DFS traversal, we count the number of land cells that are not visited.</p>
+<p>Here's a visual example to show how this approach works:</p>
+<p><div class="relative mx-auto mb-6 flex flex-col overflow-hidden rounded-lg border-[1px] border-label-1" style="max-width: 601px;"><div class="rounded-lg" style="max-height: 301px;"><img alt="Current" class="object-fit-contain !mb-0 max-h-full max-w-full" src="blob:https://leetcode.com/235fc8ca-2841-4881-b32e-aed81ffb8b2b"></div><div class="absolute top-[50%] left-[50%] flex h-12 w-12 translate-x-[-50%] translate-y-[-50%] items-center justify-center rounded-full bg-black/30"><div class="flex h-4 w-4 cursor-pointer items-center justify-center text-[35px]"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" class="h-full w-full text-white"><path fill-rule="evenodd" d="M18.97 12.871l-12.96 7.29a1 1 0 01-1.49-.87V4.71a1 1 0 011.49-.872l12.96 7.29a1 1 0 010 1.743z" clip-rule="evenodd"></path></svg></div></div><div class="relative flex h-8 select-none items-center justify-around bg-black"><div class="flex items-center space-x-7"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7"><path fill-rule="evenodd" d="M16.091 4.929l-7.057 7.078 7.057 7.064a1 1 0 01-1.414 1.414l-7.764-7.77a1 1 0 010-1.415l7.764-7.785a1 1 0 111.415 1.414z" clip-rule="evenodd"></path></svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7"><path fill-rule="evenodd" d="M18.97 12.871l-12.96 7.29a1 1 0 01-1.49-.87V4.71a1 1 0 011.49-.872l12.96 7.29a1 1 0 010 1.743z" clip-rule="evenodd"></path></svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7"><path fill-rule="evenodd" d="M7.913 19.071l7.057-7.078-7.057-7.064a1 1 0 011.414-1.414l7.764 7.77a1 1 0 010 1.415l-7.764 7.785a1 1 0 01-1.414-1.414z" clip-rule="evenodd"></path></svg></div><div class="absolute right-0 mr-5 text-xs font-medium text-white">1 / 6</div></div></div></p>
+<h4 id="algorithm">Algorithm</h4>
+<ol>
+  <li>Create two variables, <code>m</code> and <code>n</code>, to store the number of columns and rows in the given <code>grid</code>.</li>
+  <li>Create a 2D array called <code>visit</code> to keep track of visited cells.</li>
+  <li>Iterate over all the cells at the <code>grid</code>'s boundary and for every such cell <code>(i, j)</code> check if it is a land cell or not. If it is a land cell and it has not been visited yet, begin a DFS traversal from <code>(i, j)</code> cell:
+    <ul>
+      <li>We use the <code>dfs</code> function to perform the traversal. For each call, pass <code>x</code>, <code>y</code>, and <code>grid</code> as the parameters. The <code>x</code> and <code>y</code> parameters represent the row and column of the cell from which DFS should begin. We start with <code>(i ,j)</code> cell.</li>
+      <li>If the cell <code>(x, y)</code> is out of bounds of <code>grid</code> or is a water cell or is an already visited cell, we don't do anything and return.</li>
+      <li>Otherwise, we visit this cell and mark it as visited.</li>
+      <li>We then call <code>dfs</code> recursively from each of the neighbors of <code>(x, y)</code>.</li>
+    </ul>
+  </li>
+  <li>Create an answer variable <code>count</code> to count required number of land cells.</li>
+  <li>Iterate over all the cells of <code>grid</code> and count number of unvisited land cells. For each unvisited land cell, increment <code>count</code> by <code>1</code>.</li>
+  <li>Return <code>count</code>.</li>
+</ol>
+<h4 id="implementation">Implementation</h4>
+<pre>
+  Java
+  <code>
+    class Solution {
+    public void dfs(int x, int y, int m, int n, int[][] grid, boolean[][] visit) {
+        if (x < 0 || x >= m || y < 0 || y >= n || grid[x][y] == 0 || visit[x][y]) {
+            return;
+        }
+
+        visit[x][y] = true;
+        int[] dirx = {0, 1, 0, -1};
+        int[] diry = {-1, 0, 1, 0};
+
+        for (int i = 0; i < 4; i++) {
+            dfs(x + dirx[i], y + diry[i], m, n, grid, visit);
+        }
+        return;
+    }
+
+    public int numEnclaves(int[][] grid) {
+        int m = grid.length;
+        int n = grid[0].length;
+        boolean[][] visit = new boolean[m][n];
+
+        for (int i = 0; i < m; ++i) {
+            // First column.
+            if (grid[i][0] == 1 && !visit[i][0]) {
+                dfs(i, 0, m, n, grid, visit);
+            }
+            // Last column.
+            if (grid[i][n - 1] == 1 && !visit[i][n - 1]) {
+                dfs(i, n - 1, m, n, grid, visit);
+            }
+        }
+
+        for (int i = 0; i < n; ++i) {
+            // First row.
+            if (grid[0][i] == 1 && !visit[0][i]) {
+                dfs(0, i, m, n, grid, visit);
+            }
+            // Last row.
+            if (grid[m - 1][i] == 1 && !visit[m - 1][i]) {
+                dfs(m - 1, i, m, n, grid, visit);
+            }
+        }
+
+        int count = 0;
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                if (grid[i][j] == 1 && !visit[i][j]) {
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
+}
+  </code>
+  C++
+  <code>
+    class Solution {
+public:
+    void dfs(int x, int y, int m, int n, vector<vector<int>>& grid, vector<vector<bool>>& visit) {
+        if (x < 0 || x >= m || y < 0 || y >= n || grid[x][y] == 0 || visit[x][y]) {
+            return;
+        }
+
+        visit[x][y] = true;
+        vector<int> dirx{0, 1, 0, -1};
+        vector<int> diry{-1, 0, 1, 0};
+
+        for (int i = 0; i < 4; i++) {
+            dfs(x + dirx[i], y + diry[i], m, n, grid, visit);
+        }
+        return;
+    }
+
+    int numEnclaves(vector<vector<int>>& grid) {
+        int m = grid.size();
+        int n = grid[0].size();
+        vector<vector<bool>> visit(m, vector<bool>(n));
+
+        for (int i = 0; i < m; ++i) {
+            // First column.
+            if (grid[i][0] == 1 && !visit[i][0]) {
+                dfs(i, 0, m, n, grid, visit);
+            }
+            // Last column.
+            if (grid[i][n - 1] == 1 && !visit[i][n - 1]) {
+                dfs(i, n - 1, m, n, grid, visit);
+            }
+        }
+
+        for (int i = 0; i < n; ++i) {
+            // First row.
+            if (grid[0][i] == 1 && !visit[0][i]) {
+                dfs(0, i, m, n, grid, visit);
+            }
+            // Last row.
+            if (grid[m - 1][i] == 1 && !visit[m - 1][i]) {
+                dfs(m - 1, i, m, n, grid, visit);
+            }
+        }
+
+        int count = 0;
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                if (grid[i][j] == 1 && !visit[i][j]) {
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
+};
+  </code>
+</pre>
+<h4 id="complexity-analysis">Complexity Analysis</h4>
+<p>Here, <span class="math math-inline"><span class="katex"><span class="katex-mathml">mm</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">m</span></span></span></span></span> and <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span> are the number of rows and columns in the given grid.</p>
+<ul>
+  <li>
+    <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(m⋅n)O(m \cdot n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></p>
+    <ul>
+      <li>Initializing the <code>visit</code> array takes <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(m⋅n)O(m \cdot n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> time.</li>
+      <li>We iterate over the boundary and find unvisited land cells to perform DFS traversal from those. This takes <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(m+n)O(m + n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> time.</li>
+      <li>The <code>dfs</code> function visits each node at most once. Since there are <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(m⋅n)O(m \cdot n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> nodes, we will perform <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(m⋅n)O(m \cdot n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> operations visiting all nodes in the worst-case scenario. We iterate over all the neighbors of each node that is popped out of the queue. So for every node, we would iterate four times to iterate over the neighbors, resulting in <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(4⋅m⋅n)=O(m⋅n)O(4 \cdot m \cdot n) = O(m \cdot n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord">4</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 0.4445em;"></span><span class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal">n</span><span class="mclose">)</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> operations total for all the nodes.</li>
+      <li>Counting the number of unvisited land cells also takes <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(m⋅n)O(m \cdot n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> time.</li>
+    </ul>
+  </li>
+  <li>
+    <p>Space complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(m⋅n)O(m \cdot n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></p>
+    <ul>
+      <li>The <code>visit</code> array takes <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(m⋅n)O(m \cdot n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> space.</li>
+      <li>The recursion stack used by <code>dfs</code> can have no more than <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(m⋅n)O(m \cdot n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> elements in the worst-case scenario where each node is added to it. It would take up <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(m⋅n)O(m \cdot n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> space in that case.</li>
+    </ul>
+  </li>
+</ul>
+<hr>
+<h3 id="approach-2-breadth-first-search">Approach 2: Breadth First Search</h3>
+<h4 id="intuition-1">Intuition</h4>
+<p>As we have to traverse over <code>grid</code> modeled as a graph to find the closed islands, another method is to use a breadth-first search (BFS).</p>
+<p>BFS is an algorithm for traversing or searching a graph. It traverses in a level-wise manner, i.e., all the nodes at the present level (say <code>l</code>) are explored before moving on to the nodes at the next level (<code>l + 1</code>), where a level's number is the distance from a starting node. BFS is implemented with a queue.</p>
+<p>If you are not familiar with BFS traversal, we suggest you read our <a href="https://leetcode.com/explore/featured/card/graph/620/breadth-first-search-in-graph/" target="_blank">Leetcode Explore Card</a>.</p>
+<h4 id="algorithm-1">Algorithm</h4>
+<ol>
+  <li>Create two variables, <code>m</code> and <code>n</code>, to store the number of columns and rows in the given <code>grid</code>.</li>
+  <li>Create a 2D array called <code>visit</code> to keep track of visited cells.</li>
+  <li>Iterate over all the cells at the <code>grid</code>'s boundary and for every such cell <code>(i, j)</code> check if it is a land cell or not. If it is a land cell and it has not been visited yet, begin a BFS traversal from <code>(i, j)</code> cell:
+    <ul>
+      <li>We use the <code>bfs</code> function to perform the traversal. For each call, pass <code>x</code>, <code>y</code>, <code>m</code>, <code>n</code>, <code>grid</code> and <code>visit</code> as the parameters. The <code>x</code> and <code>y</code> parameters represent the row and column of the cell from which BFS should begin. We start with <code>(i ,j)</code> cell.</li>
+      <li>We initialize a queue <code>q</code> of pair of integers and push <code>(x, y)</code> into it. We also mark <code>(x, y)</code> as visited.</li>
+      <li>While the queue is not empty, we dequeue the first pair <code>(x, y)</code> from the queue and iterate over all its neighbors. If any neighboring cell is not in bounds of <code>grid</code>, we don't do anything. Else, if it is a land cell and has not been visited yet, we mark it as visited and push <code>(r, c)</code> into the queue.</li>
+      <li>We return after the queue is empty.</li>
+    </ul>
+  </li>
+  <li>Create an answer variable <code>count</code> to count required number of land cells.</li>
+  <li>Iterate over all the cells of <code>grid</code> and count number of unvisited land cells. For each unvisited land cell, increment <code>count</code> by <code>1</code>.</li>
+  <li>Return <code>count</code>.</li>
+</ol>
+<h4 id="implementation-1">Implementation</h4>
+<pre>
+  Java
+  <code>
+    class Solution {
+    public void bfs(int x, int y, int m, int n, int[][] grid, boolean[][] visit) {
+        Queue<int[]> q = new LinkedList<>();
+        q.offer(new int[]{x, y});
+        visit[x][y] = true;
+
+        int[] dirx = {0, 1, 0, -1};
+        int[] diry = {-1, 0, 1, 0};
+
+        while (!q.isEmpty()) {
+            int[] temp = q.poll();
+            x = temp[0];  // row nnumber
+            y = temp[1];  // column number
+
+            for (int i = 0; i < 4; i++) {
+                int r = x + dirx[i];
+                int c = y + diry[i];
+                if (r < 0 || r >= m || c < 0 || c >= n) {
+                    continue;
+                } else if (grid[r][c] == 1 && !visit[r][c]) {
+                    q.offer(new int[]{r, c});
+                    visit[r][c] = true;
+                }
+            }
+        }
+        return;
+    }
+
+    public int numEnclaves(int[][] grid) {
+        int m = grid.length;
+        int n = grid[0].length;
+        boolean[][] visit = new boolean[m][n];
+
+        for (int i = 0; i < m; ++i) {
+            // First column.
+            if (grid[i][0] == 1 && !visit[i][0]) {
+                bfs(i, 0, m, n, grid, visit);
+            }
+            // Last column.
+            if (grid[i][n - 1] == 1 && !visit[i][n - 1]) {
+                bfs(i, n - 1, m, n, grid, visit);
+            }
+        }
+
+        for (int i = 0; i < n; ++i) {
+            // First row.
+            if (grid[0][i] == 1 && !visit[0][i]) {
+                bfs(0, i, m, n, grid, visit);
+            }
+            // Last row.
+            if (grid[m - 1][i] == 1 && !visit[m - 1][i]) {
+                bfs(m - 1, i, m, n, grid, visit);
+            }
+        }
+
+        int count = 0;
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                if (grid[i][j] == 1 && !visit[i][j]) {
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
+}
+  </code>
+  C++
+  <code>
+    class Solution {
+public:
+    void bfs(int x, int y, int m, int n, vector<vector<int>>& grid, vector<vector<bool>>& visit) {
+        queue<pair<int, int>> q;
+        q.push({x, y});
+        visit[x][y] = 2;
+
+        vector<int> dirx{0, 1, 0, -1};
+        vector<int> diry{-1, 0, 1, 0};
+
+        while (!q.empty()) {
+            x = q.front().first;   // row nnumber
+            y = q.front().second;  // column number
+            q.pop();
+
+            for (int i = 0; i < 4; i++) {
+                int r = x + dirx[i];
+                int c = y + diry[i];
+                if (r < 0 || r >= m || c < 0 || c >= n) {
+                    continue;
+                } else if (grid[r][c] == 1 && !visit[r][c]) {
+                    q.push({r, c});
+                    visit[r][c] = true;
+                }
+            }
+        }
+        return;
+    }
+
+    int numEnclaves(vector<vector<int>>& grid) {
+        int m = grid.size();
+        int n = grid[0].size();
+        vector<vector<bool>> visit(m, vector<bool>(n));
+
+        for (int i = 0; i < m; ++i) {
+            // First column.
+            if (grid[i][0] == 1 && !visit[i][0]) {
+                bfs(i, 0, m, n, grid, visit);
+            }
+            // Last column.
+            if (grid[i][n - 1] == 1 && !visit[i][n - 1]) {
+                bfs(i, n - 1, m, n, grid, visit);
+            }
+        }
+
+        for (int i = 0; i < n; ++i) {
+            // First row.
+            if (grid[0][i] == 1 && !visit[0][i]) {
+                bfs(0, i, m, n, grid, visit);
+            }
+            // Last row.
+            if (grid[m - 1][i] == 1 && !visit[m - 1][i]) {
+                bfs(m - 1, i, m, n, grid, visit);
+            }
+        }
+
+        int count = 0;
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                if (grid[i][j] == 1 && !visit[i][j]) {
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
+};
+  </code>
+</pre>
+<h4 id="complexity-analysis-1">Complexity Analysis</h4>
+<p>Here, <span class="math math-inline"><span class="katex"><span class="katex-mathml">mm</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">m</span></span></span></span></span> and <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span> are the number of rows and columns in the given grid.</p>
+<ul>
+  <li>
+    <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(m⋅n)O(m \cdot n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></p>
+    <ul>
+      <li>Initializing the <code>visit</code> array takes <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(m⋅n)O(m \cdot n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> time.</li>
+      <li>We iterate over the boundary of <code>grid</code> and find unvisited land cells to perform BFS traversal from those. This takes <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(m+n)O(m + n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> time.</li>
+      <li>Each queue operation in the BFS algorithm takes <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span></span> time and a single node can be pushed at most once in the queue. Since there are <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(m⋅n)O(m \cdot n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> nodes, we will perform <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(m⋅n)O(m \cdot n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> operations visiting all nodes in the worst-case scenario. We iterate over all the neighbors of each node that is popped out of the queue. So for every node, we would iterate four times to iterate over the neighbors, resulting in <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(4⋅m⋅n)=O(m⋅n)O(4 \cdot m \cdot n) = O(m \cdot n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord">4</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 0.4445em;"></span><span class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal">n</span><span class="mclose">)</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> operations total for all the nodes.</li>
+    </ul>
+  </li>
+  <li>
+    <p>Space complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(m⋅n)O(m \cdot n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></p>
+    <ul>
+      <li>The <code>visit</code> array takes <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(m⋅n)O(m \cdot n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> space.</li>
+      <li>The BFS queue takes <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(m⋅n)O(m \cdot n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> space in the worst-case where each node is added once.</li>
+    </ul>
+  </li>
+</ul>
+</body>
+</html>
