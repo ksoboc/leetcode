@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Removing Stars From a String</title>
+</head>
+<body>
+<h2 id="solution">Solution</h2>
+<hr>
+<h3 id="overview">Overview</h3>
+<p>We are given a string <code>s</code> made up of lower case english letters and stars <code>*</code>.</p>
+<p>We have to perform some operations on the given string such that for each star, we must remove both the closest
+    non-star character to its left and the star itself.</p>
+<p>We have to return the formed string after all stars are removed.</p>
+<hr>
+<h3 id="approach-1-stack">Approach 1: Stack</h3>
+<h4 id="intuition">Intuition</h4>
+<p>To solve the problem, we must keep track of the most recently seen non-star character while iterating from the
+    beginning to the end of the string. Our task should be easy if we are able to use a data structure or write an
+    algorithm that keeps track of the most recent non-star character, which when removed gives the second most recent
+    non-star character, which when removed gives the third most recent non-star character, and so on.</p>
+<p>There are several approaches to solving such a problem, one of which is to use a <strong>stack</strong> data
+    structure.</p>
+<p>If you are new to stack data structure, please see our <a
+        href="https://leetcode.com/explore/interview/card/leetcodes-interview-crash-course-data-structures-and-algorithms/706/stacks-and-queues/"
+        target="_blank">Leetcode Explore Card</a> for more information on it!</p>
+<p>We iterate through the given string <code>s</code> from the start. We check the character at every index
+    <code>i</code> of <code>s</code>. If <code>s[i]</code> is a non-star character, we push it into the stack.
+    Otherwise, if <code>s[i]</code> is a star character, we pop the character from the stack because the character at
+    the top of the stack is the most recently seen non-star character from the characters that have been seen up to this
+    point and are not removed.</p>
+<p>When we've finished iterating over the string, the stack will contain the required string in reverse order. We pop
+    all of the characters from the stack to form a string and then return the reverse of that string as our answer.</p>
+<p>Here's a visual representation of how the approach works in the first example given in the problem description:</p>
+<p>
+<div class="relative mx-auto mb-6 flex flex-col overflow-hidden rounded-lg border-[1px] border-label-1"
+     style="max-width: 601px;">
+    <div class="rounded-lg" style="max-height: 301px;"><img alt="Current"
+                                                            class="object-fit-contain !mb-0 max-h-full max-w-full"
+                                                            src="blob:https://leetcode.com/b82f4718-511d-4ce2-a5a3-9c0808e876fa">
+    </div>
+    <div class="absolute top-[50%] left-[50%] flex h-12 w-12 translate-x-[-50%] translate-y-[-50%] items-center justify-center rounded-full bg-black/30">
+        <div class="flex h-4 w-4 cursor-pointer items-center justify-center text-[35px]">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="h-full w-full text-white">
+                <path fill-rule="evenodd"
+                      d="M18.97 12.871l-12.96 7.29a1 1 0 01-1.49-.87V4.71a1 1 0 011.49-.872l12.96 7.29a1 1 0 010 1.743z"
+                      clip-rule="evenodd"></path>
+            </svg>
+        </div>
+    </div>
+    <div class="relative flex h-8 select-none items-center justify-around bg-black">
+        <div class="flex items-center space-x-7">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M16.091 4.929l-7.057 7.078 7.057 7.064a1 1 0 01-1.414 1.414l-7.764-7.77a1 1 0 010-1.415l7.764-7.785a1 1 0 111.415 1.414z"
+                      clip-rule="evenodd"></path>
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M18.97 12.871l-12.96 7.29a1 1 0 01-1.49-.87V4.71a1 1 0 011.49-.872l12.96 7.29a1 1 0 010 1.743z"
+                      clip-rule="evenodd"></path>
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M7.913 19.071l7.057-7.078-7.057-7.064a1 1 0 011.414-1.414l7.764 7.77a1 1 0 010 1.415l-7.764 7.785a1 1 0 01-1.414-1.414z"
+                      clip-rule="evenodd"></path>
+            </svg>
+        </div>
+        <div class="absolute right-0 mr-5 text-xs font-medium text-white">1 / 12</div>
+    </div>
+</div>
+</p>
+<h4 id="algorithm">Algorithm</h4>
+<ol>
+    <li>Initialize a stack of characters <code>st</code>.</li>
+    <li>Iterate over the string <code>s</code> from the start and for each index <code>i</code> of the string:
+        <ul>
+            <li>If <code>s[i] == '*'</code>, we perform the <code>pop</code> operation to remove the top character from
+                the stack.
+            </li>
+            <li>Otherwise, we have a non-star character, so we push it into the stack.</li>
+        </ul>
+    </li>
+    <li>Create an empty string variable <code>answer</code>.</li>
+    <li>While the stack is not empty:
+        <ul>
+            <li>Append the top character of the stack to <code>answer</code> and remove it from the stack.</li>
+        </ul>
+    </li>
+    <li>Return the reverse of <code>answer</code>.</li>
+</ol>
+<h4 id="implementation">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public String removeStars(String s) {
+        Stack<Character> st = new Stack<>();
+        for (int i = 0; i < s.length(); i++) {
+            if (s.charAt(i) == '*') {
+                st.pop();
+            } else {
+                st.push(s.charAt(i));
+            }
+        }
+
+        StringBuilder answer = new StringBuilder();
+        while (!st.isEmpty()) {
+            answer.append(st.pop());
+        }
+
+        return answer.reverse().toString();
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    string removeStars(string s) {
+        stack<char> st;
+        for (int i = 0; i < s.size(); i++) {
+            if (s[i] == '*') {
+                st.pop();
+            } else {
+                st.push(s[i]);
+            }
+        }
+
+        string answer = "";
+        while (!st.empty()) {
+            answer.push_back(st.top());
+            st.pop();
+        }
+
+        reverse(answer.begin(), answer.end());
+        return answer;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def removeStars(self, s):
+        st = []
+        for i in range(0, len(s)):
+            if s[i] == '*':
+                st.pop()
+            else:
+                st.append(s[i])
+
+        return ''.join(st)
+    </code>
+</pre>
+<h4 id="complexity-analysis">Complexity Analysis</h4>
+<p>Here, <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    is the length of <code>s</code>.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <ul>
+            <li>We iterate over <code>s</code> and for every character we either push it in the stack or pop the top
+                character from the stack which takes <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord">1</span><span
+                        class="mclose">)</span></span></span></span></span> time per character. It takes <span
+                        class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+                time for <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 0.4306em;"></span><span
+                        class="mord mathnormal">n</span></span></span></span></span> characters.
+            </li>
+            <li>To form the <code>answer</code> string, we remove all the characters from the stack. Because a stack can
+                have maximum of <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+                characters, it would also take <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+                time in that case.
+            </li>
+            <li>We also require <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> time to
+                reverse <code>answer</code> which can have <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+                characters.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <ul>
+            <li>The stack used in the solution can grow to a maximum size of <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 0.4306em;"></span><span
+                    class="mord mathnormal">n</span></span></span></span></span>. We would need <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> space in
+                that case.
+            </li>
+        </ul>
+    </li>
+</ul>
+<hr>
+<h3 id="approach-2-strings">Approach 2: Strings</h3>
+<h4 id="intuition-1">Intuition</h4>
+<p>We can also use strings in place of a stack to handle the required operations. It can provide similar operations as
+    stack when dealing with characters.</p>
+<h4 id="algorithm-1">Algorithm</h4>
+<ol>
+    <li>Create an empty string variable <code>answer</code> that will store the string while performing the required
+        operations.
+    </li>
+    <li>Iterate over the string <code>s</code> from start and for each index <code>i</code> of the string:
+        <ul>
+            <li>If <code>s[i] == '*'</code>, delete the last character from <code>answer</code>.</li>
+            <li>Otherwise, we have a non-star character, so we append it to <code>answer</code>.</li>
+        </ul>
+    </li>
+    <li>Return <code>answer</code>.</li>
+</ol>
+<blockquote>
+    <p>Note: This approach does not work for Python as the strings are immutable in Python, so this would result in an
+        <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n2)O(n^2)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+                class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                class="mclose">)</span></span></span></span></span> time complexity.</p>
+</blockquote>
+<h4 id="implementation-1">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public String removeStars(String s) {
+        int j = 0;
+        StringBuilder answer = new StringBuilder();
+        for (int i = 0; i < s.length(); i++) {
+            if (s.charAt(i) == '*') {
+                answer.deleteCharAt(answer.length() - 1);
+            } else {
+                answer.append(s.charAt(i));
+            }
+        }
+        return answer.toString();
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    string removeStars(string s) {
+        string answer = "";
+        for (int i = 0; i < s.size(); i++) {
+            if (s[i] == '*') {
+                answer.pop_back();
+            } else {
+                answer.push_back(s[i]);
+            }
+        }
+        return answer;
+    }
+};
+    </code>
+</pre>
+<h4 id="complexity-analysis-1">Complexity Analysis</h4>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <ul>
+            <li>We iterate over <code>s</code> and for every character we either append it to <code>answer</code> or
+                delete the last character from <code>answer</code> which takes <span class="math math-inline"><span
+                        class="katex"><span class="katex-mathml">O(1)O(1)</span><span class="katex-html"
+                                                                                      aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord">1</span><span
+                        class="mclose">)</span></span></span></span></span> time per character. It takes <span
+                        class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+                time for <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 0.4306em;"></span><span
+                        class="mord mathnormal">n</span></span></span></span></span> characters.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <ul>
+            <li>The <code>answer</code> string can have a maximum of <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                    class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+                characters, requiring <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+                space. Normally, we do not count the answer towards the space complexity, but in this case we are
+                performing logic on the <code>answer</code> variable, so we are counting it.
+            </li>
+        </ul>
+    </li>
+</ul>
+<hr>
+<h3 id="approach-3-two-pointers">Approach 3: Two Pointers</h3>
+<h4 id="intuition-2">Intuition</h4>
+<p>As previously discussed, our task is to iterate over the string while keeping track of the most recently seen
+    non-star character who has not yet been removed.</p>
+<p>We can also use two pointers to solve this problem, one to iterate over the given string <code>s</code> and the other
+    to point to the position where the most recent non-star character is to be inserted (it will also help in removing
+    the characters).</p>
+<p>We create an array of characters <code>ch</code> having the same size as <code>s</code>. We also create two pointers
+    <code>i = 0</code> and <code>j = 0</code>.</p>
+<p>We will iterate over <code>s</code> with the pointer <code>i</code> and add and remove non-star characters with the
+    pointer <code>j</code>. The pointer <code>j</code> will point to the index where next non-star character is to be
+    inserted. We will insert the characters in a data structure <code>ch</code>, and after iterating over the entire
+    string <code>s</code>, we will have our required string in <code>ch</code> from index <code>0</code> till <code>j -
+        1</code> (both inclusive).</p>
+<p>We iterate the given string <code>s</code> from the start. For every index <code>i</code> of the string, if <code>s[i]</code>
+    is a non-star character, we add <code>s[i]</code> to <code>ch</code> at index <code>j</code>. We increment
+    <code>j</code> by <code>1</code> to insert the next non-star character at the next position.</p>
+<p>Otherwise, if <code>s[i]</code> is a star character we decrement <code>j</code> by <code>1</code>, resulting in the
+    removal of the last character.</p>
+<p>If we decrement <code>j</code>, you'll notice that whenever a non-star character is now met, it will override some
+    character previously added in <code>ch</code> at the <code>j</code> index, resulting in the removal of the required
+    non-star character. If there are not enough non-star characters to cover the position until where <code>j</code>
+    previously went, they are still removed because we are only using indices from <code>0</code> to <code>j - 1</code>
+    to form the required string.</p>
+<h4 id="algorithm-2">Algorithm</h4>
+<ol>
+    <li>Create an array of characters <code>ch</code> having the same size as <code>s</code>.</li>
+    <li>Create an integer variable <code>j</code> that will point to the index in <code>ch</code> where a non-star
+        character is to be inserted. We initialize it to <code>0</code> because the first character should be inserted
+        at index <code>0</code>.
+    </li>
+    <li>Iterate over the string <code>s</code> from the start and for each index <code>i</code> of the string:
+        <ul>
+            <li>If <code>s[i] == '*'</code>, decrement <code>j</code> by <code>1</code> to remove the most recently seen
+                non-star that hasn't already been removed.
+            </li>
+            <li>Otherwise, we have a non-star character, we add it to <code>ch</code> at index <code>j</code>. We also
+                increment <code>j</code> by <code>1</code>.
+            </li>
+        </ul>
+    </li>
+    <li>Create an empty string variable <code>answer</code>.</li>
+    <li>Iterate over <code>ch</code> from index <code>0</code> till <code>j - 1</code> and append all the characters to
+        <code>answer</code>.
+    </li>
+    <li>Return <code>answer</code>.</li>
+</ol>
+<h4 id="implementation-2">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public String removeStars(String s) {
+        char[] ch = new char[s.length()];
+        int j = 0;
+
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            if (c == '*') {
+                j--;
+            } else {
+                ch[j++] = c;
+            }
+        }
+
+        StringBuilder answer = new StringBuilder();
+        for (int i = 0; i < j; i++) {
+            answer.append(ch[i]);
+        }
+
+        return answer.toString();
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    string removeStars(string s) {
+        vector<char> ch(s.size());
+        int j = 0;
+
+        for (int i = 0; i < s.size(); i++) {
+            if (s[i] == '*') {
+                j--;
+            } else {
+                ch[j++] = s[i];
+            }
+        }
+
+        string answer = "";
+        for (int i = 0; i < j; i++) {
+            answer.push_back(ch[i]);
+        }
+
+        return answer;
+    }
+};
+    </code>
+</pre>
+<h4 id="complexity-analysis-2">Complexity Analysis</h4>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <ul>
+            <li>It takes <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> time to
+                initialize a character array of <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+                size.
+            </li>
+            <li>Iterating over the string <code>s</code> to form the required string in <code>ch</code> also takes <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> time.
+            </li>
+            <li>As there can be at most <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                    class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+                characters in <code>answer</code>, it takes <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+                time to form it.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <ul>
+            <li>The character array <code>ch</code> takes <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> space.
+            </li>
+        </ul>
+    </li>
+</ul>
+</body>
+</html>
