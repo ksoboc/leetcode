@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Maximum Value of K Coins From Piles - Solution</title>
+</head>
+<body>
+<h2 id="solution">Solution</h2>
+<hr>
+<blockquote>
+    <p><strong>Note.</strong> For this problem, we assume that you already know the fundamentals of dynamic programming
+        and are figuring out how to apply it to a wide range of problems, such as this one. If you are not yet at this
+        stage, we recommend checking out our relevant <a
+                href="https://leetcode.com/explore/featured/card/dynamic-programming/" target="_blank">Explore Card
+            content on dynamic programming</a> before coming back to this article.</p>
+</blockquote>
+<h3 id="approach-1-bottom-up-dynamic-programming">Approach 1: Bottom-up Dynamic Programming</h3>
+<h4 id="intuition">Intuition</h4>
+<p>Let <code>dp[i][coins]</code> be the maximum total value of coins you can have in your wallet if you choose at most
+    <code>coins</code> coins from the leftmost <code>i</code> piles optimally.</p>
+<blockquote>
+    <p>For example, <code>dp[4][7]</code> is the maximum total value when one takes at most seven coins from the
+        leftmost four piles. Since all coins have positive denomination, if the leftmost four piles contain at least
+        seven coins in total, it is optimal to take exactly seven coins. In other words, it is never optimal to take
+        less coins than we are allowed.</p>
+</blockquote>
+<p>The base case of this DP is <code>i = 0</code> – no piles are considered, so one didn't take any coins from any
+    piles. Since the total value of <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">00</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span> coins
+    is zero, <code>dp[0][coins] = 0</code>.</p>
+<p>Now consider <code>i &gt; 0</code> when one takes at most <code>coins</code> coins from the leftmost <code>i</code>
+    piles (numbered from <code>0</code> to <code>i - 1</code>). We want to know the optimal answer for this DP state.
+</p>
+<p>Since we use dynamic programming, we will reduce the problem with <code>i</code> piles to the smaller subproblem. As
+    it is common in DP, we solve the problem of size <code>i</code> using the result for the problem of size <code>i -
+        1</code>.</p>
+<ul>
+    <li>One may not take any coins from the (<code>i - 1</code>)-th pile and take at most <code>coins</code> coins from
+        the leftmost <code>i - 1</code> piles.
+    </li>
+    <li>One may take one coin from the (<code>i - 1</code>)-th pile, and at most <code>coins - 1</code> coins from the
+        leftmost <code>i - 1</code> piles.
+    </li>
+    <li>One may take two coins from the (<code>i - 1</code>)-th pile, and at most <code>coins - 2</code> coins from the
+        leftmost <code>i - 1</code> piles.
+    </li>
+    <li>...</li>
+    <li>One may take <code>currentCoins</code> coins from the (<code>i - 1</code>)-th pile, and at most <code>coins -
+        currentCoins</code> coins from the leftmost <code>i - 1</code> piles.
+    </li>
+    <li>...</li>
+</ul>
+<p>When we choose <code>currentCoins</code> coins from the (<code>i - 1</code>)-th pile, we must optimally choose at
+    most <code>coins - currentCoins</code> coins from the leftmost <code>i - 1</code> piles (numbered from
+    <code>0</code> to <code>i - 2</code>). It may be easier to think about it in reverse: when we are at pile <code>i -
+        1</code> with <code>coins</code> remaining space in our wallet, every coin we take reduces our space by 1. We
+    need to determine the optimal number of coins to take before moving to the next pile.</p>
+<p>Let <code>currentSum</code> be the sum of the taken coins from the (<code>i - 1</code>)-th pile (their quantity is
+    <code>currentCoins</code>).</p>
+<p>When the value of <code>currentCoins</code> is optimal, <code>dp[i][coins] = dp[i - 1][coins - currentCoins] +
+    currentSum</code>, because <code>dp[i - 1][coins - currentCoins]</code> gives the optimal answer to the smaller
+    subproblem of size <code>i - 1</code>.</p>
+<p>There are two constraints for <code>currentCoins</code>: first, one cannot take more coins from the (<code>i -
+    1</code>)-th pile than the amount of coins the pile has (<code>piles[i - 1].length</code>); and second, we cannot
+    take more coins than we are allowed, so <code>currentCoins</code> must not exceed <code>coins</code>.</p>
+<p>Combining these two constraints, one concludes that all values of <code>currentCoins</code> between <code>0</code>
+    and <code>min(piles[i - 1].length, coins)</code> inclusively are feasible. We try all these values to find the
+    optimal one.</p>
+<p>Finally, we can formulate the DP transitions: <code>dp[i][coins]</code> is the maximum <code>dp[i - 1][coins -
+    currentCoins] + currentSum</code> over <code>currentCoins</code> between <code>0</code> and <code>min(piles[i -
+    1].length, coins)</code> inclusively.</p>
+<p>Since it is never optimal to take less than <code>k</code> coins if it is allowed to take <code>k</code>, the answer
+    to the problem is <code>dp[n][k]</code> – one takes at most <code>k</code> coins (in the optimal solution we will
+    take <strong>exactly</strong> <code>k</code>) from <code>n</code> piles.</p>
+<h4 id="algorithm">Algorithm</h4>
+<ol>
+    <li>Declare the DP table and initialize it with zeros.</li>
+    <li>Iterate <code>i</code> from <code>1</code> to <code>n</code>.
+        <ul>
+            <li>Iterate <code>coins</code> from <code>0</code> to <code>k</code>.
+                <ul>
+                    <li>Initialize <code>currentSum = 0</code>.</li>
+                    <li>Iterate <code>currentCoins</code> from <code>0</code> to <code>min(piles[i - 1].length,
+                        coins)</code>.
+                        <ul>
+                            <li>If <code>currentCoins &gt; 0</code>, increase <code>currentSum</code> by <code>piles[i -
+                                1][currentCoins - 1]</code>.
+                            </li>
+                            <li>Update the value of <code>dp[i][coins]</code> with <code>dp[i - 1][coins - currentCoins]
+                                + currentSum</code>.
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </li>
+    <li>Return <code>dp[n][k]</code>.</li>
+</ol>
+<h4 id="implementation">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int maxValueOfCoins(List<List<Integer>> piles, int k) {
+        int n = piles.size();
+        int dp[][] = new int[n + 1][k + 1];
+        for (int i = 1; i <= n; i++) {
+            for (int coins = 0; coins <= k; coins++) {
+                int currentSum = 0;
+                for (int currentCoins = 0; currentCoins <= Math.min((int)piles.get(i - 1).size(), coins); currentCoins++) {
+                    if (currentCoins > 0) {
+                        currentSum += piles.get(i - 1).get(currentCoins - 1);
+                    }
+                    dp[i][coins] = Math.max(dp[i][coins], dp[i - 1][coins - currentCoins] + currentSum);
+                }
+            }
+        }
+        return dp[n][k];
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int maxValueOfCoins(vector<vector<int>>& piles, int k) {
+        int n = piles.size();
+        vector dp(n + 1, vector<int>(k + 1));
+        for (int i = 1; i <= n; i++) {
+            for (int coins = 0; coins <= k; coins++) {
+                int currentSum = 0;
+                for (int currentCoins = 0; currentCoins <= min((int)piles[i - 1].size(), coins); currentCoins++) {
+                    if (currentCoins > 0) {
+                        currentSum += piles[i - 1][currentCoins - 1];
+                    }
+                    dp[i][coins] = max(dp[i][coins], dp[i - 1][coins - currentCoins] + currentSum);
+                }
+            }
+        }
+        return dp[n][k];
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def maxValueOfCoins(self, piles: List[List[int]], k: int) -> int:
+        n = len(piles)
+        dp = [[0] * (k + 1) for i in range(n + 1)]
+        for i in range(1, n + 1):
+            for coins in range(0, k + 1):
+                current_sum = 0
+                for current_coins in range(0, min(len(piles[i - 1]), coins) + 1):
+                    if current_coins > 0:
+                        current_sum += piles[i - 1][current_coins - 1]
+                    dp[i][coins] = max(dp[i][coins],
+                                       dp[i - 1][coins - current_coins] + current_sum)
+        return dp[n][k]
+    </code>
+</pre>
+<h4 id="complexity-analysis">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">ss</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">s</span></span></span></span></span>
+    be the total number of coins in all piles. Formally, <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">s=∑i=0n−1len(piles[i])s = \sum_{i=0}^{n - 1} \text{len}(\text{piles}[i])</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.4306em;"></span><span
+            class="mord mathnormal">s</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+            class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 1.2537em; vertical-align: -0.2997em;"></span><span
+            class="mop"><span class="mop op-symbol small-op" style="position: relative; top: 0em;">∑</span><span
+            class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist"
+                                                                                       style="height: 0.954em;"><span
+            style="top: -2.4003em; margin-left: 0em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                  style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+            class="mord mathnormal mtight">i</span><span class="mrel mtight">=</span><span class="mord mtight">0</span></span></span></span><span
+            style="top: -3.2029em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+            class="mord mathnormal mtight">n</span><span class="mbin mtight">−</span><span class="mord mtight">1</span></span></span></span></span><span
+            class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                       style="height: 0.2997em;"><span></span></span></span></span></span></span><span
+            class="mspace" style="margin-right: 0.1667em;"></span><span class="mord text"><span class="mord">len</span></span><span
+            class="mopen">(</span><span class="mord text"><span class="mord">piles</span></span><span
+            class="mopen">[</span><span class="mord mathnormal">i</span><span
+            class="mclose">])</span></span></span></span></span>.</p>
+<ul>
+    <li>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(k⋅s)O(k \cdot s)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span class="mspace"
+                                                                                   style="margin-right: 0.2222em;"></span><span
+            class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal">s</span><span class="mclose">)</span></span></span></span></span>.
+    </li>
+</ul>
+<p>We have three for-loops: <code>for i</code>, <code>for coins</code>, and <code>for currentCoins</code>.</p>
+<p>For specified <code>i</code> and <code>coins</code>, the number of iterations of the <code>for currentCoins</code>
+    loop is <span class="math math-inline"><span class="katex"><span class="katex-mathml">min⁡(len(piles[i−1]),coins)+1=O(len(piles[i−1]))\min (\text{len}(\text{piles}[i - 1]), \text{coins}) + 1 = O(\text{len}(\text{piles}[i - 1]))</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mop">min</span><span class="mopen">(</span><span class="mord text"><span
+            class="mord">len</span></span><span class="mopen">(</span><span class="mord text"><span
+            class="mord">piles</span></span><span class="mopen">[</span><span class="mord mathnormal">i</span><span
+            class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">−</span><span class="mspace"
+                                                                                                   style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord">1</span><span class="mclose">])</span><span class="mpunct">,</span><span class="mspace"
+                                                                                                  style="margin-right: 0.1667em;"></span><span
+            class="mord text"><span class="mord">coins</span></span><span class="mclose">)</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span><span
+            class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">1</span><span
+            class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace"
+                                                                                                   style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord text"><span class="mord">len</span></span><span class="mopen">(</span><span
+            class="mord text"><span class="mord">piles</span></span><span class="mopen">[</span><span
+            class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord">1</span><span class="mclose">]))</span></span></span></span></span>.</p>
+<p>To find the total number of iterations, we need to calculate the sum of this value over all possible values of <code>i</code>
+    and <code>coins</code>: <span class="math math-inline"><span class="katex"><span class="katex-mathml">∑i=1n∑coins=0kO(len(piles[i−1]))=∑i=1n(k+1)⋅O(len(piles[i−1]))=(k+1)⋅∑i=1nO(len(piles[i−1]))=(k+1)⋅O(s)=O(k⋅s)\sum_{i=1}^n \sum_{\text{coins}=0}^k O(\text{len}(\text{piles}[i - 1])) = \sum_{i=1}^n (k + 1) \cdot O(\text{len}(\text{piles}[i - 1])) = (k + 1) \cdot \sum_{i=1}^n O(\text{len}(\text{piles}[i - 1])) = (k + 1) \cdot O(s) = O(k \cdot s)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1.2887em; vertical-align: -0.2997em;"></span><span
+            class="mop"><span class="mop op-symbol small-op" style="position: relative; top: 0em;">∑</span><span
+            class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist"
+                                                                                       style="height: 0.8043em;"><span
+            style="top: -2.4003em; margin-left: 0em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                  style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+            class="mord mathnormal mtight">i</span><span class="mrel mtight">=</span><span class="mord mtight">1</span></span></span></span><span
+            style="top: -3.2029em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span
+            class="mord mathnormal mtight">n</span></span></span></span><span class="vlist-s">​</span></span><span
+            class="vlist-r"><span class="vlist"
+                                  style="height: 0.2997em;"><span></span></span></span></span></span></span><span
+            class="mspace" style="margin-right: 0.1667em;"></span><span class="mop"><span class="mop op-symbol small-op"
+                                                                                          style="position: relative; top: 0em;">∑</span><span
+            class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist"
+                                                                                       style="height: 0.989em;"><span
+            style="top: -2.4003em; margin-left: 0em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                  style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span
+            class="mord mtight">coins</span></span><span class="mrel mtight">=</span><span class="mord mtight">0</span></span></span></span><span
+            style="top: -3.2029em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight"
+                                                          style="margin-right: 0.03148em;">k</span></span></span></span><span
+            class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                       style="height: 0.2997em;"><span></span></span></span></span></span></span><span
+            class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal"
+                                                                        style="margin-right: 0.02778em;">O</span><span
+            class="mopen">(</span><span class="mord text"><span class="mord">len</span></span><span
+            class="mopen">(</span><span class="mord text"><span class="mord">piles</span></span><span
+            class="mopen">[</span><span class="mord mathnormal">i</span><span class="mspace"
+                                                                              style="margin-right: 0.2222em;"></span><span
+            class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord">1</span><span class="mclose">]))</span><span class="mspace"
+                                                                      style="margin-right: 0.2778em;"></span><span
+            class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 1.104em; vertical-align: -0.2997em;"></span><span
+            class="mop"><span class="mop op-symbol small-op" style="position: relative; top: 0em;">∑</span><span
+            class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist"
+                                                                                       style="height: 0.8043em;"><span
+            style="top: -2.4003em; margin-left: 0em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                  style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+            class="mord mathnormal mtight">i</span><span class="mrel mtight">=</span><span class="mord mtight">1</span></span></span></span><span
+            style="top: -3.2029em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span
+            class="mord mathnormal mtight">n</span></span></span></span><span class="vlist-s">​</span></span><span
+            class="vlist-r"><span class="vlist"
+                                  style="height: 0.2997em;"><span></span></span></span></span></span></span><span
+            class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+            class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace"
+                                                                                                   style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord">1</span><span class="mclose">)</span><span class="mspace"
+                                                                    style="margin-right: 0.2222em;"></span><span
+            class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord text"><span class="mord">len</span></span><span class="mopen">(</span><span
+            class="mord text"><span class="mord">piles</span></span><span class="mopen">[</span><span
+            class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord">1</span><span class="mclose">]))</span><span class="mspace"
+                                                                      style="margin-right: 0.2778em;"></span><span
+            class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+            class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace"
+                                                                                                   style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord">1</span><span class="mclose">)</span><span class="mspace"
+                                                                    style="margin-right: 0.2222em;"></span><span
+            class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1.104em; vertical-align: -0.2997em;"></span><span
+            class="mop"><span class="mop op-symbol small-op" style="position: relative; top: 0em;">∑</span><span
+            class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist"
+                                                                                       style="height: 0.8043em;"><span
+            style="top: -2.4003em; margin-left: 0em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                  style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+            class="mord mathnormal mtight">i</span><span class="mrel mtight">=</span><span class="mord mtight">1</span></span></span></span><span
+            style="top: -3.2029em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span
+            class="mord mathnormal mtight">n</span></span></span></span><span class="vlist-s">​</span></span><span
+            class="vlist-r"><span class="vlist"
+                                  style="height: 0.2997em;"><span></span></span></span></span></span></span><span
+            class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal"
+                                                                        style="margin-right: 0.02778em;">O</span><span
+            class="mopen">(</span><span class="mord text"><span class="mord">len</span></span><span
+            class="mopen">(</span><span class="mord text"><span class="mord">piles</span></span><span
+            class="mopen">[</span><span class="mord mathnormal">i</span><span class="mspace"
+                                                                              style="margin-right: 0.2222em;"></span><span
+            class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord">1</span><span class="mclose">]))</span><span class="mspace"
+                                                                      style="margin-right: 0.2778em;"></span><span
+            class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+            class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace"
+                                                                                                   style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord">1</span><span class="mclose">)</span><span class="mspace"
+                                                                    style="margin-right: 0.2222em;"></span><span
+            class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord mathnormal">s</span><span class="mclose">)</span><span class="mspace"
+                                                                               style="margin-right: 0.2778em;"></span><span
+            class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span class="mspace"
+                                                                                   style="margin-right: 0.2222em;"></span><span
+            class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal">s</span><span class="mclose">)</span></span></span></span></span>.</p>
+<p>Since each iteration takes <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                 style="margin-right: 0.02778em;">O</span><span
+        class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span></span> time,
+    the total time complexity is the total number of iterations.</p>
+<ul>
+    <li>Space complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅k)O(n \cdot k)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span class="mclose">)</span></span></span></span></span>.
+    </li>
+</ul>
+<p>We store the DP table of size <code>[n + 1][k + 1]</code>.</p>
+<hr>
+<h3 id="approach-2-top-down-dynamic-programming-memoization">Approach 2: Top-Down Dynamic Programming (Memoization)</h3>
+<h4 id="intuition-1">Intuition</h4>
+<p>In this approach we will calculate the same DP table using the same recurrence relation as in the previous one, but
+    the manner of organizing computations will be different.</p>
+<p>We will use the recursive function <code>f(i, coins)</code> that returns the value of <code>dp[i][coins]</code>.</p>
+<p>The base case of the recursive function is <code>i = 0</code>: <code>f(0, coins)</code> returns zero.</p>
+<p>One can rewrite the DP recurrence relation as follows in terms of <code>f</code>: <code>f(i, coins)</code> returns
+    the maximum <code>f(i - 1, coins - currentCoins) + currentSum</code> over <code>currentCoins</code> between
+    <code>0</code> and <code>min(piles[i - 1].length, coins)</code> inclusively. This is exactly the same relation as in
+    the first approach.</p>
+<p>The answer to the problem is <code>f(n, k) = dp[n][k]</code>.</p>
+<p>Here is an implementation of this function.</p>
+<pre>
+    CPP
+    <code>
+        class Solution {
+public:
+    int maxValueOfCoins(vector<vector<int>>& piles, int k) {
+        int n = piles.size();
+        function<int(int, int)> f = [&](int i, int coins) {
+            if (i == 0) {
+                return 0;
+            }
+            int result = 0, currentSum = 0;
+            for (int currentCoins = 0; currentCoins <= min((int)piles[i - 1].size(), coins); currentCoins++) {
+                if (currentCoins > 0) {
+                    currentSum += piles[i - 1][currentCoins - 1];
+                }
+                result = max(result, f(i - 1, coins - currentCoins) + currentSum);
+            }
+            return result;
+        };
+        return f(n, k);
+    }
+};
+    </code>
+</pre>
+<p>The issue here is that <code>f</code> might be called (exponentially) many times for the same parameters <code>(i,
+    coins)</code>.</p>
+<p>For example, we call <code>f(4, 7)</code> for the first time and calculate the result for <code>i = 4</code>, <code>coins
+    = 7</code>. When we call <code>f(4, 7)</code> for the second time, we again compute the same result.</p>
+<p>Instead, one may store the calculated values of <code>f(i, coins)</code> in memory. We will store the same DP table
+    as in the previous approach. In this case, the process will be as follows.</p>
+<p>For example, we call <code>f(4, 7)</code> for the first time, calculate the result for <code>i = 4</code>, <code>coins
+    = 7</code> and write this result into <code>dp[4][7]</code>. When we call <code>f(4, 7)</code> for the second time,
+    we don't compute the same result again, but return the value of <code>dp[4][7]</code>.</p>
+<p>This is how we achieve calculating the value of <code>f</code> for each state (each pair of parameters <code>(i,
+    coins)</code>) only once.</p>
+<p>There remains one small technical question: how to know whether we call <code>f(i, coins)</code> for the first time
+    and need to compute the result, or we call it later and can return <code>dp[i][coins]</code> which was computed
+    earlier? One can handle this by initializing the <code>dp</code> matrix with <code>-1</code>. Then <code>dp[i][coins]
+        = -1</code> will mean that <code>f(i, coins)</code> was not calculated yet. As soon as we find the result <code>f(i,
+        coins)</code>, we will write it in into <code>dp[i][coins]</code> and this value will not be <code>-1</code>
+    anymore.</p>
+<h4 id="algorithm-1">Algorithm</h4>
+<p>The function <code>f</code> takes two parameters: <code>i</code> and <code>coins</code>.</p>
+<ol>
+    <li>If <code>i = 0</code>, return <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">00</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span>.
+    </li>
+    <li>If <code>dp[i][coins] != -1</code> (which means that we found this value earlier), return
+        <code>dp[i][coins]</code>.
+    </li>
+    <li>Initialize <code>currentSum = 0</code>.</li>
+    <li>Iterate <code>currentCoins</code> from <code>0</code> to <code>min(piles[i - 1].length, coins)</code>.
+        <ul>
+            <li>If <code>currentCoins &gt; 0</code>, increase <code>currentSum</code> by <code>piles[i - 1][currentCoins
+                - 1]</code>.
+            </li>
+            <li>Update the value of <code>dp[i][coins]</code> with <code>f(i - 1, coins - currentCoins) +
+                currentSum</code>.
+            </li>
+        </ul>
+    </li>
+    <li>Return <code>dp[i][coins]</code>.</li>
+</ol>
+<p>One needs to return <code>f(n, k)</code> from the main function.</p>
+<h4 id="implementation-1">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    int dp[][];
+    private int f(List<List<Integer>> piles, int i, int coins) {
+        if (i == 0) {
+            return 0;
+        }
+        if (dp[i][coins] != -1) {
+            return dp[i][coins];
+        }
+        int currentSum = 0;
+        for (int currentCoins = 0; currentCoins <= Math.min(piles.get(i - 1).size(), coins); currentCoins++) {
+            if (currentCoins > 0) {
+                currentSum += piles.get(i - 1).get(currentCoins - 1);
+            }
+            dp[i][coins] = Math.max(dp[i][coins], f(piles, i - 1, coins - currentCoins) + currentSum);
+        }
+        return dp[i][coins];
+    }
+    public int maxValueOfCoins(List<List<Integer>> piles, int k) {
+        int n = piles.size();
+        dp = new int[n + 1][k + 1];
+        for (int i = 1; i <= n; i++) {
+            for (int coins = 0; coins <= k; coins++) {
+                dp[i][coins] = -1;
+            }
+        }
+        return f(piles, n, k);
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int maxValueOfCoins(vector<vector<int>>& piles, int k) {
+        int n = piles.size();
+        vector dp(n + 1, vector<int>(k + 1, -1));
+
+        function<int(int, int)> f = [&](int i, int coins) {
+            if (i == 0) {
+                return 0;
+            }
+            if (dp[i][coins] != -1) {
+                return dp[i][coins];
+            }
+            int currentSum = 0;
+            for (int currentCoins = 0; currentCoins <= min((int)piles[i - 1].size(), coins); currentCoins++) {
+                if (currentCoins > 0) {
+                    currentSum += piles[i - 1][currentCoins - 1];
+                }
+                dp[i][coins] = max(dp[i][coins], f(i - 1, coins - currentCoins) + currentSum);
+            }
+            return dp[i][coins];
+        };
+
+        return f(n, k);
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def maxValueOfCoins(self, piles: List[List[int]], k: int) -> int:
+        n = len(piles)
+        dp = [[-1] * (k + 1) for i in range(n + 1)]
+
+
+        def f(i, coins):
+            if i == 0:
+                return 0
+            if dp[i][coins] != -1:
+                return dp[i][coins]
+            current_sum = 0
+            for current_coins in range(0, min(len(piles[i - 1]), coins) + 1):
+                if current_coins > 0:
+                    current_sum += piles[i - 1][current_coins - 1]
+                dp[i][coins] = max(dp[i][coins],
+                                f(i - 1, coins - current_coins) + current_sum)
+            return dp[i][coins]
+
+        return f(n, k)
+    </code>
+</pre>
+<h4 id="complexity-analysis-1">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">ss</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">s</span></span></span></span></span>
+    be the total number of coins in all piles. Formally, <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">s=∑i=0n−1len(piles[i])s = \sum_{i=0}^{n - 1} \text{len}(\text{piles}[i])</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.4306em;"></span><span
+            class="mord mathnormal">s</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+            class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 1.2537em; vertical-align: -0.2997em;"></span><span
+            class="mop"><span class="mop op-symbol small-op" style="position: relative; top: 0em;">∑</span><span
+            class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist"
+                                                                                       style="height: 0.954em;"><span
+            style="top: -2.4003em; margin-left: 0em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                  style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+            class="mord mathnormal mtight">i</span><span class="mrel mtight">=</span><span class="mord mtight">0</span></span></span></span><span
+            style="top: -3.2029em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+            class="mord mathnormal mtight">n</span><span class="mbin mtight">−</span><span class="mord mtight">1</span></span></span></span></span><span
+            class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                       style="height: 0.2997em;"><span></span></span></span></span></span></span><span
+            class="mspace" style="margin-right: 0.1667em;"></span><span class="mord text"><span class="mord">len</span></span><span
+            class="mopen">(</span><span class="mord text"><span class="mord">piles</span></span><span
+            class="mopen">[</span><span class="mord mathnormal">i</span><span
+            class="mclose">])</span></span></span></span></span>.</p>
+<ul>
+    <li>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(k⋅s)O(k \cdot s)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span class="mspace"
+                                                                                   style="margin-right: 0.2222em;"></span><span
+            class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal">s</span><span class="mclose">)</span></span></span></span></span>.
+    </li>
+</ul>
+<p>Even though we changed the order in which we calculate DP, the time complexity is the same as in the previous
+    approach: for each pair <code>(i, coins)</code> we calculate <code>dp[i][coins]</code> in <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">O(len(piles[i−1]))O(\text{len}(\text{piles}[i - 1]))</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord text"><span class="mord">len</span></span><span class="mopen">(</span><span
+            class="mord text"><span class="mord">piles</span></span><span class="mopen">[</span><span
+            class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord">1</span><span class="mclose">]))</span></span></span></span></span>. Since we store the results
+    in the memory, we will compute <code>dp[i][coins]</code> only once.</p>
+<ul>
+    <li>Space complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅k)O(n \cdot k)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span class="mclose">)</span></span></span></span></span>.
+    </li>
+</ul>
+<p>We store the DP table of size <code>[n + 1][k + 1]</code>.</p>
+</body>
+</html>
