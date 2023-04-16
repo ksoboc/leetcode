@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Number of Ways to Form a Target String Given a Dictionary - Solution</title>
+</head>
+<body>
+<h2 id="solution">Solution</h2>
+<hr>
+<blockquote>
+    <p><strong>Note.</strong> For this problem, we assume that you already know the fundamentals of dynamic programming
+        and are figuring out how to apply it to a wide range of problems, such as this one. If you are not yet at this
+        stage, we recommend checking out our relevant <a
+                href="https://leetcode.com/explore/featured/card/dynamic-programming/" target="_blank">Explore Card
+            content on dynamic programming</a> before coming back to this article.</p>
+</blockquote>
+<h3 id="approach-1-bottom-up-dynamic-programming">Approach 1: Bottom-up Dynamic Programming</h3>
+<h4 id="intuition">Intuition</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    be the number of elements in the list <code>words</code>, <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">mm</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.4306em;"></span><span
+            class="mord mathnormal">m</span></span></span></span></span> be the length of <code>target</code>, and <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">kk</span><span class="katex-html"
+                                                                                                   aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord mathnormal"
+                                                                                    style="margin-right: 0.03148em;">k</span></span></span></span></span>
+    be the length of strings in <code>words</code>.</p>
+<p>We can imagine <code>words</code> as a matrix containing <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                                           style="height: 0.4306em;"></span><span
+        class="mord mathnormal">n</span></span></span></span></span> rows (each being a word) and <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">kk</span><span class="katex-html"
+                                                                                               aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord mathnormal"
+                                                                                style="margin-right: 0.03148em;">k</span></span></span></span></span>
+    columns.</p>
+<p>The process of building <code>target</code> is as follows. We iterate over columns of the matrix from left to right,
+    and at each of them, we have two options: to pick a character at the current column or to skip.</p>
+<p>See the animation for a better understanding.</p>
+<p>
+<div class="relative mx-auto mb-6 flex flex-col overflow-hidden rounded-lg border-[1px] border-label-1"
+     style="max-width: 1000px;">
+    <div class="rounded-lg" style="max-height: 500px;"><img alt="Current"
+                                                            class="object-fit-contain !mb-0 max-h-full max-w-full"
+                                                            src="blob:https://leetcode.com/e957b400-3498-46f7-9631-1f7b3649d5bd">
+    </div>
+    <div class="absolute top-[50%] left-[50%] flex h-12 w-12 translate-x-[-50%] translate-y-[-50%] items-center justify-center rounded-full bg-black/30">
+        <div class="flex h-4 w-4 cursor-pointer items-center justify-center text-[35px]">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="h-full w-full text-white">
+                <path fill-rule="evenodd"
+                      d="M18.97 12.871l-12.96 7.29a1 1 0 01-1.49-.87V4.71a1 1 0 011.49-.872l12.96 7.29a1 1 0 010 1.743z"
+                      clip-rule="evenodd"></path>
+            </svg>
+        </div>
+    </div>
+    <div class="relative flex h-8 select-none items-center justify-around bg-black">
+        <div class="flex items-center space-x-7">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M16.091 4.929l-7.057 7.078 7.057 7.064a1 1 0 01-1.414 1.414l-7.764-7.77a1 1 0 010-1.415l7.764-7.785a1 1 0 111.415 1.414z"
+                      clip-rule="evenodd"></path>
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M18.97 12.871l-12.96 7.29a1 1 0 01-1.49-.87V4.71a1 1 0 011.49-.872l12.96 7.29a1 1 0 010 1.743z"
+                      clip-rule="evenodd"></path>
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M7.913 19.071l7.057-7.078-7.057-7.064a1 1 0 011.414-1.414l7.764 7.77a1 1 0 010 1.415l-7.764 7.785a1 1 0 01-1.414-1.414z"
+                      clip-rule="evenodd"></path>
+            </svg>
+        </div>
+        <div class="absolute right-0 mr-5 text-xs font-medium text-white">1 / 10</div>
+    </div>
+</div>
+</p>
+<p>Let <code>dp[i][j]</code> be the number of ways to build the prefix of <code>target</code> of length <code>i</code>
+    using only the <code>j</code> leftmost columns.</p>
+<p>The base case of this DP is <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">j=0j = 0</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+        class="strut" style="height: 0.854em; vertical-align: -0.1944em;"></span><span class="mord mathnormal"
+                                                                                       style="margin-right: 0.05724em;">j</span><span
+        class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace"
+                                                                                               style="margin-right: 0.2778em;"></span></span><span
+        class="base"><span class="strut" style="height: 0.6444em;"></span><span
+        class="mord">0</span></span></span></span></span> – one has not considered any columns and thus has not started
+    to build <code>target</code>. <code>dp[0][0] = 1</code> – there is one way not to put any characters, and <code>dp[i][0]
+        = 0</code> for <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">i&gt;0i &gt; 0</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6986em; vertical-align: -0.0391em;"></span><span
+            class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+            class="mrel">&gt;</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span>
+    because it is impossible to build a non-empty prefix using <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">00</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span>
+    columns.</p>
+<p>Now we need to write down the transitions of the DP.</p>
+<p>The state <code>dp[i][j]</code> with <span class="math math-inline"><span class="katex"><span class="katex-mathml">j&lt;kj &lt; k</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.854em; vertical-align: -0.1944em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.05724em;">j</span><span class="mspace"
+                                                                               style="margin-right: 0.2778em;"></span><span
+        class="mrel">&lt;</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+        class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord mathnormal"
+                                                                                style="margin-right: 0.03148em;">k</span></span></span></span></span>
+    means that</p>
+<ul>
+    <li>we are now considering the <code>j</code>-th column of the matrix;</li>
+    <li>if <span class="math math-inline"><span class="katex"><span class="katex-mathml">i&lt;mi &lt; m</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.6986em; vertical-align: -0.0391em;"></span><span
+            class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+            class="mrel">&lt;</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.4306em;"></span><span
+            class="mord mathnormal">m</span></span></span></span></span>, we need to add the character
+        <code>target[i]</code> to the currently built prefix; otherwise, we have completely built the string <code>target</code>.
+    </li>
+</ul>
+<p>Let <code>cnt[c][j]</code> denote the number of occurrences of the character <code>c</code> in the <code>j</code>-th
+    column of the matrix – one can precompute this before calculating the DP.</p>
+<p>As mentioned earlier, we have two options: to pick a character at the <code>j</code>-th column (only if <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">i&lt;mi &lt; m</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.6986em; vertical-align: -0.0391em;"></span><span
+        class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">&lt;</span><span
+        class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut"
+                                                                                              style="height: 0.4306em;"></span><span
+        class="mord mathnormal">m</span></span></span></span></span>) or to move to the next one.</p>
+<ul>
+    <li>When we choose a character <code>target[i]</code> from the <code>j</code>-th column and add it to the current
+        prefix (which has length <code>i</code> before adding), its length becomes <code>i + 1</code>. After this, we
+        cannot use the <code>j</code>-th column, and have to move to the (<code>j + 1</code>)-th one. It describes a
+        transition from the state <code>dp[i][j]</code> to <code>dp[i + 1][j + 1]</code>. In how many ways can one
+        perform such a transition? The number of ways to choose a character <code>target[i]</code> in the <code>j</code>-th
+        column equals <code>cnt[target[i]][j]</code> – the number of its occurrences. Therefore, we can do <code>dp[i +
+            1][j + 1] += cnt[target[i]][j] * dp[i][j]</code>.
+    </li>
+    <li>When we skip the <code>j</code>-th column and move on to the (<code>j + 1</code>)-th one, we do not add anything
+        to the current prefix, and its length remains equal to <code>i</code>. Here we have a transition from the state
+        <code>dp[i][j]</code> to <code>dp[i][j + 1]</code>. There is one way not to choose any character, therefore we
+        can do <code>dp[i][j + 1] += dp[i][j]</code>.
+    </li>
+</ul>
+<p>The answer to the problem is <code>dp[m][k]</code> – we need to build the string of length <code>m</code> using
+    <code>k</code> columns.</p>
+<h4 id="algorithm">Algorithm</h4>
+<p>Here we assume that all arithmetic operations are modulo <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">109+710^9+7</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+        class="strut" style="height: 0.8974em; vertical-align: -0.0833em;"></span><span class="mord">1</span><span
+        class="mord"><span class="mord">0</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span
+        class="vlist" style="height: 0.8141em;"><span style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                                         style="height: 2.7em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span
+        class="mord mtight">9</span></span></span></span></span></span></span></span><span class="mspace"
+                                                                                           style="margin-right: 0.2222em;"></span><span
+        class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+        class="strut" style="height: 0.6444em;"></span><span class="mord">7</span></span></span></span></span>.</p>
+<ol>
+    <li>Declare the matrix <code>cnt</code> and initialize it with zeros.</li>
+    <li>Iterate <code>j</code> from <code>0</code> to <code>k - 1</code>.
+        <ul>
+            <li>Iterate <code>word</code> over <code>words</code>.
+                <ul>
+                    <li>Increment <code>cnt[word[j] - 'a'][j]</code>.</li>
+                </ul>
+            </li>
+        </ul>
+    </li>
+    <li>Declare the DP matrix and initialize it with zeros.</li>
+    <li>Set <code>dp[0][0] = 1</code>. (The base case of the DP.)</li>
+    <li>Iterate <code>i</code> from <code>0</code> to <code>m</code>.
+        <ul>
+            <li>Iterate <code>j</code> from <code>0</code> to <code>k - 1</code>.
+                <ul>
+                    <li>If <span class="math math-inline"><span class="katex"><span
+                            class="katex-mathml">i&lt;mi &lt; m</span><span class="katex-html" aria-hidden="true"><span
+                            class="base"><span class="strut"
+                                               style="height: 0.6986em; vertical-align: -0.0391em;"></span><span
+                            class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+                            class="mrel">&lt;</span><span class="mspace"
+                                                          style="margin-right: 0.2778em;"></span></span><span
+                            class="base"><span class="strut" style="height: 0.4306em;"></span><span
+                            class="mord mathnormal">m</span></span></span></span></span>, add <code>dp[i][j]</code>
+                        multiplied by <code>cnt[target[i] - 'a'][j]</code> to <code>dp[i + 1][j + 1]</code>. (Pick the
+                        character <code>target[i]</code> from the <code>j</code>-th column.)
+                    </li>
+                    <li>Add <code>dp[i][j]</code> to <code>dp[i][j + 1]</code>. (Skip the <code>j</code>-th column.)
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </li>
+    <li>Return <code>dp[m][k]</code>.</li>
+</ol>
+<h4 id="implementation">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int numWays(String[] words, String target) {
+        int alphabet = 26;
+        int mod = 1000000007;
+        int m = target.length(), k = words[0].length();
+        int cnt[][] = new int[alphabet][k];
+        for (int j = 0; j < k; j++) {
+            for (String word : words) {
+                cnt[word.charAt(j) - 'a'][j]++;
+            }
+        }
+        long dp[][] = new long[m + 1][k + 1];
+        dp[0][0] = 1;
+        for (int i = 0; i <= m; i++) {
+            for (int j = 0; j < k; j++) {
+                if (i < m) {
+                    dp[i + 1][j + 1] += cnt[target.charAt(i) - 'a'][j] * dp[i][j];
+                    dp[i + 1][j + 1] %= mod;
+                }
+                dp[i][j + 1] += dp[i][j];
+                dp[i][j + 1] %= mod;
+            }
+        }
+        return (int)dp[m][k];
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int numWays(vector<string>& words, string target) {
+        const int alphabet = 26;
+        const int mod = 1000000007;
+        int m = target.size(), k = words[0].size();
+        vector cnt(alphabet, vector<int>(k));
+        for (int j = 0; j < k; j++) {
+            for (const string& word : words) {
+                cnt[word[j] - 'a'][j]++;
+            }
+        }
+        vector dp(m + 1, vector<long long>(k + 1));
+        dp[0][0] = 1;
+        for (int i = 0; i <= m; i++) {
+            for (int j = 0; j < k; j++) {
+                if (i < m) {
+                    (dp[i + 1][j + 1] += cnt[target[i] - 'a'][j] * dp[i][j]) %= mod;
+                }
+                (dp[i][j + 1] += dp[i][j]) %= mod;
+            }
+        }
+        return dp[m][k];
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def numWays(self, words: List[str], target: str) -> int:
+        alphabet = 26
+        mod = 1000000007
+        m = len(target)
+        k = len(words[0])
+        cnt = [[0] * k for _ in range(alphabet)]
+        for j in range(k):
+            for word in words:
+                cnt[ord(word[j]) - ord('a')][j] += 1
+        dp = [[0] * (k + 1) for _ in range(m + 1)]
+        dp[0][0] = 1
+        for i in range(m + 1):
+            for j in range(k):
+                if i < m:
+                    dp[i + 1][j + 1] += (cnt[ord(target[i]) - ord('a')][j]
+                                         * dp[i][j])
+                    dp[i + 1][j + 1] %= mod
+                dp[i][j + 1] += dp[i][j]
+                dp[i][j + 1] %= mod
+        return dp[m][k]
+    </code>
+</pre>
+<h4 id="complexity-analysis">Complexity Analysis</h4>
+<ul>
+    <li>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅k+m⋅k)O(n \cdot k + m \cdot k)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.7778em; vertical-align: -0.0833em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span class="mspace"
+                                                                                   style="margin-right: 0.2222em;"></span><span
+            class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.4445em;"></span><span
+            class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span class="mclose">)</span></span></span></span></span>.
+    </li>
+</ul>
+<p>We compute the matrix <code>cnt</code> in two nested loops. The <code>for j</code> loop performs <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">kk</span><span class="katex-html"
+                                                                                               aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord mathnormal"
+                                                                                style="margin-right: 0.03148em;">k</span></span></span></span></span>
+    iterations, and the <code>for word</code> loop performs <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.4306em;"></span><span
+            class="mord mathnormal">n</span></span></span></span></span> iterations. Thus the time complexity of
+    calculating the <code>cnt</code> matrix is <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">O(n⋅k)O(n \cdot k)</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span class="mclose">)</span></span></span></span></span>.
+</p>
+<p>Then we calculate the DP matrix in two nested <code>for i</code> and <code>for j</code> loops, which perform <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">m+1m + 1</span><span class="katex-html"
+                                                                                                     aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+        class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+        class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+        class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span> and <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">kk</span><span class="katex-html"
+                                                                                               aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord mathnormal"
+                                                                                style="margin-right: 0.03148em;">k</span></span></span></span></span>
+    iterations, respectively. Similarly, the time complexity of this part is <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">O(m⋅k)O(m \cdot k)</span><span class="katex-html"
+                                                                                    aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span class="mclose">)</span></span></span></span></span>.
+</p>
+<p>The total time complexity is <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅k+m⋅k)O(n \cdot k + m \cdot k)</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+        class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+        class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+        class="strut" style="height: 0.7778em; vertical-align: -0.0833em;"></span><span class="mord mathnormal"
+                                                                                        style="margin-right: 0.03148em;">k</span><span
+        class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace"
+                                                                                               style="margin-right: 0.2222em;"></span></span><span
+        class="base"><span class="strut" style="height: 0.4445em;"></span><span class="mord mathnormal">m</span><span
+        class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace"
+                                                                                               style="margin-right: 0.2222em;"></span></span><span
+        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+        class="mclose">)</span></span></span></span></span>.</p>
+<ul>
+    <li>Space complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(m⋅k)O(m \cdot k)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span class="mclose">)</span></span></span></span></span>.
+    </li>
+</ul>
+<p>The size of the matrix <code>cnt</code> is <code>[26][k]</code> (<span class="math math-inline"><span
+        class="katex"><span class="katex-mathml">2626</span><span class="katex-html" aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.6444em;"></span><span
+        class="mord">26</span></span></span></span></span> is the size of the English alphabet), and the size of the DP
+    matrix is <code>[m + 1][k + 1]</code>.</p>
+<p>The total space complexity is <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(26⋅k+m⋅k)=O(m⋅k)O(26 \cdot k + m \cdot k) = O(m \cdot k)</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord">26</span><span
+        class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace"
+                                                                                               style="margin-right: 0.2222em;"></span></span><span
+        class="base"><span class="strut" style="height: 0.7778em; vertical-align: -0.0833em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span class="mspace"
+                                                                               style="margin-right: 0.2222em;"></span><span
+        class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+        class="strut" style="height: 0.4445em;"></span><span class="mord mathnormal">m</span><span class="mspace"
+                                                                                                   style="margin-right: 0.2222em;"></span><span
+        class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                 style="margin-right: 0.03148em;">k</span><span
+        class="mclose">)</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+        class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span
+        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                 style="margin-right: 0.02778em;">O</span><span
+        class="mopen">(</span><span class="mord mathnormal">m</span><span class="mspace"
+                                                                          style="margin-right: 0.2222em;"></span><span
+        class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                 style="margin-right: 0.03148em;">k</span><span
+        class="mclose">)</span></span></span></span></span>.</p>
+<hr>
+<h3 id="approach-2-top-down-dynamic-programming-memoization">Approach 2: Top-Down Dynamic Programming (Memoization)</h3>
+<h4 id="intuition-1">Intuition</h4>
+<p>In this approach, we will calculate the same DP table as in the previous one, but the manner of organizing
+    computations will differ.</p>
+<p>We already know that there are transitions from <code>dp[i][j]</code> to <code>dp[i + 1][j + 1]</code> and <code>dp[i][j
+    + 1]</code>. How can one express <code>dp[i][j]</code> through the values of <code>dp</code> for smaller problems
+    having these transitions?</p>
+<ul>
+    <li><code>dp[i][j]</code> multiplied by <code>cnt[target[i] - 'a'][j]</code> adds to <code>dp[i + 1][j + 1]</code>
+        for <span class="math math-inline"><span class="katex"><span class="katex-mathml">i≥0i \ge 0</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.7955em; vertical-align: -0.136em;"></span><span
+                class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+                class="mrel">≥</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.6444em;"></span><span
+                class="mord">0</span></span></span></span></span>, <span class="math math-inline"><span
+                class="katex"><span class="katex-mathml">j≥0j \ge 0</span><span class="katex-html"
+                                                                                aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 0.854em; vertical-align: -0.1944em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.05724em;">j</span><span class="mspace"
+                                                                                       style="margin-right: 0.2778em;"></span><span
+                class="mrel">≥</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.6444em;"></span><span
+                class="mord">0</span></span></span></span></span>. By replacing <span class="math math-inline"><span
+                class="katex"><span class="katex-mathml">ii</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 0.6595em;"></span><span class="mord mathnormal">i</span></span></span></span></span>
+        with <span class="math math-inline"><span class="katex"><span class="katex-mathml">i−1i - 1</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.7429em; vertical-align: -0.0833em;"></span><span
+                class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.6444em;"></span><span
+                class="mord">1</span></span></span></span></span> and <span class="math math-inline"><span
+                class="katex"><span class="katex-mathml">jj</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 0.854em; vertical-align: -0.1944em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.05724em;">j</span></span></span></span></span> with <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">j−1j - 1</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.854em; vertical-align: -0.1944em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.05724em;">j</span><span class="mspace"
+                                                                                       style="margin-right: 0.2222em;"></span><span
+                class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.6444em;"></span><span
+                class="mord">1</span></span></span></span></span>, one gets that <code>dp[i - 1][j - 1]</code>
+        multiplied by <code>cnt[target[i - 1] - 'a'][j - 1]</code> adds to <code>dp[i][j]</code> for <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">i≥1i \ge 1</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.7955em; vertical-align: -0.136em;"></span><span
+                class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+                class="mrel">≥</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.6444em;"></span><span
+                class="mord">1</span></span></span></span></span>, <span class="math math-inline"><span
+                class="katex"><span class="katex-mathml">j≥1j \ge 1</span><span class="katex-html"
+                                                                                aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 0.854em; vertical-align: -0.1944em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.05724em;">j</span><span class="mspace"
+                                                                                       style="margin-right: 0.2778em;"></span><span
+                class="mrel">≥</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.6444em;"></span><span
+                class="mord">1</span></span></span></span></span>.
+    </li>
+    <li><code>dp[i][j]</code> adds to <code>dp[i][j + 1]</code> for <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">i≥0i \ge 0</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.7955em; vertical-align: -0.136em;"></span><span
+            class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+            class="mrel">≥</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span>,
+        <span class="math math-inline"><span class="katex"><span class="katex-mathml">j≥0j \ge 0</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.854em; vertical-align: -0.1944em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.05724em;">j</span><span class="mspace"
+                                                                                       style="margin-right: 0.2778em;"></span><span
+                class="mrel">≥</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.6444em;"></span><span
+                class="mord">0</span></span></span></span></span>. By replacing <span class="math math-inline"><span
+                class="katex"><span class="katex-mathml">jj</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 0.854em; vertical-align: -0.1944em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.05724em;">j</span></span></span></span></span> with <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">j−1j - 1</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.854em; vertical-align: -0.1944em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.05724em;">j</span><span class="mspace"
+                                                                                       style="margin-right: 0.2222em;"></span><span
+                class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.6444em;"></span><span
+                class="mord">1</span></span></span></span></span>, one obtains that <code>dp[i][j - 1]</code> adds to
+        <code>dp[i][j]</code> for <span class="math math-inline"><span class="katex"><span class="katex-mathml">i≥0i \ge 0</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.7955em; vertical-align: -0.136em;"></span><span
+                class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+                class="mrel">≥</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.6444em;"></span><span
+                class="mord">0</span></span></span></span></span>, <span class="math math-inline"><span
+                class="katex"><span class="katex-mathml">j≥1j \ge 1</span><span class="katex-html"
+                                                                                aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 0.854em; vertical-align: -0.1944em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.05724em;">j</span><span class="mspace"
+                                                                                       style="margin-right: 0.2778em;"></span><span
+                class="mrel">≥</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.6444em;"></span><span
+                class="mord">1</span></span></span></span></span>.
+    </li>
+</ul>
+<p>From the above, one concludes that for <span class="math math-inline"><span class="katex"><span class="katex-mathml">j&gt;0j &gt; 0</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.854em; vertical-align: -0.1944em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.05724em;">j</span><span class="mspace"
+                                                                               style="margin-right: 0.2778em;"></span><span
+        class="mrel">&gt;</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+        class="base"><span class="strut" style="height: 0.6444em;"></span><span
+        class="mord">0</span></span></span></span></span>, we have <code>dp[i][j] = (cnt[target[i - 1] - 'a'][j - 1] *
+    dp[i - 1][j - 1]) + dp[i][j - 1]</code>. The summand in the brackets is present only for <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">i&gt;0i &gt; 0</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.6986em; vertical-align: -0.0391em;"></span><span
+        class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">&gt;</span><span
+        class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut"
+                                                                                              style="height: 0.6444em;"></span><span
+        class="mord">0</span></span></span></span></span>.</p>
+<p>We will use the recursive function <code>f(i, j)</code> that returns the value of <code>dp[i][j]</code>.</p>
+<p>The base case of the recursive function is <code>j = 0</code> – the same as the base case of the DP: <code>f(0,
+    0)</code> returns one, and <code>f(i, 0)</code> returns zero for <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">i&gt;0i &gt; 0</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+        class="strut" style="height: 0.6986em; vertical-align: -0.0391em;"></span><span class="mord mathnormal">i</span><span
+        class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">&gt;</span><span class="mspace"
+                                                                                                  style="margin-right: 0.2778em;"></span></span><span
+        class="base"><span class="strut" style="height: 0.6444em;"></span><span
+        class="mord">0</span></span></span></span></span>.</p>
+<p>One can rewrite the DP recurrence relation in terms of <code>f</code> as follows: <code>f(i, j)</code> returns <code>(cnt[target[i
+    - 1] - 'a'][j - 1] * f(i - 1, j - 1)) + f(i, j - 1)</code>. The summand in the brackets is present only for <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">i&gt;0i &gt; 0</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.6986em; vertical-align: -0.0391em;"></span><span
+        class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">&gt;</span><span
+        class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut"
+                                                                                              style="height: 0.6444em;"></span><span
+        class="mord">0</span></span></span></span></span>.</p>
+<p>The answer to the problem is <code>f(m, k) = dp[m][k]</code>.</p>
+<p>Here is an implementation of this function.</p>
+<pre>
+    C++
+    <code>
+        class Solution {
+public:
+    int numWays(vector<string>& words, string target) {
+        const int alphabet = 26;
+        const int mod = 1000000007;
+        int m = target.size(), k = words[0].size();
+        vector cnt(alphabet, vector<int>(k));
+        for (int j = 0; j < k; j++) {
+            for (const string& word : words) {
+                cnt[word[j] - 'a'][j]++;
+            }
+        }
+
+        function<long long(int, int)> f = [&](int i, int j) -> long long {
+            if (j == 0) {
+                return i == 0 ? 1 : 0;
+            }
+            long long result = f(i, j - 1);
+            if (i > 0) {
+                result += cnt[target[i - 1] - 'a'][j - 1] * f(i - 1, j - 1);
+            }
+            result %= mod;
+            return result;
+        };
+
+        return f(m, k);
+    }
+};
+    </code>
+</pre>
+<p>The issue here is that <code>f</code> might be called (exponentially) many times for the same parameters <code>(i,
+    j)</code>.</p>
+<p>For example, we call <code>f(4, 7)</code> for the first time and calculate the result for <code>i = 4</code>, <code>j
+    = 7</code>. When we call <code>f(4, 7)</code> for the second time, we recompute the same result.</p>
+<p>Instead, one may keep the calculated values of <code>f(i, j)</code> in memory. We will store the same DP table as in
+    the previous approach. In this case, the process will be as follows.</p>
+<p>For example, we call <code>f(4, 7)</code> for the first time, calculate the result for <code>i = 4</code>, <code>j =
+    7</code> and write this result into <code>dp[4][7]</code>. When we call <code>f(4, 7)</code> for the second time, we
+    immediately return <code>dp[4][7]</code>.</p>
+<p>In this way, we calculate the value of <code>f</code> for each state (each pair of parameters <code>(i, j)</code>)
+    only once.</p>
+<p>There remains one small technical question: how to know whether we call <code>f(i, j)</code> for the first time and
+    need to compute the result, or we call it later and can return <code>dp[i][j]</code> found earlier? One can handle
+    this by initializing the <code>dp</code> matrix with <code>-1</code>. Then <code>dp[i][j] = -1</code> will mean that
+    <code>f(i, j)</code> was not calculated yet. As soon as we find the result of <code>f(i, j)</code>, we will write it
+    in into <code>dp[i][j]</code>, and this value will not be <code>-1</code> anymore.</p>
+<h4 id="algorithm-1">Algorithm</h4>
+<p>We precompute the matrix <code>cnt</code> as in the previous approach. Also, we declare the DP matrix and initialize
+    it with <code>-1</code>. Again, operations here are performed mod <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">109+710^9 + 7</span><span class="katex-html"
+                                                                               aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.8974em; vertical-align: -0.0833em;"></span><span
+            class="mord">1</span><span class="mord"><span class="mord">0</span><span class="msupsub"><span
+            class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span
+            class="mord mtight">9</span></span></span></span></span></span></span></span><span class="mspace"
+                                                                                               style="margin-right: 0.2222em;"></span><span
+            class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">7</span></span></span></span></span>.
+</p>
+<p>Then we declare the function <code>f</code>. It takes parameters <code>i</code> and <code>j</code>.</p>
+<ol>
+    <li>If <span class="math math-inline"><span class="katex"><span class="katex-mathml">j=0j = 0</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.854em; vertical-align: -0.1944em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.05724em;">j</span><span class="mspace"
+                                                                                   style="margin-right: 0.2778em;"></span><span
+            class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span>,
+        return one, if <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">i=0i = 0</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 0.6595em;"></span><span class="mord mathnormal">i</span><span
+                class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2778em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.6444em;"></span><span
+                class="mord">0</span></span></span></span></span>, and zero otherwise.
+    </li>
+    <li>If <code>dp[i][j] != -1</code> (which means that we found this value earlier), return <code>dp[i][j]</code>.
+    </li>
+    <li>Set <code>dp[i][j] = f(i, j - 1)</code>.</li>
+    <li>If <span class="math math-inline"><span class="katex"><span class="katex-mathml">i&gt;0i &gt; 0</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.6986em; vertical-align: -0.0391em;"></span><span
+            class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+            class="mrel">&gt;</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span>,
+        add <code>cnt[target[i - 1] - 'a'][j - 1] * f(i - 1, j - 1)</code> to <code>dp[i][j]</code>.
+    </li>
+    <li>Return <code>dp[i][j]</code>.</li>
+</ol>
+<p><code>f(m, k)</code> returns the answer to the problem.</p>
+<h4 id="implementation-1">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    int alphabet = 26;
+    int mod = 1000000007;
+    int cnt[][];
+    long dp[][];
+
+    long f(String target, int i, int j) {
+        if (j == 0) {
+            return i == 0 ? 1 : 0;
+        }
+        if (dp[i][j] != -1) {
+            return dp[i][j];
+        }
+        dp[i][j] = f(target, i, j - 1);
+        if (i > 0) {
+            dp[i][j] += cnt[target.charAt(i - 1) - 'a'][j - 1] * f(target, i - 1, j - 1);
+        }
+        dp[i][j] %= mod;
+        return dp[i][j];
+    }
+
+    public int numWays(String[] words, String target) {
+        int m = target.length(), k = words[0].length();
+        cnt = new int[alphabet][k];
+        for (int j = 0; j < k; j++) {
+            for (String word : words) {
+                cnt[word.charAt(j) - 'a'][j]++;
+            }
+        }
+        dp = new long[m + 1][k + 1];
+        for (int i = 0; i <= m; i++) {
+            Arrays.fill(dp[i], -1);
+        }
+        return (int)f(target, m, k);
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int numWays(vector<string>& words, string target) {
+        const int alphabet = 26;
+        const int mod = 1000000007;
+        int m = target.size(), k = words[0].size();
+        vector cnt(alphabet, vector<int>(k));
+        for (int j = 0; j < k; j++) {
+            for (const string& word : words) {
+                cnt[word[j] - 'a'][j]++;
+            }
+        }
+        vector dp(m + 1, vector<long long>(k + 1, -1));
+
+        function<long long(int, int)> f = [&](int i, int j) -> long long {
+            if (j == 0) {
+                return i == 0 ? 1 : 0;
+            }
+            if (dp[i][j] != -1) {
+                return dp[i][j];
+            }
+            dp[i][j] = f(i, j - 1);
+            if (i > 0) {
+                dp[i][j] += cnt[target[i - 1] - 'a'][j - 1] * f(i - 1, j - 1);
+            }
+            dp[i][j] %= mod;
+            return dp[i][j];
+        };
+
+        return f(m, k);
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def numWays(self, words: List[str], target: str) -> int:
+        alphabet = 26
+        mod = 1000000007
+        m = len(target)
+        k = len(words[0])
+        cnt = [[0] * k for _ in range(alphabet)]
+        for j in range(k):
+            for word in words:
+                cnt[ord(word[j]) - ord('a')][j] += 1
+        dp = [[-1] * (k + 1) for _ in range(m + 1)]
+
+        def f(i, j):
+            if j == 0:
+                return 1 if i == 0 else 0
+            if dp[i][j] != -1:
+                return dp[i][j]
+            dp[i][j] = f(i, j - 1)
+            if i > 0:
+                dp[i][j] += (cnt[ord(target[i - 1]) - ord('a')][j - 1]
+                             * f(i - 1, j - 1))
+            dp[i][j] %= mod
+            return dp[i][j]
+
+        return f(m, k)
+    </code>
+</pre>
+<h4 id="complexity-analysis-1">Complexity Analysis</h4>
+<ul>
+    <li>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅k+m⋅k)O(n \cdot k + m \cdot k)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.7778em; vertical-align: -0.0833em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span class="mspace"
+                                                                                   style="margin-right: 0.2222em;"></span><span
+            class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.4445em;"></span><span
+            class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span class="mclose">)</span></span></span></span></span>.
+    </li>
+</ul>
+<p>The time complexity of calculating the <code>cnt</code> matrix is <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">O(n⋅k)O(n \cdot k)</span><span class="katex-html" aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+        class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+        class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                 style="margin-right: 0.03148em;">k</span><span
+        class="mclose">)</span></span></span></span></span>.</p>
+<p>Even though we changed the order of calculating DP, the time complexity of this part is the same as in the previous
+    approach: for each pair <code>(i, j)</code>, we calculate <code>dp[i][j]</code> in <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord">1</span><span class="mclose">)</span></span></span></span></span>. Since we store the results
+    in memory, we will compute each <code>dp[i][j]</code> only once.</p>
+<ul>
+    <li>Space complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(m⋅k)O(m \cdot k)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span class="mclose">)</span></span></span></span></span>.
+    </li>
+</ul>
+<p>It is the same as in the first approach.</p>
+</body>
+</html>
