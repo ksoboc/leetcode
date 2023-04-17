@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Kids With the Greatest Number of Candies - Solution</title>
+</head>
+<body>
+<h2 id="solution">Solution</h2>
+<hr>
+<h3 id="overview">Overview</h3>
+<p>We are given an integer array <code>candies</code>, where each <code>candies[i]</code> represents the number of
+    candies the <span class="math math-inline"><span class="katex"><span class="katex-mathml">ithi^{th}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.8491em;"></span><span
+            class="mord"><span class="mord mathnormal">i</span><span class="msupsub"><span class="vlist-t"><span
+            class="vlist-r"><span class="vlist" style="height: 0.8491em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+            class="mord mathnormal mtight">t</span><span
+            class="mord mathnormal mtight">h</span></span></span></span></span></span></span></span></span></span></span></span></span>
+    kid has, and an integer <code>extraCandies</code>, denoting the number of extra candies that you have.</p>
+<p>Our task is to return a boolean array <code>result</code> of length <code>n</code>, where <code>result[i]</code> is
+    true if, after giving the <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">ithi^{th}</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.8491em;"></span><span class="mord"><span
+            class="mord mathnormal">i</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span
+            class="vlist" style="height: 0.8491em;"><span style="top: -3.063em; margin-right: 0.05em;"><span
+            class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span
+            class="mord mtight"><span class="mord mathnormal mtight">t</span><span
+            class="mord mathnormal mtight">h</span></span></span></span></span></span></span></span></span></span></span></span></span>
+    kid all the <code>extraCandies</code>, they will have the greatest number of candies among all the kids, or <code>false</code>
+    otherwise.</p>
+<hr>
+<h3 id="approach-ad-hoc">Approach: Ad Hoc</h3>
+<h4 id="intuition">Intuition</h4>
+<p>We precompute the greatest number of candies that any kid(s) has, let's call it <code>maxCandies</code>.</p>
+<p>Following the precomputation, we iterate over <code>candies</code>, checking whether the total candies that the
+    current kid has exceeds <code>maxCandies</code> after giving <code>extraCandies</code> to the kid. For every kid, we
+    perform <code>candies[i] + extraCandies &gt;= maxCandies</code> and push it into a boolean list called
+    <code>result</code>.</p>
+<p>In the end, we return <code>result</code>.</p>
+<p>Here's a visual representation of how the approach works in the first example given in the problem description:</p>
+<p><img src="1431-1.png" alt="img"></p>
+<h4 id="algorithm">Algorithm</h4>
+<ol>
+    <li>Create an integer variable called <code>maxCandies</code> to store the greatest number of candies in <code>candies</code>.
+        We initialize it with <code>0</code>.
+    </li>
+    <li>We iterate over <code>candies</code> and for each kid who has <code>candy</code> candies, we perform <code>maxCandies
+        = max(maxCandies, candy)</code> to get the greatest number of candies in <code>candies</code>.
+    </li>
+    <li>Create a boolean list <code>answer</code>.</li>
+    <li>We iterate over <code>candies</code> once more, and for each kid who has <code>candy</code> candies, we add
+        <code>candy + extraCandies &gt;= maxCandies</code> to <code>answer</code>.
+    </li>
+    <li>Return <code>answer</code>.</li>
+</ol>
+<h4 id="implementation">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public List<Boolean> kidsWithCandies(int[] candies, int extraCandies) {
+        // Find out the greatest number of candies among all the kids.
+        int maxCandies = 0;
+        for (int candy : candies) {
+            maxCandies = Math.max(candy, maxCandies);
+        }
+        // For each kid, check if they will have greatest number of candies
+        // among all the kids.
+        List<Boolean> result = new ArrayList<>();
+        for (int candy : candies) {
+            result.add(candy + extraCandies >= maxCandies);
+        }
+
+        return result;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    vector<bool> kidsWithCandies(vector<int>& candies, int extraCandies) {
+        // Find out the greatest number of candies among all the kids.
+        int maxCandies = 0;
+        for (int candy : candies) {
+            maxCandies = max(maxCandies, candy);
+        }
+        // For each kid, check if they will have greatest number of candies
+        // among all the kids.
+        vector<bool> result;
+        for (int candy : candies) {
+            result.push_back(candy + extraCandies >= maxCandies);
+        }
+
+        return result;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution(object):
+    def kidsWithCandies(self, candies, extraCandies):
+        # Find out the greatest number of candies among all the kids.
+        maxCandies = max(candies)
+        # For each kid, check if they will have greatest number of candies
+        # among all the kids.
+        result = []
+        for i in range(len(candies)):
+            result.append(candies[i] + extraCandies >= maxCandies)
+        return result
+    </code>
+</pre>
+<h4 id="complexity-analysis">Complexity Analysis</h4>
+<p>Here, <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    is the number of kids.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <ul>
+            <li>We iterate over the <code>candies</code> array to find out <code>maxCandies</code> which takes <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> time.
+            </li>
+            <li>We iterate over the <code>candies</code> array once more. We check for each kid whether they will have
+                the most candies among all the children after receiving <code>extraCandies</code> and push the result in
+                <code>result</code> which takes <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord">1</span><span
+                        class="mclose">)</span></span></span></span></span> time. It requires <span
+                        class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+                time for <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 0.4306em;"></span><span
+                        class="mord mathnormal">n</span></span></span></span></span> kids.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord">1</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>Without counting the space of input and output, we are not using any space except for some integers like
+                <code>maxCandies</code> and <code>candy</code>.
+            </li>
+        </ul>
+    </li>
+</ul>
+</body>
+</html>
