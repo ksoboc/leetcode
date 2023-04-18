@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Merge Strings Alternately - Solution</title>
+</head>
+<body>
+<h2 id="solution">Solution</h2>
+<hr>
+<h3 id="overview">Overview</h3>
+<p>We are given two strings <code>word1</code> and <code>word2</code>.</p>
+<p>Our task is to merge the strings by adding letters in alternating order, starting with <code>word1</code>. If one
+    string is longer than the other, the additional letters must be appended to the end of the merged string.</p>
+<p>We must return the merged string that has been formed.</p>
+<hr>
+<h3 id="approach-1-two-pointers">Approach 1: Two Pointers</h3>
+<h4 id="intuition">Intuition</h4>
+<p>There are numerous ways in which we can combine the given strings. We've covered a few of them in this article.</p>
+<p>An intuitive method is to use two pointers to iterate over both strings. Assume we have two pointers, <code>i</code>
+    and <code>j</code>, with <code>i</code> pointing to the first letter of <code>word1</code> and <code>j</code>
+    pointing to the first letter of <code>word2</code>. We also create an empty string <code>results</code> to store the
+    outcome.</p>
+<p>We append the letter pointed to by pointer <code>i</code> i.e., <code>word1[i]</code>, and increment <code>i</code>
+    by <code>1</code> to point to the next letter of <code>word1</code>. Because we need to add the letters in
+    alternating order, next we append <code>word2[j]</code> to <code>results</code>. We also increase <code>j</code> by
+    <code>1</code>.</p>
+<p>We continue iterating over the given strings until both are exhausted. We stop appending letters from
+    <code>word1</code> when <code>i</code> reaches the end of <code>word1</code>, and we stop appending letters from
+    <code>word2'</code> when <code>j</code> reaches the end of <code>word2</code>.</p>
+<p>Here's a visual representation of how the approach works in the second example given in the problem description:</p>
+<p>
+<div class="relative mx-auto mb-6 flex flex-col overflow-hidden rounded-lg border-[1px] border-label-1"
+     style="max-width: 601px;">
+    <div class="rounded-lg" style="max-height: 301px;"><img alt="Current"
+                                                            class="object-fit-contain !mb-0 max-h-full max-w-full"
+                                                            src="blob:https://leetcode.com/fb59e845-3b6c-424b-a4cc-27f4846cea45">
+    </div>
+    <div class="absolute top-[50%] left-[50%] flex h-12 w-12 translate-x-[-50%] translate-y-[-50%] items-center justify-center rounded-full bg-black/30">
+        <div class="flex h-4 w-4 cursor-pointer items-center justify-center text-[35px]">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="h-full w-full text-white">
+                <path fill-rule="evenodd"
+                      d="M18.97 12.871l-12.96 7.29a1 1 0 01-1.49-.87V4.71a1 1 0 011.49-.872l12.96 7.29a1 1 0 010 1.743z"
+                      clip-rule="evenodd"></path>
+            </svg>
+        </div>
+    </div>
+    <div class="relative flex h-8 select-none items-center justify-around bg-black">
+        <div class="flex items-center space-x-7">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M16.091 4.929l-7.057 7.078 7.057 7.064a1 1 0 01-1.414 1.414l-7.764-7.77a1 1 0 010-1.415l7.764-7.785a1 1 0 111.415 1.414z"
+                      clip-rule="evenodd"></path>
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M18.97 12.871l-12.96 7.29a1 1 0 01-1.49-.87V4.71a1 1 0 011.49-.872l12.96 7.29a1 1 0 010 1.743z"
+                      clip-rule="evenodd"></path>
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M7.913 19.071l7.057-7.078-7.057-7.064a1 1 0 011.414-1.414l7.764 7.77a1 1 0 010 1.415l-7.764 7.785a1 1 0 01-1.414-1.414z"
+                      clip-rule="evenodd"></path>
+            </svg>
+        </div>
+        <div class="absolute right-0 mr-5 text-xs font-medium text-white">1 / 7</div>
+    </div>
+</div>
+</p>
+<h4 id="algorithm">Algorithm</h4>
+<ol>
+    <li>Create two variables, <code>m</code> and <code>n</code>, to store the length of <code>word1</code> and <code>word2</code>.
+    </li>
+    <li>Create an empty string variable <code>result</code> to store the result of merged words.</li>
+    <li>Create two pointers, <code>i</code> and <code>j</code> to point to indices of <code>word1</code> and
+        <code>word2</code>. We initialize both of them to <code>0</code>.
+    </li>
+    <li>While <code>i &lt; m || j &lt; n</code>:
+        <ul>
+            <li>If <code>i &lt; m</code>, it means that we have not completely traversed <code>word1</code>. As a
+                result, we append <code>word1[i]</code> to <code>result</code>. We increment <code>i</code> to point to
+                next index of <code>words</code>.
+            </li>
+            <li>If <code>j &lt; n</code>, it means that we have not completely traversed <code>word2</code>. As a
+                result, we append <code>word2[j]</code> to <code>result</code>. We increment <code>j</code> to point to
+                next index of <code>words</code>.
+            </li>
+        </ul>
+    </li>
+    <li>Return <code>results</code>.</li>
+</ol>
+<p>It is important to note how we form the <code>result</code> string in the following codes:
+    - <code>cpp</code>: The strings are mutable in cpp, which means they can be changed. As a result, we used the <code>string</code>
+    variable and performed all operations on it. It takes constant time to append a character to the string.
+    - <code>java</code>: The <code>String</code> class is immutable in java. So we used the mutable
+    <code>StringBuilder</code> to concatenate letters to <code>result</code>.
+    - <code>python</code>: Strings are immutable in python as well. As a result, we used the list <code>result</code> to
+    append letters and later joined the list with an empty string to return it as a string object. The <code>join</code>
+    operation takes linear time equal to the length of <code>results</code> to merge <code>results</code> with empty
+    string.</p>
+<h4 id="implementation">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public String mergeAlternately(String word1, String word2) {
+        int m = word1.length();
+        int n = word2.length();
+        StringBuilder result = new StringBuilder();
+        int i = 0, j = 0;
+
+        while (i < m || j < n) {
+            if (i < m) {
+                result.append(word1.charAt(i++));
+            }
+            if (j < n) {
+                result.append(word2.charAt(j++));
+            }
+        }
+
+        return result.toString();
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    string mergeAlternately(string word1, string word2) {
+        int m = word1.size();
+        int n = word2.size();
+        string result = "";
+        int i = 0, j = 0;
+
+        while (i < m || j < n) {
+            if (i < m) {
+                result.push_back(word1[i++]);
+            }
+            if (j < n) {
+                result.push_back(word2[j++]);
+            }
+        }
+
+        return result;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution(object):
+    def mergeAlternately(self, word1, word2):
+        m = len(word1)
+        n = len(word2)
+        i = 0
+        j = 0
+        result = []
+
+        while i < m or j < n:
+            if i < m:
+                result += word1[i]
+                i += 1
+            if j < n:
+                result += word2[j]
+                j += 1
+
+        return "".join(result)
+    </code>
+</pre>
+<h4 id="complexity-analysis">Complexity Analysis</h4>
+<p>Here, <span class="math math-inline"><span class="katex"><span class="katex-mathml">mm</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">m</span></span></span></span></span>
+    is the length of <code>word1</code> and <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.4306em;"></span><span
+            class="mord mathnormal">n</span></span></span></span></span> is the length of <code>word2</code>.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(m+n)O(m + n)</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>We iterate over <code>word1</code> and <code>word2</code> once and push their letters into
+                <code>result</code>. It would take <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(m+n)O(m + n)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">m</span><span class="mspace"
+                                                                                          style="margin-right: 0.2222em;"></span><span
+                        class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> time.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord">1</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>Without considering the space consumed by the input strings (<code>word1</code> and <code>word2</code>)
+                and the output string (<code>result</code>), we do not use more than constant space.
+            </li>
+        </ul>
+    </li>
+</ul>
+<hr>
+<h3 id="approach-2-one-pointer">Approach 2: One Pointer</h3>
+<h4 id="intuition-1">Intuition</h4>
+<p>To merge the given words, we can also use a single pointer.</p>
+<p>Let <code>i</code> be the pointer that we'll use. We begin with <code>i = 0</code> and progress to the size of the
+    longer word between <code>word1</code> and <code>word2</code>, i.e., till <code>i = max(word1.length(),
+        word2.length())</code>.</p>
+<p>As we progress to the size of a longer word, we check each time if <code>i</code> points to an index that is in
+    bounds of the words or not. If <code>i &lt; word1.length()</code>, we append <code>word1[i]</code> to
+    <code>results</code>. Similarly if <code>i &lt; word2.length()</code>, we append <code>word2[i]</code> to results.
+</p>
+<p>However, if <code>i</code> exceeds the length of any word, we don't have any letters to add from that word, so we
+    ignore it and continue adding the letter from the longer word.</p>
+<h4 id="algorithm-1">Algorithm</h4>
+<ol>
+    <li>Create two variables, <code>m</code> and <code>n</code>, to store the length of <code>word1</code> and <code>word2</code>.
+    </li>
+    <li>Create an empty string variable <code>result</code> to store the result of merged words.</li>
+    <li>Iterate over <code>word1</code> and <code>word2</code> using a loop running from <code>i = 0</code> to <code>i
+        &lt; max(m, n)</code> and keep incrementing <code>i</code> by <code>1</code> after each iteration:
+        <ul>
+            <li>If <code>i &lt; m</code>, it means that we have not completely traversed <code>word1</code>. As a
+                result, we append <code>word1[i]</code> to <code>result</code>.
+            </li>
+            <li>If <code>i &lt; n</code>, it means that we have not completely traversed <code>word2</code>. As a
+                result, we append <code>word2[i]</code> to <code>result</code>.
+            </li>
+        </ul>
+    </li>
+    <li>Return <code>results</code>.</li>
+</ol>
+<h4 id="implementation-1">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public String mergeAlternately(String word1, String word2) {
+        int m = word1.length();
+        int n = word2.length();
+        StringBuilder result = new StringBuilder();
+
+        for (int i = 0; i < Math.max(m, n); i++) {
+            if (i < m) {
+                result.append(word1.charAt(i));
+            }
+            if (i < n) {
+                result.append(word2.charAt(i));
+            }
+        }
+
+        return result.toString();
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    string mergeAlternately(string word1, string word2) {
+        int m = word1.size();
+        int n = word2.size();
+        string result = "";
+
+        for (int i = 0; i < max(m, n); i++) {
+            if (i < m) {
+                result.push_back(word1[i]);
+            }
+            if (i < n) {
+                result.push_back(word2[i]);
+            }
+        }
+
+        return result;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution(object):
+    def mergeAlternately(self, word1, word2):
+        result = []
+        n = max(len(word1), len(word2))
+        for i in range(n):
+            if i < len(word1):
+                result += word1[i]
+            if i < len(word2):
+                result += word2[i]
+
+        return "".join(result)
+    </code>
+</pre>
+<h4 id="complexity-analysis-1">Complexity Analysis</h4>
+<p>Here, <span class="math math-inline"><span class="katex"><span class="katex-mathml">mm</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">m</span></span></span></span></span>
+    is the length of <code>word1</code> and <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.4306em;"></span><span
+            class="mord mathnormal">n</span></span></span></span></span> is the length of <code>word2</code>.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(m+n)O(m + n)</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>We iterate over <code>word1</code> and <code>word2</code> once pushing their letters into
+                <code>result</code>. It would take <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(m+n)O(m + n)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">m</span><span class="mspace"
+                                                                                          style="margin-right: 0.2222em;"></span><span
+                        class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> time.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord">1</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>Without considering the space consumed by the input strings (<code>word1</code> and <code>word2</code>)
+                and the output string (<code>result</code>), we do not use more than constant space.
+            </li>
+        </ul>
+    </li>
+</ul>
+</body>
+</html>
