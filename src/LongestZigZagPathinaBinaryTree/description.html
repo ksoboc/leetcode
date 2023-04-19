@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Longest ZigZag Path in a Binary Tree</title>
+</head>
+<body>
+<div class="w-full px-5 pt-4">
+    <div class="w-full">
+        <div class="flex space-x-4">
+            <div class="flex-1">
+                <div class="flex items-center">
+                    <div class="h-full"><span class="mr-2 text-lg font-medium text-label-1 dark:text-dark-label-1">1372. Longest ZigZag Path in a Binary Tree</span>
+                        <div class="mt-1 inline-flex min-h-[20px] items-center space-x-2 align-top">
+                            <div class="inline-flex items-center space-x-2"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="mt-3 flex space-x-4">
+            <div class="bg-yellow dark:bg-dark-yellow text-yellow dark:text-dark-yellow inline-block rounded-[21px] bg-opacity-[.15] px-2.5 py-1 text-xs font-medium capitalize dark:bg-opacity-[.15]">
+                Medium
+            </div>
+        </div>
+    </div>
+</div>
+<div class="px-5 pt-4">
+    <div class="_1l1MA" data-track-load="qd_description_content"><p>You are given the <code>root</code> of a binary
+        tree.</p>
+
+        <p>A ZigZag path for a binary tree is defined as follow:</p>
+
+        <ul>
+            <li>Choose <strong>any </strong>node in the binary tree and a direction (right or left).</li>
+            <li>If the current direction is right, move to the right child of the current node; otherwise, move to the
+                left child.
+            </li>
+            <li>Change the direction from right to left or from left to right.</li>
+            <li>Repeat the second and third steps until you can't move in the tree.</li>
+        </ul>
+
+        <p>Zigzag length is defined as the number of nodes visited - 1. (A single node has a length of 0).</p>
+
+        <p>Return <em>the longest <strong>ZigZag</strong> path contained in that tree</em>.</p>
+
+        <p>&nbsp;</p>
+        <p><strong class="example">Example 1:</strong></p>
+        <img alt="" src="sample_1_1702.png"
+             style="width: 221px; height: 383px;">
+        <pre><strong>Input:</strong> root = [1,null,1,1,1,null,null,1,1,null,1,null,null,null,1,null,1]
+<strong>Output:</strong> 3
+<strong>Explanation:</strong> Longest ZigZag path in blue nodes (right -&gt; left -&gt; right).
+</pre>
+
+        <p><strong class="example">Example 2:</strong></p>
+        <img alt="" src="sample_2_1702.png"
+             style="width: 157px; height: 329px;">
+        <pre><strong>Input:</strong> root = [1,1,1,null,1,null,null,1,1,null,1]
+<strong>Output:</strong> 4
+<strong>Explanation:</strong> Longest ZigZag path in blue nodes (left -&gt; right -&gt; left -&gt; right).
+</pre>
+
+        <p><strong class="example">Example 3:</strong></p>
+
+        <pre><strong>Input:</strong> root = [1]
+<strong>Output:</strong> 0
+</pre>
+
+        <p>&nbsp;</p>
+        <p><strong>Constraints:</strong></p>
+
+        <ul>
+            <li>The number of nodes in the tree is in the range <code>[1, 5 * 10<sup>4</sup>]</code>.</li>
+            <li><code>1 &lt;= Node.val &lt;= 100</code></li>
+        </ul>
+    </div>
+</div>
+</body>
+</html>

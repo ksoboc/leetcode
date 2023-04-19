@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Longest ZigZag Path in a Binary Tree - Solution</title>
+</head>
+<body>
+<h2 id="solution">Solution</h2>
+<hr>
+<h3 id="overview">Overview</h3>
+<p>We are given the <code>root</code> node of a binary tree.</p>
+<p>Our task is to find the longest zigzag path contained in the tree.</p>
+<hr>
+<h3 id="approach-depth-first-search">Approach: Depth First Search</h3>
+<h4 id="intuition">Intuition</h4>
+<p>We can see that there are only two options available from each parent node. We either go to its left or right child
+    (if they exist).</p>
+<p>Let us observe some situations in which we move from a parent node to its children.</p>
+<p>Consider a parent node <code>p</code>, which itself is a left child. If <code>p</code> has a left child,
+    <code>l</code>, we cannot combine the edges going into <code>p</code> and <code>l</code>, because they have the same
+    direction and do not form a zigzag path. We can only begin a new zigzag path of length <code>1</code> by including
+    the edge between <code>p</code> and <code>l</code>.</p>
+<p>If <code>p</code> has a right child, <code>r</code>, we can include the edges going into <code>p</code> and
+    <code>r</code> together because their directions are opposite and form a zigzag path. If we know the length of the
+    zigzag path until node <code>p</code>, including <code>r</code> increases the length of the path by <code>1</code>.
+</p>
+<p>Now assume, that node <code>p</code> itself is a right child. If it has a left child <code>l</code>, we can combine
+    the edges going into <code>p</code> and <code>l</code>. The length of the zigzag path until <code>l</code> is equal
+    to the length of the zigzag path until <code>p</code> plus <code>1</code>. If <code>p</code> has a right child,
+    <code>r</code>, we must start over with only the edge between <code>p</code> and <code>r</code> forming a zigzag
+    path of length <code>1</code>.</p>
+<p>This provides us with a solution to the problem. All we have to do now is keep track of which way we should go to
+    continue forming a zigzag path. Depending on the current direction, we either include the edge of the child in the
+    zigzag path that includes the edge going into the parent node, or we start a new zigzag path with the edge going
+    into the child if the current direction does not match the direction of the child node.</p>
+<p>We can use a graph traversal algorithm like depth-first search (DFS) to traverse in the tree. In DFS, we use a
+    recursive function to explore nodes as far as possible along each branch. Upon reaching the end of a branch, we
+    backtrack to the previous node and continue exploring the next branches.</p>
+<p><img src="1372-1.png" alt="img"></p>
+<p>If you are new to Depth First Search, please see our <a
+        href="https://leetcode.com/explore/featured/card/graph/619/depth-first-search-in-graph/3882/" target="_blank">Leetcode
+    Explore Card</a> for more information on it!</p>
+<p>To store the longest zigzag path found thus far, we define an answer variable <code>pathLength = 0</code>. We
+    implement a <code>dfs</code> method that accepts a <code>TreeNode node</code>, a boolean <code>goLeft</code> to
+    indicate whether we should go left for the continuation of the zigzag path, and <code>steps</code> which stores the
+    length of the zigzag path so far.</p>
+<p>It's worth noting that we can substitute any other indication for <code>goLeft</code>. We can use whether the parent
+    node is a left or right child, or we can choose whether to continue the zigzag path to the right (similar to left).
+</p>
+<p>In the <code>dfs</code> method, we first determine whether <code>node</code> is <code>null</code> or not. If <code>node</code>
+    is <code>null</code>, we exit the method. If it is a valid node, we update our answer variable <code>pathLength =
+        max(pathLength, steps)</code>.</p>
+<p>If <code>goLeft</code> is <code>true</code>, the zigzag path will continue to the left. We can't go left in the next
+    step to continue this zigzag path because we're already going left in this step. As a result, we call <code>dfs(node.left,
+        false, steps + 1)</code>. We passed <code>steps + 1</code> because we kept going in a zigzag pattern.</p>
+<p>It should be noted that if the left does not exit, this call will be returned while we check if <code>node</code> is
+    <code>null</code> at the beginning. After the <code>null</code> node check, we update <code>pathLength</code>, so it
+    should only update <code>pathLength</code> for valid nodes.</p>
+<p>We use <code>dfs(node.right, true, 1)</code> for the right child. Because we must visit the left child the next time,
+    we passed <code>true</code> for <code>goLeft</code>. We pass <code>1</code> for<code>steps</code> to begin a new
+    zigzag path including only the parent to the right child edge as it cannot be merged with ongoing path.</p>
+<p>If <code>goLeft</code> is set to <code>false</code>, the zigzag path will continue to the right. We use <code>dfs(node.left,
+    false, 1)</code> for the left child because we need to start a new zigzag path from the parent to the left child
+    edge and we can't take left again in the next step. For the right child, we call <code>dfs(node.right, true, steps +
+        1)</code> because we keep continuing in the zigzag pattern.</p>
+<h4 id="algorithm">Algorithm</h4>
+<ol>
+    <li>Create an integer variable <code>pathLength</code> to store the length of the longest zigzag path found
+        discovered so far. Initialize it with <code>0</code>.
+    </li>
+    <li>Begin the DFS traveral. We implement the <code>dfs</code> method which takes three parameters: a <code>TreeNode
+        node</code> from which the current traversal begins, a boolean <code>goLeft</code> to indicate whether we should
+        go left now to continue the ongoing zigzag path, and an integer <code>steps</code> to store the length of the
+        current zigzag path. We call <code>dfs(root, false, 0)</code> and <code>dfs(root, true, 0)</code> because we can
+        take any direction from the <code>root</code> node and pass <code>0</code> for <code>steps</code> as there is no
+        zigzag path formed yet:
+        <ul>
+            <li>If <code>node == null</code>, return.</li>
+            <li>If <code>goLeft</code> is <code>true</code>, we can continue on the zigzag path by going left. To move
+                to the left child, we use <code>dfs(node.left, false, steps + 1)</code>, marking <code>goLeft</code> as
+                <code>false</code> for the next move and increasing <code>steps</code> by <code>1</code>. We also
+                traverse to the right child using <code>dfs(node.right, true, 1)</code> to begin a new zigzag path that
+                only includes the edge leading to the right child as it cannot be merged with the ongoing path. We pass
+                <code>true</code> for the next move as we moved in the right direction in this step.
+            </li>
+            <li>Otherwise, if <code>goLeft</code> is <code>false</code>, we move to the left child by calling <code>dfs(node.left,
+                false, 1)</code> and move to the right child by calling <code>dfs(node.right, true, steps + 1)</code>.
+            </li>
+        </ul>
+    </li>
+    <li>Return <code>pathLength</code>.</li>
+</ol>
+<h4 id="implementation">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    int pathLength = 0;
+    private void dfs(TreeNode node, boolean goLeft, int steps) {
+        if (node == null) {
+            return;
+        }
+        pathLength = Math.max(pathLength, steps);
+        if (goLeft) {
+            dfs(node.left, false, steps + 1);
+            dfs(node.right, true, 1);
+        } else {
+            dfs(node.left, false, 1);
+            dfs(node.right, true, steps + 1);
+        }
+    }
+
+    public int longestZigZag(TreeNode root) {
+        dfs(root, false, 0);
+        dfs(root, true, 0);
+        return pathLength;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int pathLength = 0;
+    void dfs(TreeNode* node, bool goLeft, int steps) {
+        if (node == nullptr) {
+            return;
+        }
+        pathLength = max(pathLength, steps);
+        if (goLeft) {
+            dfs(node->left, false, steps + 1);
+            dfs(node->right, true, 1);
+        } else {
+            dfs(node->left, false, 1);
+            dfs(node->right, true, steps + 1);
+        }
+    }
+
+    int longestZigZag(TreeNode* root) {
+        dfs(root, false, 0);
+        dfs(root, true, 0);
+        return pathLength;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def longestZigZag(self, root: Optional[TreeNode]) -> int:
+        self.pathLength = 0
+
+        def dfs(node, goLeft, steps):
+            if node:
+                self.pathLength = max(self.pathLength, steps)
+                if goLeft:
+                    dfs(node.left, False, steps + 1)
+                    dfs(node.right, True, 1)
+                else:
+                    dfs(node.left, False, 1)
+                    dfs(node.right, True, steps + 1)
+
+        dfs(root, False, 0)
+        dfs(root, True, 0)
+        return self.pathLength
+    </code>
+</pre>
+<h4 id="complexity-analysis">Complexity Analysis</h4>
+<p>Here, <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    is the number of nodes in the given binary tree.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <ul>
+            <li>Using the <code>dfs</code> function, we recursively visit both the childrens of every node once. As a
+                result, it takes <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+                time because there are <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+                nodes in total. We iterate over each edge once to visit all the all nodes, which again takes <span
+                        class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+                operations as there are <span class="math math-inline"><span class="katex"><span class="katex-mathml">n−1n - 1</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+                        class="mord mathnormal">n</span><span class="mspace"
+                                                              style="margin-right: 0.2222em;"></span><span class="mbin">−</span><span
+                        class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+                        class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span>
+                edges in the tree.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <ul>
+            <li>The recursion stack used by <code>dfs</code> can have no more than <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 0.4306em;"></span><span
+                    class="mord mathnormal">n</span></span></span></span></span> elements in the worst-case scenario
+                where each node is added to it. It would take up <span class="math math-inline"><span
+                        class="katex"><span class="katex-mathml">O(n)O(n)</span><span class="katex-html"
+                                                                                      aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+                space in that case.
+            </li>
+        </ul>
+    </li>
+</ul>
+</body>
+</html>
