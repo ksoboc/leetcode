@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Profitable Schemes - Solution</title>
+</head>
+<body>
+<h2 id="solution">Solution</h2>
+<hr>
+<h4 id="overview">Overview</h4>
+<p>We have two lists, each of size <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">MM</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                                           style="height: 0.6833em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.10903em;">M</span></span></span></span></span>; the first list,
+    <code>group</code>, represents the number of members that each of the <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">MM</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                    style="margin-right: 0.10903em;">M</span></span></span></span></span>
+    crimes needs, and the second list <code>profits</code>, represents the profit that each crime generates. We need to
+    find the number of subsets of these crimes such that a subset has no more than <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">NN</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                    style="margin-right: 0.10903em;">N</span></span></span></span></span>
+    criminals in it, and the total profit has to be at least <code>minProfit</code>. Also, since the number could be
+    huge, we need to return it modulo <span class="math math-inline"><span class="katex"><span class="katex-mathml">109+710^9 + 7</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.8974em; vertical-align: -0.0833em;"></span><span
+            class="mord">1</span><span class="mord"><span class="mord">0</span><span class="msupsub"><span
+            class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span
+            class="mord mtight">9</span></span></span></span></span></span></span></span><span class="mspace"
+                                                                                               style="margin-right: 0.2222em;"></span><span
+            class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">7</span></span></span></span></span>.
+    <br></p>
+<hr>
+<h4 id="approach-1-top-down-dynamic-programming">Approach 1: Top-Down Dynamic Programming</h4>
+<p><strong>Intuition</strong></p>
+<p>Each of the <span class="math math-inline"><span class="katex"><span class="katex-mathml">MM</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.6833em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.10903em;">M</span></span></span></span></span> crimes in the list
+    has two options, either we consider it in the current subset, or we don't. If we add this crime to the subset, we
+    need to ensure first that the number of members doesn't exceed <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">NN</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                    style="margin-right: 0.10903em;">N</span></span></span></span></span>;
+    also, the total profit will be increased by the profit of this crime. If we don't consider this crime, there would
+    be no change in the number of members or the total profit. The total number of such subsets would be the sum of the
+    count of these two choices for each crime. Let's consider what parameters we need to have in this recursive
+    approach:</p>
+<ol>
+    <li><code>index</code>: The index of the crime that we are considering currently.</li>
+    <li><code>count</code>: The total number of members we have in the current subset we have selected.</li>
+    <li><code>profit</code>: The total profit we have generated so far with the current subset we selected.</li>
+</ol>
+<p>We start with <code>index = 0</code>, i.e. from the first crime, <code>count = 0</code> denotes we have used no
+    members so far, and <code>profit = 0</code> as the total profit so far is zero. Now, for each crime, we make one of
+    the two choices that we discussed before and sum the count of both these choices modulo <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">109+710^9 + 7</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.8974em; vertical-align: -0.0833em;"></span><span
+            class="mord">1</span><span class="mord"><span class="mord">0</span><span class="msupsub"><span
+            class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span
+            class="mord mtight">9</span></span></span></span></span></span></span></span><span class="mspace"
+                                                                                               style="margin-right: 0.2222em;"></span><span
+            class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">7</span></span></span></span></span>.
+</p>
+<p>The only problem with this approach is that we are iterating over each of the two possibilities, and for <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">MM</span><span class="katex-html"
+                                                                                               aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                style="margin-right: 0.10903em;">M</span></span></span></span></span>
+    crimes, there could be <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">2M2^M</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.8413em;"></span><span class="mord"><span class="mord">2</span><span
+            class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                              style="height: 0.8413em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight"
+                                                          style="margin-right: 0.10903em;">M</span></span></span></span></span></span></span></span></span></span></span></span>
+    possible scenarios. Hence, this approach isn't efficient. If we observe the below figure, there are repeated
+    subproblems. Notice the green nodes are repeated subproblems signifying that we have already solved these
+    subproblems before. To avoid recalculating results for previously seen subproblems, we will memoize the result for
+    each subproblem. The next time we need to calculate the result for the same set of parameters <code>{index, count,
+        profit}</code>, we can look up the result in constant time instead of recalculating the result.</p>
+<p><img src="879A.png" alt="fig"></p>
+<p>One more observation that could help us reduce the number of states is that once the total profit exceeds <code>minProfit</code>,
+    it doesn't matter what the actual profit is anymore because we only care about making <strong>at least</strong>
+    <code>minProfit</code>. If the profit is at least <code>minProfit</code>, we will mark the current selection as a
+    profitable scheme; otherwise, not. Therefore, the <code>profit</code> in the states can be stored as <code>min(profit,
+        minProfit)</code> so that the possible values for <code>profit</code> always remains less than or equal to<code>minProfit</code>,
+    which can potentially save us many states in the memoization.</p>
+<p><strong>Algorithm</strong></p>
+<ol>
+    <li>Initialize the array <code>memo</code> with <code>-1</code>; this array will keep the calculated results, and
+        <code>-1</code> represents that the answer has not been calculated for these states yet.
+    </li>
+    <li>Start with all the parameters <code>index</code>, <code>count</code> and <code>profit</code> as <code>0</code>.
+    </li>
+    <li>If we have already calculated the answer for these parameters, i.e. the value in <code>memo</code> is
+        <code>-1</code> then return that value. If not, then go into the recursion.
+    </li>
+    <li>First, store the number of ways to get a profitable scheme if we don't consider this crime into the variable
+        <code>totalWays</code>, in this case, the new recursion state would be <code>{index + 1, count, profit}</code>.
+    </li>
+    <li>If we have enough criminals remaining, add the number of ways to get a profitable scheme by considering the
+        crime at <code>index</code> to <code>totalWays</code>. The new recursion state would be <code>{index + 1, count
+            + group[index], min(profit + profits[index], minProfit)}</code>.
+    </li>
+    <li>The base condition would be, if we reach the end of the list, i.e. the <code>index</code> is equal to <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">MM</span><span class="katex-html"
+                                                                                                   aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                    style="margin-right: 0.10903em;">M</span></span></span></span></span>,
+        then we can return <code>1</code> if the <code>profit</code> is more than <code>minProfit</code> otherwise we
+        return <code>0</code>.
+    </li>
+    <li>Return <code>totalWays</code>.</li>
+</ol>
+<p><strong>Implementation</strong></p>
+<pre>
+    Java
+    <code>
+        class Solution {
+    int mod = 1000000007;
+    int[][][] memo = new int[101][101][101];
+
+    int find(int pos, int count, int profit, int n, int minProfit, int[] group, int[] profits) {
+        if (pos == group.length) {
+            // If profit exceeds the minimum required; it's a profitable scheme.
+            return profit >= minProfit ? 1 : 0;
+        }
+
+        if (memo[pos][count][profit] != -1) {
+            // Repeated subproblem, return the stored answer.
+            return memo[pos][count][profit];
+        }
+
+        // Ways to get a profitable scheme without this crime.
+        int totalWays = find(pos + 1, count, profit, n, minProfit, group, profits);
+        if (count + group[pos] <= n) {
+            // Adding ways to get profitable schemes, including this crime.
+            totalWays += find(pos + 1, count + group[pos], Math.min(minProfit, profit + profits[pos]), n, minProfit, group, profits);
+        }
+
+        return memo[pos][count][profit] = totalWays % mod;
+    }
+
+    public int profitableSchemes(int n, int minProfit, int[] group, int[] profit) {
+        // Initializing all states as -1.
+        for (int i = 0; i <= group.length; i++) {
+            for(int j = 0; j <= n; j++) {
+                Arrays.fill(memo[i][j], -1);
+            }
+        }
+
+        return find(0, 0, 0, n, minProfit, group, profit);
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int mod = 1e9 + 7;
+    int memo[101][101][101];
+
+    int find(int pos, int count, int profit, int n, int minProfit, vector<int>& group, vector<int>& profits) {
+        if (pos == group.size()) {
+            // If profit exceeds the minimum required; it's a profitable scheme.
+            return profit >= minProfit;
+        }
+
+        if (memo[pos][count][profit] != -1) {
+            // Repeated subproblem, return the stored answer.
+            return memo[pos][count][profit];
+        }
+
+        // Ways to get a profitable scheme without this crime.
+        int totalWays = find(pos + 1, count, profit, n, minProfit, group, profits);
+        if (count + group[pos] <= n) {
+            // Adding ways to get profitable schemes, including this crime.
+            totalWays += find(pos + 1, count + group[pos], min(minProfit, profit + profits[pos]), n, minProfit, group, profits);
+        }
+
+        return memo[pos][count][profit] = totalWays % mod;
+    }
+
+    int profitableSchemes(int n, int minProfit, vector<int>& group, vector<int>& profit) {
+        memset(memo, -1,sizeof(memo));
+        return find(0, 0, 0, n, minProfit, group, profit);
+    }
+};
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<p>Here, <span class="math math-inline"><span class="katex"><span class="katex-mathml">NN</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                style="margin-right: 0.10903em;">N</span></span></span></span></span>
+    is the maximum number of criminals allowed in a scheme, <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">MM</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                 style="margin-right: 0.10903em;">M</span></span></span></span></span>
+    is the size of the list <code>group</code>, and <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">KK</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                 style="margin-right: 0.07153em;">K</span></span></span></span></span>
+    is the value of <code>minProfit</code>.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(N⋅M⋅K)O(N \cdot M \cdot K)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span class="mspace"
+                                                                                       style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                        style="margin-right: 0.10903em;">M</span><span
+                class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.07153em;">K</span><span
+                class="mclose">)</span></span></span></span></span>.</p>
+        <p>We have three parameters <code>index</code>, <code>count</code> and <code>profit</code>. The
+            <code>index</code> can vary from <code>0</code> to <code>M - 1</code>, and the <code>count</code> can again
+            vary from <code>0</code> to <code>N - 1</code> (as we consider crime only if it doesn't exceed the limit of
+            <span class="math math-inline"><span class="katex"><span class="katex-mathml">NN</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.6833em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">N</span></span></span></span></span>), the
+            last param <code>profit</code> can vary largely but since we cap its value to <code>minProfit</code> it
+            values can vary from <code>0</code> to <code>minProfit</code>. We need to calculate the answer to each of
+            these states to solve the original problem; hence the total computation would be <span
+                    class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(N⋅M⋅K)O(N \cdot M \cdot K)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span class="mspace"
+                                                                                           style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                            style="margin-right: 0.10903em;">M</span><span
+                    class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span
+                    class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut"
+                                                                                                          style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.07153em;">K</span><span
+                    class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(N⋅M⋅K)O(N \cdot M \cdot K)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span class="mspace"
+                                                                                       style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                        style="margin-right: 0.10903em;">M</span><span
+                class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.07153em;">K</span><span
+                class="mclose">)</span></span></span></span></span>.</p>
+        <p>The size of <code>memo</code> would equal the number of states as <span class="math math-inline"><span
+                class="katex"><span class="katex-mathml">(N⋅M⋅K)(N \cdot M \cdot K)</span><span class="katex-html"
+                                                                                                aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                        style="margin-right: 0.10903em;">M</span><span
+                class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.07153em;">K</span><span
+                class="mclose">)</span></span></span></span></span>. Although we used the maximum value of <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">101101</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.6444em;"></span><span
+                class="mord">101</span></span></span></span></span> in the code to simplify things, we can also use the
+            original values in the input as the size of <code>memo</code>. Also, there would be some space in the
+            recursion as well, the total number of active recursion calls could be <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">NN</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                            style="margin-right: 0.10903em;">N</span></span></span></span></span>
+            one for each crime, and hence the total recursion space would be <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">O(N)O(N)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                    class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+</ul>
+<h4 id="approach-2-bottom-up-dynamic-programming">Approach 2: Bottom-Up Dynamic Programming</h4>
+<p><strong>Intuition</strong></p>
+<p>In the previous approach, the recursive calls incurred stack space. This can be avoided by applying the same approach
+    iteratively, which is generally faster than the top-down approach. We will follow a similar approach as the previous
+    one, just in a reverse manner.</p>
+<p>We will start with the previous approach's base case and build up the answers for the remaining states using the
+    recursive equation that we will derive from the previous approach.</p>
+<p>The previous approach had three states <code>{index, count, profit}</code>, and the value for these states is stored
+    in, let's say, <code>dp[index][count][profit]</code>, now according to our previous solution, the number of ways to
+    get profitable scheme by not including the crime at <code>index</code> is equal to <code>dp[index +
+        1][count][profit]</code>. Similarly, the number of ways to get a profitable scheme by including the crime at
+    <code>index</code> (only if it doesn't make the member count more than <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">NN</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                    style="margin-right: 0.10903em;">N</span></span></span></span></span>)
+    is equal to <code>dp[index + 1][count + group[index]][min(profit + profits[index], minProfit)]</code>.</p>
+<p>Hence the recursive equation could be written as:</p>
+<blockquote>
+    <p>dp[index][count][profit] = dp[index + 1][count][profit] + take</p>
+    <p>Where <code>take = dp[index + 1][count + group[index]][min(profit + profits[index], minProfit)]</code> if <code>count
+        + group[index] &lt;= N</code>, otherwise <code>0</code></p>
+</blockquote>
+<p>Since we need to start from the previous approach's base condition, we will initialize the values <code>dp[M][count][minProfit]</code>
+    as <code>1s</code> and the rest as <code>0s</code>. This is because if we reach the end of the list
+    (<code>index</code> is <code>M</code>), and the count is any value less than <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">NN</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                    style="margin-right: 0.10903em;">N</span></span></span></span></span>
+    with profit <code>minProfit</code>, this is a profitable scheme; otherwise, it is not.</p>
+<p><strong>Algorithm</strong></p>
+<ol>
+    <li>
+        <p>Initialize the <code>dp</code> array with states as <code>index = group.size</code>, <code>profit =
+            minProfit</code>, and count with any value from <code>0</code> to <code>N</code> as <code>1</code>; the
+            remaining values would be <code>0</code>.</p>
+    </li>
+    <li>
+        <p>Loop over <code>index</code> from <code>group.size()</code> to <code>0</code>, nested with <code>count</code>
+            from <code>0</code> to <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">NN</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                    class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                         style="margin-right: 0.10903em;">N</span></span></span></span></span>
+            and nested with <code>profit</code> from <code>0</code> to <code>minProfit</code>, for each state:</p>
+        <ul>
+            <li>The number of ways to get a profitable scheme without including this crime would be = <code>dp[index +
+                1][count][profit]</code>; hence initialize <code>dp[index][count][profit] </code> with this.
+            </li>
+            <li>If adding crime at <code>index</code> won't exceed the member's threshold of <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">NN</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.6833em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">N</span></span></span></span></span>, add
+                the ways
+                <code>dp[index + 1][count + group[index]][min(minProfit, profit + profits[index])]</code>.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Return <code>dp[0][0][0]</code>.</p>
+    </li>
+</ol>
+<p><strong>Implementation</strong></p>
+<pre>
+    Java
+    <code>
+        class Solution {
+    int mod = 1000000007;
+    int[][][] memo = new int[101][101][101];
+
+    int find(int pos, int count, int profit, int n, int minProfit, int[] group, int[] profits) {
+        if (pos == group.length) {
+            // If profit exceeds the minimum required; it's a profitable scheme.
+            return profit >= minProfit ? 1 : 0;
+        }
+
+        if (memo[pos][count][profit] != -1) {
+            // Repeated subproblem, return the stored answer.
+            return memo[pos][count][profit];
+        }
+
+        // Ways to get a profitable scheme without this crime.
+        int totalWays = find(pos + 1, count, profit, n, minProfit, group, profits);
+        if (count + group[pos] <= n) {
+            // Adding ways to get profitable schemes, including this crime.
+            totalWays += find(pos + 1, count + group[pos], Math.min(minProfit, profit + profits[pos]), n, minProfit, group, profits);
+        }
+
+        return memo[pos][count][profit] = totalWays % mod;
+    }
+
+    public int profitableSchemes(int n, int minProfit, int[] group, int[] profit) {
+        // Initializing all states as -1.
+        for (int i = 0; i <= group.length; i++) {
+            for(int j = 0; j <= n; j++) {
+                Arrays.fill(memo[i][j], -1);
+            }
+        }
+
+        return find(0, 0, 0, n, minProfit, group, profit);
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int mod = 1e9 + 7;
+    int memo[101][101][101];
+
+    int find(int pos, int count, int profit, int n, int minProfit, vector<int>& group, vector<int>& profits) {
+        if (pos == group.size()) {
+            // If profit exceeds the minimum required; it's a profitable scheme.
+            return profit >= minProfit;
+        }
+
+        if (memo[pos][count][profit] != -1) {
+            // Repeated subproblem, return the stored answer.
+            return memo[pos][count][profit];
+        }
+
+        // Ways to get a profitable scheme without this crime.
+        int totalWays = find(pos + 1, count, profit, n, minProfit, group, profits);
+        if (count + group[pos] <= n) {
+            // Adding ways to get profitable schemes, including this crime.
+            totalWays += find(pos + 1, count + group[pos], min(minProfit, profit + profits[pos]), n, minProfit, group, profits);
+        }
+
+        return memo[pos][count][profit] = totalWays % mod;
+    }
+
+    int profitableSchemes(int n, int minProfit, vector<int>& group, vector<int>& profit) {
+        memset(memo, -1,sizeof(memo));
+        return find(0, 0, 0, n, minProfit, group, profit);
+    }
+};
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<p>Here, <span class="math math-inline"><span class="katex"><span class="katex-mathml">NN</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                style="margin-right: 0.10903em;">N</span></span></span></span></span>
+    is the maximum member allowed in the subset, <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">MM</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                 style="margin-right: 0.10903em;">M</span></span></span></span></span>
+    is the size of the list <code>group</code>, <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">KK</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                 style="margin-right: 0.07153em;">K</span></span></span></span></span>
+    is the maximum value of <code>minProfit</code>.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(N⋅M⋅K)O(N \cdot M \cdot K)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span class="mspace"
+                                                                                       style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                        style="margin-right: 0.10903em;">M</span><span
+                class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.07153em;">K</span><span
+                class="mclose">)</span></span></span></span></span>.</p>
+        <p>Similar to the previous approach, we would still need to process each of the states to solve the problem, and
+            hence the total time complexity would remain the same as <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(N⋅M⋅K)O(N \cdot M \cdot K)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span class="mspace"
+                                                                                           style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                            style="margin-right: 0.10903em;">M</span><span
+                    class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span
+                    class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut"
+                                                                                                          style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.07153em;">K</span><span
+                    class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(N⋅M⋅K)O(N \cdot M \cdot K)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span class="mspace"
+                                                                                       style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                        style="margin-right: 0.10903em;">M</span><span
+                class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.07153em;">K</span><span
+                class="mclose">)</span></span></span></span></span>.</p>
+        <p>This time there won't be any stack space consumption, but the array <code>dp</code> would still be of the
+            size <span class="math math-inline"><span class="katex"><span class="katex-mathml">(N⋅M⋅K)(N \cdot M \cdot K)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                    class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span
+                    class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut"
+                                                                                                          style="height: 0.6833em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">M</span><span class="mspace"
+                                                                                           style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.07153em;">K</span><span
+                    class="mclose">)</span></span></span></span></span> and hence the space complexity would be <span
+                    class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(N⋅M⋅K)O(N \cdot M \cdot K)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span class="mspace"
+                                                                                           style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                            style="margin-right: 0.10903em;">M</span><span
+                    class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span
+                    class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut"
+                                                                                                          style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.07153em;">K</span><span
+                    class="mclose">)</span></span></span></span></span>.
+            <br></p>
+    </li>
+</ul>
+<hr>
+</body>
+</html>
