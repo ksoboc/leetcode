@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Minimum Insertion Steps to Make a String Palindrome - Solution</title>
+</head>
+<body>
+<h2 id="solution">Solution</h2>
+<hr>
+<h3 id="overview">Overview</h3>
+<p>We are given a string <code>s</code>. We can step we can insert any character at any index of the string.</p>
+<p>Our task is to return the minimum number of steps to make <code>s</code> palindrome.</p>
+<hr>
+<h3 id="approach-1-recursive-dynamic-programming">Approach 1: Recursive Dynamic Programming</h3>
+<h4 id="intuition">Intuition</h4>
+<p>If you are new to Dynamic Programming, please see our <a
+        href="https://leetcode.com/explore/featured/card/dynamic-programming/" target="_blank">Leetcode Explore Card</a>
+    for more information on it!</p>
+<p>As our task is to insert minimum number of additional characters to <code>s</code> to make it a palindrome, we would
+    want to figure out the longest palindromic subsequence that we can make from the characters in <code>s</code>.
+    Characters that cannot be included in the longest palindromic subsequence must be adjusted by adding additional
+    characters at required indices to form the entire string palindrome.</p>
+<p><strong>The answer of the problem would be the length of <code>s</code> minus the length of the longest palindromic
+    subsequence in <code>s</code>.</strong></p>
+<p>There are several methods for determining the length of the longest palindromic subsequence in a string. The length
+    of the longest common subsequence (LCS) in the given string and its reverse string is one of the most commonly used
+    techniques. Here, we'll go over some of the approaches that make use of LCS.</p>
+<p>You can see some approaches that do not use LCS in this <a
+        href="https://leetcode.com/problems/longest-palindromic-subsequence/editorial/" target="_blank">editoral</a> of
+    the <a href="https://leetcode.com/problems/longest-palindromic-subsequence/description/" target="_blank">longest
+        palindromic subsequence problem</a>.</p>
+<p>We will use recursion to find the length of the longest common subsequence in this approach.</p>
+<p>Let's take two strings, <code>s1</code> which is equal to <code>s</code> and <code>s2</code> which is the reverse of
+    <code>s</code>. We want to find the longest common subsequence between these two strings.</p>
+<p>If the last characters of the substrings under consideration are the same, the last character will be considered in
+    the final common subsequence. As a result, we add <code>1</code> and recursively calculate the length of the longest
+    common subsequence in substrings formed by removing the last character from both strings.</p>
+<p>If the last characters aren't the same, we search for the LCS recursively by removing the last character from the
+    first substring while keeping the second substring as is. We also recurse by leaving the first substring as is and
+    removing the last character from the second. We choose the maximum of these because we want the longest common
+    subsequence.</p>
+<p>To perform this recursion, we use two variables, <code>m</code> and <code>n</code>, where <code>m</code> denotes the
+    first <code>m</code> characters from <code>s1</code> and <code>n</code> denotes the first <code>n</code> characters
+    from <code>s2</code> that are being considered in the current recursion call. As a result, the recursive relation
+    can be written as follows:</p>
+<blockquote>
+    <ol>
+        <li>If <code>s1[m - 1] == s2[n - 1]</code>, i.e., the last characters match, perform <code>answer = 1 + LCS(s1,
+            s2, m - 1, n - 1)</code>.
+        </li>
+        <li>Else, perform <code>answer = max(LCS(s1, s2, m, n - 1), LCS(s1, s2, m - 1, n)</code>.</li>
+    </ol>
+</blockquote>
+<p>where <code>LCS(string s1, string s2, int i, int j)</code> is a recursive method that returns the longest common
+    subsequence of the substrings taking the first <code>i</code> characters of <code>s1</code> and the first
+    <code>j</code> characters of <code>s2</code> into account. The LCS of <code>s1</code> and <code>s2</code> is <code>LCS(s1,
+        s2, m, n)</code>, where <code>m</code> is the length of <code>s1</code> and <code>n</code> is the length of
+    <code>s2</code>.</p>
+<p>The recursion tree of the above relation for <code>s1</code> and <code>s2</code> would look something like this:</p>
+<p><img src="1312-1.png" alt="img"></p>
+<p>Several subproblems, such as <code>LCS(s1, s2, m - 2, n - 1)</code>, <code>LCS(s1, s2, m - 1, n - 1)</code>, etc.,
+    are solved twice in the partial recursion tree shown above. If we draw the entire recursion tree, we can see that
+    there are many subproblems that are solved repeatedly.</p>
+<p>To avoid this issue, we store the solution of the subproblem in a 2D array when it is solved. When we encounter the
+    same subproblem again, we simply refer to the array. This is called <strong>memoization</strong>.</p>
+<p>The answer of the problem would be <code>n - LCS(s, sReverse, n, n)</code> where <code>n</code> is length of
+    <code>s</code> and <code>sReverse</code> is the reverse string of <code>s</code>.</p>
+<h4 id="algorithm">Algorithm</h4>
+<ol>
+    <li>Create an integer variable <code>n</code> and initialize it to the size of <code>s</code>.</li>
+    <li>Create a string variable <code>sReverse</code> and set it to the reverse of <code>s</code>.</li>
+    <li>Create a 2D-array called <code>memo</code> having <code>n + 1</code> rows and <code>n + 1</code> columns where
+        <code>memo[i][j]</code> contains the length of the longest common subsequence considering the first
+        <code>i</code> characters of <code>s</code> and the first <code>j</code> characters of <code>sReverse</code>. We
+        initialize the array to <code>-1</code>.
+    </li>
+    <li>Return <code>n - lcs(s, sReverse, n, n, memo)</code> where <code>lcs</code> is a recursive method with four
+        parameters: the first string <code>s1</code>, the second string <code>s2</code>, the length of the substring
+        from the start of <code>s1</code> under consideration, the length of the substring from the start of
+        <code>s2</code> under consideration and <code>memo</code>. It returns the length of the longest common
+        subsequence in the substrings of <code>s1</code> and <code>s2</code> under consideration. We perform the
+        following in this method:
+        <ul>
+            <li>If <code>m == 0 || n == 0</code>, it indicates one of the two substrings under consideration is empty,
+                so we return <code>0</code>.
+            </li>
+            <li>If <code>memo[m][n] != -1</code>, it indicates that we have already solved this subproblem, so we return
+                <code>memo[m][n]</code>.
+            </li>
+            <li>If the last characters of the substrings under consideration are the same, the last character has to be
+                included. As a result, we add <code>1</code> and look for the length of the longest common subsequence
+                by ignoring the last character of both the substrings under consideration. We return <code>memo[i][j] =
+                    1 + lcs(s1, s2, m - 1, n - 1, memo)</code>.
+            </li>
+            <li>Otherwise, if the last characters do not match, we recursively search for the longest common subsequence
+                in both the substrings formed after ignoring their last characters one by one. We pick the maximum of
+                these two. We return <code>memo[i][j] = max(lcs(s1, s2, m - 1, n, memo), lcs(s1, s2, m, n - 1,
+                    memo))</code>.
+            </li>
+        </ul>
+    </li>
+</ol>
+<h4 id="implementation">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    private int lcs(String s1, String s2, int m, int n, int[][] memo) {
+        if (m == 0 || n == 0) {
+            return 0;
+        }
+        if (memo[m][n] != -1) {
+            return memo[m][n];
+        }
+        if (s1.charAt(m - 1) == s2.charAt(n - 1)) {
+            return memo[m][n] = 1 + lcs(s1, s2, m - 1, n - 1, memo);
+        }
+        return memo[m][n] = Math.max(lcs(s1, s2, m - 1, n, memo), lcs(s1, s2, m, n - 1, memo));
+    }
+
+    public int minInsertions(String s) {
+        int n = s.length();
+        String sReverse = new StringBuilder(s).reverse().toString();
+        int[][] memo = new int[n + 1][n + 1];
+
+        for (int i = 0; i <= n; i++) {
+            for (int j = 0; j <= n; j++) {
+                memo[i][j] = -1;
+            }
+        }
+
+        return n - lcs(s, sReverse, n, n, memo);
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int lcs(string& s1, string& s2, int m, int n, vector<vector<int>>& memo) {
+        if (m == 0 || n == 0) {
+            return 0;
+        }
+        if (memo[m][n] != -1) {
+            return memo[m][n];
+        }
+        if (s1[m - 1] == s2[n - 1]) {
+            return memo[m][n] = 1 + lcs(s1, s2, m - 1, n - 1, memo);
+        }
+        return memo[m][n] = max(lcs(s1, s2, m - 1, n, memo), lcs(s1, s2, m, n - 1, memo));
+    }
+
+    int minInsertions(string s) {
+        int n = s.length();
+        string sReverse = s;
+        reverse(sReverse.begin(), sReverse.end());
+        vector<vector<int>> memo(n + 1, vector<int>(n + 1));
+
+        for (int i = 0; i <= n; i++) {
+            for (int j = 0; j <= n; j++) {
+                memo[i][j] = -1;
+            }
+        }
+
+        return n - lcs(s, sReverse, n, n, memo);
+    }
+};
+    </code>
+</pre>
+<h4 id="complexity-analysis">Complexity Analysis</h4>
+<p>Here, <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    is the length of <code>s</code>.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n2)O(n^2)</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+                class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>Initializing the <code>memo</code> array takes <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(n2)O(n^2)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+                    class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                    style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                       style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span
+                    class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                    class="mclose">)</span></span></span></span></span> time.
+            </li>
+            <li>Since there are <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n2)O(n^2)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+                    class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                    style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                       style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span
+                    class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                    class="mclose">)</span></span></span></span></span> states that we need to iterate over, the
+                recursive function is called <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(n2)O(n^2)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord"><span class="mord mathnormal">n</span><span
+                        class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                          style="height: 0.8141em;"><span
+                        style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                        class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                        class="mclose">)</span></span></span></span></span> times.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n2)O(n^2)</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+                class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>The <code>memo</code> array consumes <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(n2)O(n^2)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+                    class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                    style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                       style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span
+                    class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                    class="mclose">)</span></span></span></span></span> space.
+            </li>
+            <li>The recursion stack used in the solution can grow to a maximum size of <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>. When we
+                try to form the recursion tree, we see that there are maximum of two branches that can be formed at each
+                level (when <code>s[m - 1] != s[n - 1]</code>). The recursion stack would only have one call out of the
+                two branches. The height of such a tree will be <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+                because at each level we are decrementing the length of the strings under consideration by
+                <code>1</code>. As a result, the recursion tree that will be formed will have <span
+                        class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+                height. Hence, the recursion stack will have a maximum of <span class="math math-inline"><span
+                        class="katex"><span class="katex-mathml">O(n)O(n)</span><span class="katex-html"
+                                                                                      aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+                elements.
+            </li>
+        </ul>
+    </li>
+</ul>
+<hr>
+<h3 id="approach-2-iterative-dynamic-programming">Approach 2: Iterative Dynamic Programming</h3>
+<h4 id="intuition-1">Intuition</h4>
+<p>We used memoization in the preceding approach to store the answers to subproblems in order to solve a larger problem.
+    We can also use a bottom-up approach to solve such problems without using recursion. We build answers to subproblems
+    iteratively first, then use them to build answers to larger problems.</p>
+<p>Similar to the above approach, we create a reverse string of <code>s</code> called <code>sReverse</code> and pass
+    both strings to the <code>lcs</code> method as <code>s1</code> and <code>s2</code> respectively.</p>
+<p>In this approach, we modify the <code>lcs</code> method to make it iterative. In the <code>lcs</code> method, we
+    create a 2D-array <code>dp</code>, where <code>dp[i][j]</code> contains the length of the longest common subsequence
+    considering the first <code>i</code> characters of <code>s1</code> and the first <code>j</code> characters of <code>s2</code>.
+    Our answer would be <code>dp[m][n]</code>, where <code>m</code> is the length of <code>s1</code> and <code>n</code>
+    is the length of <code>s2</code>. The state transition would be as follows:</p>
+<blockquote>
+    <ol>
+        <li>If <code>s[i - 1] == s[j - 1]</code>, perform <code>dp[i][j] = 1 + dp[i - 1][j - 1]</code>.</li>
+        <li>Otherwise, perform <code>dp[i][j] = max(dp[i - 1][j], dp[i][j - 1]</code>.</li>
+    </ol>
+</blockquote>
+<p>To fill the <code>dp</code> array we will iterate using two loops with the outer loop running from <code>i = 0</code>
+    to <code>i = m</code> incrementing <code>i</code> by <code>1</code> after each iteration and an inner loop running
+    from <code>j = 0</code> to <code>j = m</code>. The length of the longest common sequence would be
+    <code>dp[m][n]</code>.</p>
+<p>The answer to the problem would <code>n - lcs(s, sReverse, n, n)</code> where <code>n</code> is the length of
+    <code>s</code>.</p>
+<h4 id="algorithm-1">Algorithm</h4>
+<ol>
+    <li>Create an integer variable <code>n</code> and initialize it to the size of <code>s</code>.</li>
+    <li>Create a string variable <code>sReverse</code> and set it to the reverse of <code>s</code>.</li>
+    <li>Return <code>n - lcs(s, sReverse, n, n)</code> where <code>lcs</code> is a recursive method with four
+        parameters: the first string <code>s1</code>, the second string <code>s2</code>, the length of <code>s1</code>
+        and the length of <code>s2</code>. It returns the length of the longest common subsequence in <code>s1</code>
+        and <code>s2</code>. We perform the following in this method:
+        <ul>
+            <li>Create a 2D-array called <code>dp</code> having <code>n + 1</code> rows and <code>n + 1</code> columns
+                where <code>dp[i][j]</code> will contain the length of the longest common subsequence considering the
+                first <code>i</code> characters of <code>s1</code> and the first <code>j</code> characters of
+                <code>s2</code>.
+            </li>
+            <li>We iterate using two loops. The outer loop iterates from <code>i = 0</code> to <code>i = m</code>
+                incrementing <code>i</code> by <code>1</code> after each iteration. The inner loop runs from <code>j =
+                    0</code> to <code>j = n</code>.
+            </li>
+            <li>If <code>i == 0 || j == 0</code>, it indicates one of the two substrings under consideration is empty,
+                so we mark <code>dp[i][j] = 0</code>.
+            </li>
+            <li>If the last characters of the substrings under consideration are the same, i.e., <code>s1[i - 1] == s2[j
+                - 1]</code>, the last character has to be included. As a result, we add <code>1</code> to the length of
+                the longest common subsequence by ignoring the last character of both the substrings under
+                consideration. We perform <code>dp[i][j] = 1 + dp[i - 1][j - 1]</code>.
+            </li>
+            <li>Otherwise, if the last characters do not match, we search for the longest common subsequence in both the
+                substrings formed after ignoring their last characters one by one. We pick the maximum of these two. We
+                perform <code>dp[i][j] = max(dp[i - 1][j], dp[i][j - 1])</code>.
+            </li>
+            <li>After all the iterations are complete, we return <code>dp[m][n]</code>.</li>
+        </ul>
+    </li>
+</ol>
+<h4 id="implementation-1">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    private int lcs(String s1, String s2, int m, int n) {
+        int[][] dp = new int[m + 1][n + 1];
+
+        for (int i = 0; i <= m; i++) {
+            for (int j = 0; j <= n; j++) {
+                if (i == 0 || j == 0) {
+                    // One of the two strings is empty.
+                    dp[i][j] = 0;
+                } else if (s1.charAt(i - 1) == s2.charAt(j - 1)) {
+                    dp[i][j] = 1 + dp[i - 1][j - 1];
+                } else {
+                    dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);
+                }
+            }
+        }
+
+        return dp[m][n];
+    }
+
+    public int minInsertions(String s) {
+        int n = s.length();
+        String sReverse = new StringBuilder(s).reverse().toString();
+
+        return n - lcs(s, sReverse, n, n);
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int lcs(string& s1, string& s2, int m, int n) {
+        vector<vector<int>> dp(n + 1, vector<int>(n + 1));
+
+        for (int i = 0; i <= m; i++) {
+            for (int j = 0; j <= n; j++) {
+                if (i == 0 || j == 0) {
+                    // One of the two strings is empty.
+                    dp[i][j] = 0;
+                } else if (s1[i - 1] == s2[j - 1]) {
+                    dp[i][j] = 1 + dp[i - 1][j - 1];
+                } else {
+                    dp[i][j] = max(dp[i - 1][j], dp[i][j - 1]);
+                }
+            }
+        }
+
+        return dp[m][n];
+    }
+
+    int minInsertions(string s) {
+        int n = s.length();
+        string sReverse = s;
+        reverse(sReverse.begin(), sReverse.end());
+
+        return n - lcs(s, sReverse, n, n);
+    }
+};
+    </code>
+</pre>
+<h4 id="complexity-analysis-1">Complexity Analysis</h4>
+<p>Here, <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    is the length of <code>s</code>.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n2)O(n^2)</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+                class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>Initializing the <code>dp</code> array takes <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(n2)O(n^2)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+                    class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                    style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                       style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span
+                    class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                    class="mclose">)</span></span></span></span></span> time.
+            </li>
+            <li>We fill the <code>dp</code> array which takes <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(n2)O(n^2)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+                    class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                    style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                       style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span
+                    class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                    class="mclose">)</span></span></span></span></span> time.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n2)O(n^2)</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+                class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>The <code>dp</code> array consumes <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(n2)O(n^2)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+                    class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                    style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                       style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span
+                    class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                    class="mclose">)</span></span></span></span></span> space.
+            </li>
+        </ul>
+    </li>
+</ul>
+<hr>
+<h3 id="approach-3-dynamic-programming-with-space-optimization">Approach 3: Dynamic Programming with Space
+    Optimization</h3>
+<h4 id="intuition-2">Intuition</h4>
+<p>We have seen that the state transitions are:</p>
+<blockquote>
+    <ol>
+        <li>If <code>s[i - 1] == s[j - 1]</code>, perform <code>dp[i][j] = 1 + dp[i - 1][j - 1]</code>.</li>
+        <li>Otherwise, perform <code>dp[i][j] = max(dp[i - 1][j], dp[i][j - 1]</code>.</li>
+    </ol>
+</blockquote>
+<p>If we examine this transition closely, we can see that in each iteration of the outer loop, we only need values from
+    all columns in the previous and current rows. As a result, we do not need to store all rows in our <code>dp</code>
+    matrix. We can just store two rows at a time and use them. To fill row <code>i</code> in the <code>dp</code> matrix,
+    we need the values from row <code>i - 1</code> (<code>dp[i - 1][j - 1]</code>, <code>dp[i - 1][j]</code>) and
+    previously computed value in the <span class="math math-inline"><span class="katex"><span class="katex-mathml">ithi^{th}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.8491em;"></span><span
+            class="mord"><span class="mord mathnormal">i</span><span class="msupsub"><span class="vlist-t"><span
+            class="vlist-r"><span class="vlist" style="height: 0.8491em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+            class="mord mathnormal mtight">t</span><span
+            class="mord mathnormal mtight">h</span></span></span></span></span></span></span></span></span></span></span></span></span>
+    row itself (<code>dp[i][j - 1]</code>). Values in rows <code>i - 2</code>, <code>i - 3</code>, and so on are no
+    longer needed.</p>
+<p>Our task is complete if we can store the values of the previous iteration, i.e., for row <code>i - 1</code> after
+    each iteration of the outer loop.</p>
+<p>We can solve this by using two 1D arrays. In the <code>lcs</code> method used in the previous approach, we create two
+    1D arrays of size <code>n + 1</code>, <code>dp</code> and <code>dpPrev</code>, where <code>n</code> is the size of
+    <code>s2</code>.</p>
+<p>We repeat the previous approach by running two loops. The outer loop runs from <code>i = 0</code> to <code>i =
+    m</code> and the inner loop runs from <code>j = 0</code> to <code>j = n</code>.</p>
+<p>Now, when we iterate using the two loops, <code>dp[j]</code> would store the length of longest common subsequence of
+    the substring considering the first <code>i</code> characters of <code>s1</code> and the first <code>j</code>
+    characters of <code>s2</code>. It is similar to what <code>dp[i][j]</code> stored in previous approach.</p>
+<p>The other array <code>dpPrev</code> is important to understand. It helps us by remembering the previous state that we
+    completed previously. <code>dpPrev[j]</code> would store the length of the longest common subsequence of the
+    substring considering the first <code>i - 1</code> characters of <code>s1</code> and the first <code>j</code>
+    characters of <code>s2</code>. It is analogous to <code>dp[i - 1][j]</code> in the previous approach.</p>
+<p>Because <code>dpPrev</code> stores the length of the longest common subsequence of the substring considering the
+    first <code>i - 1</code> characters of <code>s1</code> and the first <code>j</code> characters of <code>s2</code>,
+    we must copy the elements of <code>dp</code> to <code>dpPrev</code> after each outer loop iteration (or after every
+    inner loop completion) to prepare for the next iteration. After we copy <code>dp</code> to <code>dpPrev</code>, for
+    the next iteration which considers a substring of <code>s1</code> having first <code>i + 1</code> characters, <code>dpPrev</code>
+    will hold values for a substring of <code>s1</code> having first <code>i</code> characters and all possible
+    substrings (from the start) of <code>s2</code>, which is exactly what we want.</p>
+<h4 id="algorithm-2">Algorithm</h4>
+<ol>
+    <li>Create an integer variable <code>n</code> and initialize it to the size of <code>s</code>.</li>
+    <li>Create a string variable <code>sReverse</code> and set it to the reverse of <code>s</code>.</li>
+    <li>Return <code>n - lcs(s, sReverse, n, n)</code> where <code>lcs</code> is a recursive method with four
+        parameters: the first string <code>s1</code>, the second string <code>s2</code>, the length of <code>s1</code>
+        and the length of <code>s2</code>. It returns the length of the longest common subsequence in <code>s1</code>
+        and <code>s2</code>. We perform the following in this method:
+        <ul>
+            <li>Create a two 1D-arrays called <code>dp</code> and <code>dpPrev</code> of size <code>n + 1</code>.</li>
+            <li>We iterate using two loops. The outer loop iterates from <code>i = 0</code> to <code>i = m</code>
+                incrementing <code>i</code> by <code>1</code> after each iteration. The inner loop runs from <code>j =
+                    0</code> to <code>j = n</code>.
+            </li>
+            <li>If <code>i == 0 || j == 0</code>, it indicates one of the two substrings under consideration is empty,
+                so we mark <code>dp[j] = 0</code>.
+            </li>
+            <li>If the last characters of the substrings under consideration are the same, i.e., <code>s1[i - 1] == s2[j
+                - 1]</code>, the last character has to be included. As a result, we add <code>1</code> to the length of
+                the longest common subsequence by ignoring the last character of both the substrings under
+                consideration. We perform <code>dp[j] = 1 + dpPrev[j - 1]</code>. Note that we have already computed the
+                answers considering the first <code>i - 1</code> characters of <code>s1</code> and all possible
+                substrings (from the start) of <code>s2</code>. We have it in <code>dpPrev</code> and used it.
+            </li>
+            <li>Otherwise, if the last characters do not match, we search for the longest common subsequence in both the
+                substrings formed after ignoring their last characters one by one. We pick the maximum of these two. We
+                perform <code>dp[j] = max(dpPrev[j], dp[j - 1])</code>.
+            </li>
+            <li>After the completion of inner loop, we copy <code>dp</code> to <code>dpPrev</code>.</li>
+            <li>After all the iterations are complete, we return <code>dp[n]</code> (or <code>dpPrev[n]</code> as both
+                are similar).
+            </li>
+        </ul>
+    </li>
+</ol>
+<h4 id="implementation-2">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    private int lcs(String s1, String s2, int m, int n) {
+        int[] dp = new int[n + 1];
+        int[] dpPrev = new int[n + 1];
+
+        for (int i = 0; i <= m; i++) {
+            for (int j = 0; j <= n; j++) {
+                if (i == 0 || j == 0) {
+                    // One of the two strings is empty.
+                    dp[j] = 0;
+                } else if (s1.charAt(i - 1) == s2.charAt(j - 1)) {
+                    dp[j] = 1 + dpPrev[j - 1];
+                } else {
+                    dp[j] = Math.max(dpPrev[j], dp[j - 1]);
+                }
+            }
+            dpPrev = dp.clone();
+        }
+
+        return dp[n];
+    }
+
+    public int minInsertions(String s) {
+        int n = s.length();
+        String sReverse = new StringBuilder(s).reverse().toString();
+
+        return n - lcs(s, sReverse, n, n);
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int lcs(string& s1, string& s2, int m, int n) {
+        vector<int> dp(n + 1), dpPrev(n + 1);
+
+        for (int i = 0; i <= m; i++) {
+            for (int j = 0; j <= n; j++) {
+                if (i == 0 || j == 0) {
+                    // One of the two strings is empty.
+                    dp[j] = 0;
+                } else if (s1[i - 1] == s2[j - 1]) {
+                    dp[j] = 1 + dpPrev[j - 1];
+                } else {
+                    dp[j] = max(dpPrev[j], dp[j - 1]);
+                }
+            }
+            dpPrev = dp;
+        }
+
+        return dp[n];
+    }
+
+    int minInsertions(string s) {
+        int n = s.length();
+        string sReverse = s;
+        reverse(sReverse.begin(), sReverse.end());
+
+        return n - lcs(s, sReverse, n, n);
+    }
+};
+    </code>
+</pre>
+<h4 id="complexity-analysis-2">Complexity Analysis</h4>
+<p>Here, <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    is the length of <code>s</code>.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n2)O(n^2)</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+                class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>Initializing the <code>dp</code> and <code>dpPrev</code> arrays take <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> time.
+            </li>
+            <li>To get the answer, we use two loops that take <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(n2)O(n^2)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+                    class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                    style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                       style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span
+                    class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                    class="mclose">)</span></span></span></span></span> time.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <ul>
+            <li>The <code>dp</code> and <code>dpPrev</code> arrays take <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> space
+                each.
+            </li>
+        </ul>
+    </li>
+</ul>
+</body>
+</html>
