@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Smallest Number in Infinite Set - Solution</title>
+</head>
+<body>
+<h2 id="solution">Solution</h2>
+<hr>
+<h3 id="approach-1-hashset--heap">Approach 1: Hashset + Heap</h3>
+<h4 id="intuition">Intuition</h4>
+<p>We have a set of all positive integers (a set will always contain unique elements). Now say this problem statement
+    had only one method <code>popSmallest()</code>, then, we could have just kept one data structure (an array) and
+    inserted <code>1000</code> numbers from <code>1 - 1000</code> in it in increasing order, and while calling this
+    method we will just move our index pointer from left to right by <code>1</code>.</p>
+<p>But we know that the lowest positive integer is <code>1</code> and with each pop we move to the next positive integer
+    which will be one larger than the previous, thus instead of using an additional array we can use one integer
+    variable <code>currentInteger</code> initialized to <code>1</code> (denoting the smallest positive integer), and
+    with each method call, we will return the current smallest integer and increment <code>currentInteger</code> by
+    <code>1</code> (we move to the next greater positive integer).</p>
+<p><img src="Slide1.PNG" alt="slide1"></p>
+<p>But here we are also given one more method <code>addBack(num)</code>, which will insert an integer back into our set
+    (if the integer <code>num</code> is already present in our set then it won't do anything).</p>
+<p>We can keep a separate space (another data structure) for re-added integers. We only need to keep only integers
+    smaller than <code>currentInteger</code> in this data structure. That way, if the data structure is not empty, then
+    the smallest available integer will surely be in it.</p>
+<p>We need to insert some numbers and always keep track of the smallest number among them, we could use an array and
+    sort it again and again after each insert, but it will be very inefficient. Instead, we can use a min-heap data
+    structure here.</p>
+<blockquote>
+    <p>A min-heap is a specialized tree-based data structure that is used to efficiently maintain and retrieve the
+        minimum element from a collection of elements. A heap is typically implemented as a binary tree, where each node
+        in the tree represents an element in the collection.</p>
+</blockquote>
+<p>If you are new to this data structure then we recommend you visit our <a
+        href="https://leetcode.com/explore/featured/card/heap/643/heap/4018/" target="_blank">Heap Explore Card</a> for
+    a better understanding.</p>
+<p>But our heap will not support insertions of only unique elements (for example, if <code>addBack</code> is called with
+    the same number multiple times in a row), thus we will need an additional data structure to check already inserted
+    elements and not insert them again in the heap. We can use a hash set for this.</p>
+<p>
+<div class="relative mx-auto mb-6 flex flex-col overflow-hidden rounded-lg border-[1px] border-label-1"
+     style="max-width: 1200px;">
+    <div class="rounded-lg" style="max-height: 700px;"><img alt="Current"
+                                                            class="object-fit-contain !mb-0 max-h-full max-w-full"
+                                                            src="blob:https://leetcode.com/1d459c81-0964-4ba1-95bf-a34107d8a479">
+    </div>
+    <div class="absolute top-[50%] left-[50%] flex h-12 w-12 translate-x-[-50%] translate-y-[-50%] items-center justify-center rounded-full bg-black/30">
+        <div class="flex h-4 w-4 cursor-pointer items-center justify-center text-[35px]">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="h-full w-full text-white">
+                <path fill-rule="evenodd"
+                      d="M18.97 12.871l-12.96 7.29a1 1 0 01-1.49-.87V4.71a1 1 0 011.49-.872l12.96 7.29a1 1 0 010 1.743z"
+                      clip-rule="evenodd"></path>
+            </svg>
+        </div>
+    </div>
+    <div class="relative flex h-8 select-none items-center justify-around bg-black">
+        <div class="flex items-center space-x-7">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M16.091 4.929l-7.057 7.078 7.057 7.064a1 1 0 01-1.414 1.414l-7.764-7.77a1 1 0 010-1.415l7.764-7.785a1 1 0 111.415 1.414z"
+                      clip-rule="evenodd"></path>
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M18.97 12.871l-12.96 7.29a1 1 0 01-1.49-.87V4.71a1 1 0 011.49-.872l12.96 7.29a1 1 0 010 1.743z"
+                      clip-rule="evenodd"></path>
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M7.913 19.071l7.057-7.078-7.057-7.064a1 1 0 011.414-1.414l7.764 7.77a1 1 0 010 1.415l-7.764 7.785a1 1 0 01-1.414-1.414z"
+                      clip-rule="evenodd"></path>
+            </svg>
+        </div>
+        <div class="absolute right-0 mr-5 text-xs font-medium text-white">1 / 19</div>
+    </div>
+</div>
+</p>
+<p>To summarize, we will use an integer variable <code>currentInteger </code> which tracks the largest integer if we do
+    not have <code>addBack</code>, and a min-heap <code>addedInteger</code> plus a hash set <code>isPresent</code> to
+    handle numbers that get added back.</p>
+<h4 id="algorithm">Algorithm</h4>
+<ol>
+    <li>
+        <p>Initialize some variables:</p>
+        <ul>
+            <li><code>isPresent</code>, a hash set to store the removed numbers added again.</li>
+            <li><code>addedIntegers</code>, a min-heap priority queue to store the minimum of all added numbers on the
+                top.
+            </li>
+            <li><code>currentInteger</code>, an integer variable initialized to <code>1</code>, used to denote the
+                current minimum value number in the set of all positive numbers.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>In the <code>popSmallest()</code> method:</p>
+        <ul>
+            <li>If we have any element present in the min-heap <code>addedIntegers</code>, then the minimum number
+                present in it is the <code>answer</code>. We remove it from the min-heap and the hash set <code>isPresent</code>.
+            </li>
+            <li>Otherwise, the number denoted by <code>currentInteger</code> is our <code>answer</code>, and then we
+                increment <code>currentInteger</code> by <code>1</code> which denotes we removed the previous number and
+                moved to the next number in our set of all positive numbers.
+            </li>
+            <li>In the end, we return <code>answer</code>.</li>
+        </ul>
+    </li>
+    <li>
+        <p>In the <code>addBack(num)</code> method:</p>
+        <ul>
+            <li>If the 'num' is already present in our set, then we do nothing and return. This is the case if <code>currentInteger
+                &lt;= num</code> or <code>num</code> is in <code>isPresent</code>.
+            </li>
+            <li>Otherwise, we push it into min-heap <code>addedIntegers</code> and hash set <code>isPresent</code>.</li>
+        </ul>
+    </li>
+</ol>
+<h4 id="implementation">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class SmallestInfiniteSet {
+    private HashSet<Integer> isPresent;
+    private PriorityQueue<Integer> addedIntegers;
+    private Integer currentInteger;
+
+    public SmallestInfiniteSet() {
+        isPresent = new HashSet<>();
+        addedIntegers = new PriorityQueue<>();
+        currentInteger = 1;
+    }
+
+    public int popSmallest() {
+        int answer;
+        // If there are numbers in the min-heap,
+        // top element is lowest among all the available numbers.
+        if (!addedIntegers.isEmpty()) {
+            answer = addedIntegers.poll();
+            isPresent.remove(answer);
+        }
+        // Otherwise, the smallest number of large positive set
+        // denoted by 'currentInteger' is the answer.
+        else {
+            answer = currentInteger;
+            currentInteger += 1;
+        }
+        return answer;
+    }
+
+    public void addBack(int num) {
+        if (currentInteger <= num || isPresent.contains(num)) {
+            return;
+        }
+        // We push 'num' in the min-heap if it isn't already present.
+        addedIntegers.add(num);
+        isPresent.add(num);
+    }
+}
+    </code>
+    C++
+    <code>
+        class SmallestInfiniteSet {
+    unordered_set<int> isPresent;
+    priority_queue<int, vector<int>, greater<int>> addedIntegers;
+    int currentInteger;
+
+public:
+    SmallestInfiniteSet() {
+        // The positive integer set's first element will be 1.
+        currentInteger = 1;
+    }
+
+    int popSmallest() {
+        int answer;
+        // If there are numbers in the min-heap,
+        // top element is lowest among all the available numbers.
+        if (!addedIntegers.empty()) {
+            answer = addedIntegers.top();
+            isPresent.erase(answer);
+            addedIntegers.pop();
+        }
+        // Otherwise, the smallest number of large positive set
+        // denoted by 'currentInteger' is the answer.
+        else {
+            answer = currentInteger;
+            currentInteger += 1;
+        }
+        return answer;
+    }
+
+    void addBack(int num) {
+        if (currentInteger <= num ||
+            isPresent.find(num) != isPresent.end()) {
+            return;
+        }
+        // We push 'num' in the min-heap if it isn't already present.
+        addedIntegers.push(num);
+        isPresent.insert(num);
+    }
+};
+    </code>
+    Python3
+    <code>
+        class SmallestInfiniteSet:
+    def __init__(self):
+        self.is_present: {int} = set()
+        self.added_integers: [int] = []
+        self.current_integer = 1
+
+    def popSmallest(self) -> int:
+        # If there are numbers in the min-heap,
+        # top element is lowest among all the available numbers.
+        if len(self.added_integers):
+            answer = heapq.heappop(self.added_integers)
+            self.is_present.remove(answer)
+        # Otherwise, the smallest number of large positive set
+        # denoted by 'current_integer' is the answer.
+        else:
+            answer = self.current_integer
+            self.current_integer += 1
+        return answer
+
+    def addBack(self, num: int) -> None:
+        if self.current_integer <= num or num in self.is_present:
+            return
+        # We push 'num' in the min-heap if it isn't already present.
+        heapq.heappush(self.added_integers, num)
+        self.is_present.add(num)
+    </code>
+    JavaScript
+    <code>
+        let SmallestInfiniteSet = function() {
+    this.isPresent = new HashSet();
+    this.addedIntegers = new MinHeapPQ();
+    this.currentInteger = 1;
+};
+
+SmallestInfiniteSet.prototype.popSmallest = function() {
+    // If there are numbers in the min-heap,
+    // top element is lowest among all the available numbers.
+    if (!this.addedIntegers.isEmpty()) {
+        answer = this.addedIntegers.popMin();
+        this.isPresent.remove(answer);
+    }
+    // Otherwise, the smallest number of large positive set
+    // denoted by 'current_integer' is the answer.
+    else {
+        answer = this.currentInteger;
+        this.currentInteger += 1;
+    }
+    return answer;
+};
+
+SmallestInfiniteSet.prototype.addBack = function(num) {
+    if (this.currentInteger <= num || this.isPresent.contains(num)) {
+        return;
+    }
+    // We push 'num' in the min-heap if it isn't already present.
+    this.addedIntegers.insert(num);
+    this.isPresent.add(num);
+};
+
+
+// === MIN HEAP PRIORITY QUEUE CLASS === //
+class MinHeapPQ {
+    constructor() {
+        this.heap = [];
+    }
+
+    // Helper methods to get parent, left and right child indices
+    getParentIndex(index) {
+        return Math.floor((index - 1) / 2);
+    }
+    getLeftChildIndex(index) {
+        return 2 * index + 1;
+    }
+    getRightChildIndex(index) {
+        return 2 * index + 2;
+    }
+
+    // Helper method to swap two elements in the heap
+    swap(index1, index2) {
+        [this.heap[index1], this.heap[index2]] = [this.heap[index2], this.heap[index1]];
+    }
+
+    // Helper method to get the minimum element in the heap
+    peek() {
+        if (this.heap.length === 0) {
+            throw new Error("Heap is empty");
+        }
+        return this.heap[0];
+    }
+
+    // Helper method to insert an element into the heap
+    insert(value) {
+        this.heap.push(value);
+        let currentIndex = this.heap.length - 1;
+        let parentIndex = this.getParentIndex(currentIndex);
+        while (currentIndex > 0 && this.heap[currentIndex] < this.heap[parentIndex]) {
+            this.swap(currentIndex, parentIndex);
+            currentIndex = parentIndex;
+            parentIndex = this.getParentIndex(currentIndex);
+        }
+    }
+
+    // Helper method to remove the minimum element from the heap
+    popMin() {
+        if (this.heap.length === 0) {
+            throw new Error("Heap is empty");
+        }
+        const min = this.heap[0];
+        const last = this.heap.pop();
+        if (this.heap.length > 0) {
+            this.heap[0] = last;
+            let currentIndex = 0;
+            let leftChildIndex = this.getLeftChildIndex(currentIndex);
+            let rightChildIndex = this.getRightChildIndex(currentIndex);
+            while (
+                (leftChildIndex < this.heap.length && this.heap[leftChildIndex] < this.heap[currentIndex]) ||
+                (rightChildIndex < this.heap.length && this.heap[rightChildIndex] < this.heap[currentIndex])
+            ) {
+                const smallerChildIndex = (rightChildIndex >= this.heap.length ||
+                    this.heap[leftChildIndex] < this.heap[rightChildIndex]) ? leftChildIndex : rightChildIndex;
+
+                this.swap(currentIndex, smallerChildIndex);
+                currentIndex = smallerChildIndex;
+                leftChildIndex = this.getLeftChildIndex(currentIndex);
+                rightChildIndex = this.getRightChildIndex(currentIndex);
+            }
+        }
+        return min;
+    }
+
+    // Helper method to get the size of the heap
+    size() {
+        return this.heap.length;
+    }
+    // Helper method to check if the heap is empty
+    isEmpty() {
+        return this.heap.length === 0;
+    }
+}
+
+
+// === HASH SET CLASS === //
+class HashSet {
+  constructor() {
+    this.hash = {};
+    this.size = 0;
+  }
+
+  add(value) {
+    if (!this.contains(value)) {
+      this.hash[value] = true;
+      this.size++;
+    }
+  }
+
+  remove(value) {
+    if (this.contains(value)) {
+      delete this.hash[value];
+      this.size--;
+    }
+  }
+
+  contains(value) {
+    return this.hash.hasOwnProperty(value);
+  }
+
+  getSize() {
+    return this.size;
+  }
+
+  isEmpty() {
+    return this.size === 0;
+  }
+
+  clear() {
+    this.hash = {};
+    this.size = 0;
+  }
+}
+    </code>
+    Swift
+    <code>
+        class SmallestInfiniteSet {
+    var isPresent: Set<Int>
+    var addedIntegers: MinHeapPQ<Int>
+    var currentInteger: Int
+
+    init() {
+        isPresent = Set<Int>()
+        addedIntegers = MinHeapPQ<Int>()
+        currentInteger = 1
+    }
+
+    func popSmallest() -> Int {
+        // If there are numbers in the min-heap,
+        // top element is lowest among all the available numbers.
+        var answer: Int
+        if !addedIntegers.isEmpty() {
+            answer = addedIntegers.popMin()!
+            isPresent.remove(answer)
+        }
+        // Otherwise, the smallest number of large positive set
+        // denoted by 'current_integer' is the answer.
+        else {
+            answer = currentInteger
+            currentInteger += 1
+        }
+        return answer
+    }
+
+    func addBack(_ num: Int) {
+        if currentInteger <= num || isPresent.contains(num) {
+            return
+        }
+        // We push 'num' in the min-heap if it isn't already present.
+        addedIntegers.insert(value: num)
+        isPresent.insert(num)
+    }
+}
+
+
+// === MIN HEAP PRIORITY QUEUE CLASS === //
+class MinHeapPQ<T: Comparable> {
+    var heap: [T] = []
+
+    // Helper methods to get parent, left and right child indices
+    func getParentIndex(_ index: Int) -> Int {
+        return (index - 1) / 2
+    }
+    func getLeftChildIndex(_ index: Int) -> Int {
+        return 2 * index + 1
+    }
+    func getRightChildIndex(_ index: Int) -> Int {
+        return 2 * index + 2
+    }
+
+    // Helper method to swap two elements in the heap
+    func swap(_ index1: Int, _ index2: Int) {
+        (self.heap[index1], self.heap[index2]) = (self.heap[index2], self.heap[index1])
+    }
+
+    // Helper method to get the minimum element in the heap
+    func peek() -> T? {
+        if self.heap.count == 0 {
+            return nil
+        }
+        return self.heap[0]
+    }
+
+    // Helper method to insert an element into the heap
+    func insert(value: T) {
+        self.heap.append(value)
+        var currentIndex = self.heap.count - 1
+        var parentIndex = self.getParentIndex(currentIndex)
+        while currentIndex > 0 && self.heap[currentIndex] < self.heap[parentIndex] {
+            swap(currentIndex, parentIndex)
+            currentIndex = parentIndex
+            parentIndex = self.getParentIndex(currentIndex)
+        }
+    }
+
+    // Helper method to remove the minimum element from the heap
+    func popMin() -> T? {
+        if heap.isEmpty {
+            return nil
+        }
+        let min = heap[0]
+        let last = heap.removeLast()
+        if !heap.isEmpty {
+            heap[0] = last
+            var currentIndex = 0
+            var leftChildIndex = getLeftChildIndex(currentIndex)
+            var rightChildIndex = getRightChildIndex(currentIndex)
+            while leftChildIndex < heap.count &&
+                  (heap[leftChildIndex] < heap[currentIndex] ||
+                   (rightChildIndex < heap.count && heap[rightChildIndex] < heap[currentIndex]
+                  )
+            ) {
+                let smallerChildIndex = rightChildIndex < heap.count &&
+                      heap[rightChildIndex] < heap[leftChildIndex] ? rightChildIndex : leftChildIndex
+
+                swap(currentIndex, smallerChildIndex)
+                currentIndex = smallerChildIndex
+                leftChildIndex = getLeftChildIndex(currentIndex)
+                rightChildIndex = getRightChildIndex(currentIndex)
+            }
+        }
+        return min
+    }
+
+    func size() -> Int {
+        return heap.count
+    }
+
+    func isEmpty() -> Bool {
+        return heap.isEmpty
+    }
+}
+    </code>
+</pre>
+<h4 id="complexity-analysis">Complexity Analysis</h4>
+<p>Here, <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    is the number <code>addBack(num)</code> and <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">mm</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.4306em;"></span><span
+            class="mord mathnormal">m</span></span></span></span></span> is the number of <code>popSmallest()</code>
+    method calls.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O((m+n)⋅log⁡n)O((m + n) \cdot \log n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">((</span><span
+                class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span><span class="mspace"
+                                                                                   style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                      style="margin-right: 0.1667em;"></span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>
+                <p>In each <code>popSmallest()</code> method call, in the worst case, we will need to remove a number
+                    from the hash set which will take <span class="math math-inline"><span class="katex"><span
+                            class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span
+                            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                            class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span></span>
+                    time, and the top of the min-heap which will take <span class="math math-inline"><span
+                            class="katex"><span class="katex-mathml">O(log⁡n)O(\log n)</span><span class="katex-html"
+                                                                                                   aria-hidden="true"><span
+                            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                            class="mopen">(</span><span class="mop">lo<span
+                            style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                  style="margin-right: 0.1667em;"></span><span
+                            class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+                    time. Thus, for <span class="math math-inline"><span class="katex"><span
+                            class="katex-mathml">mm</span><span class="katex-html" aria-hidden="true"><span
+                            class="base"><span class="strut" style="height: 0.4306em;"></span><span
+                            class="mord mathnormal">m</span></span></span></span></span> calls it will take <span
+                            class="math math-inline"><span class="katex"><span class="katex-mathml">O(m⋅log⁡n)O(m \cdot \log n)</span><span
+                            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+                            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                            class="mopen">(</span><span class="mord mathnormal">m</span><span class="mspace"
+                                                                                              style="margin-right: 0.2222em;"></span><span
+                            class="mbin">⋅</span><span class="mspace"
+                                                       style="margin-right: 0.2222em;"></span></span><span class="base"><span
+                            class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                            style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                  style="margin-right: 0.1667em;"></span><span
+                            class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+                    time.</p>
+            </li>
+            <li>
+                <p>In each <code>addBack(num)</code> method call, we might push <code>num</code> in the hash set which
+                    will take <span class="math math-inline"><span class="katex"><span
+                            class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span
+                            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                            class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span></span>
+                    time and min-heap which will take <span class="math math-inline"><span class="katex"><span
+                            class="katex-mathml">O(log⁡n)O(\log n)</span><span class="katex-html"
+                                                                               aria-hidden="true"><span
+                            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                            class="mopen">(</span><span class="mop">lo<span
+                            style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                  style="margin-right: 0.1667em;"></span><span
+                            class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+                    time. Thus, for <span class="math math-inline"><span class="katex"><span
+                            class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span
+                            class="base"><span class="strut" style="height: 0.4306em;"></span><span
+                            class="mord mathnormal">n</span></span></span></span></span> calls it will take <span
+                            class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅log⁡n)O(n \cdot \log n)</span><span
+                            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+                            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                            class="mopen">(</span><span class="mord mathnormal">n</span><span class="mspace"
+                                                                                              style="margin-right: 0.2222em;"></span><span
+                            class="mbin">⋅</span><span class="mspace"
+                                                       style="margin-right: 0.2222em;"></span></span><span class="base"><span
+                            class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                            style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                  style="margin-right: 0.1667em;"></span><span
+                            class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+                    time.</p>
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <ul>
+            <li>In the worst case, we might add <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                    class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+                elements in the hash set and the min-heap. Thus, it will take <span class="math math-inline"><span
+                        class="katex"><span class="katex-mathml">O(n)O(n)</span><span class="katex-html"
+                                                                                      aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+                space.
+            </li>
+        </ul>
+    </li>
+</ul>
+<br>
+<hr>
+<h3 id="approach-2-sorted-set">Approach 2: Sorted Set</h3>
+<h4 id="intuition-1">Intuition</h4>
+<p>As we discussed in the previous approach, we used a min-heap to keep track of the smallest added-back number and a
+    hash set to insert only unique elements. We can combine the functionality of these two with an ordered set (also
+    known as a sorted set) for this task.</p>
+<blockquote>
+    <p>A sorted set contains only unique elements with maintaining a balanced binary search tree like structure to keep
+        the elements in sorted order. The exact implementation might differ in each language.</p>
+</blockquote>
+<h4 id="algorithm-1">Algorithm</h4>
+<ol>
+    <li>
+        <p>Initialize some variables:</p>
+        <ul>
+            <li><code>addedIntegers</code>, a sorted set to store added numbers in increasing order.</li>
+            <li><code>currentInteger</code>, an integer variable initialized to <code>1</code>, used to denote the
+                current minimum value number in the set of all positive numbers.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>In the <code>popSmallest()</code> method:</p>
+        <ul>
+            <li>If we have any element present in the sorted-set <code>addedIntegers</code>, then the minimum number
+                present in it is the <code>answer</code>. We remove it from the set.
+            </li>
+            <li>Otherwise, the number denoted by <code>currentInteger</code> is our <code>answer</code>, and then we
+                increment <code>currentInteger</code> by <code>1</code> which denotes we removed the previous number and
+                moved to the next number in our set of all positive numbers.
+            </li>
+            <li>In the end, we return <code>answer</code>.</li>
+        </ul>
+    </li>
+    <li>
+        <p>In the <code>addBack(num)</code> method:</p>
+        <ul>
+            <li>If the 'num' is already present in our set, then we return.</li>
+            <li>Otherwise, we push it in the sorted-set <code>addedIntegers</code>.</li>
+        </ul>
+    </li>
+</ol>
+<h4 id="implementation-1">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class SmallestInfiniteSet {
+    private SortedSet<Integer> addedIntegers;
+    private Integer currentInteger;
+
+    public SmallestInfiniteSet() {
+        addedIntegers = new TreeSet<>();
+        currentInteger = 1;
+    }
+
+    public int popSmallest() {
+        int answer;
+        // If there are numbers in the sorted-set,
+        // top element is lowest among all the available numbers.
+        if (!addedIntegers.isEmpty()) {
+            answer = addedIntegers.first();
+            addedIntegers.remove(answer);
+        }
+        // Otherwise, the smallest number of large positive set
+        // denoted by 'currentInteger' is the answer.
+        else {
+            answer = currentInteger;
+            currentInteger += 1;
+        }
+        return answer;
+    }
+
+    public void addBack(int num) {
+        if (currentInteger <= num || addedIntegers.contains(num)) {
+            return;
+        }
+        // We push 'num' in the sorted-set if it isn't already present.
+        addedIntegers.add(num);
+    }
+}
+    </code>
+    C++
+    <code>
+        class SmallestInfiniteSet {
+    set<int> addedIntegers;
+    int currentInteger;
+public:
+    SmallestInfiniteSet() {
+        // The positive integer set's first element will be 1.
+        currentInteger = 1;
+    }
+    int popSmallest() {
+        int answer;
+        // If there are numbers in the sorted-set,
+        // first element is lowest among all the available numbers.
+        if (!addedIntegers.empty()) {
+            answer = *addedIntegers.begin();
+            addedIntegers.erase(addedIntegers.begin());
+        }
+        // Otherwise, the smallest number of large positive set
+        // denoted by 'currentInteger' is the answer.
+        else {
+            answer = currentInteger;
+            currentInteger += 1;
+        }
+        return answer;
+    }
+    void addBack(int num) {
+        if (currentInteger <= num ||
+            addedIntegers.find(num) != addedIntegers.end()) {
+            return;
+        }
+        // We push 'num' in the sorted-set if it isn't already present.
+        addedIntegers.insert(num);
+    }
+};
+    </code>
+    Python3
+    <code>
+        from sortedcontainers import SortedSet
+
+class SmallestInfiniteSet:
+    def __init__(self):
+        self.added_integers = SortedSet()
+        self.current_integer = 1
+    def popSmallest(self) -> int:
+        # If there are numbers in the sorted-set,
+        # top element is lowest among all the available numbers.
+        if len(self.added_integers):
+            answer = self.added_integers[0]
+            self.added_integers.discard(answer)
+        # Otherwise, the smallest number of large positive set
+        # denoted by 'current_integer' is the answer.
+        else:
+            answer = self.current_integer
+            self.current_integer += 1
+        return answer
+    def addBack(self, num: int) -> None:
+        if self.current_integer <= num or num in self.added_integers:
+            return
+        # We push 'num' in the sorted-set if it isn't already present.
+        self.added_integers.add(num)
+    </code>
+</pre>
+<h4 id="complexity-analysis-1">Complexity Analysis</h4>
+<p>Here, <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    is the number <code>addBack(num)</code> and <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">mm</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.4306em;"></span><span
+            class="mord mathnormal">m</span></span></span></span></span> is the number of <code>popSmallest()</code>
+    method calls.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O((m+n)⋅log⁡n)O((m + n) \cdot \log n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">((</span><span
+                class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span><span class="mspace"
+                                                                                   style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                      style="margin-right: 0.1667em;"></span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>
+                <p>In each <code>popSmallest()</code> method call, in the worst case, we will need to remove the first
+                    element of the sorted set which will take <span class="math math-inline"><span class="katex"><span
+                            class="katex-mathml">O(log⁡n)O(\log n)</span><span class="katex-html"
+                                                                               aria-hidden="true"><span
+                            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                            class="mopen">(</span><span class="mop">lo<span
+                            style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                  style="margin-right: 0.1667em;"></span><span
+                            class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+                    time. Thus, for <span class="math math-inline"><span class="katex"><span
+                            class="katex-mathml">mm</span><span class="katex-html" aria-hidden="true"><span
+                            class="base"><span class="strut" style="height: 0.4306em;"></span><span
+                            class="mord mathnormal">m</span></span></span></span></span> calls it will take <span
+                            class="math math-inline"><span class="katex"><span class="katex-mathml">O(m⋅log⁡n)O(m \cdot \log n)</span><span
+                            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+                            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                            class="mopen">(</span><span class="mord mathnormal">m</span><span class="mspace"
+                                                                                              style="margin-right: 0.2222em;"></span><span
+                            class="mbin">⋅</span><span class="mspace"
+                                                       style="margin-right: 0.2222em;"></span></span><span class="base"><span
+                            class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                            style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                  style="margin-right: 0.1667em;"></span><span
+                            class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+                    time.</p>
+            </li>
+            <li>
+                <p>In each <code>addBack(num)</code> method call, we might push <code>num</code> into the sorted set
+                    which will take <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡n)O(\log n)</span><span
+                            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+                            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                            class="mopen">(</span><span class="mop">lo<span
+                            style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                  style="margin-right: 0.1667em;"></span><span
+                            class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+                    time. Thus, for <span class="math math-inline"><span class="katex"><span
+                            class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span
+                            class="base"><span class="strut" style="height: 0.4306em;"></span><span
+                            class="mord mathnormal">n</span></span></span></span></span> calls it will take <span
+                            class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅log⁡n)O(n \cdot \log n)</span><span
+                            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+                            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                            class="mopen">(</span><span class="mord mathnormal">n</span><span class="mspace"
+                                                                                              style="margin-right: 0.2222em;"></span><span
+                            class="mbin">⋅</span><span class="mspace"
+                                                       style="margin-right: 0.2222em;"></span></span><span class="base"><span
+                            class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                            style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                  style="margin-right: 0.1667em;"></span><span
+                            class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+                    time.</p>
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <ul>
+            <li>In the worst case, we might add <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                    class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+                elements in the sorted set. Thus, it will take <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+                space.
+            </li>
+        </ul>
+    </li>
+</ul>
+</body>
+</html>
