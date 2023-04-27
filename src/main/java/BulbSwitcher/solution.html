@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Bulb Switcher - Solution</title>
+</head>
+<body>
+<h2 id="solution">Solution</h2>
+<hr>
+<h3 id="approach-1-math">Approach 1: Math</h3>
+<h4 id="intuition">Intuition</h4>
+<p>The idea behind this problem is to find the number of bulbs that are on after <code>n</code> rounds. In each round,
+    we toggle some of the bulbs.</p>
+<p>As all the bulbs are initially off, at the end <strong>only bulbs that are toggled an odd number of times will remain
+    on</strong>.<br>
+    Now, whenever we are at a round <code>i</code> we know we toggle all bulbs having a factor <code>i</code>. Thus, we
+    need to find the bulbs which have an odd number of factors, as those bulbs will be toggled an odd number of times
+    (once by each factor).</p>
+<p>It might be unintuitive, but with a few examples, we can easily see that a perfect square number has an odd number of
+    factors, since any number's factors come in pairs of two different numbers, but the square root of the number will
+    be paired with itself.</p>
+<p>Let's take an example to make it more clear. Suppose <code>n = 10</code>.<br>
+    So, the number of rounds is <code>10</code>. In each round, we will toggle some of the bulbs.</p>
+<p><img src="../Figures/319/Slide.PNG" alt="slide1"></p>
+<p>Track of rounds in which each bulb is toggled:</p>
+<ul>
+    <li><strong>Bulb 1:</strong> Round 1 <strong>(odd number of toggles)</strong></li>
+    <li><strong>Bulb 2:</strong> Round 1, Round 2</li>
+    <li><strong>Bulb 3:</strong> Round 1, Round 3</li>
+    <li><strong>Bulb 4:</strong> Round 1, Round 2, Round 4 <strong>(odd number of toggles)</strong></li>
+    <li><strong>Bulb 5:</strong> Round 1, Round 5</li>
+    <li><strong>Bulb 6:</strong> Round 1, Round 2, Round 3, Round 6</li>
+    <li><strong>Bulb 7:</strong> Round 1, Round 7</li>
+    <li><strong>Bulb 8:</strong> Round 1, Round 2, Round 4, Round 8</li>
+    <li><strong>Bulb 9:</strong> Round 1, Round 3, Round 9 <strong>(odd number of toggles)</strong></li>
+    <li><strong>Bulb 10:</strong> Round 1, Round 2, Round 5, Round10</li>
+</ul>
+<p>So, the number of bulbs that are on after 10 rounds is 3: Bulb 1, Bulb 4, and Bulb 9.</p>
+<br>
+<p>Now let's discuss, <strong>why do perfect squares have odd and non-perfect squares have an even number of
+    factors?</strong></p>
+<p>A factor is a number that can be multiplied by another number to produce a given result. Say for <code>12</code>,
+    <code>1, 2, 3, 4, 6, 12</code> all are its factors as any factor <code>x</code> can be paired with another factor
+    <code>12 / x</code> and when multiplied together it will result in <code>12</code>.</p>
+<p>When we factorize a number <code>y</code>, say we have one factor <code>x</code>, then the other factor whose
+    multiplication will result in the original number will be <code>y / x</code>.<br>
+    Now comparing <code>x</code> and <code>y / x</code>, if <code>y</code> is a perfect square it means <code>y = a *
+        a</code>, thus, here it is a possibility that <code>x</code> and <code>y / x</code> are same numbers, i.e.
+    <code>a</code>.<br>
+    But if <code>y</code> is not a perfect square then for each <code>x</code> we will have a unique <code>y / x</code>,
+    thus, it's factor pairs will always exist as two different numbers (e.g: for <code>12</code> -&gt; <code>1 x
+        12</code>, <code>2 x 6</code>, <code>3 x 4</code>, (it has three factor pairs, so total <code>6</code>
+    factors)), thus the total count of number of factors for non-perfect squares will be even,<br>
+    and for perfect square, all other <code>x</code> and <code>y / x</code> factor pairs will be two different numbers
+    except for one case, i.e. <code>a</code> and <code>a</code> (e.g: for <code>16</code> -&gt; <code>1 x 16</code>,
+    <code>2 x 8</code>, <code>4 x 4</code> (<code>4</code> is paired with itself, it has three factor pairs, but one
+    pair has both numbers same, so total <code>5</code> factors)). Thus, it will have odd number of total factors.</p>
+<br>
+<p>Thus we just need to find how many numbers from <code>1</code> to <code>n</code> are perfect squares.<br>
+    We can iterate on each number and check if it's a perfect square or not, (i.e. <code>floor(sqrt(i)) * floor(sqrt(i))
+        == i</code>)</p>
+<p>Or, we can directly find the square root of <code>n</code> and its floor value will be equal to the count of numbers
+    whose squares exist in this range <code>1</code> to <code>n</code>.</p>
+<p>The floor of the square root of <code>n</code> gives us the largest number whose square is less than or equal to
+    <code>n</code>. For example, if <code>n = 26</code>, then the floor of square root of <code>n</code> is
+    <code>5</code>, which means the largest number whose square is less than or equal to <code>26</code> is
+    <code>5</code> thus for each number from <code>1</code> to <code>5</code>, its respective square will be present in
+    the original range. So, there are <code>5</code> perfect squares in the range <code>1</code> to <code>25</code>
+    <code>(1, 4, 9, 16, and 25)</code>.</p>
+<p>So, taking the floor value of the square root of <code>n</code> will give us the number of perfect squares in the
+    range <code>1</code> to <code>n</code>.<br>
+    Hence, <code>sqrt(n)</code> is our answer to this problem.</p>
+<blockquote>
+    <p><strong>Note:</strong> You can also implement a function to find the square root of a number on your own, but
+        here will use the in-built STL methods provided by each language.</p>
+</blockquote>
+<h4 id="algorithm">Algorithm</h4>
+<ol>
+    <li>Return the square root of <code>n</code>.</li>
+</ol>
+<h4 id="implementation">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int bulbSwitch(int n) {
+        return (int) Math.sqrt(n);
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int bulbSwitch(int n) {
+        return sqrt(n);
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def bulbSwitch(self, n: int) -> int:
+        return int(sqrt(n))
+    </code>
+    C
+    <code>
+        int bulbSwitch(int n){
+             return sqrt(n);
+        }
+    </code>
+    JavaScript
+    <code>var bulbSwitch = function(n) {
+    return Math.floor(Math.sqrt(n));
+};</code>
+    Ruby
+    <code>
+        def bulb_switch(n)
+    return Math.sqrt(n).to_i
+end
+    </code>
+    Swift
+    <code>
+        class Solution {
+    func bulbSwitch(_ n: Int) -> Int {
+        return Int(sqrt(Double(n)))
+    }
+}
+    </code>
+    Scala
+    <code>
+        object Solution {
+    def bulbSwitch(n: Int): Int = {
+        return math.sqrt(n).toInt
+    }
+}
+    </code>
+    PHP
+    <code>
+        class Solution {
+    function bulbSwitch($n) {
+        return floor(sqrt($n));
+    }
+}
+    </code>
+    TypeScript
+    <code>
+        function bulbSwitch(n: number): number {
+    return Math.floor(Math.sqrt(n));
+};
+    </code>
+</pre>
+<h4 id="complexity-analysis">Complexity Analysis</h4>
+<p>Here, <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    is the number of bulbs and rounds.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord">1</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>
+                <p>In general, the <a href="https://en.wikipedia.org/wiki/Fast_inverse_square_root" target="_blank">fast
+                    inverse square root algorithm</a> is used to compute the square root of a number (which is typically
+                    represented using 32 bits) in most programming languages. The algorithm performs a series of bitwise
+                    and floating-point operations on the input value to compute an approximation of the inverse square
+                    root. The number of operations performed by the algorithm is fixed and does not depend on the input
+                    size. Thus, it makes each call to this method an <span class="math math-inline"><span class="katex"><span
+                            class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span
+                            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                            class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span></span>
+                    time operation.</p>
+                <br>
+            </li>
+        </ul>
+        <blockquote>
+            <p>Note: If we want to compute the square root of large numbers (e.g: 10^10000), it would be impractical to
+                use the fast inverse square root algorithm. The fast inverse square root algorithm is designed to
+                compute an approximation of the inverse square root of a 32-bit floating-point number, and it may not be
+                accurate enough for very large numbers.</p>
+            <p>Instead, the languages would need to use a different algorithm that is capable of handling very large
+                numbers with high precision. The Newton-Raphson and Babylonina methods are such algorithms that can be
+                used to compute the square root of large numbers with high precision in nearly log-linear time (also
+                called linearithmic time) <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(dlog⁡d)O(d \log d)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">d</span><span class="mspace"
+                                                                                          style="margin-right: 0.1667em;"></span><span
+                        class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                                  style="margin-right: 0.1667em;"></span><span
+                        class="mord mathnormal">d</span><span class="mclose">)</span></span></span></span></span>, where
+                <span class="math math-inline"><span class="katex"><span class="katex-mathml">dd</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 0.6944em;"></span><span
+                        class="mord mathnormal">d</span></span></span></span></span> is the number of digits of the
+                input number.</p>
+        </blockquote>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord">1</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>The implementation of the <code>sqrt</code> method doesn't use any additional space.</li>
+        </ul>
+    </li>
+</ul>
+</body>
+</html>
