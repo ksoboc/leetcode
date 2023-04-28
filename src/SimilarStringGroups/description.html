@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Similar String Groups</title>
+</head>
+<body>
+<div class="w-full px-5 pt-4">
+    <div class="w-full">
+        <div class="flex space-x-4">
+            <div class="flex-1">
+                <div class="flex items-center">
+                    <div class="h-full"><span class="mr-2 text-lg font-medium text-label-1 dark:text-dark-label-1">839. Similar String Groups</span>
+                        <div class="mt-1 inline-flex min-h-[20px] items-center space-x-2 align-top">
+                            <div class="inline-flex items-center space-x-2"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="mt-3 flex space-x-4">
+            <div class="bg-pink dark:bg-dark-pink text-pink dark:text-dark-pink inline-block rounded-[21px] bg-opacity-[.15] px-2.5 py-1 text-xs font-medium capitalize dark:bg-opacity-[.15]">
+                Hard
+            </div>
+        </div>
+    </div>
+</div>
+<div class="px-5 pt-4">
+    <div class="_1l1MA" data-track-load="qd_description_content"><p>Two strings <code>X</code>&nbsp;and <code>Y</code>&nbsp;are
+        similar if we can swap two letters (in different positions) of <code>X</code>, so that&nbsp;it equals
+        <code>Y</code>. Also two strings <code>X</code> and <code>Y</code> are similar if they are equal.</p>
+
+        <p>For example, <code>"tars"</code>&nbsp;and <code>"rats"</code>&nbsp;are similar (swapping at positions
+            <code>0</code> and <code>2</code>), and <code>"rats"</code> and <code>"arts"</code> are similar, but <code>"star"</code>
+            is not similar to <code>"tars"</code>, <code>"rats"</code>, or <code>"arts"</code>.</p>
+
+        <p>Together, these form two connected groups by similarity: <code>{"tars", "rats", "arts"}</code> and <code>{"star"}</code>.&nbsp;
+            Notice that <code>"tars"</code> and <code>"arts"</code> are in the same group even though they are not
+            similar.&nbsp; Formally, each group is such that a word is in the group if and only if it is similar to at
+            least one other word in the group.</p>
+
+        <p>We are given a list <code>strs</code> of strings where every string in <code>strs</code> is an anagram of
+            every other string in <code>strs</code>. How many groups are there?</p>
+
+        <p>&nbsp;</p>
+        <p><strong class="example">Example 1:</strong></p>
+
+        <pre><strong>Input:</strong> strs = ["tars","rats","arts","star"]
+<strong>Output:</strong> 2
+</pre>
+
+        <p><strong class="example">Example 2:</strong></p>
+
+        <pre><strong>Input:</strong> strs = ["omv","ovm"]
+<strong>Output:</strong> 1
+</pre>
+
+        <p>&nbsp;</p>
+        <p><strong>Constraints:</strong></p>
+
+        <ul>
+            <li><code>1 &lt;= strs.length &lt;= 300</code></li>
+            <li><code>1 &lt;= strs[i].length &lt;= 300</code></li>
+            <li><code>strs[i]</code> consists of lowercase letters only.</li>
+            <li>All words in <code>strs</code> have the same length and are anagrams of each other.</li>
+        </ul>
+    </div>
+</div>
+</body>
+</html>
