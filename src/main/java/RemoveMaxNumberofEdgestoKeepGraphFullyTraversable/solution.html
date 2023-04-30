@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Remove Max Number of Edges to Keep Graph Fully Traversable - Solution</title>
+</head>
+<body>
+<h2 id="solution">Solution</h2>
+<hr>
+<h4 id="approach-1-disjoint-set-union-dsu">Approach 1: Disjoint Set Union (DSU)</h4>
+<p><strong>Intuition</strong></p>
+<p>We have <span class="math math-inline"><span class="katex"><span class="katex-mathml">NN</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.6833em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.10903em;">N</span></span></span></span></span> nodes connected
+    via bidirectional edges; the edges can be of three types:</p>
+<ul>
+    <li>Type 1: Can be traversed by Alice only.</li>
+    <li>Type 2: Can be traversed by Bob only.</li>
+    <li>Type 3: Can be traversed by both Alice and Bob</li>
+</ul>
+<p>We need to find the maximum number of edges that can be removed and still both Alice and Bob can reach any node
+    starting from any node via the remaining edges. We can assume that there are two graphs, one for Alice and another
+    one for Bob, the first graph for Alice has edges only of Type 1 &amp; 3 and the second graph for Bob will have edges
+    only of Type 2 &amp; 3.</p>
+<p>An edge is useful only if it connects two nodes that are not already connected via some other edge or path. How can
+    we find if an edge is useful? The Disjoint Set Union data structure is very useful in solving these kind of
+    problems. If you are not familiar with DSU, please go through our <a
+            href="https://leetcode.com/explore/learn/card/graph/618/disjoint-set/" target="_blank">Explore Card</a>. We
+    will not talk about implementation details here and assume you are already familiar with the interface of DSU. The
+    Disjoint Set Union can detect if two nodes are connected via some path or not in <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">O(α(N))O(\alpha (N))</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord mathnormal" style="margin-right: 0.0037em;">α</span><span class="mopen">(</span><span
+            class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+            class="mclose">))</span></span></span></span></span>. (Here, <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">α(N)\alpha (N)</span><span class="katex-html"
+                                                                                aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.0037em;">α</span><span class="mopen">(</span><span
+            class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span class="mclose">)</span></span></span></span></span>
+    is the extremely fast inverse Ackermann function).</p>
+<p>We can use DSU to perform the union of two nodes for an edge and if the nodes were not connected earlier i.e. they
+    have a different representative then we will know this edge is needed. For every edge, if the two nodes were not
+    connected earlier, we know this edge is required. To get the answer, we can subtract the number of required edges
+    from the total number of edges.</p>
+<p>Since we need the minimum number of edges to connect all the nodes, the Type 3 edges are the most useful as one Type
+    3 edge adds two edges, one for Alice and one for Bob. Hence, we will first iterate over the edges of Type 3, and for
+    these edges we will add the edge to both graphs.</p>
+<p>In the end, we need to check if the graph for both Alice and Bob is connected or not. If yes, we can say the edges
+    that we didn't connect can be removed. To check if the individual graphs are connected we will check if the number
+    of components in the graph is <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">11</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span> or
+    not.</p>
+<p>
+<div class="relative mx-auto mb-6 flex flex-col overflow-hidden rounded-lg border-[1px] border-label-1"
+     style="max-width: 960px;">
+    <div class="rounded-lg" style="max-height: 720px;"><img alt="Current"
+                                                            class="object-fit-contain !mb-0 max-h-full max-w-full"
+                                                            src="blob:https://leetcode.com/2ce84294-5e1c-4c65-a3b5-47cb45898e0b">
+    </div>
+    <div class="absolute top-[50%] left-[50%] flex h-12 w-12 translate-x-[-50%] translate-y-[-50%] items-center justify-center rounded-full bg-black/30">
+        <div class="flex h-4 w-4 cursor-pointer items-center justify-center text-[35px]">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="h-full w-full text-white">
+                <path fill-rule="evenodd"
+                      d="M18.97 12.871l-12.96 7.29a1 1 0 01-1.49-.87V4.71a1 1 0 011.49-.872l12.96 7.29a1 1 0 010 1.743z"
+                      clip-rule="evenodd"></path>
+            </svg>
+        </div>
+    </div>
+    <div class="relative flex h-8 select-none items-center justify-around bg-black">
+        <div class="flex items-center space-x-7">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M16.091 4.929l-7.057 7.078 7.057 7.064a1 1 0 01-1.414 1.414l-7.764-7.77a1 1 0 010-1.415l7.764-7.785a1 1 0 111.415 1.414z"
+                      clip-rule="evenodd"></path>
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M18.97 12.871l-12.96 7.29a1 1 0 01-1.49-.87V4.71a1 1 0 011.49-.872l12.96 7.29a1 1 0 010 1.743z"
+                      clip-rule="evenodd"></path>
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M7.913 19.071l7.057-7.078-7.057-7.064a1 1 0 011.414-1.414l7.764 7.77a1 1 0 010 1.415l-7.764 7.785a1 1 0 01-1.414-1.414z"
+                      clip-rule="evenodd"></path>
+            </svg>
+        </div>
+        <div class="absolute right-0 mr-5 text-xs font-medium text-white">1 / 8</div>
+    </div>
+</div>
+<br></p>
+<p><strong>Algorithm</strong></p>
+<ol>
+    <li>
+        <p>Create a class <code>UnionFind</code>, this will have the relevant data members and member functions to
+            perform DSU operations:</p>
+        <ol>
+            <li>Data member <code>representative</code> stores the immediate parent of nodes in the union find
+                structure, initially each node will be it's own representative.
+            </li>
+            <li>Data member <code>componentSize</code> stores the number of nodes in the components with the node as the
+                root node, initially the size of component for each node is <span class="math math-inline"><span
+                        class="katex"><span class="katex-mathml">11</span><span class="katex-html"
+                                                                                aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 0.6444em;"></span><span
+                        class="mord">1</span></span></span></span></span></li>
+            <li>Data member <code>components</code> stores the number of components in the graph, initially it will be
+                equal to <span class="math math-inline"><span class="katex"><span class="katex-mathml">NN</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 0.6833em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.10903em;">N</span></span></span></span></span> as
+                each node is considered
+                a separate component.
+            </li>
+            <li>Method <code>findRepresentative()</code> returns the root node in the <code>representative</code>
+                hierarchy.
+            </li>
+            <li>Method <code>performUnion()</code>, returns <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">11</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                    class="strut" style="height: 0.6444em;"></span><span
+                    class="mord">1</span></span></span></span></span> after performing the union between the components
+                of the two nodes that were not connected before, otherwise returns <span class="math math-inline"><span
+                        class="katex"><span class="katex-mathml">00</span><span class="katex-html"
+                                                                                aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 0.6444em;"></span><span
+                        class="mord">0</span></span></span></span></span>.
+            </li>
+            <li>Method <code>isConnected()</code> returns <code>true</code> if the graph is connected, i.e. <code>components
+                = 1</code>.
+            </li>
+        </ol>
+    </li>
+    <li>
+        <p>Create a <code>UnionFind</code> object for both Alice and Bob with <span class="math math-inline"><span
+                class="katex"><span class="katex-mathml">NN</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                        style="margin-right: 0.10903em;">N</span></span></span></span></span>
+            nodes.</p>
+    </li>
+    <li>
+        <p>Initialize <code>edgesRequired</code> to <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">00</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span>.
+        </p>
+    </li>
+    <li>
+        <p>Perform union of all edges of Type <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">33</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 0.6444em;"></span><span class="mord">3</span></span></span></span></span>
+            for both Alice and Bob, and for each edge increment the value of <code>edgesRequired</code> if for any of
+            them <code>performUnion()</code> returns <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">11</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                    class="strut" style="height: 0.6444em;"></span><span
+                    class="mord">1</span></span></span></span></span>.</p>
+    </li>
+    <li>
+        <p>Perform union of all edges of Type <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">11</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span>
+            &amp; <span class="math math-inline"><span class="katex"><span class="katex-mathml">22</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.6444em;"></span><span
+                    class="mord">2</span></span></span></span></span> for Alice or Bob respectively and increment the
+            <code>edgesRequired</code> if for any of them <code>performUnion()</code> returns <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">11</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.6444em;"></span><span
+                    class="mord">1</span></span></span></span></span>.</p>
+    </li>
+    <li>
+        <p>If <code>isConnected()</code> returns true for both Alice and Bob, then return <code>Total Edges -
+            edgesRequired</code>, otherwise return <code>-1</code>.</p>
+    </li>
+</ol>
+<p><strong>Implementation</strong></p>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int maxNumEdgesToRemove(int n, int[][] edges) {
+        // Different objects for Alice and Bob.
+        UnionFind Alice = new UnionFind(n);
+        UnionFind Bob = new UnionFind(n);
+
+        int edgesRequired = 0;
+        // Perform union for edges of type = 3, for both Alice and Bob.
+        for (int[] edge : edges) {
+            if (edge[0] == 3) {
+                edgesRequired += (Alice.performUnion(edge[1], edge[2]) | Bob.performUnion(edge[1], edge[2]));
+            }
+        }
+
+        // Perform union for Alice if type = 1 and for Bob if type = 2.
+        for (int[] edge : edges) {
+            if (edge[0] == 1) {
+                edgesRequired += Alice.performUnion(edge[1], edge[2]);
+            } else if (edge[0] == 2) {
+                edgesRequired += Bob.performUnion(edge[1], edge[2]);
+            }
+        }
+
+        // Check if the Graphs for Alice and Bob have n - 1 edges or is a single component.
+        if (Alice.isConnected() && Bob.isConnected()) {
+            return edges.length - edgesRequired;
+        }
+
+        return -1;
+    }
+
+    private class UnionFind {
+        int[] representative;
+        int[] componentSize;
+        // Number of distinct components in the graph.
+        int components;
+
+        // Initialize the list representative and componentSize
+        // Each node is representative of itself with size 1.
+        public UnionFind(int n) {
+            components = n;
+            representative = new int[n + 1];
+            componentSize = new int[n + 1];
+
+            for (int i = 0; i <= n; i++) {
+                representative[i] = i;
+                componentSize[i] = 1;
+            }
+        }
+
+        // Get the root of a node.
+        int findRepresentative(int x) {
+            if (representative[x] == x) {
+                return x;
+            }
+
+            // Path compression.
+            return representative[x] = findRepresentative(representative[x]);
+        }
+
+        // Perform the union of two components that belongs to node x and node y.
+        int performUnion(int x, int y) {
+            x = findRepresentative(x); y = findRepresentative(y);
+
+            if (x == y) {
+                return 0;
+            }
+
+            if (componentSize[x] > componentSize[y]) {
+                componentSize[x] += componentSize[y];
+                representative[y] = x;
+            } else {
+                componentSize[y] += componentSize[x];
+                representative[x] = y;
+            }
+
+            components--;
+            return 1;
+        }
+
+        // Returns true if all nodes get merged to one.
+        boolean isConnected() {
+            return components == 1;
+        }
+    }
+}
+
+    </code>
+    C++
+    <code>
+        class UnionFind {
+    vector<int> representative;
+    vector<int> componentSize;
+    // Number of distinct components in the graph.
+    int components;
+
+public:
+    // Initialize the list representative and componentSize
+    // Each node is representative of itself with size 1.
+    UnionFind(int n) {
+        components = n;
+        for (int i = 0; i <= n; i++) {
+            representative.push_back(i);
+            componentSize.push_back(1);
+        }
+    }
+
+    // Get the root of a node.
+    int findRepresentative(int x) {
+        if (representative[x] == x) {
+            return x;
+        }
+
+        // Path compression.
+        return representative[x] = findRepresentative(representative[x]);
+    }
+
+    // Perform the union of two components that belongs to node x and node y.
+    int performUnion(int x, int y) {
+        x = findRepresentative(x); y = findRepresentative(y);
+
+        if (x == y) {
+            return 0;
+        }
+
+        if (componentSize[x] > componentSize[y]) {
+            componentSize[x] += componentSize[y];
+            representative[y] = x;
+        } else {
+            componentSize[y] += componentSize[x];
+            representative[x] = y;
+        }
+
+        components--;
+        return 1;
+    }
+
+    // Returns true if all nodes get merged to one.
+    bool isConnected() {
+        return components == 1;
+    }
+};
+
+class Solution {
+public:
+    int maxNumEdgesToRemove(int n, vector<vector<int>>& edges) {
+        // Different objects for Alice and Bob.
+        UnionFind Alice(n), Bob(n);
+
+        int edgesRequired = 0;
+        // Perform union for edges of type = 3, for both Alice and Bob.
+        for (vector<int>& edge : edges) {
+            if (edge[0] == 3) {
+                edgesRequired += (Alice.performUnion(edge[1], edge[2]) | Bob.performUnion(edge[1], edge[2]));
+            }
+        }
+
+        // Perform union for Alice if type = 1 and for Bob if type = 2.
+        for (vector<int>& edge : edges) {
+            if (edge[0] == 1) {
+                edgesRequired += Alice.performUnion(edge[1], edge[2]);
+            } else if (edge[0] == 2) {
+                edgesRequired += Bob.performUnion(edge[1], edge[2]);
+            }
+        }
+
+        // Check if the Graphs for Alice and Bob have n - 1 edges or is a single component.
+        if (Alice.isConnected() && Bob.isConnected()) {
+            return edges.size() - edgesRequired;
+        }
+
+        return -1;
+    }
+};
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<p>Here, <span class="math math-inline"><span class="katex"><span class="katex-mathml">EE</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                style="margin-right: 0.05764em;">E</span></span></span></span></span>
+    is the number of edges in the list <code>edges</code> and <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">NN</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                 style="margin-right: 0.10903em;">N</span></span></span></span></span>
+    is the number nodes.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(E∗α(N))O(E *\alpha(N))</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal" style="margin-right: 0.05764em;">E</span><span class="mspace"
+                                                                                       style="margin-right: 0.2222em;"></span><span
+                class="mbin">∗</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.0037em;">α</span><span class="mopen">(</span><span
+                class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                class="mclose">))</span></span></span></span></span>.</p>
+        <p>We iterate over edges, and for every edge we call the function <code>performUnion()</code>, whose time
+            complexity is equal to <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(α(N)O(\alpha(N)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.0037em;">α</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                    class="mclose">)</span></span></span></span></span> as we have included union by size as well as
+            path compression. Therefore, the total time complexity is equal to <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">O(E∗α(N))O(E *\alpha(N))</span><span class="katex-html"
+                                                                                                  aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.05764em;">E</span><span class="mspace"
+                                                                                           style="margin-right: 0.2222em;"></span><span
+                    class="mbin">∗</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.0037em;">α</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                    class="mclose">))</span></span></span></span></span>. Note that <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">α\alpha</span><span class="katex-html"
+                                                                                 aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal"
+                                                                                            style="margin-right: 0.0037em;">α</span></span></span></span></span>
+            is the Inverse Ackermann function which grows so slowly that it can be considered as <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord">1</span><span class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(N)O(N)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                class="mclose">)</span></span></span></span></span>.</p>
+        <p>For both Alice and Bob we keep two lists in union find data structures, <code>representative</code> and
+            <code>componentSize</code> of size both <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">NN</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                    class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                         style="margin-right: 0.10903em;">N</span></span></span></span></span>.
+            Therefore the total space complexity is equal to <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(N)O(N)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                    class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+</ul>
+<br>
+<hr>
+</body>
+</html>
