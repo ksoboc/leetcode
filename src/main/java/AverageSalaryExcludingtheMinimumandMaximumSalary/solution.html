@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Average Salary Excluding the Minimum and Maximum Salary - Solution</title>
+</head>
+<body>
+<h2 id="solution">Solution</h2>
+<hr>
+<h4 id="approach">Approach:</h4>
+<p><strong>Intuition</strong></p>
+<p>We are given <span class="math math-inline"><span class="katex"><span class="katex-mathml">NN</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.6833em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.10903em;">N</span></span></span></span></span> unique positive
+    integers representing the salaries of <span class="math math-inline"><span class="katex"><span class="katex-mathml">NN</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.6833em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.10903em;">N</span></span></span></span></span> employees. We
+    need to return the average of these salaries without including the minimum and maximum salaries.</p>
+<p>One way to solve this problem is to first find the minimum salary by iterating over the salaries and then find the
+    maximum salary in the same way. Then find the sum of the salaries and exclude the values that are equal to the
+    minimum or the maximum salary (as the salaries are unique). This approach will require us to iterate over the
+    salaries thrice or twice if we find the minimum and maximum in a single iteration.</p>
+<p>We can solve the problem in a single iteration as well; while finding the minimum and maximum salaries, we can keep
+    summing up all the salaries, and in the end, we can just subtract the minimum and maximum values to get the required
+    sum. Note that to find the average, we need to divide by <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">N−2N - 2</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.7667em; vertical-align: -0.0833em;"></span><span class="mord mathnormal"
+                                                                                            style="margin-right: 0.10903em;">N</span><span
+            class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">−</span><span class="mspace"
+                                                                                                   style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">2</span></span></span></span></span>
+    as we have excluded two employees.</p>
+<p><img src="1491A.png" alt="fig"></p>
+<p><strong>Algorithm</strong></p>
+<ol>
+    <li>
+        <p>Initialize <code>minSalary</code> to the maximum possible value, <code>maxSalary</code> to the minimum
+            possible value, and <code>sum</code> to <code>0</code>.</p>
+    </li>
+    <li>
+        <p>Iterate over <code>salaries</code> and for each <code>salary</code>:</p>
+        <ul>
+            <li>Add it to the variable <code>sum.</code></li>
+            <li>Update the variable <code>minSalary</code> if the current salary is smaller than it.</li>
+            <li>Update the variable <code>maxSalary</code> if the current salary exceeds it.</li>
+        </ul>
+    </li>
+    <li>
+        <p>Return the value <code>sum / (N -2)</code>; remember to cast the numerator and denominator to double;
+            otherwise, the result will be an integer and won't be precise.</p>
+    </li>
+</ol>
+<p><strong>Implementation</strong></p>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public double average(int[] salaries) {
+        int minSalary = Integer.MAX_VALUE;
+        int maxSalary = Integer.MIN_VALUE;
+        int sum = 0;
+
+        for (int salary : salaries) {
+            // Sum of all the salaries.
+            sum += salary;
+            // Update the minimum salary.
+            minSalary = Math.min(minSalary, salary);
+            // Update the maximum salary.
+            maxSalary = Math.max(maxSalary, salary);
+        }
+
+        // Divide the sum by total size - 2, as we exclude minimum and maximum values.
+        return (double)(sum - minSalary - maxSalary) / (double)(salaries.length - 2);
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    double average(vector<int>& salaries) {
+        int minSalary = INT_MAX;
+        int maxSalary = INT_MIN;
+        int sum = 0;
+
+        for (int salary : salaries) {
+            // Sum of all the salaries.
+            sum += salary;
+            // Update the minimum salary.
+            minSalary = min(minSalary, salary);
+            // Update the maximum salary.
+            maxSalary = max(maxSalary, salary);
+        }
+
+        // Divide the sum by total size - 2, as we exclude minimum and maximum values.
+        return (double)(sum - minSalary - maxSalary) / (double)(salaries.size() - 2);
+    }
+};
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<p>Here, <span class="math math-inline"><span class="katex"><span class="katex-mathml">NN</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                style="margin-right: 0.10903em;">N</span></span></span></span></span>
+    is the number of salaries.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(N)O(N)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                class="mclose">)</span></span></span></span></span>.</p>
+        <p>We just iterate over the salaries once, and hence the total time complexity would be <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">O(N)O(N)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord">1</span><span
+                class="mclose">)</span></span></span></span></span>.</p>
+        <p>We only need three variables to store the total sum, the maximum value and the minimum value. Hence, the
+            total space complexity would be constant.
+            <br></p>
+    </li>
+</ul>
+<hr>
+</body>
+</html>
