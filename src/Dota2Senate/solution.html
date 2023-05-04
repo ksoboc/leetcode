@@ -1,0 +1,2660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dota2 Senate - Solution</title>
+</head>
+<body>
+<h2 id="solution">Solution</h2>
+<hr>
+<h3 id="overview">Overview</h3>
+<p>Let's simplify the problem statement.</p>
+<blockquote>
+    <p>Given a string of characters, where each character represents a senator. Character <code>R</code> represents a
+        Radiant senator and Character <code>D</code> represents a Dire senator.<br>
+        <span class="math math-inline"><span class="katex"><span class="katex-mathml">↓\downarrow</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+                class="mrel">↓</span></span></span></span></span><br>
+        A particular party wins if only senators of that party are <strong>eligible</strong> in the senate after all
+        <strong>eligible</strong> senators have exercised their rights. A senator is eligible to exercise their right if
+        they are not banned by a previous senator's action.<br>
+        <span class="math math-inline"><span class="katex"><span class="katex-mathml">↓\downarrow</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+                class="mrel">↓</span></span></span></span></span><br>
+        Let's label "exercised their rights" as "<strong>Voting</strong>".<br>
+        <span class="math math-inline"><span class="katex"><span class="katex-mathml">↓\downarrow</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+                class="mrel">↓</span></span></span></span></span><br>
+        <strong>Voting</strong> is done from left to right. After the rightmost senator has voted, the voting process
+        starts again from the leftmost senator, marking the beginning of the next Round. A senator cannot participate in
+        any Round after they have been banned.<br>
+        <span class="math math-inline"><span class="katex"><span class="katex-mathml">↓\downarrow</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+                class="mrel">↓</span></span></span></span></span><br>
+        Now, this "exercise their right", what we have labeled as "<strong>Voting</strong>", is a power that a senator
+        has. By Voting, a senator can ban another senator restricting them from participating in the next Round.<br>
+        <span class="math math-inline"><span class="katex"><span class="katex-mathml">↓\downarrow</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+                class="mrel">↓</span></span></span></span></span><br>
+        Thus each senator will optimally use their power to help their party win. We have to assume that each senator is
+        rational, and thus have to predict the Winner, "Radiant" or "Dire".</p>
+</blockquote>
+<p>Now, since the problem description mentions that</p>
+<blockquote>
+    <p>Every senator is smart enough and will play the <strong>best strategy</strong> for his own party.</p>
+</blockquote>
+<p>Let's try to find this "<em>best strategy</em>".</p>
+<p>A senator has to ban another senator to increase the chance of their party winning.</p>
+<details>
+    <summary><b>Will they ever ban a senator from their own party? Click to Reveal.</b></summary>
+    <p>
+    </p>
+    <p>No, they won't. Because at last, they want all eligible senators to be from their own party.</p>
+    <p>Banning senators from their own party not only reduces the number of eligible senators from their party but also
+        restricts one senator from their own party from banning a senator of the other party.</p>
+    <p>Thus, it's always better to ban a senator from the other party.</p>
+    <p></p>
+</details>
+<p><span class="math math-inline"><span class="katex"><span class="katex-mathml">↓\downarrow</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+        class="mrel">↓</span></span></span></span></span></p>
+<p>Hence, we can conclude that a senator will always ban an <strong>opponent</strong> senator. That being said, all
+    <strong>opponents</strong> from the other party are potential targets for a senator to ban. And choosing one over
+    the other can give different results.</p>
+<p>For Example, let <code>senate</code> be "DRDRDR".</p>
+<blockquote>
+    <p>This set of steps will give "Radiant" as the winner.<br>
+    <div class="relative mx-auto mb-6 flex flex-col overflow-hidden rounded-lg border-[1px] border-label-1"
+         style="max-width: 1280px;">
+        <div class="rounded-lg" style="max-height: 720px;"><img alt="Current"
+                                                                class="object-fit-contain !mb-0 max-h-full max-w-full"
+                                                                src="blob:https://leetcode.com/382784d1-8b55-4dbc-891f-6b71b5d978f8">
+        </div>
+        <div class="absolute top-[50%] left-[50%] flex h-12 w-12 translate-x-[-50%] translate-y-[-50%] items-center justify-center rounded-full bg-black/30">
+            <div class="flex h-4 w-4 cursor-pointer items-center justify-center text-[35px]">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                     class="h-full w-full text-white">
+                    <path fill-rule="evenodd"
+                          d="M18.97 12.871l-12.96 7.29a1 1 0 01-1.49-.87V4.71a1 1 0 011.49-.872l12.96 7.29a1 1 0 010 1.743z"
+                          clip-rule="evenodd"></path>
+                </svg>
+            </div>
+        </div>
+        <div class="relative flex h-8 select-none items-center justify-around bg-black">
+            <div class="flex items-center space-x-7">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                     class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                    <path fill-rule="evenodd"
+                          d="M16.091 4.929l-7.057 7.078 7.057 7.064a1 1 0 01-1.414 1.414l-7.764-7.77a1 1 0 010-1.415l7.764-7.785a1 1 0 111.415 1.414z"
+                          clip-rule="evenodd"></path>
+                </svg>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                     class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                    <path fill-rule="evenodd"
+                          d="M18.97 12.871l-12.96 7.29a1 1 0 01-1.49-.87V4.71a1 1 0 011.49-.872l12.96 7.29a1 1 0 010 1.743z"
+                          clip-rule="evenodd"></path>
+                </svg>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                     class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                    <path fill-rule="evenodd"
+                          d="M7.913 19.071l7.057-7.078-7.057-7.064a1 1 0 011.414-1.414l7.764 7.77a1 1 0 010 1.415l-7.764 7.785a1 1 0 01-1.414-1.414z"
+                          clip-rule="evenodd"></path>
+                </svg>
+            </div>
+            <div class="absolute right-0 mr-5 text-xs font-medium text-white">1 / 14</div>
+        </div>
+    </div>
+    <br>
+    <br></p>
+</blockquote>
+<blockquote>
+    <p>This set of steps will give "Dire" as the winner.<br>
+    <div class="relative mx-auto mb-6 flex flex-col overflow-hidden rounded-lg border-[1px] border-label-1"
+         style="max-width: 1280px;">
+        <div class="rounded-lg" style="max-height: 720px;"><img alt="Current"
+                                                                class="object-fit-contain !mb-0 max-h-full max-w-full"
+                                                                src="blob:https://leetcode.com/7fdc04dc-ad2f-404b-b6b1-e6fa3f9f4482">
+        </div>
+        <div class="absolute top-[50%] left-[50%] flex h-12 w-12 translate-x-[-50%] translate-y-[-50%] items-center justify-center rounded-full bg-black/30">
+            <div class="flex h-4 w-4 cursor-pointer items-center justify-center text-[35px]">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                     class="h-full w-full text-white">
+                    <path fill-rule="evenodd"
+                          d="M18.97 12.871l-12.96 7.29a1 1 0 01-1.49-.87V4.71a1 1 0 011.49-.872l12.96 7.29a1 1 0 010 1.743z"
+                          clip-rule="evenodd"></path>
+                </svg>
+            </div>
+        </div>
+        <div class="relative flex h-8 select-none items-center justify-around bg-black">
+            <div class="flex items-center space-x-7">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                     class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                    <path fill-rule="evenodd"
+                          d="M16.091 4.929l-7.057 7.078 7.057 7.064a1 1 0 01-1.414 1.414l-7.764-7.77a1 1 0 010-1.415l7.764-7.785a1 1 0 111.415 1.414z"
+                          clip-rule="evenodd"></path>
+                </svg>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                     class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                    <path fill-rule="evenodd"
+                          d="M18.97 12.871l-12.96 7.29a1 1 0 01-1.49-.87V4.71a1 1 0 011.49-.872l12.96 7.29a1 1 0 010 1.743z"
+                          clip-rule="evenodd"></path>
+                </svg>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                     class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                    <path fill-rule="evenodd"
+                          d="M7.913 19.071l7.057-7.078-7.057-7.064a1 1 0 011.414-1.414l7.764 7.77a1 1 0 010 1.415l-7.764 7.785a1 1 0 01-1.414-1.414z"
+                          clip-rule="evenodd"></path>
+                </svg>
+            </div>
+            <div class="absolute right-0 mr-5 text-xs font-medium text-white">1 / 10</div>
+        </div>
+    </div>
+    <br>
+    <br></p>
+</blockquote>
+<p>Thus different strategies can give different results.</p>
+<details>
+    <summary><b> What then is the "best strategy" for a senator to ban an opponent senator? Click to Reveal.</b>
+    </summary>
+    <p>
+    </p>
+    <p>Using this "best strategy" we will be able to predict the only possible <strong>unique</strong> winner for a
+        given <code>senate</code> string.</p>
+    <p>Let's try to analyze. What if we ban the next opponent senator? Are we gaining anything?</p>
+    <p>The answer intuitively is <strong>Yes</strong>. When we ban the next closest opponent senator, we are restricting
+        one senator from the other party which they could have used to ban a senator from our party. Thus, proceeding
+        with this strategy, we are not only eliminating one opponent senator but also trying to preserve our own
+        senators.</p>
+    <p>Hence, the "<em>best strategy</em>" for a senator is to <strong>ban the next closest opponent senator</strong>.
+    </p>
+    <p></p>
+</details>
+<p><span class="math math-inline"><span class="katex"><span class="katex-mathml">↓\downarrow</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+        class="mrel">↓</span></span></span></span></span></p>
+<p>This falls under the category of <strong>Greedy</strong>, whereby the "best strategy" is greedily chosen at each step
+    in hope of local optimum.</p>
+<p>Throughout the article, we will be using <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">NN</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                                           style="height: 0.6833em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.10903em;">N</span></span></span></span></span> to denote the
+    number of senators, which is the length of the <code>senate</code> string. Before proceeding further, let's try to
+    figure out the maximum number of rounds that we can have.</p>
+<details>
+    <summary><b> How many rounds can we have? Click to Reveal.</b></summary>
+    <p>
+    </p>
+    <p>There are <span class="math math-inline"><span class="katex"><span class="katex-mathml">NN</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.6833em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.10903em;">N</span></span></span></span></span> senators, and
+        each senator can ban one opponent senator. Thus, after every round, the number of senators will reduce by <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">N2\frac{N}{2}</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1.2173em; vertical-align: -0.345em;"></span><span
+                class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span
+                class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.8723em;"><span
+                style="top: -2.655em;"><span class="pstrut" style="height: 3em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+                class="mord mtight">2</span></span></span></span><span style="top: -3.23em;"><span class="pstrut"
+                                                                                                   style="height: 3em;"></span><span
+                class="frac-line" style="border-bottom-width: 0.04em;"></span></span><span style="top: -3.394em;"><span
+                class="pstrut" style="height: 3em;"></span><span class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight"><span class="mord mathnormal mtight"
+                                          style="margin-right: 0.10903em;">N</span></span></span></span></span><span
+                class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                           style="height: 0.345em;"><span></span></span></span></span></span><span
+                class="mclose nulldelimiter"></span></span></span></span></span></span>.</p>
+    <p>Hence, in the first round, we will have <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">NN</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                 style="margin-right: 0.10903em;">N</span></span></span></span></span>
+        senators. In the second round, we will have <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">N2\frac{N}{2}</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1.2173em; vertical-align: -0.345em;"></span><span class="mord"><span
+                class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span
+                class="vlist-r"><span class="vlist" style="height: 0.8723em;"><span style="top: -2.655em;"><span
+                class="pstrut" style="height: 3em;"></span><span class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight"><span class="mord mtight">2</span></span></span></span><span
+                style="top: -3.23em;"><span class="pstrut" style="height: 3em;"></span><span class="frac-line"
+                                                                                             style="border-bottom-width: 0.04em;"></span></span><span
+                style="top: -3.394em;"><span class="pstrut" style="height: 3em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight"
+                                                                                        style="margin-right: 0.10903em;">N</span></span></span></span></span><span
+                class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                           style="height: 0.345em;"><span></span></span></span></span></span><span
+                class="mclose nulldelimiter"></span></span></span></span></span></span> senators. In the third round, we
+        will have <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">N22\frac{\frac{N}{2}}{2}</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1.5063em; vertical-align: -0.345em;"></span><span
+                class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span
+                class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 1.1613em;"><span
+                style="top: -2.655em;"><span class="pstrut" style="height: 3em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+                class="mord mtight">2</span></span></span></span><span style="top: -3.23em;"><span class="pstrut"
+                                                                                                   style="height: 3em;"></span><span
+                class="frac-line" style="border-bottom-width: 0.04em;"></span></span><span style="top: -3.5508em;"><span
+                class="pstrut" style="height: 3em;"></span><span class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight"><span class="mord mtight"><span
+                class="mopen nulldelimiter sizing reset-size3 size6"></span><span class="mfrac"><span
+                class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.8721em;"><span
+                style="top: -2.656em;"><span class="pstrut" style="height: 3em;"></span><span
+                class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span
+                class="mord mtight">2</span></span></span></span><span style="top: -3.2255em;"><span class="pstrut"
+                                                                                                     style="height: 3em;"></span><span
+                class="frac-line mtight" style="border-bottom-width: 0.049em;"></span></span><span
+                style="top: -3.384em;"><span class="pstrut" style="height: 3em;"></span><span
+                class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mathnormal mtight"
+                                                                                        style="margin-right: 0.10903em;">N</span></span></span></span></span><span
+                class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                           style="height: 0.344em;"><span></span></span></span></span></span><span
+                class="mclose nulldelimiter sizing reset-size3 size6"></span></span></span></span></span></span><span
+                class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                           style="height: 0.345em;"><span></span></span></span></span></span><span
+                class="mclose nulldelimiter"></span></span></span></span></span></span> senators. And so on.</p>
+    <p>This will be repeated until we have only one senator from either party.</p>
+    <p>Hence after every round, the length of the senate will be halved. Thus, the maximum number of rounds that we can
+        have is <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">log⁡2N\log_{2}N</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 0.9386em; vertical-align: -0.2441em;"></span><span
+                class="mop"><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span
+                class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist"
+                                                                                           style="height: 0.207em;"><span
+                style="top: -2.4559em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+                class="mord mtight">2</span></span></span></span></span><span class="vlist-s">​</span></span><span
+                class="vlist-r"><span class="vlist" style="height: 0.2441em;"><span></span></span></span></span></span></span><span
+                class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal"
+                                                                            style="margin-right: 0.10903em;">N</span></span></span></span></span>.
+        The analysis is similar to <a href="https://leetcode.com/explore/learn/card/binary-search/" target="_blank">Binary
+            Search</a>.</p>
+    <p></p>
+</details>
+<p><span class="math math-inline"><span class="katex"><span class="katex-mathml">↓\downarrow</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+        class="mrel">↓</span></span></span></span></span></p>
+<p>What perhaps is more interesting is the maximum number of votes that we can have in total.</p>
+<details>
+    <summary><b> How many votes can we have? Click to Reveal.</b></summary>
+    <p>
+    </p>
+    <p>Let there be <span class="math math-inline"><span class="katex"><span class="katex-mathml">NN</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.6833em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.10903em;">N</span></span></span></span></span> senators. In
+        the first round, there will be at most <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">N2\frac{N}{2}</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1.2173em; vertical-align: -0.345em;"></span><span class="mord"><span
+                class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span
+                class="vlist-r"><span class="vlist" style="height: 0.8723em;"><span style="top: -2.655em;"><span
+                class="pstrut" style="height: 3em;"></span><span class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight"><span class="mord mtight">2</span></span></span></span><span
+                style="top: -3.23em;"><span class="pstrut" style="height: 3em;"></span><span class="frac-line"
+                                                                                             style="border-bottom-width: 0.04em;"></span></span><span
+                style="top: -3.394em;"><span class="pstrut" style="height: 3em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight"
+                                                                                        style="margin-right: 0.10903em;">N</span></span></span></span></span><span
+                class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                           style="height: 0.345em;"><span></span></span></span></span></span><span
+                class="mclose nulldelimiter"></span></span></span></span></span></span> votes. In the second round,
+        there will be at most <span class="math math-inline"><span class="katex"><span class="katex-mathml">N22\frac{\frac{N}{2}}{2}</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1.5063em; vertical-align: -0.345em;"></span><span
+                class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span
+                class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 1.1613em;"><span
+                style="top: -2.655em;"><span class="pstrut" style="height: 3em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+                class="mord mtight">2</span></span></span></span><span style="top: -3.23em;"><span class="pstrut"
+                                                                                                   style="height: 3em;"></span><span
+                class="frac-line" style="border-bottom-width: 0.04em;"></span></span><span style="top: -3.5508em;"><span
+                class="pstrut" style="height: 3em;"></span><span class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight"><span class="mord mtight"><span
+                class="mopen nulldelimiter sizing reset-size3 size6"></span><span class="mfrac"><span
+                class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.8721em;"><span
+                style="top: -2.656em;"><span class="pstrut" style="height: 3em;"></span><span
+                class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span
+                class="mord mtight">2</span></span></span></span><span style="top: -3.2255em;"><span class="pstrut"
+                                                                                                     style="height: 3em;"></span><span
+                class="frac-line mtight" style="border-bottom-width: 0.049em;"></span></span><span
+                style="top: -3.384em;"><span class="pstrut" style="height: 3em;"></span><span
+                class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mathnormal mtight"
+                                                                                        style="margin-right: 0.10903em;">N</span></span></span></span></span><span
+                class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                           style="height: 0.344em;"><span></span></span></span></span></span><span
+                class="mclose nulldelimiter sizing reset-size3 size6"></span></span></span></span></span></span><span
+                class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                           style="height: 0.345em;"><span></span></span></span></span></span><span
+                class="mclose nulldelimiter"></span></span></span></span></span></span> votes. And so on.</p>
+    <p>Thus, the total number of votes will<br>
+        <span class="math math-inline"><span class="katex"><span class="katex-mathml">N2+N22+N222+...\frac{N}{2} + \frac{\frac{N}{2}}{2} + \frac{\frac{\frac{N}{2}}{2}}{2} + ...</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1.2173em; vertical-align: -0.345em;"></span><span
+                class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span
+                class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.8723em;"><span
+                style="top: -2.655em;"><span class="pstrut" style="height: 3em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+                class="mord mtight">2</span></span></span></span><span style="top: -3.23em;"><span class="pstrut"
+                                                                                                   style="height: 3em;"></span><span
+                class="frac-line" style="border-bottom-width: 0.04em;"></span></span><span style="top: -3.394em;"><span
+                class="pstrut" style="height: 3em;"></span><span class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight"><span class="mord mathnormal mtight"
+                                          style="margin-right: 0.10903em;">N</span></span></span></span></span><span
+                class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                           style="height: 0.345em;"><span></span></span></span></span></span><span
+                class="mclose nulldelimiter"></span></span><span class="mspace"
+                                                                 style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1.5063em; vertical-align: -0.345em;"></span><span
+                class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span
+                class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 1.1613em;"><span
+                style="top: -2.655em;"><span class="pstrut" style="height: 3em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+                class="mord mtight">2</span></span></span></span><span style="top: -3.23em;"><span class="pstrut"
+                                                                                                   style="height: 3em;"></span><span
+                class="frac-line" style="border-bottom-width: 0.04em;"></span></span><span style="top: -3.5508em;"><span
+                class="pstrut" style="height: 3em;"></span><span class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight"><span class="mord mtight"><span
+                class="mopen nulldelimiter sizing reset-size3 size6"></span><span class="mfrac"><span
+                class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.8721em;"><span
+                style="top: -2.656em;"><span class="pstrut" style="height: 3em;"></span><span
+                class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span
+                class="mord mtight">2</span></span></span></span><span style="top: -3.2255em;"><span class="pstrut"
+                                                                                                     style="height: 3em;"></span><span
+                class="frac-line mtight" style="border-bottom-width: 0.049em;"></span></span><span
+                style="top: -3.384em;"><span class="pstrut" style="height: 3em;"></span><span
+                class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mathnormal mtight"
+                                                                                        style="margin-right: 0.10903em;">N</span></span></span></span></span><span
+                class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                           style="height: 0.344em;"><span></span></span></span></span></span><span
+                class="mclose nulldelimiter sizing reset-size3 size6"></span></span></span></span></span></span><span
+                class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                           style="height: 0.345em;"><span></span></span></span></span></span><span
+                class="mclose nulldelimiter"></span></span><span class="mspace"
+                                                                 style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1.9234em; vertical-align: -0.345em;"></span><span
+                class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span
+                class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 1.5784em;"><span
+                style="top: -2.6826em;"><span class="pstrut" style="height: 3.0276em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+                class="mord mtight">2</span></span></span></span><span style="top: -3.2576em;"><span class="pstrut"
+                                                                                                     style="height: 3.0276em;"></span><span
+                class="frac-line" style="border-bottom-width: 0.04em;"></span></span><span style="top: -3.5784em;"><span
+                class="pstrut" style="height: 3.0276em;"></span><span class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight"><span class="mord mtight"><span
+                class="mopen nulldelimiter sizing reset-size3 size6"></span><span class="mfrac"><span
+                class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 1.468em;"><span
+                style="top: -2.656em;"><span class="pstrut" style="height: 3em;"></span><span
+                class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span
+                class="mord mtight">2</span></span></span></span><span style="top: -3.2255em;"><span class="pstrut"
+                                                                                                     style="height: 3em;"></span><span
+                class="frac-line mtight" style="border-bottom-width: 0.049em;"></span></span><span
+                style="top: -3.7035em;"><span class="pstrut" style="height: 3em;"></span><span
+                class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mtight"><span
+                class="mopen nulldelimiter sizing reset-size1 size6"></span><span class="mfrac"><span
+                class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 1.0703em;"><span
+                style="top: -2.468em;"><span class="pstrut" style="height: 3em;"></span><span class="mord mtight"><span
+                class="mord mtight">2</span></span></span><span style="top: -3.2255em;"><span class="pstrut"
+                                                                                              style="height: 3em;"></span><span
+                class="frac-line mtight" style="border-bottom-width: 0.049em;"></span></span><span
+                style="top: -3.387em;"><span class="pstrut" style="height: 3em;"></span><span class="mord mtight"><span
+                class="mord mathnormal mtight" style="margin-right: 0.10903em;">N</span></span></span></span><span
+                class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                           style="height: 0.532em;"><span></span></span></span></span></span><span
+                class="mclose nulldelimiter sizing reset-size1 size6"></span></span></span></span></span></span><span
+                class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                           style="height: 0.344em;"><span></span></span></span></span></span><span
+                class="mclose nulldelimiter sizing reset-size3 size6"></span></span></span></span></span></span><span
+                class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                           style="height: 0.345em;"><span></span></span></span></span></span><span
+                class="mclose nulldelimiter"></span></span><span class="mspace"
+                                                                 style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.1056em;"></span><span
+                class="mord">...</span></span></span></span></span></p>
+    <p>which simplifies to
+        <span class="math math-inline"><span class="katex"><span class="katex-mathml">N2+N4+N8+...+N2k\frac{N}{2} + \frac{N}{4} + \frac{N}{8} + ... + \frac{N}{2^k}</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1.2173em; vertical-align: -0.345em;"></span><span
+                class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span
+                class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.8723em;"><span
+                style="top: -2.655em;"><span class="pstrut" style="height: 3em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+                class="mord mtight">2</span></span></span></span><span style="top: -3.23em;"><span class="pstrut"
+                                                                                                   style="height: 3em;"></span><span
+                class="frac-line" style="border-bottom-width: 0.04em;"></span></span><span style="top: -3.394em;"><span
+                class="pstrut" style="height: 3em;"></span><span class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight"><span class="mord mathnormal mtight"
+                                          style="margin-right: 0.10903em;">N</span></span></span></span></span><span
+                class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                           style="height: 0.345em;"><span></span></span></span></span></span><span
+                class="mclose nulldelimiter"></span></span><span class="mspace"
+                                                                 style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1.2173em; vertical-align: -0.345em;"></span><span
+                class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span
+                class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.8723em;"><span
+                style="top: -2.655em;"><span class="pstrut" style="height: 3em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+                class="mord mtight">4</span></span></span></span><span style="top: -3.23em;"><span class="pstrut"
+                                                                                                   style="height: 3em;"></span><span
+                class="frac-line" style="border-bottom-width: 0.04em;"></span></span><span style="top: -3.394em;"><span
+                class="pstrut" style="height: 3em;"></span><span class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight"><span class="mord mathnormal mtight"
+                                          style="margin-right: 0.10903em;">N</span></span></span></span></span><span
+                class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                           style="height: 0.345em;"><span></span></span></span></span></span><span
+                class="mclose nulldelimiter"></span></span><span class="mspace"
+                                                                 style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1.2173em; vertical-align: -0.345em;"></span><span
+                class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span
+                class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.8723em;"><span
+                style="top: -2.655em;"><span class="pstrut" style="height: 3em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+                class="mord mtight">8</span></span></span></span><span style="top: -3.23em;"><span class="pstrut"
+                                                                                                   style="height: 3em;"></span><span
+                class="frac-line" style="border-bottom-width: 0.04em;"></span></span><span style="top: -3.394em;"><span
+                class="pstrut" style="height: 3em;"></span><span class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight"><span class="mord mathnormal mtight"
+                                          style="margin-right: 0.10903em;">N</span></span></span></span></span><span
+                class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                           style="height: 0.345em;"><span></span></span></span></span></span><span
+                class="mclose nulldelimiter"></span></span><span class="mspace"
+                                                                 style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+                class="mord">...</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1.2298em; vertical-align: -0.3574em;"></span><span
+                class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span
+                class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.8723em;"><span
+                style="top: -2.6426em;"><span class="pstrut" style="height: 3em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span
+                class="mord mtight">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span
+                class="vlist" style="height: 0.782em;"><span style="top: -2.786em; margin-right: 0.0714em;"><span
+                class="pstrut" style="height: 2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span
+                class="mord mathnormal mtight"
+                style="margin-right: 0.03148em;">k</span></span></span></span></span></span></span></span></span></span></span><span
+                style="top: -3.23em;"><span class="pstrut" style="height: 3em;"></span><span class="frac-line"
+                                                                                             style="border-bottom-width: 0.04em;"></span></span><span
+                style="top: -3.394em;"><span class="pstrut" style="height: 3em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight"
+                                                                                        style="margin-right: 0.10903em;">N</span></span></span></span></span><span
+                class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                           style="height: 0.3574em;"><span></span></span></span></span></span><span
+                class="mclose nulldelimiter"></span></span></span></span></span></span></p>
+    <p>where <span class="math math-inline"><span class="katex"><span class="katex-mathml">kk</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.6944em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.03148em;">k</span></span></span></span></span> is the maximum
+        number of rounds that we can have.</p>
+    <p>This can be approximated to</p>
+    <p><span class="math math-inline"><span class="katex"><span class="katex-mathml">N2+N4+N8+...\frac{N}{2} + \frac{N}{4} + \frac{N}{8} + ... </span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1.2173em; vertical-align: -0.345em;"></span><span
+            class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span
+            class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.8723em;"><span
+            style="top: -2.655em;"><span class="pstrut" style="height: 3em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">2</span></span></span></span><span
+            style="top: -3.23em;"><span class="pstrut" style="height: 3em;"></span><span class="frac-line"
+                                                                                         style="border-bottom-width: 0.04em;"></span></span><span
+            style="top: -3.394em;"><span class="pstrut" style="height: 3em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight"
+                                                                                    style="margin-right: 0.10903em;">N</span></span></span></span></span><span
+            class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                       style="height: 0.345em;"><span></span></span></span></span></span><span
+            class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1.2173em; vertical-align: -0.345em;"></span><span
+            class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span
+            class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.8723em;"><span
+            style="top: -2.655em;"><span class="pstrut" style="height: 3em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">4</span></span></span></span><span
+            style="top: -3.23em;"><span class="pstrut" style="height: 3em;"></span><span class="frac-line"
+                                                                                         style="border-bottom-width: 0.04em;"></span></span><span
+            style="top: -3.394em;"><span class="pstrut" style="height: 3em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight"
+                                                                                    style="margin-right: 0.10903em;">N</span></span></span></span></span><span
+            class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                       style="height: 0.345em;"><span></span></span></span></span></span><span
+            class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1.2173em; vertical-align: -0.345em;"></span><span
+            class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span
+            class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.8723em;"><span
+            style="top: -2.655em;"><span class="pstrut" style="height: 3em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">8</span></span></span></span><span
+            style="top: -3.23em;"><span class="pstrut" style="height: 3em;"></span><span class="frac-line"
+                                                                                         style="border-bottom-width: 0.04em;"></span></span><span
+            style="top: -3.394em;"><span class="pstrut" style="height: 3em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight"
+                                                                                    style="margin-right: 0.10903em;">N</span></span></span></span></span><span
+            class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                       style="height: 0.345em;"><span></span></span></span></span></span><span
+            class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.1056em;"></span><span
+            class="mord">...</span></span></span></span></span></p>
+    <p>where the number of terms is infinite.</p>
+    <p>Now, this is a geometric progression with common ratio <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">12\frac{1}{2}</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1.1901em; vertical-align: -0.345em;"></span><span
+            class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span
+            class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.8451em;"><span
+            style="top: -2.655em;"><span class="pstrut" style="height: 3em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">2</span></span></span></span><span
+            style="top: -3.23em;"><span class="pstrut" style="height: 3em;"></span><span class="frac-line"
+                                                                                         style="border-bottom-width: 0.04em;"></span></span><span
+            style="top: -3.394em;"><span class="pstrut" style="height: 3em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">1</span></span></span></span></span><span
+            class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                       style="height: 0.345em;"><span></span></span></span></span></span><span
+            class="mclose nulldelimiter"></span></span></span></span></span></span> and first term <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">N2\frac{N}{2}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1.2173em; vertical-align: -0.345em;"></span><span
+            class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span
+            class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.8723em;"><span
+            style="top: -2.655em;"><span class="pstrut" style="height: 3em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">2</span></span></span></span><span
+            style="top: -3.23em;"><span class="pstrut" style="height: 3em;"></span><span class="frac-line"
+                                                                                         style="border-bottom-width: 0.04em;"></span></span><span
+            style="top: -3.394em;"><span class="pstrut" style="height: 3em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight"
+                                                                                    style="margin-right: 0.10903em;">N</span></span></span></span></span><span
+            class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                       style="height: 0.345em;"><span></span></span></span></span></span><span
+            class="mclose nulldelimiter"></span></span></span></span></span></span>. Thus, the <a
+            href="https://en.wikipedia.org/wiki/Geometric_series#Sum" target="_blank">sum</a> of this progression is</p>
+    <p><span class="math math-inline"><span class="katex"><span class="katex-mathml">N2⋅11−12=N2⋅2=N\frac{N}{2} \cdot \frac{1}{1-\frac{1}{2}} = \frac{N}{2} \cdot 2 = N</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1.2173em; vertical-align: -0.345em;"></span><span
+            class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span
+            class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.8723em;"><span
+            style="top: -2.655em;"><span class="pstrut" style="height: 3em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">2</span></span></span></span><span
+            style="top: -3.23em;"><span class="pstrut" style="height: 3em;"></span><span class="frac-line"
+                                                                                         style="border-bottom-width: 0.04em;"></span></span><span
+            style="top: -3.394em;"><span class="pstrut" style="height: 3em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight"
+                                                                                    style="margin-right: 0.10903em;">N</span></span></span></span></span><span
+            class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                       style="height: 0.345em;"><span></span></span></span></span></span><span
+            class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1.4869em; vertical-align: -0.6418em;"></span><span
+            class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span
+            class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.8451em;"><span
+            style="top: -2.599em;"><span class="pstrut" style="height: 3em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">1</span><span
+            class="mbin mtight">−</span><span class="mord mtight"><span
+            class="mopen nulldelimiter sizing reset-size3 size6"></span><span class="mfrac"><span
+            class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.8443em;"><span
+            style="top: -2.656em;"><span class="pstrut" style="height: 3em;"></span><span
+            class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mtight">2</span></span></span></span><span
+            style="top: -3.2255em;"><span class="pstrut" style="height: 3em;"></span><span class="frac-line mtight"
+                                                                                           style="border-bottom-width: 0.049em;"></span></span><span
+            style="top: -3.384em;"><span class="pstrut" style="height: 3em;"></span><span
+            class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mtight">1</span></span></span></span></span><span
+            class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                       style="height: 0.344em;"><span></span></span></span></span></span><span
+            class="mclose nulldelimiter sizing reset-size3 size6"></span></span></span></span></span><span
+            style="top: -3.23em;"><span class="pstrut" style="height: 3em;"></span><span class="frac-line"
+                                                                                         style="border-bottom-width: 0.04em;"></span></span><span
+            style="top: -3.394em;"><span class="pstrut" style="height: 3em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">1</span></span></span></span></span><span
+            class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                       style="height: 0.6418em;"><span></span></span></span></span></span><span
+            class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+            class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 1.2173em; vertical-align: -0.345em;"></span><span
+            class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span
+            class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.8723em;"><span
+            style="top: -2.655em;"><span class="pstrut" style="height: 3em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">2</span></span></span></span><span
+            style="top: -3.23em;"><span class="pstrut" style="height: 3em;"></span><span class="frac-line"
+                                                                                         style="border-bottom-width: 0.04em;"></span></span><span
+            style="top: -3.394em;"><span class="pstrut" style="height: 3em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight"
+                                                                                    style="margin-right: 0.10903em;">N</span></span></span></span></span><span
+            class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                       style="height: 0.345em;"><span></span></span></span></span></span><span
+            class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">2</span><span
+            class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace"
+                                                                                                   style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                    style="margin-right: 0.10903em;">N</span></span></span></span></span>
+    </p>
+    <p>Thus, the total number of votes that we can have is <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">NN</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                 style="margin-right: 0.10903em;">N</span></span></span></span></span>.
+    </p>
+    <p></p>
+</details>
+<p><span class="math math-inline"><span class="katex"><span class="katex-mathml">↓\downarrow</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+        class="mrel">↓</span></span></span></span></span></p>
+<p>Now, the question boils down to how to find the optimal (next closest) opponent senator <strong>efficiently</strong>.
+    The article presents multiple approaches to solving this problem.</p>
+<hr>
+<h3 id="approach-1-greedy">Approach 1: Greedy</h3>
+<h4 id="intuition">Intuition</h4>
+<p>As discussed above, the "<em>best strategy</em>" for a senator is to ban the next closest opponent senator. Thus, we
+    can use a greedy approach to solve this problem.</p>
+<p>For every "eligible senator", we can try to find the next closest opponent senator and ban it. To find this senator,
+    we can linearly scan the <code>senate</code> string ahead of the "current senator", to the right. If no senator is
+    found, we can start scanning from the left of the <code>senate</code> string until one position before the "current
+    senator". If no senator is found, we can return the party of the "current senator" as the winner.</p>
+<p>Also, to ban the next closest opponent senator, we can just remove the banned senator from the <code>senate</code>
+    string.</p>
+<p>Moreover, one minute optimization that we can do is to keep track of the number of senators from each party. If the
+    number of senators from one party becomes zero, we can return the other party as the winner.</p>
+<h4 id="algorithm">Algorithm</h4>
+<ol>
+    <li>
+        <p>We need to remove banned senators from the <code>senate</code> string. If strings are immutable in your
+            programming language, then convert the input to an equivalent mutable data structure (like a dynamic array).
+        </p>
+    </li>
+    <li>
+        <p>Count the number of senators from each party, and store it in <code>rCount</code> and <code>dCount</code>
+            respectively.</p>
+    </li>
+    <li>
+        <p>Define a function <code>ban(toBan, startAt)</code> which will ban the next closest opponent senator of type
+            <code>toBan</code>, starting from the position <code>startAt</code> in the <code>senate</code> string. It
+            will return a boolean value, which will be <code>True</code> if we have to loop around the
+            <code>senate</code> string for banning the next closest opponent senator. This will help us in dealing with
+            the indices of the <code>senate</code> string.</p>
+    </li>
+    <li>
+        <p>Define a variable <code>turn</code> which will keep track of the current senator. It will be an integer
+            value, which will be the index of the current senator in the <code>senate</code> string. Initially, it will
+            be <code>0</code>.</p>
+    </li>
+    <li>
+        <p>While we have senators from both parties, we will keep on banning the next closest opponent senator of the
+            current senator at index <code>turn</code> in the <code>senate</code> string. We will keep on doing this as
+            long as we still have senators from both parties.</p>
+        <p>After banning, we will decrement the count of the banned senator's party by <code>1</code>.</p>
+        <p><em>Also, if the senator was banned before this index, it means the senator having the next turn will be the
+            senator at the same index. Only in this case, we will decrement the <code>turn</code> by
+            <code>1</code>.</em></p>
+        <p>At last, we will increment the <code>turn</code> by <code>1</code>. Take <code>MOD</code> of
+            <code>turn</code> with the length of the <code>senate</code> string, to handle the wrap-around by keeping it
+            in the range of <code>0</code> to <code>senate.length - 1</code>.</p>
+    </li>
+    <li>
+        <p>If the number of senators of one party is 0, we can return the other party as the winner.</p>
+    </li>
+</ol>
+<h4 id="implementation">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+
+    // Ban the candidate "toBan", immediate next to "startAt"
+    // If have to loop around, then it means next turn will be of
+    // senator at same index. Returns loop around boolean
+    public boolean ban(StringBuilder senateArray, char toBan, int startAt) {
+
+        boolean loopAround = false;
+        int pointer = startAt;
+
+        while (true) {
+            if (pointer == 0) {
+                loopAround = true;
+            }
+            if (senateArray.charAt(pointer) == toBan) {
+                senateArray.deleteCharAt(pointer);
+                break;
+            }
+            pointer = (pointer + 1) % senateArray.length();
+        }
+
+        return loopAround;
+    }
+
+    public String predictPartyVictory(String senate) {
+
+        // Convert to StringBuilder for easy deletion
+        StringBuilder senateArray = new StringBuilder(senate);
+
+        // Count of Each Type of Senator to check for Winner
+        int rCount = 0;
+        int dCount = 0;
+        for (int i = 0; i < senateArray.length(); i++) {
+            if (senateArray.charAt(i) == 'R') {
+                rCount++;
+            } else {
+                dCount++;
+            }
+        }
+
+        // Turn of Senator at this index
+        int turn = 0;
+
+        // While No Winner
+        while (rCount > 0 && dCount > 0) {
+
+            // Ban the next opponent, starting at one index ahead
+            // Taking MOD to loop around.
+            // If index of banned senator is before current index,
+            // then we need to decrement turn by 1, as we have removed
+            // a senator from list
+            if (senateArray.charAt(turn) == 'R') {
+                boolean bannedSenatorBefore = ban(senateArray, 'D', (turn + 1) % senateArray.length());
+                if (bannedSenatorBefore) {
+                    turn--;
+                }
+                dCount--;
+            } else {
+                boolean bannedSenatorBefore = ban(senateArray, 'R', (turn + 1) % senateArray.length());
+                if (bannedSenatorBefore) {
+                    turn--;
+                }
+                rCount--;
+            }
+
+            // Increment Turn
+            turn = (turn + 1) % senateArray.length();
+        }
+
+        // Return Winner
+        if (rCount > 0) {
+            return "Radiant";
+        } else {
+            return "Dire";
+        }
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+  string predictPartyVictory(string senate) {
+
+    // Count of Each Type of Senator to check for Winner
+    int rCount = count(senate.begin(), senate.end(), 'R');
+    int dCount = senate.size() - rCount;
+
+    // Ban the candidate "toBan", immediate next to "startAt"
+    // If have to loop around, then it means next turn will be of
+    // senator at same index. Returns loop around boolean
+    auto ban = [&](char toBan, int startAt) {
+      bool loopAround = false;
+      int pointer = startAt;
+
+      while (true) {
+        if (pointer == 0) {
+          loopAround = true;
+        }
+        if (senate[pointer] == toBan) {
+          senate.erase(senate.begin() + pointer);
+          break;
+        }
+        pointer = (pointer + 1) % senate.size();
+      }
+
+      return loopAround;
+    };
+
+    // Turn of Senator at this index
+    int turn = 0;
+
+    // While No Winner
+    while (rCount > 0 && dCount > 0) {
+
+      // Ban the next opponent, starting at one index ahead
+      // Taking MOD to loop around.
+      // If index of banned senator is before current index,
+      // then we need to decrement turn by 1, as we have removed
+      // a senator from list
+      if (senate[turn] == 'R') {
+        bool bannedSenatorBefore = ban('D', (turn + 1) % senate.size());
+        dCount--;
+        if (bannedSenatorBefore) {
+          turn--;
+        }
+      } else {
+        bool bannedSenatorBefore = ban('R', (turn + 1) % senate.size());
+        rCount--;
+        if (bannedSenatorBefore) {
+          turn--;
+        }
+      }
+
+      // Increment turn by 1
+      turn = (turn + 1) % senate.size();
+    }
+
+    // Return Winner depending on count
+    return dCount == 0 ? "Radiant" : "Dire";
+  }
+};
+    </code>
+    C
+    <code>
+        char *predictPartyVictory(char *senate) {
+
+    // Count of Each Type of Senator to check for Winner
+    int rCount = 0, dCount = 0;
+    for (int i = 0; senate[i] != '\0'; i++) {
+        if (senate[i] == 'R') {
+            rCount++;
+        } else {
+            dCount++;
+        }
+    }
+
+    // Ban the candidate "toBan", immediate next to "startAt"
+    // If have to loop around, then it means next turn will be of
+    // senator at same index. Returns loop around boolean
+    bool ban(char toBan, int startAt) {
+        bool loopAround = false;
+        int pointer = startAt;
+
+        while (true) {
+            if (pointer == 0) {
+                loopAround = true;
+            }
+            if (senate[pointer] == toBan) {
+                for (int i = pointer; senate[i] != '\0'; i++) {
+                    senate[i] = senate[i + 1];
+                }
+                break;
+            }
+            pointer = (pointer + 1) % strlen(senate);
+        }
+
+        return loopAround;
+    }
+
+    // Turn of Senator at this index
+    int turn = 0;
+
+    // While No Winner
+    while (rCount > 0 && dCount > 0) {
+
+        // Ban the next opponent, starting at one index ahead
+        // Taking MOD to loop around.
+        // If index of banned senator is before current index,
+        // then we need to decrement turn by 1, as we have removed
+        // a senator from list
+        if (senate[turn] == 'R') {
+            bool bannedSenatorBefore = ban('D', (turn + 1) % strlen(senate));
+            dCount--;
+            if (bannedSenatorBefore) {
+                turn--;
+            }
+        } else {
+            bool bannedSenatorBefore = ban('R', (turn + 1) % strlen(senate));
+            rCount--;
+            if (bannedSenatorBefore) {
+                turn--;
+            }
+        }
+
+        // Increment turn by 1
+        turn = (turn + 1) % strlen(senate);
+    }
+
+    // Return Winner depending on count
+    return dCount == 0 ? "Radiant" : "Dire";
+}
+    </code>
+    C#
+    <code>
+        public class Solution {
+    public string PredictPartyVictory(string senate) {
+
+        // Count of Each Type of Senator to check for Winner
+        int rCount = senate.Count(c => c == 'R');
+        int dCount = senate.Length - rCount;
+
+        // Ban the candidate "toBan", immediate next to "startAt"
+        // If have to loop around, then it means next turn will be of
+        // senator at same index. Returns loop around boolean
+        bool ban(char toBan, int startAt) {
+            bool loopAround = false;
+            int pointer = startAt;
+
+            while (true) {
+                if (pointer == 0) {
+                    loopAround = true;
+                }
+                if (senate[pointer] == toBan) {
+                    senate = senate.Remove(pointer, 1);
+                    break;
+                }
+                pointer = (pointer + 1) % senate.Length;
+            }
+
+            return loopAround;
+        }
+
+        // Turn of Senator at this index
+        int turn = 0;
+
+        // While No Winner
+        while (rCount > 0 && dCount > 0) {
+
+            // Ban the next opponent, starting at one index ahead
+            // Taking MOD to loop around.
+            // If index of banned senator is before current index,
+            // then we need to decrement turn by 1, as we have removed
+            // a senator from list
+            if (senate[turn] == 'R') {
+                bool bannedSenatorBefore = ban('D', (turn + 1) % senate.Length);
+                dCount--;
+                if (bannedSenatorBefore) {
+                    turn--;
+                }
+            } else {
+                bool bannedSenatorBefore = ban('R', (turn + 1) % senate.Length);
+                rCount--;
+                if (bannedSenatorBefore) {
+                    turn--;
+                }
+            }
+
+            // Increment turn by 1
+            turn = (turn + 1) % senate.Length;
+        }
+
+        // Return Winner depending on count
+        return dCount == 0 ? "Radiant" : "Dire";
+    }
+}
+    </code>
+    JavaScript
+    <code>
+        /**
+ * @param {string} senate
+ * @return {string}
+ */
+
+var predictPartyVictory = function(senate) {
+
+    // Count of Each Type of Senator to check for Winner
+    let rCount = 0, dCount = 0;
+    for (let i = 0; i < senate.length; i++) {
+        if (senate[i] == 'R') {
+            rCount++;
+        } else {
+            dCount++;
+        }
+    }
+
+    // Ban the candidate "toBan", immediate next to "startAt"
+    // If have to loop around, then it means next turn will be of
+    // senator at same index. Returns loop around boolean
+    const ban = (toBan, startAt) => {
+        let loopAround = false;
+        let pointer = startAt;
+
+        while (true) {
+            if (pointer == 0) {
+                loopAround = true;
+            }
+            if (senate[pointer] == toBan) {
+                senate = senate.slice(0, pointer) + senate.slice(pointer + 1);
+                break;
+            }
+            pointer = (pointer + 1) % senate.length;
+        }
+
+        return loopAround;
+    }
+
+    // Turn of Senator at this index
+    let turn = 0;
+
+    // While No Winner
+    while (rCount > 0 && dCount > 0) {
+
+        // Ban the next opponent, starting at one index ahead
+        // Taking MOD to loop around.
+        // If index of banned senator is before current index,
+        // then we need to decrement turn by 1, as we have removed
+        // a senator from list
+        if (senate[turn] == 'R') {
+            let bannedSenatorBefore = ban('D', (turn + 1) % senate.length);
+            dCount--;
+            if (bannedSenatorBefore) {
+                turn--;
+            }
+        } else {
+            let bannedSenatorBefore = ban('R', (turn + 1) % senate.length);
+            rCount--;
+            if (bannedSenatorBefore) {
+                turn--;
+            }
+        }
+
+        // Increment turn by 1
+        turn = (turn + 1) % senate.length;
+    }
+
+    // Return Winner depending on count
+    return dCount == 0 ? "Radiant" : "Dire";
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def predictPartyVictory(self, senate: str) -> str:
+
+        # Converting to List as string is immutable, and we need to remove.
+        # List will save only eligible senators
+        senate = list(senate)
+
+        # Count of Each Type of Senator to check for Winner
+        r_count = senate.count('R')
+        d_count = len(senate) - r_count
+
+        # Ban the candidate "to_ban", immediate next to "start_at"
+        # If have to loop around, then it means next turn will be of
+        # senator at same index. Returns loop around boolean
+        def ban(to_ban, start_at):
+
+            loop_around = False
+            pointer = start_at
+
+            while True:
+                if pointer == 0:
+                    loop_around = True
+                if senate[pointer] == to_ban:
+                    senate.pop(pointer)
+                    break
+                pointer = (pointer + 1) % len(senate)
+
+            return loop_around
+
+        # Turn of Senator at this index
+        turn = 0
+
+        # While No Winner
+        while r_count > 0 and d_count > 0:
+
+            # Ban the next opponent, starting at one index ahead
+            # Taking MOD to loop around
+            if senate[turn] == 'R':
+                banned_senator_before = ban('D', (turn + 1) % len(senate))
+                d_count -= 1
+            else:
+                banned_senator_before = ban('R', (turn + 1) % len(senate))
+                r_count -= 1
+
+            # If the index of the banned senator is before current index,
+            # then we need to decrement turn by 1, as we have removed
+            # a senator from the list
+            if banned_senator_before:
+                turn -= 1
+
+            # Increment turn by 1
+            turn = (turn + 1) % len(senate)
+
+        # Return Winner depending on the count
+        return 'Radiant' if d_count == 0 else 'Dire'
+    </code>
+</pre>
+<h4 id="complexity-analysis">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">NN</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                style="margin-right: 0.10903em;">N</span></span></span></span></span>
+    be the number of senators in the senate.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(N2)O(N^2)</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord"><span class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                  style="height: 0.8141em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                class="mclose">)</span></span></span></span></span>.</p>
+        <ul>
+            <li>
+                <p>Counting the number of senators of each type is <span class="math math-inline"><span
+                        class="katex"><span class="katex-mathml">O(N)O(N)</span><span class="katex-html"
+                                                                                      aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal"
+                                                    style="margin-right: 0.10903em;">N</span><span
+                        class="mclose">)</span></span></span></span></span> time.</p>
+            </li>
+            <li>
+                <p>As discussed in <a href="#overview" rel="noopener noreferrer nofollow ugc"
+                                      target="_self">Overview</a>, there will be <span class="math math-inline"><span
+                        class="katex"><span class="katex-mathml">O(N)O(N)</span><span class="katex-html"
+                                                                                      aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal"
+                                                    style="margin-right: 0.10903em;">N</span><span
+                        class="mclose">)</span></span></span></span></span> turns/votes.<br>
+                    <em>Each turn will take <span class="math math-inline"><span class="katex"><span
+                            class="katex-mathml">O(N)O(N)</span><span class="katex-html" aria-hidden="true"><span
+                            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                            class="mopen">(</span><span class="mord mathnormal"
+                                                        style="margin-right: 0.10903em;">N</span><span
+                            class="mclose">)</span></span></span></span></span> time to find the next senator to ban.
+                        Also, removing an element from an array is <span class="math math-inline"><span
+                                class="katex"><span class="katex-mathml">O(N)O(N)</span><span class="katex-html"
+                                                                                              aria-hidden="true"><span
+                                class="base"><span class="strut"
+                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                                class="mopen">(</span><span class="mord mathnormal"
+                                                            style="margin-right: 0.10903em;">N</span><span
+                                class="mclose">)</span></span></span></span></span> time. Thus, <strong>each
+                            turn</strong> requires <span class="math math-inline"><span class="katex"><span
+                                class="katex-mathml">O(2N)O(2N)</span><span class="katex-html" aria-hidden="true"><span
+                                class="base"><span class="strut"
+                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                                class="mopen">(</span><span class="mord">2</span><span class="mord mathnormal"
+                                                                                       style="margin-right: 0.10903em;">N</span><span
+                                class="mclose">)</span></span></span></span></span> operations, which is <span
+                                class="math math-inline"><span class="katex"><span
+                                class="katex-mathml">O(N)O(N)</span><span class="katex-html" aria-hidden="true"><span
+                                class="base"><span class="strut"
+                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                                class="mopen">(</span><span class="mord mathnormal"
+                                                            style="margin-right: 0.10903em;">N</span><span
+                                class="mclose">)</span></span></span></span></span> time.</em><br>
+                    Thus, <span class="math math-inline"><span class="katex"><span
+                            class="katex-mathml">O(N)O(N)</span><span class="katex-html" aria-hidden="true"><span
+                            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                            class="mopen">(</span><span class="mord mathnormal"
+                                                        style="margin-right: 0.10903em;">N</span><span
+                            class="mclose">)</span></span></span></span></span> turns/votes requires <span
+                            class="math math-inline"><span class="katex"><span
+                            class="katex-mathml">O(N2)O(N^2)</span><span class="katex-html" aria-hidden="true"><span
+                            class="base"><span class="strut"
+                                               style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                            class="mopen">(</span><span class="mord"><span class="mord mathnormal"
+                                                                           style="margin-right: 0.10903em;">N</span><span
+                            class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                              style="height: 0.8141em;"><span
+                            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                               style="height: 2.7em;"></span><span
+                            class="sizing reset-size6 size3 mtight"><span
+                            class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                            class="mclose">)</span></span></span></span></span> time.</p>
+            </li>
+        </ul>
+        <p>Hence, the overall time complexity will be <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(N+N2)=O(N2)O(N + N^2) = O(N^2)</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span class="mspace"
+                                                                                       style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                class="mord"><span class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                  style="height: 0.8141em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                class="mclose">)</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+                class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+                class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord"><span class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                  style="height: 0.8141em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(N)O(N)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                class="mclose">)</span></span></span></span></span>.</p>
+        <p>If the string is mutable, then we can do it in place.</p>
+        <p>However, strings are often immutable. Thus, we need to use a new data structure of size <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">NN</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.6833em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.10903em;">N</span></span></span></span></span> to store
+            the senate. Hence, the space complexity will be <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(N)O(N)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                    class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+</ul>
+<hr>
+<h3 id="approach-2-boolean-array">Approach 2: Boolean Array</h3>
+<h4 id="intuition-1">Intuition</h4>
+<p>The previous <a href="#approach-1-greedy" rel="noopener noreferrer nofollow ugc" target="_self">approach</a> was not
+    efficient enough and also suffers from nuances of string manipulation, particularly the deletion of characters and
+    maintaining the <code>turn</code> invariant (decrementing if <code>loopAround</code>)</p>
+<p>The main purpose of deletion was to maintain only the senators who are still eligible. If we are planning to NOT
+    delete the banned senators, then we can use a boolean array to keep track of the senators who are banned.</p>
+<p>This will also help us to maintain the <code>turn</code> invariant. We can simply increment the <code>turn</code> by
+    1 and take MOD to loop around. The size of the <code>senate</code> string will not change in this approach. Also,
+    there is no need to maintain the <code>loopAround</code> boolean. Further, we don't need to convert the string to a
+    character array.</p>
+<p>As done in the previous approach too, we will keep track of the count of each type of senator. If any of the counts
+    reaches 0, then we will return the winner.</p>
+<h4 id="algorithm-1">Algorithm</h4>
+<ol>
+    <li>
+        <p>Create a boolean array <code>banned</code> of size <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">NN</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                     style="margin-right: 0.10903em;">N</span></span></span></span></span>
+            and initialize it to <code>false</code>. This will keep track of the senators who are banned.</p>
+    </li>
+    <li>
+        <p>Create a count of each type of senator, <code>rCount</code> and <code>dCount</code>.</p>
+    </li>
+    <li>
+        <p>Define a function <code>ban</code> which takes in the type of senator to ban, <code>toBan</code> and the
+            index to start searching for the next senator to ban, <code>startAt</code>.</p>
+        <p>Inside the function define a pointer <code>pointer</code> and initialize it to <code>startAt</code>. While an
+            eligible senator of type <code>toBan</code> is not found, keep incrementing the <code>pointer</code> by 1
+            and taking MOD length <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">NN</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                    class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                         style="margin-right: 0.10903em;">N</span></span></span></span></span>
+            to loop around.</p>
+        <p>If found, ban the senator by setting <code>banned[pointer]</code> to <code>true</code>.</p>
+        <p>The loop will terminate because we will call the function only when there is at least one eligible senator of
+            type <code>toBan</code> in the senate. Thus, we will always find an eligible senator of the type
+            <code>toBan</code> in the senate.</p>
+    </li>
+    <li>
+        <p>Define a variable <code>turn</code> and initialize it to 0. This will keep track of the index of the senator
+            whose turn it is.</p>
+    </li>
+    <li>
+        <p>While there is no winner, keep iterating over the senate.</p>
+        <p>If the senator at <code>turn</code> is not banned, then check the type of the senator, and call the
+            <code>ban</code> function with the type of the opponent senator and the index of the next senator, i.e.
+            <code>(turn + 1) % senate.length()</code>. After executing the <code>ban</code> function, decrement the
+            count of the opponent senator by 1.</p>
+        <p>Increment the <code>turn</code> by 1 and take MOD <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">NN</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                     style="margin-right: 0.10903em;">N</span></span></span></span></span>
+            to loop around. If the senator at <code>turn</code> is banned, do this immediately without checking the type
+            of the senator, otherwise do this after executing the <code>ban</code> function.</p>
+    </li>
+    <li>
+        <p>Return the winner depending on which senator's count has dropped to 0.</p>
+    </li>
+</ol>
+<h4 id="implementation-1">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+
+    // Ban the candidate "toBan", immediate next to "startAt"
+    public void ban(String senate, boolean[] banned, char toBan, int startAt) {
+        // Find the next eligible candidate to ban
+        int pointer = startAt;
+        while (true) {
+            if (senate.charAt(pointer) == toBan && !banned[pointer]) {
+                banned[pointer] = true;
+                break;
+            }
+            pointer = (pointer + 1) % senate.length();
+        }
+    }
+
+    public String predictPartyVictory(String senate) {
+
+        // To mark Banned Senators
+        boolean[] banned = new boolean[senate.length()];
+
+        // Count of Each Type of Senator who are not-banned
+        int rCount = 0, dCount = 0;
+        for (int i = 0; i < senate.length(); i++) {
+            if (senate.charAt(i) == 'R') {
+                rCount++;
+            } else {
+                dCount++;
+            }
+        }
+
+        // Turn of Senator at this Index
+        int turn = 0;
+
+        // While both parties have at least one senator
+        while (rCount > 0 && dCount > 0) {
+
+            if (!banned[turn]) {
+                if (senate.charAt(turn) == 'R') {
+                    ban(senate, banned, 'D', (turn + 1) % senate.length());
+                    dCount--;
+                } else {
+                    ban(senate, banned, 'R', (turn + 1) % senate.length());
+                    rCount--;
+                }
+            }
+
+            turn = (turn + 1) % senate.length();
+        }
+
+        return dCount == 0 ? "Radiant" : "Dire";
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+  string predictPartyVictory(string senate) {
+
+    // Count of Each Type of Senator to check for Winner
+    int rCount = count(senate.begin(), senate.end(), 'R');
+    int dCount = senate.size() - rCount;
+
+    // To mark Banned Senators
+    vector<bool> banned(senate.size(), false);
+
+    // Ban the candidate "toBan", immediate next to "startAt"
+    auto ban = [&](char toBan, int startAt) {
+      // Find the next eligible senator of "toBan" type
+      // On found, mark him as banned
+      while (true) {
+        if (senate[startAt] == toBan && !banned[startAt]) {
+          banned[startAt] = true;
+          break;
+        }
+        startAt = (startAt + 1) % senate.size();
+      }
+    };
+
+    // Turn of Senator at this Index
+    int turn = 0;
+
+    // While both parties have at least one senator
+    while (rCount > 0 && dCount > 0) {
+
+      if (!banned[turn]) {
+        if (senate[turn] == 'R') {
+          ban('D', (turn + 1) % senate.size());
+          dCount--;
+        } else {
+          ban('R', (turn + 1) % senate.size());
+          rCount--;
+        }
+      }
+
+      turn = (turn + 1) % senate.size();
+    }
+
+    return dCount == 0 ? "Radiant" : "Dire";
+  }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def predictPartyVictory(self, senate: str) -> str:
+
+        # Number of Senators
+        N = len(senate)
+
+        # To mark Banned Senators
+        banned = [False] * N
+
+        # Count of Each Type of Senator who are not-banned
+        r_count = senate.count('R')
+        d_count = N - r_count
+
+        # Ban the candidate "to_ban", immediate next to "start_at"
+        def ban(to_ban, start_at):
+
+            # Find the next eligible senator of "to_ban" type
+            # On found, mark him as banned
+            pointer = start_at
+            while True:
+                if senate[pointer] == to_ban and not banned[pointer]:
+                    banned[pointer] = True
+                    break
+                pointer = (pointer + 1) % len(senate)
+
+        # Turn of Senator at this Index
+        turn = 0
+
+        # While both parties have at least one senator
+        while r_count > 0 and d_count > 0:
+
+            if not banned[turn]:
+                if senate[turn] == 'R':
+                    ban('D', (turn + 1) % N)
+                    d_count -= 1
+                else:
+                    ban('R', (turn + 1) % N)
+                    r_count -= 1
+
+            turn = (turn + 1) % N
+
+        return 'Radiant' if d_count == 0 else 'Dire'
+    </code>
+</pre>
+<p><strong>Implementation Note :</strong> Instead of using a boolean array to mark banned senators, we can use a <code>set</code>
+    if it supports <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord">1</span><span class="mclose">)</span></span></span></span></span> lookup and addition.</p>
+<h4 id="complexity-analysis-1">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">NN</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                style="margin-right: 0.10903em;">N</span></span></span></span></span>
+    be the number of senators in the senate.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(N2)O(N^2)</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord"><span class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                  style="height: 0.8141em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                class="mclose">)</span></span></span></span></span>.</p>
+        <ul>
+            <li>
+                <p>Counting the number of senators of each type is <span class="math math-inline"><span
+                        class="katex"><span class="katex-mathml">O(N)O(N)</span><span class="katex-html"
+                                                                                      aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal"
+                                                    style="margin-right: 0.10903em;">N</span><span
+                        class="mclose">)</span></span></span></span></span> time.</p>
+            </li>
+            <li>
+                <p>As discussed in <a href="#overview" rel="noopener noreferrer nofollow ugc"
+                                      target="_self">Overview</a>, there will be at most <span class="math math-inline"><span
+                        class="katex"><span class="katex-mathml">NN</span><span class="katex-html"
+                                                                                aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                                style="margin-right: 0.10903em;">N</span></span></span></span></span>
+                    turns. Thus, <code>if !banned[turn]</code> in <code>while (rCount &gt; 0 &amp;&amp; dCount &gt;
+                        0)</code> will be executed at most <span class="math math-inline"><span class="katex"><span
+                            class="katex-mathml">NN</span><span class="katex-html" aria-hidden="true"><span
+                            class="base"><span class="strut" style="height: 0.6833em;"></span><span
+                            class="mord mathnormal"
+                            style="margin-right: 0.10903em;">N</span></span></span></span></span> times.<br>
+                    <em>In each turn, we will iterate over the entire senate string to find the next eligible senator to
+                        ban. This is bounded by <span class="math math-inline"><span class="katex"><span
+                                class="katex-mathml">NN</span><span class="katex-html" aria-hidden="true"><span
+                                class="base"><span class="strut" style="height: 0.6833em;"></span><span
+                                class="mord mathnormal"
+                                style="margin-right: 0.10903em;">N</span></span></span></span></span> as well.</em></p>
+            </li>
+        </ul>
+        <p>Thus, the overall time complexity is <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(N2)O(N^2)</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord"><span class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                  style="height: 0.8141em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(N)O(N)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                class="mclose">)</span></span></span></span></span>.</p>
+        <p>We use a boolean array of size <span class="math math-inline"><span class="katex"><span class="katex-mathml">NN</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.6833em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.10903em;">N</span></span></span></span></span> to mark
+            banned senators. However, compared to <a href="#approach-1-greedy" rel="noopener noreferrer nofollow ugc"
+                                                     target="_self">previous approach</a>, we have overcome the nuances
+            of maintaining the <code>turn</code> invariant.</p>
+    </li>
+</ul>
+<hr>
+<h3 id="approach-3-binary-search">Approach 3: Binary Search</h3>
+<h4 id="intuition-2">Intuition</h4>
+<p>In the previous approach, the biggest bottleneck was the <strong>search</strong> for the next eligible senator to
+    ban. We know that we can optimize any <strong>search</strong> using <a
+            href="https://leetcode.com/explore/learn/card/binary-search/" target="_blank"><strong>binary search</strong></a>
+    provided the "search space" is sorted.</p>
+<details>
+    <summary><b>What is sorted in this situation? Click to Reveal</b></summary>
+    <p>
+    </p>
+    <p>We know that the <code>senate</code> is not necessarily sorted. And we also even cannot sort it because we need
+        to maintain the order of senators.</p>
+    <p>To analyze more let's rephrase the bottleneck</p>
+    <blockquote>
+        <p>Find the index of the next eligible opponent senator to ban.</p>
+    </blockquote>
+    <p>Can we somehow, for every party, maintain a sorted list of indices of their eligible senators?<br>
+        <em>Yes, we can maintain two sorted lists of indices of eligible senators of each party.</em></p>
+    <p>And then, we can use binary search to find the next eligible senator to ban.</p>
+    <p></p></details>
+<p>Thus, using binary search, we can optimize the search for the next eligible senator to ban. Let's see if this will
+    help us to improve the overall time complexity or not.</p>
+<h4 id="algorithm-2">Algorithm</h4>
+<ol>
+    <li>
+        <p>Declare a Boolean array <code>banned</code> of size <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">NN</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                     style="margin-right: 0.10903em;">N</span></span></span></span></span>
+            to flag banned senators.</p>
+    </li>
+    <li>
+        <p>Declare two sorted lists <code>rIndices</code> and <code>dIndices</code> to maintain indices of <strong>eligible
+            senators</strong> of each party.</p>
+    </li>
+    <li>
+        <p>Define a function <code>ban</code> which takes two arguments, <code>indicesArray</code> which is a list of
+            indices of the opponent party, and <code>startAt</code> which indicates we have to find a senator ahead of
+            (including) this index. This function will ban the next eligible senator.</p>
+        <p>Using binary search, find the index of the next eligible senator to ban ahead of <code>startAt</code>. If not
+            found ahead of <code>startAt</code>, we have to loop around, in this case, we can ban the first eligible
+            senator.</p>
+        <p>Since the <code>indicesArray</code> will store indices of <strong>eligible senators</strong> only. Therefore,
+            after finding the index of the next eligible senator to ban, mark him as banned in the <code>banned</code>
+            array and remove him from <code>indicesArray</code> to maintain the invariant.</p>
+        <p>We will call this function only when <code>indicesArray</code> is not empty. Thus answer will always be
+            found.</p>
+    </li>
+    <li>
+        <p>Initialize <code>turn</code> with 0 which indicates the index of the senator whose turn is next.</p>
+    </li>
+    <li>
+        <p>While both parties have at least one senator, do the following:</p>
+        <p>If <code>senate[turn]</code> is not banned, then find the next eligible senator to ban using the
+            <code>ban</code> function. If <code>senate[turn]</code> is <code>R</code>, then find the next eligible
+            senator to ban from <code>dIndices</code> and vice versa. Start from the <code>turn</code> index to find the
+            next eligible senator to ban.<br>
+            <em>(We can start from <code>(turn + 1) % senate.length()</code> as well. But <code>turn</code> will work
+                too because we know that <code>senate[turn]</code> is from the same party but we want to ban the
+                opponent party senator.)</em></p>
+        <p>Increment <code>turn</code> by <span class="math math-inline"><span class="katex"><span class="katex-mathml">11</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.6444em;"></span><span
+                class="mord">1</span></span></span></span></span>. Loop around by taking modulo with <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">NN</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.6833em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.10903em;">N</span></span></span></span></span> if needed.
+        </p>
+    </li>
+    <li>
+        <p>Return the party which has at least one senator.</p>
+    </li>
+</ol>
+<h4 id="implementation-2">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+  public String predictPartyVictory(String senate) {
+
+    // Number of Senators
+    int n = senate.length();
+
+    // To mark Banned Senators
+    boolean[] banned = new boolean[n];
+
+    // List of indices of Eligible Radiant and Dire Senators
+    List<Integer> rIndices = new ArrayList<>();
+    List<Integer> dIndices = new ArrayList<>();
+    for (int i = 0; i < n; i++) {
+      if (senate.charAt(i) == 'R')
+        rIndices.add(i);
+      else
+        dIndices.add(i);
+    }
+
+    // Ban the senator of "indices" array next to "startAt"
+    BiConsumer<List<Integer>, Integer> ban = (indices, start_at) -> {
+      // Find the index of "index of senator to ban" using Binary Search
+      int temp = Collections.binarySearch(indices, start_at);
+
+      // If start_at is more than the last index,
+      // then start from the beginning. Ban the first senator
+      if (temp < 0) {
+        temp = -temp - 1;
+        if (temp == indices.size()) {
+          banned[indices.get(0)] = true;
+          indices.remove(0);
+        }
+
+        // Else, Ban the senator at the index
+        else {
+          banned[indices.get(temp)] = true;
+          indices.remove(temp);
+        }
+      }
+    };
+
+    // Turn of Senator at this Index
+    int turn = 0;
+
+    // While both parties have at least one senator
+    while (!rIndices.isEmpty() && !dIndices.isEmpty()) {
+
+      if (!banned[turn]) {
+        if (senate.charAt(turn) == 'R')
+          ban.accept(dIndices, turn);
+        else
+          ban.accept(rIndices, turn);
+      }
+
+      turn = (turn + 1) % n;
+    }
+
+    return dIndices.isEmpty() ? "Radiant" : "Dire";
+  }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+  string predictPartyVictory(string senate) {
+
+    // Number of Senators
+    int n = senate.size();
+
+    // To mark Banned Senators
+    vector<bool> banned(n, false);
+
+    // List of indices of Eligible Radiant and Dire Senators
+    vector<int> rIndices, dIndices;
+    for (int i = 0; i < n; i++) {
+      if (senate[i] == 'R')
+        rIndices.push_back(i);
+      else
+        dIndices.push_back(i);
+    }
+
+    // Ban the senator of "indices" array next to "startAt"
+    auto ban = [&](vector<int> &indices, int start_at) {
+      // Find the index of "index of senator to ban" using Binary Search
+      auto temp = lower_bound(indices.begin(), indices.end(), start_at);
+
+      // If start_at is more than the last index,
+      // then start from the beginning. Ban the first senator
+      if (temp == indices.end()) {
+        banned[indices[0]] = true;
+        indices.erase(indices.begin());
+      }
+
+      // Else, Ban the senator at the index
+      else {
+        banned[*temp] = true;
+        indices.erase(temp);
+      }
+    };
+
+    // Turn of Senator at this Index
+    int turn = 0;
+
+    // While both parties have at least one senator
+    while (!rIndices.empty() && !dIndices.empty()) {
+
+      if (!banned[turn]) {
+        if (senate[turn] == 'R')
+          ban(dIndices, turn);
+        else
+          ban(rIndices, turn);
+      }
+
+      turn = (turn + 1) % n;
+    }
+
+    // Return the party with at least one senator
+    return dIndices.empty() ? "Radiant" : "Dire";
+  }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def predictPartyVictory(self, senate: str) -> str:
+
+        # Number of Senators
+        N = len(senate)
+
+        # To mark Banned Senators
+        banned = [False] * N
+
+        # List of indices of Eligible Radiant and Dire Senators
+        r_indices = [i for i in range(N) if senate[i] == 'R']
+        d_indices = [i for i in range(N) if senate[i] == 'D']
+
+        # Ban the senator of "indices" array next to "start_at"
+        def ban(indices_array, start_at):
+
+            # Find the index of "index of senator to ban" using Binary Search
+            temp = bisect.bisect_left(indices_array, start_at)
+
+            # If start_at is more than the last index,
+            # then start from the beginning. Ban the first senator
+            if temp == len(indices_array):
+                banned[indices_array.pop(0)] = True
+
+            # Else, Ban the senator at the index
+            else:
+                banned[indices_array.pop(temp)] = True
+
+        # Turn of Senator at this Index
+        turn = 0
+
+        # While both parties have at least one senator
+        while r_indices and d_indices:
+
+            if not banned[turn]:
+                if senate[turn] == 'R':
+                    ban(d_indices, turn)
+                else:
+                    ban(r_indices, turn)
+
+            turn = (turn + 1) % N
+
+        return 'Radiant' if d_indices == [] else 'Dire'
+
+    </code>
+</pre>
+<p><strong>Implementation Note:</strong> For Binary Search, we have used different inbuilt functions in different
+    languages. More about them can be read from the official documentation.</p>
+<ul>
+    <li>In Python, we have used the <a href="https://docs.python.org/3/library/bisect.html#bisect.bisect_left"
+                                       target="_blank"><code>bisect.bisect_left</code></a> function.
+    </li>
+    <li>In Java, we have used <a
+            href="https://docs.oracle.com/javase/7/docs/api/java/util/Arrays.html#binarySearch(int%5B%5D,%20int)"
+            target="_blank"><code>Collections.binarySearch</code></a> function.
+    </li>
+    <li>In C++, we have used <a href="https://en.cppreference.com/w/cpp/algorithm/lower_bound" target="_blank"><code>lower_bound</code></a>
+        function.
+    </li>
+    <li>In C#, we have used <a
+            href="https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1.binarysearch?view=net-5.0"
+            target="_blank"><code>List.BinarySearch</code></a> function.
+    </li>
+</ul>
+<p>While there is variation in the different functions, the core idea remains the same. The function takes two
+    parameters, an array <code>a</code> and a value <code>x</code>. It returns the index of the first element in
+    <code>a</code> which is not less than <code>x</code>. If all elements in <code>a</code> are less than <code>x</code>,
+    it returns the size of <code>a</code>. The algorithm is based on the fact that the array <code>a</code> is sorted.
+</p>
+<h4 id="complexity-analysis-2">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">NN</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                style="margin-right: 0.10903em;">N</span></span></span></span></span>
+    be the number of senators in the senate.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(N2)O(N^2)</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord"><span class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                  style="height: 0.8141em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                class="mclose">)</span></span></span></span></span>.</p>
+        <ul>
+            <li>
+                <p>Creating the list of indices of eligible senators takes <span class="math math-inline"><span
+                        class="katex"><span class="katex-mathml">O(N)O(N)</span><span class="katex-html"
+                                                                                      aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal"
+                                                    style="margin-right: 0.10903em;">N</span><span
+                        class="mclose">)</span></span></span></span></span> time.</p>
+            </li>
+            <li>
+                <p>The <code>if !banned[turn]</code> condition in the <code>while (!rIndices.empty() &amp;&amp;
+                    !dIndices.empty())</code> loop is executed <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">NN</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                                style="margin-right: 0.10903em;">N</span></span></span></span></span>
+                    times. Because there will be at most <span class="math math-inline"><span class="katex"><span
+                            class="katex-mathml">O(N)O(N)</span><span class="katex-html" aria-hidden="true"><span
+                            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                            class="mopen">(</span><span class="mord mathnormal"
+                                                        style="margin-right: 0.10903em;">N</span><span
+                            class="mclose">)</span></span></span></span></span> vote as discussed in <a href="#overview"
+                                                                                                        rel="noopener noreferrer nofollow ugc"
+                                                                                                        target="_self">Overview</a>.
+                </p>
+                <p>Now, each vote will call the <code>ban</code> function. The <code>ban</code> function uses Binary
+                    Search to find the index of the senator to ban. The Binary Search takes <span
+                            class="math math-inline"><span class="katex"><span
+                            class="katex-mathml">O(log⁡N)O(\log N)</span><span class="katex-html"
+                                                                               aria-hidden="true"><span
+                            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                            class="mopen">(</span><span class="mop">lo<span
+                            style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                  style="margin-right: 0.1667em;"></span><span
+                            class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                            class="mclose">)</span></span></span></span></span> time. But, it is also removing the index
+                    from the list using the <code>erase</code> (or equivalent) function. This takes <span
+                            class="math math-inline"><span class="katex"><span class="katex-mathml">O(N)O(N)</span><span
+                            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+                            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                            class="mopen">(</span><span class="mord mathnormal"
+                                                        style="margin-right: 0.10903em;">N</span><span
+                            class="mclose">)</span></span></span></span></span> time. So, the total time taken by the
+                    <code>ban</code> function is <span class="math math-inline"><span class="katex"><span
+                            class="katex-mathml">O(N)O(N)</span><span class="katex-html" aria-hidden="true"><span
+                            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                            class="mopen">(</span><span class="mord mathnormal"
+                                                        style="margin-right: 0.10903em;">N</span><span
+                            class="mclose">)</span></span></span></span></span>.</p>
+                <p>Hence, the total time taken by the <code>while</code> loop is <span class="math math-inline"><span
+                        class="katex"><span class="katex-mathml">O(N2)O(N^2)</span><span class="katex-html"
+                                                                                         aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord"><span class="mord mathnormal"
+                                                                       style="margin-right: 0.10903em;">N</span><span
+                        class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                          style="height: 0.8141em;"><span
+                        style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                        class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                        class="mclose">)</span></span></span></span></span>.</p>
+            </li>
+        </ul>
+        <p>Thus, the total time complexity is <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(N2)O(N^2)</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord"><span class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                  style="height: 0.8141em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                class="mclose">)</span></span></span></span></span>.</p>
+        <p><strong>Side Note :</strong> <strong>If</strong> <code>popping</code> to maintain invariant of eligible
+            senators was <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord">1</span><span class="mclose">)</span></span></span></span></span>, then the time
+            complexity would have been <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(N+Nlog⁡N)=O(Nlog⁡N)O(N + N \log N) = O(N \log N)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span class="mspace"
+                                                                                           style="margin-right: 0.2222em;"></span><span
+                    class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span class="mspace"
+                                                                                           style="margin-right: 0.1667em;"></span><span
+                    class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                              style="margin-right: 0.1667em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span class="mclose">)</span><span
+                    class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span
+                    class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut"
+                                                                                                          style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span class="mspace"
+                                                                                           style="margin-right: 0.1667em;"></span><span
+                    class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                              style="margin-right: 0.1667em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                    class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(N)O(N)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                class="mclose">)</span></span></span></span></span>.</p>
+        <ul>
+            <li>
+                <p>The space taken by the <code>banned</code> array is <span class="math math-inline"><span
+                        class="katex"><span class="katex-mathml">O(N)O(N)</span><span class="katex-html"
+                                                                                      aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal"
+                                                    style="margin-right: 0.10903em;">N</span><span
+                        class="mclose">)</span></span></span></span></span>.</p>
+            </li>
+            <li>
+                <p>The space taken by the <code>rIndices</code> and <code>dIndices</code> array is <span
+                        class="math math-inline"><span class="katex"><span class="katex-mathml">O(N)O(N)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal"
+                                                    style="margin-right: 0.10903em;">N</span><span
+                        class="mclose">)</span></span></span></span></span>.</p>
+            </li>
+            <li>
+                <p>Thus, the total space complexity is <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(N)O(N)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal"
+                                                    style="margin-right: 0.10903em;">N</span><span
+                        class="mclose">)</span></span></span></span></span>.</p>
+            </li>
+        </ul>
+    </li>
+</ul>
+<hr>
+<h3 id="approach-4-two-queues">Approach 4: Two Queues</h3>
+<h4 id="intuition-3">Intuition</h4>
+<p>The biggest drawback of <a href="#approach-1-greedy" rel="noopener noreferrer nofollow ugc" target="_self">Approach
+    1</a> and <a href="#approach-3-binary-search" rel="noopener noreferrer nofollow ugc" target="_self">Approach 3</a>
+    is the deletion from the array which takes <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">O(N)O(N)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                     style="margin-right: 0.02778em;">O</span><span
+            class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+            class="mclose">)</span></span></span></span></span> time.</p>
+<blockquote>
+    <p>Let's revisit <a href="#approach-3-binary-search" rel="noopener noreferrer nofollow ugc" target="_self">Approach
+        3</a>.</p>
+    <ul>
+        <li>
+            <p>We need a boolean array <code>banned</code> to keep track of the banned senators. This helped the
+                variable <code>turn</code> to move forward.</p>
+        </li>
+        <li>
+            <p>We need <code>rIndices</code> and <code>dIndices</code> to keep track of the eligible senators separately
+                in sorted order. This helped us to find the next target to ban.</p>
+        </li>
+    </ul>
+</blockquote>
+<p><strong>Can we somehow combine these two? Is <code>banned</code> really needed? What do the <code>rIndices</code> and
+    <code>dIndices</code> actually store?</strong></p>
+<p>Let's say the first radiant senator from left is <code>r0</code> and the first dire senator from left is
+    <code>d0</code>. Then, <code>rIndices</code> and <code>dIndices</code> will store the indices of <code>r0</code>,
+    <code>r1</code>, <code>r2</code>, ..., <code>rp</code> and <code>d0</code>, <code>d1</code>, <code>d2</code>, ...,
+    <code>dm</code> respectively.</p>
+<ul>
+    <li>
+        <p>Since indices (<code>rIndices</code> and <code>dIndices</code>) are sorted, and they also cover the entire
+            senate, we can say that the <code>turn</code> will be the minimum of the first index/element of <code>rIndices</code>
+            and <code>dIndices</code> array.</p>
+    </li>
+    <li>
+        <p>and who will be the next target to ban? The person with the first <code>turn</code> will choose the immediate
+            next opponent. And where is it? It will be the maximum of the first index of the <code>rIndices</code> and
+            <code>dIndices</code> array. Because the minimum one got the <code>turn</code> and the maximum (or other)
+            one will get <code>banned</code>.</p>
+    </li>
+</ul>
+<p>Thus, here comes the <strong>key driving idea</strong>. Take two arrays <code>rIndices</code> and
+    <code>dIndices</code> to keep track of the indices of the eligible senators separately in sorted order. Take the
+    first element <em>(which represent indices of senators)</em> of <code>rIndices</code> and <code>dIndices</code> and
+    compare them.</p>
+<ul>
+    <li>
+        <p>The minimum of these two will be the <code>turn</code>. It will not get banned, at least as of now. Thus, it
+            will again be added to the array. Since it should get turn in the next round, we will add it to the end of
+            the array, and the index will be <code>turn + n</code> because, in the next round, this would be the first
+            index.</p>
+    </li>
+    <li>
+        <p>The maximum of these two will be the next target to ban. It will get banned. Thus, it will not be added back
+            to the array.</p>
+    </li>
+</ul>
+<p>Now, in this approach, we are removing the element from the front of the array and adding the element to the back of
+    the array. This is nothing but the working principle of a <a
+            href="https://leetcode.com/explore/learn/card/queue-stack/228/first-in-first-out-data-structure/"
+            target="_blank">Queue</a>. Removing from the front is DE-queuing and adding to back is EN-queuing.</p>
+<p><a href="https://leetcode.com/explore/learn/card/queue-stack/228/first-in-first-out-data-structure/" target="_blank">Queue</a>
+    is an efficient data structure that can help us find the next closest opponent senator as well as the next eligible
+    voter. It also helps us in simulating the voting process from left to right. Also, it is easier to keep track of
+    rounds of voting by assuming the index increase by <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">NN</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                 style="margin-right: 0.10903em;">N</span></span></span></span></span>
+    after each round.</p>
+<h4 id="algorithm-3">Algorithm</h4>
+<ol>
+    <li>
+        <p>Create two queues <code>rQueue</code> and <code>dQueue</code> to keep track of the eligible senators
+            separately in sorted order.</p>
+    </li>
+    <li>
+        <p>Populate the queues with the indices of the respective senators from left to right.</p>
+    </li>
+    <li>
+        <p>While both parties have at least one Senator, do the following:</p>
+        <ul>
+            <li>
+                <p>Pop the Next-Turn Senator index from both queues.</p>
+            </li>
+            <li>
+                <p>ONE having larger index will be banned by lower index. Thus, the lower index will again get Turn, so
+                    EN-Queue in the same queue with the index/turn increased by <span class="math math-inline"><span
+                            class="katex"><span class="katex-mathml">NN</span><span class="katex-html"
+                                                                                    aria-hidden="true"><span
+                            class="base"><span class="strut" style="height: 0.6833em;"></span><span
+                            class="mord mathnormal"
+                            style="margin-right: 0.10903em;">N</span></span></span></span></span>.</p>
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Return the party name of the queue which is not empty.</p>
+    </li>
+</ol>
+<h4 id="implementation-3">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public String predictPartyVictory(String senate) {
+
+        // Number of Senator
+        int n = senate.length();
+
+        // Queues with Senator's Index.
+        // Index will be used to find the next turn of Senator
+        Queue<Integer> rQueue = new LinkedList<>();
+        Queue<Integer> dQueue = new LinkedList<>();
+
+        // Populate the Queues
+        for (int i = 0; i < n; i++) {
+            if (senate.charAt(i) == 'R') {
+                rQueue.add(i);
+            } else {
+                dQueue.add(i);
+            }
+        }
+
+        // While both parties have at least one Senator
+        while (!rQueue.isEmpty() && !dQueue.isEmpty()) {
+
+            // Pop the Next-Turn Senate from both Q.
+            int rTurn = rQueue.poll();
+            int dTurn = dQueue.poll();
+
+            // ONE having a larger index will be banned by a lower index
+            // Lower index will again get Turn, so EN-Queue again
+            // But ensure its turn comes in the next round only
+            if (dTurn < rTurn) {
+                dQueue.add(dTurn + n);
+            } else {
+                rQueue.add(rTurn + n);
+            }
+        }
+
+        // One's which Empty is not winner
+        return rQueue.isEmpty() ? "Dire" : "Radiant";
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    string predictPartyVictory(string senate) {
+
+        // Number of Senator
+        int n = senate.size();
+
+        // Queues with Senator's Index.
+        // Index will be used to find the next turn of Senator
+        queue<int> rQueue;
+        queue<int> dQueue;
+
+        // Populate the Queues
+        for (int i = 0; i < n; i++) {
+            if (senate[i] == 'R') {
+                rQueue.push(i);
+            } else {
+                dQueue.push(i);
+            }
+        }
+
+        // While both parties have at least one Senator
+        while (!rQueue.empty() && !dQueue.empty()) {
+
+            // Pop the Next-Turn Senate from both Q.
+            int rTurn = rQueue.front();
+            rQueue.pop();
+            int dTurn = dQueue.front();
+            dQueue.pop();
+
+            // ONE having a larger index will be banned by a lower index
+            // Lower index will again get Turn, so EN-Queue again
+            // But ensure its turn comes in the next round only
+            if (dTurn < rTurn) {
+                dQueue.push(dTurn + n);
+            } else {
+                rQueue.push(rTurn + n);
+            }
+        }
+
+        // One's which Empty is not winner
+        return rQueue.empty() ? "Dire" : "Radiant";
+    };
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def predictPartyVictory(self, senate: str) -> str:
+
+        # Number of Senator
+        n = len(senate)
+
+        # Queues with Senator's Index.
+        # Index will be used to find the next turn of Senator
+        r_queue = deque()
+        d_queue = deque()
+
+        # Populate the Queues
+        for i, s in enumerate(senate):
+            if s == 'R':
+                r_queue.append(i)
+            else:
+                d_queue.append(i)
+
+        # While both parties have at least one Senator
+        while r_queue and d_queue:
+
+            # Pop the Next-Turn Senate from both Q.
+            r_turn = r_queue.popleft()
+            d_turn = d_queue.popleft()
+
+            # ONE having a larger index will be banned by a lower index
+            # Lower index will again get Turn, so EN-Queue again
+            # But ensure its turn comes in the next round only
+            if d_turn < r_turn:
+                d_queue.append(d_turn + n)
+            else:
+                r_queue.append(r_turn + n)
+
+        # One's which Empty is not the winner
+        return "Radiant" if r_queue else "Dire"
+    </code>
+</pre>
+<p><strong>Implementation Note</strong></p>
+<p>Python does not have a built-in Queue data structure. We can use <a
+        href="https://docs.python.org/3/library/collections.html#collections.deque"
+        target="_blank"><code>deque</code></a> from the <code>collections</code> module. <code>deque</code> is a
+    double-ended queue that supports adding and removing elements from both ends in <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord">1</span><span class="mclose">)</span></span></span></span></span> time.</p>
+<p>Also, we have EN-queued the eligible senator out of two by adding <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">NN</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                                           style="height: 0.6833em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.10903em;">N</span></span></span></span></span> to the index.
+    Although this new index is not necessarily the <code>turn</code> number because the number of senators in the senate
+    can be less than <span class="math math-inline"><span class="katex"><span class="katex-mathml">NN</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.6833em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.10903em;">N</span></span></span></span></span>. But this is
+    not a problem because we are only interested in ordering the senators, and not the actual <code>turn</code> number.
+</p>
+<h4 id="complexity-analysis-3">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">NN</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                style="margin-right: 0.10903em;">N</span></span></span></span></span>
+    be the number of senators in the senate.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(N)O(N)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                class="mclose">)</span></span></span></span></span>.</p>
+        <ul>
+            <li>
+                <p>Populating the queues takes <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(N)O(N)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal"
+                                                    style="margin-right: 0.10903em;">N</span><span
+                        class="mclose">)</span></span></span></span></span> time.</p>
+            </li>
+            <li>
+                <p>While loop will give chance to each eligible senator to vote until the last round. The voting process
+                    for one senator takes <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+                            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+                            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                            class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span></span>
+                    time because of constant queue operations. There will be <span class="math math-inline"><span
+                            class="katex"><span class="katex-mathml">O(N)O(N)</span><span class="katex-html"
+                                                                                          aria-hidden="true"><span
+                            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                            class="mopen">(</span><span class="mord mathnormal"
+                                                        style="margin-right: 0.10903em;">N</span><span
+                            class="mclose">)</span></span></span></span></span> such votes as discussed in <a
+                            href="#overview" rel="noopener noreferrer nofollow ugc" target="_self">Overview</a> section.
+                </p>
+            </li>
+            <li>
+                <p>Hence, total time complexity is <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(N+N)=O(N)O(N + N) = O(N)</span><span class="katex-html"
+                                                                                    aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal"
+                                                    style="margin-right: 0.10903em;">N</span><span class="mspace"
+                                                                                                   style="margin-right: 0.2222em;"></span><span
+                        class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                        class="mclose">)</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+                        class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal"
+                                                    style="margin-right: 0.10903em;">N</span><span
+                        class="mclose">)</span></span></span></span></span>.</p>
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(N)O(N)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                class="mclose">)</span></span></span></span></span>.</p>
+        <p>Storing the index of senators in the queues takes <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(N)O(N)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                class="mclose">)</span></span></span></span></span> space. The queues will either decrease or remain the
+            same in size in each round. They will never increase in size. Hence, space complexity is <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(N)O(N)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                    class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+</ul>
+<hr>
+<h3 id="approach-5-single-queue">Approach 5: Single Queue</h3>
+<h4 id="intuition-4">Intuition</h4>
+<p>As clear from the heading, let's try to use a single queue of senators. The front of the queue will be the senator
+    having the next turn.</p>
+<p>We can pop the front of the queue.</p>
+<ul>
+    <li>
+        <p>if the senator is eligible to vote, we can "float" the ban on the opponent senator. By "floating", we mean
+            that we are not banning the opponent senator right now, but we are just making a note that we will ban the
+            opponent senator if encountered in the future. This will also ensure that the banned senator is the
+            immediate opponent of the current senator.</p>
+        <p>After doing this, we can simply push the current senator to the back of the queue because it will again get a
+            chance to vote in the next round.</p>
+    </li>
+    <li>
+        <p>else if the senator is not eligible to vote because previously its opponent has "floated" a ban on it, we can
+            simply ignore it. Banning is marked by NOT adding it again to the queue. Moreover, we can also decrement the
+            floating ban count on this party.</p>
+    </li>
+</ul>
+<p>Thus, this thought process ensures the implementation of the greedy approach by floating the ban.</p>
+<p>A minute optimization, we can also maintain the count of "eligible senators" of each party, and decrement it when a
+    senator is banned. This will help us to stop the voting process when one party has no eligible senators left.</p>
+<h4 id="algorithm-4">Algorithm</h4>
+<ol>
+    <li>
+        <p>Count the number of senators of each party. Let's call them <code>rCount</code> and <code>dCount</code>.</p>
+    </li>
+    <li>
+        <p>Initialize the floating ban count of each party to 0. Let's call them <code>rFloatingBan</code> and <code>dFloatingBan</code>.
+        </p>
+    </li>
+    <li>
+        <p>Initialize a queue of senators with the order same as <code>senate</code>.</p>
+    </li>
+    <li>
+        <p>While both parties have at least one eligible senator, do the following:</p>
+        <ol>
+            <li>
+                <p>Pop the next-turn senator from the queue.</p>
+            </li>
+            <li>
+                <p>If the senator is eligible to vote, then:</p>
+                <ul>
+                    <li>
+                        <p>Float the ban on the opponent party.</p>
+                    </li>
+                    <li>
+                        <p>Push the current senator to the back of the queue.</p>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                <p>Else if the senator is not eligible to vote, then:</p>
+                <ul>
+                    <li>
+                        <p>Decrement the floating ban count of the party.</p>
+                    </li>
+                    <li>
+                        <p>Decrement the count of the party.</p>
+                    </li>
+                </ul>
+            </li>
+        </ol>
+    </li>
+    <li>
+        <p>Return the party which has at least one eligible senator.</p>
+    </li>
+</ol>
+<h4 id="implementation-4">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public String predictPartyVictory(String senate) {
+
+        // Number of Senators of each party
+        int rCount = 0, dCount = 0;
+
+        // Floating Ban Count
+        int dFloatingBan = 0, rFloatingBan = 0;
+
+        // Queue of Senators
+        Queue<Character> q = new LinkedList<>();
+        for (char c : senate.toCharArray()) {
+            q.add(c);
+            if (c == 'R') rCount++;
+            else dCount++;
+        }
+
+        // While any party has eligible Senators
+        while (rCount > 0 && dCount > 0) {
+
+            // Pop the senator with turn
+            char curr = q.poll();
+
+            // If eligible, float the ban on the other party, enqueue again.
+            // If not, decrement the floating ban and count of the party.
+            if (curr == 'D') {
+                if (dFloatingBan > 0) {
+                    dFloatingBan--;
+                    dCount--;
+                } else {
+                    rFloatingBan++;
+                    q.add('D');
+                }
+            } else {
+                if (rFloatingBan > 0) {
+                    rFloatingBan--;
+                    rCount--;
+                } else {
+                    dFloatingBan++;
+                    q.add('R');
+                }
+            }
+        }
+
+        // Return the party with eligible Senators
+        return rCount > 0 ? "Radiant" : "Dire";
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    string predictPartyVictory(string senate) {
+
+        // Number of Senators of each party
+        int rCount = 0, dCount = 0;
+
+        // Floating Ban Count
+        int dFloatingBan = 0, rFloatingBan = 0;
+
+        // Queue of Senators
+        queue<char> q;
+        for (char c : senate) {
+            q.push(c);
+            if (c == 'R') rCount++;
+            else dCount++;
+        }
+
+        // While any party has eligible Senators
+        while (rCount && dCount) {
+
+            // Pop the senator with turn
+            char curr = q.front();
+            q.pop();
+
+            // If eligible, float the ban on the other party, enqueue again.
+            // If not, decrement the floating ban and count of the party.
+            if (curr == 'D') {
+                if (dFloatingBan) {
+                    dFloatingBan--;
+                    dCount--;
+                } else {
+                    rFloatingBan++;
+                    q.push('D');
+                }
+            } else {
+                if (rFloatingBan) {
+                    rFloatingBan--;
+                    rCount--;
+                } else {
+                    dFloatingBan++;
+                    q.push('R');
+                }
+            }
+        }
+
+        // Return the party with eligible Senators
+        return rCount ? "Radiant" : "Dire";
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def predictPartyVictory(self, senate: str) -> str:
+
+        # Eligible Senators of each party
+        r_count = senate.count('R')
+        d_count = len(senate) - r_count
+
+        # Floating Ban Count
+        d_floating_ban = 0
+        r_floating_ban = 0
+
+        # Queue of Senators
+        q = deque(senate)
+
+        # While any party has eligible Senators
+        while r_count and d_count:
+
+            # Pop the senator with turn
+            curr = q.popleft()
+
+            # If eligible, float the ban on the other party, enqueue again.
+            # If not, decrement the floating ban and count of the party.
+            if curr == 'D':
+                if d_floating_ban:
+                    d_floating_ban -= 1
+                    d_count -= 1
+                else:
+                    r_floating_ban += 1
+                    q.append('D')
+            else:
+                if r_floating_ban:
+                    r_floating_ban -= 1
+                    r_count -= 1
+                else:
+                    d_floating_ban += 1
+                    q.append('R')
+
+        # Return the party with eligible Senators
+        return 'Radiant' if r_count else 'Dire'
+    </code>
+</pre>
+<p><strong>Implementation Note :</strong> Python does not have a built-in Queue data structure. We can use <a
+        href="https://docs.python.org/3/library/collections.html#collections.deque"
+        target="_blank"><code>deque</code></a> from the <code>collections</code> module. <code>deque</code> is a
+    double-ended queue that supports adding and removing elements from both ends in <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord">1</span><span class="mclose">)</span></span></span></span></span> time.</p>
+<h4 id="complexity-analysis-4">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">NN</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                style="margin-right: 0.10903em;">N</span></span></span></span></span>
+    be the number of senators in the senate.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(N)O(N)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                class="mclose">)</span></span></span></span></span>.</p>
+        <ul>
+            <li>
+                <p>Counting the number of senators of each party takes <span class="math math-inline"><span
+                        class="katex"><span class="katex-mathml">O(N)O(N)</span><span class="katex-html"
+                                                                                      aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal"
+                                                    style="margin-right: 0.10903em;">N</span><span
+                        class="mclose">)</span></span></span></span></span> time. So does populating the queue.</p>
+            </li>
+            <li>
+                <p>The condition <code>while (rCount &amp;&amp; dCount)</code> will be executed <span
+                        class="math math-inline"><span class="katex"><span class="katex-mathml">O(N)O(N)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal"
+                                                    style="margin-right: 0.10903em;">N</span><span
+                        class="mclose">)</span></span></span></span></span> times because they are the simulation of the
+                    voting process, which is bounded by <span class="math math-inline"><span class="katex"><span
+                            class="katex-mathml">O(N)O(N)</span><span class="katex-html" aria-hidden="true"><span
+                            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                            class="mopen">(</span><span class="mord mathnormal"
+                                                        style="margin-right: 0.10903em;">N</span><span
+                            class="mclose">)</span></span></span></span></span> as discussed in <a href="#overview"
+                                                                                                   rel="noopener noreferrer nofollow ugc"
+                                                                                                   target="_self">Overview</a>
+                    section.</p>
+                <p>Inside the loop, there are <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord">1</span><span
+                        class="mclose">)</span></span></span></span></span> operations.</p>
+            </li>
+            <li>
+                <p>So the total time complexity is <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(N+N)=O(N)O(N + N) = O(N)</span><span class="katex-html"
+                                                                                    aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal"
+                                                    style="margin-right: 0.10903em;">N</span><span class="mspace"
+                                                                                                   style="margin-right: 0.2222em;"></span><span
+                        class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                        class="mclose">)</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+                        class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal"
+                                                    style="margin-right: 0.10903em;">N</span><span
+                        class="mclose">)</span></span></span></span></span>.</p>
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(N)O(N)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                class="mclose">)</span></span></span></span></span>.</p>
+        <p>The Queue will have <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">NN</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                     style="margin-right: 0.10903em;">N</span></span></span></span></span>
+            senators initially. The number can only decrease but can never increase. So the space complexity is <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(N)O(N)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                    class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+</ul>
+<hr>
+</body>
+</html>
