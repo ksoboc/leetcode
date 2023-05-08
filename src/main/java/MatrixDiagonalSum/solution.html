@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Matrix Diagonal Sum - Solution</title>
+</head>
+<body>
+<h2 id="solution">Solution</h2>
+<hr>
+<h3 id="overview">Overview</h3>
+<p>We are given a square matrix <code>mat</code>. Our task is to return the sum of the elements on the primary and
+    secondary diagonals without counting any element twice (if it occurs on both the diagonals).</p>
+<hr>
+<h3 id="approach-iterating-over-diagonal-elements">Approach: Iterating over Diagonal Elements</h3>
+<h4 id="intuition">Intuition</h4>
+<p>We can see that elements along the primary diagonals have the same row and column number. So, all elements of the
+    form <code>mat[i][i]</code> with <code>i</code> ranging from <code>i = 0</code> to <code>i = n - 1</code>, where
+    <code>n</code> is the number of rows (or columns) in <code>mat</code>, form the primary diagonal.</p>
+<p>Let's form the secondary diagnal starting with the last row and first column, i.e., <code>mat[n - 1][0]</code>.
+    <code>mat[n - 2][1]</code> is the next element over the secondary diagonal, one row up and one column ahead. The
+    following element, <code>mat[n - 3][2]</code>, is again one row up and one column ahead of the previous element. The
+    final element is <code>mat[0][n - 1]</code>. We can notice that the sum of the row and column numbers is constant
+    (<code>n - 1</code>) because the column increases by one but the row decreases by one. As a result, all elements of
+    the form <code>mat[n - 1 - i][i]</code> with <code>i</code> ranging from <code>i = 0</code> to <code>i = n -
+        1</code> constitute the secondary diagonal.</p>
+<p>When we compare a square matrix with an odd number of rows to a square matrix with an even number of rows, we notice
+    that there is a common element <code>mat[n / 2][n / 2]</code> at the intersection of the primary and secondary
+    diagonals in the case of the matrix with odd rows:</p>
+<p><img src="1572-1.png" alt="img"></p>
+<p>We add the elements on the primary and secondary diagonals and deduct the common element if number of rows in <code>mat</code>
+    is odd.</p>
+<h4 id="algorithm">Algorithm</h4>
+<ol>
+    <li>Create an integer <code>n</code> that stores the number of rows (or columns) in <code>mat</code>.</li>
+    <li>Create an answer variable <code>ans</code> which will store the sum of elements on the primary and secondary
+        diagonals. Initialize it to <code>0</code>.
+    </li>
+    <li>Iterate from <code>i = 0</code> to <code>i = n - 1</code>:
+        <ul>
+            <li>Add elements on the primary diagonal to <code>ans</code>. We perform <code>ans += mat[i][i]</code>.</li>
+            <li>Add elements on the secondary diagonal to <code>ans</code>. We perform <code>ans += mat[n - 1 -
+                i][i]</code>.
+            </li>
+        </ul>
+    </li>
+    <li>If the number of rows in <code>mat</code> is odd, we have a common element between the primary and secondary
+        diagonals. We decrement it from <code>ans</code>. We perform <code>ans -= mat[n / 2][n / 2]</code>.
+    </li>
+    <li>Return <code>ans</code>.</li>
+</ol>
+<h4 id="implementation">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution:
+    def diagonalSum(self, mat: List[List[int]]) -> int:
+        n = len(mat)
+        ans = 0
+
+        for i in range(n):
+            # Add elements from primary diagonal.
+            ans += mat[i][i]
+            # Add elements from secondary diagonal.
+            ans += mat[n - 1 - i][i]
+        # If n is odd, subtract the middle element as its added twice.
+        if n % 2 != 0:
+             ans -= mat[n // 2][n // 2]
+
+        return ans
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int diagonalSum(vector<vector<int>>& mat) {
+        int n = mat.size();
+        int ans = 0;
+
+        for (int i = 0; i < n; i++) {
+            // Add elements from primary diagonal.
+            ans += mat[i][i];
+            // Addd elements from secondary diagonal.
+            ans += mat[n - 1 - i][i];
+        }
+        // If n is odd, subtract the middle element as its added twice.
+        if (n % 2 != 0) {
+            ans -= mat[n / 2][n / 2];
+        }
+
+        return ans;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def diagonalSum(self, mat: List[List[int]]) -> int:
+        n = len(mat)
+        ans = 0
+
+        for i in range(n):
+            # Add elements from primary diagonal.
+            ans += mat[i][i]
+            # Add elements from secondary diagonal.
+            ans += mat[n - 1 - i][i]
+        # If n is odd, subtract the middle element as its added twice.
+        if n % 2 != 0:
+             ans -= mat[n // 2][n // 2]
+
+        return ans
+    </code>
+</pre>
+<h4 id="complexity-analysis">Complexity Analysis</h4>
+<p>Here, <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    is the number of rows (or columns) in <code>mat</code>.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <ul>
+            <li>We iterate over primary and secondary diagonals which requires <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> time each.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord">1</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>Except using fews like integer <code>n</code> and <code>ans</code>, which take constant space, we do not
+                consume any other space.
+            </li>
+        </ul>
+    </li>
+</ul>
+</body>
+</html>
