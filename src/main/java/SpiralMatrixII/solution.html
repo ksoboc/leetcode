@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Spiral Matrix II - Solution</title>
+</head>
+<body>
+<h2 id="solution">Solution</h2>
+<hr>
+<h4 id="overview">Overview</h4>
+<p>There are various problems in spiral matrix series with some variations like <a
+        href="https://leetcode.com/problems/spiral-matrix/" target="_blank">Spiral Matrix</a> and <a
+        href="https://leetcode.com/problems/spiral-matrix-iii/" target="_blank">Spiral Matrix III</a>.</p>
+<p>In order to solve such questions, the core idea is to decode the underlying pattern. This can be done by simulating
+    the pattern and finding a generic representation that would work for any given <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.4306em;"></span><span
+            class="mord mathnormal">n</span></span></span></span></span>.
+    Let's discuss a few approaches.</p>
+<hr>
+<h4 id="approach-1-traverse-layer-by-layer-in-spiral-form">Approach 1: Traverse Layer by Layer in Spiral Form</h4>
+<p><strong>Intuition</strong></p>
+<p>If we try to build a pattern for a given <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                                           style="height: 0.4306em;"></span><span
+        class="mord mathnormal">n</span></span></span></span></span>, we observe that the pattern repeats after
+    completing one circular traversal around the matrix. Let's call this one circular traversal as <em>layer</em>. We
+    start traversing from the outer layer and move towards inner layers on every iteration.</p>
+<p><img src="spiral_layers.png" alt="img"></p>
+<p><strong>Algorithm</strong></p>
+<p>Let's devise an algorithm for the spiral traversal:</p>
+<ul>
+    <li>We can observe that, for any given <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.4306em;"></span><span
+            class="mord mathnormal">n</span></span></span></span></span>, the total number of layers is given by :
+        <span class="math math-inline"><span class="katex"><span class="katex-mathml">⌊n+12⌋\lfloor \frac{n+1}{2} \rfloor</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1.1901em; vertical-align: -0.345em;"></span><span
+                class="mopen">⌊</span><span class="mord"><span class="mopen nulldelimiter"></span><span
+                class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist"
+                                                                                         style="height: 0.8451em;"><span
+                style="top: -2.655em;"><span class="pstrut" style="height: 3em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+                class="mord mtight">2</span></span></span></span><span style="top: -3.23em;"><span class="pstrut"
+                                                                                                   style="height: 3em;"></span><span
+                class="frac-line" style="border-bottom-width: 0.04em;"></span></span><span style="top: -3.394em;"><span
+                class="pstrut" style="height: 3em;"></span><span class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight"><span class="mord mathnormal mtight">n</span><span class="mbin mtight">+</span><span
+                class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span
+                class="vlist-r"><span class="vlist"
+                                      style="height: 0.345em;"><span></span></span></span></span></span><span
+                class="mclose nulldelimiter"></span></span><span class="mclose">⌋</span></span></span></span></span>
+        This works for both even and odd <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.4306em;"></span><span
+                class="mord mathnormal">n</span></span></span></span></span>.
+    </li>
+</ul>
+<p><em>Example</em></p>
+<p>For <code>$$n = 3$$</code>, <code>$$layers = 2$$</code></p>
+<p>For <code>$$n = 6$$</code>, total <code>$$layers = 3$$</code></p>
+<ul>
+    <li>Also, for each layer, we traverse in <em>at most</em> 4 directions :</li>
+</ul>
+<p><img src="spiral_traverse.png" alt="img"></p>
+<p>In every direction, either row or column remains constant and other parameter changes (increments/decrements).</p>
+<p><em>Direction 1: From top left corner to top right corner.</em></p>
+<p>The row remains constant as <span class="math math-inline"><span class="katex"><span class="katex-mathml">layer\text{layer}</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+        class="mord text"><span class="mord">layer</span></span></span></span></span></span> and column increments from
+    <span class="math math-inline"><span class="katex"><span class="katex-mathml">layer\text{layer}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+            class="mord text"><span class="mord">layer</span></span></span></span></span></span> to <span
+            class="math math-inline"><span class="katex"><span
+            class="katex-mathml">n−layer−1n-\text{layer}-1</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+            class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+            class="mord text"><span class="mord">layer</span></span><span class="mspace"
+                                                                          style="margin-right: 0.2222em;"></span><span
+            class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span>
+</p>
+<p><em>Direction 2: From top right corner to the bottom right corner.</em></p>
+<p>The column remains constant as <span class="math math-inline"><span class="katex"><span class="katex-mathml">n−layer−1n-layer-1</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+        class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+        class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+        class="strut" style="height: 0.8889em; vertical-align: -0.1944em;"></span><span class="mord mathnormal"
+                                                                                        style="margin-right: 0.01968em;">l</span><span
+        class="mord mathnormal">a</span><span class="mord mathnormal" style="margin-right: 0.02778em;">yer</span><span
+        class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">−</span><span class="mspace"
+                                                                                               style="margin-right: 0.2222em;"></span></span><span
+        class="base"><span class="strut" style="height: 0.6444em;"></span><span
+        class="mord">1</span></span></span></span></span> and row increments from
+    <span class="math math-inline"><span class="katex"><span class="katex-mathml">layer+1\text{layer}+1</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+            class="mord text"><span class="mord">layer</span></span><span class="mspace"
+                                                                          style="margin-right: 0.2222em;"></span><span
+            class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span>
+    to <span class="math math-inline"><span class="katex"><span class="katex-mathml">n−layern-\text{layer}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+            class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+            class="mord text"><span class="mord">layer</span></span></span></span></span></span>.</p>
+<p><em>Direction 3: From bottom right corner to bottom left corner.</em></p>
+<p>The row remains constant as <span class="math math-inline"><span class="katex"><span class="katex-mathml">n−layer−1n-\text{layer}-1</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+        class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+        class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+        class="strut" style="height: 0.8889em; vertical-align: -0.1944em;"></span><span class="mord text"><span
+        class="mord">layer</span></span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+        class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+        class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span> and
+    column decrements from <span class="math math-inline"><span class="katex"><span class="katex-mathml">n−layer−2n-\text{layer}-2</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+            class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+            class="mord text"><span class="mord">layer</span></span><span class="mspace"
+                                                                          style="margin-right: 0.2222em;"></span><span
+            class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">2</span></span></span></span></span>
+    to <span class="math math-inline"><span class="katex"><span class="katex-mathml">layer\text{layer}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+            class="mord text"><span class="mord">layer</span></span></span></span></span></span>.</p>
+<p><em>Direction 4: From bottom left corner to top left corner.</em></p>
+<p>The column remains constant as <span class="math math-inline"><span class="katex"><span class="katex-mathml">layer\text{layer}</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+        class="mord text"><span class="mord">layer</span></span></span></span></span></span> and column decrements from
+    <span class="math math-inline"><span class="katex"><span class="katex-mathml">n−layer−2n-\text{layer}-2</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+            class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+            class="mord text"><span class="mord">layer</span></span><span class="mspace"
+                                                                          style="margin-right: 0.2222em;"></span><span
+            class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">2</span></span></span></span></span>
+    to <span class="math math-inline"><span class="katex"><span class="katex-mathml">layer+1\text{layer}+1</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+            class="mord text"><span class="mord">layer</span></span><span class="mspace"
+                                                                          style="margin-right: 0.2222em;"></span><span
+            class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span>.
+</p>
+<p>This process repeats <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">(n+1)/2(n+1)/2</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mopen">(</span><span
+        class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+        class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord">1</span><span
+        class="mclose">)</span><span class="mord">/2</span></span></span></span></span> times until all layers are
+    traversed.</p>
+<p><img src="spiral_detailed.png" alt="img"></p>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int[][] generateMatrix(int n) {
+        int[][] result = new int[n][n];
+        int cnt = 1;
+        for (int layer = 0; layer < (n + 1) / 2; layer++) {
+            // direction 1 - traverse from left to right
+            for (int ptr = layer; ptr < n - layer; ptr++) {
+                result[layer][ptr] = cnt++;
+            }
+            // direction 2 - traverse from top to bottom
+            for (int ptr = layer + 1; ptr < n - layer; ptr++) {
+                result[ptr][n - layer - 1] = cnt++;
+            }
+            // direction 3 - traverse from right to left
+            for (int ptr = layer + 1; ptr < n - layer; ptr++) {
+                result[n - layer - 1][n - ptr - 1] = cnt++;
+            }
+            // direction 4 - traverse from bottom to top
+            for (int ptr = layer + 1; ptr < n - layer - 1; ptr++) {
+                result[n - ptr - 1][layer] = cnt++;
+            }
+        }
+        return result;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+
+    vector<vector<int>> generateMatrix(int n) {
+
+        vector<vector<int>> result (n, vector<int>(n));
+        int cnt = 1;
+        for (int layer = 0; layer < (n + 1) / 2; layer++) {
+            // direction 1 - traverse from left to right
+            for (int ptr = layer; ptr < n - layer; ptr++) {
+                result[layer][ptr] = cnt++;
+            }
+            // direction 2 - traverse from top to bottom
+            for (int ptr = layer + 1; ptr < n - layer; ptr++) {
+                result[ptr][n - layer - 1] = cnt++;
+            }
+            // direction 3 - traverse from right to left
+            for (int ptr = n - layer - 2; ptr >= layer; ptr--) {
+                result[n - layer - 1][ptr] = cnt++;
+            }
+            // direction 4 - traverse from bottom to top
+            for (int ptr = n - layer - 2; ptr > layer; ptr--) {
+                result[ptr][layer] = cnt++;
+            }
+        }
+
+        return result;
+    }
+};
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<ul>
+    <li>Time Complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n2)\mathcal{O}(n^2)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+            class="mord mathcal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+            class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span
+            class="mord mtight">2</span></span></span></span></span></span></span></span><span
+            class="mclose">)</span></span></span></span></span>. Here, <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.4306em;"></span><span
+            class="mord mathnormal">n</span></span></span></span></span> is given input and we are iterating over <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">n⋅nn\cdot n</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.4445em;"></span><span
+            class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.4306em;"></span><span
+            class="mord mathnormal">n</span></span></span></span></span> matrix in spiral form.
+    </li>
+    <li>Space Complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)\mathcal{O}(1)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathcal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord">1</span><span class="mclose">)</span></span></span></span></span> We use constant extra space
+        for storing <span class="math math-inline"><span class="katex"><span class="katex-mathml">cntcnt</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.6151em;"></span><span
+                class="mord mathnormal">c</span><span class="mord mathnormal">n</span><span
+                class="mord mathnormal">t</span></span></span></span></span>.
+    </li>
+</ul>
+<hr>
+<h4 id="approach-2-optimized-spiral-traversal">Approach 2: Optimized spiral traversal</h4>
+<p><strong>Intuition</strong></p>
+<p>Our main aim is to walk in a spiral form and fill the array in a particular pattern. In the previous approach, we
+    used a separate loop for each direction. Here, we discuss another optimized to achieve the same result.</p>
+<p><strong>Algorithm</strong></p>
+<ul>
+    <li>We have to walk in 4 directions forming a layer. We use an array <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">dirdir</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6944em;"></span><span
+            class="mord mathnormal">d</span><span class="mord mathnormal">i</span><span class="mord mathnormal"
+                                                                                        style="margin-right: 0.02778em;">r</span></span></span></span></span>
+        that stores the changes in <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">xx</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 0.4306em;"></span><span
+                class="mord mathnormal">x</span></span></span></span></span> and <span class="math math-inline"><span
+                class="katex"><span class="katex-mathml">yy</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 0.625em; vertical-align: -0.1944em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.03588em;">y</span></span></span></span></span>
+        co-ordinates in each direction.
+    </li>
+</ul>
+<p><em>Example</em></p>
+<p>In left to right walk ( <em>direction #1</em> ), <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">xx</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                                           style="height: 0.4306em;"></span><span
+        class="mord mathnormal">x</span></span></span></span></span> co-ordinates remains same and <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">yy</span><span class="katex-html"
+                                                                                               aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.625em; vertical-align: -0.1944em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.03588em;">y</span></span></span></span></span> increments (<span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">x=0x = 0</span><span class="katex-html"
+                                                                                                     aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">x</span><span
+        class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace"
+                                                                                               style="margin-right: 0.2778em;"></span></span><span
+        class="base"><span class="strut" style="height: 0.6444em;"></span><span
+        class="mord">0</span></span></span></span></span>, <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">y=1y = 1</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+        class="strut" style="height: 0.625em; vertical-align: -0.1944em;"></span><span class="mord mathnormal"
+                                                                                       style="margin-right: 0.03588em;">y</span><span
+        class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace"
+                                                                                               style="margin-right: 0.2778em;"></span></span><span
+        class="base"><span class="strut" style="height: 0.6444em;"></span><span
+        class="mord">1</span></span></span></span></span>).</p>
+<p>In right to left walk ( <em>direction #3</em> ), <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">xx</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                                           style="height: 0.4306em;"></span><span
+        class="mord mathnormal">x</span></span></span></span></span> remains same and <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">yy</span><span class="katex-html"
+                                                                                               aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.625em; vertical-align: -0.1944em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.03588em;">y</span></span></span></span></span> decrements (<span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">x=0x = 0</span><span class="katex-html"
+                                                                                                     aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">x</span><span
+        class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace"
+                                                                                               style="margin-right: 0.2778em;"></span></span><span
+        class="base"><span class="strut" style="height: 0.6444em;"></span><span
+        class="mord">0</span></span></span></span></span>, <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">y=−1y = -1</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+        class="strut" style="height: 0.625em; vertical-align: -0.1944em;"></span><span class="mord mathnormal"
+                                                                                       style="margin-right: 0.03588em;">y</span><span
+        class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace"
+                                                                                               style="margin-right: 0.2778em;"></span></span><span
+        class="base"><span class="strut" style="height: 0.7278em; vertical-align: -0.0833em;"></span><span class="mord">−</span><span
+        class="mord">1</span></span></span></span></span>).</p>
+<p>Using this intuition, we pre-define an array <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">dirdir</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+        class="strut" style="height: 0.6944em;"></span><span class="mord mathnormal">d</span><span
+        class="mord mathnormal">i</span><span class="mord mathnormal"
+                                              style="margin-right: 0.02778em;">r</span></span></span></span></span>
+    having <span class="math math-inline"><span class="katex"><span class="katex-mathml">xx</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.4306em;"></span><span
+            class="mord mathnormal">x</span></span></span></span></span> and <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">yy</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.625em; vertical-align: -0.1944em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.03588em;">y</span></span></span></span></span> co-ordinate
+    changes for each direction. There are a total of 4 directions as discussed in the previous approach.</p>
+<ul>
+    <li>The <span class="math math-inline"><span class="katex"><span class="katex-mathml">row\text{row}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.4306em;"></span><span
+            class="mord text"><span class="mord">row</span></span></span></span></span></span> and <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">colcol</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.6944em;"></span><span
+            class="mord mathnormal">co</span><span class="mord mathnormal"
+                                                   style="margin-right: 0.01968em;">l</span></span></span></span></span>
+        variables represent the current <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">xx</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 0.4306em;"></span><span
+                class="mord mathnormal">x</span></span></span></span></span> and <span class="math math-inline"><span
+                class="katex"><span class="katex-mathml">yy</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 0.625em; vertical-align: -0.1944em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.03588em;">y</span></span></span></span></span>
+        co-ordinates respectively. It updates based on the direction in which we are moving.
+    </li>
+</ul>
+<p><em>How do we know when we have to change the direction?</em></p>
+<p>When we find the next row or column in a particular direction has a non-zero value, we are sure it is already
+    traversed and we change the direction.</p>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">dd</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord mathnormal">d</span></span></span></span></span>
+    be the current direction index. We go to next direction in array <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">dirdir</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.6944em;"></span><span class="mord mathnormal">d</span><span
+            class="mord mathnormal">i</span><span class="mord mathnormal"
+                                                  style="margin-right: 0.02778em;">r</span></span></span></span></span>
+    using <span class="math math-inline"><span class="katex"><span class="katex-mathml">(d+1)%4(d+ 1) \% 4</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mopen">(</span><span class="mord mathnormal">d</span><span class="mspace"
+                                                                              style="margin-right: 0.2222em;"></span><span
+            class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord">1</span><span class="mclose">)</span><span class="mord">%4</span></span></span></span></span>.
+    Using this we could go back to direction 1 after completing one circular traversal from direction 1 to direction 4 .
+</p>
+<blockquote>
+    <p>It must be noted that we use <code>floorMod</code> in Java instead of modulo <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">%\%</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.8056em; vertical-align: -0.0556em;"></span><span
+            class="mord">%</span></span></span></span></span> to handle mod of negative numbers. This is required
+        because row and column values might go negative and using <span class="math math-inline"><span
+                class="katex"><span class="katex-mathml">%\%</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 0.8056em; vertical-align: -0.0556em;"></span><span
+                class="mord">%</span></span></span></span></span> won't give desired results in such cases.</p>
+</blockquote>
+<pre>
+    Java
+    <code>
+class Solution {
+    public int[][] generateMatrix(int n) {
+        int[][] result = new int[n][n];
+        int cnt = 1;
+        int dir[][] = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
+        int d = 0;
+        int row = 0;
+        int col = 0;
+        while (cnt <= n * n) {
+            result[row][col] = cnt++;
+            int r = Math.floorMod(row + dir[d][0], n);
+            int c = Math.floorMod(col + dir[d][1], n);
+
+            // change direction if next cell is non zero
+            if (result[r][c] != 0) d = (d + 1) % 4;
+
+            row += dir[d][0];
+            col += dir[d][1];
+        }
+        return result;
+    }
+}
+    </code>
+    C++
+    <code>
+class Solution {
+public:
+
+    int floorMod(int x, int y) {
+        return ((x % y) + y) % y;
+    }
+
+    vector<vector<int>> generateMatrix(int n) {
+        vector<vector<int>> result (n, vector<int>(n));
+        int cnt = 1;
+        int dir[4][2] = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
+       int d = 0;
+        int row = 0;
+        int col = 0;
+        while (cnt <= n * n) {
+            result[row][col] = cnt++;
+            int r = floorMod(row + dir[d][0], n);
+            int c = floorMod(col + dir[d][1], n);
+            // change direction if next cell is non zero
+            if (result[r][c] != 0) d = (d + 1) % 4;
+            row += dir[d][0];
+            col += dir[d][1];
+        }
+        return result;
+    }
+};
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<ul>
+    <li>Time Complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n2)\mathcal{O}(n^2)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+            class="mord mathcal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+            class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span
+            class="mord mtight">2</span></span></span></span></span></span></span></span><span
+            class="mclose">)</span></span></span></span></span>. Here, <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.4306em;"></span><span
+            class="mord mathnormal">n</span></span></span></span></span> is given input and we are iterating over <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">n⋅nn\cdot n</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.4445em;"></span><span
+            class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.4306em;"></span><span
+            class="mord mathnormal">n</span></span></span></span></span> matrix in spiral form.
+    </li>
+    <li>Space Complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)\mathcal{O}(1)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathcal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord">1</span><span class="mclose">)</span></span></span></span></span> We use constant extra space
+        for storing <span class="math math-inline"><span class="katex"><span class="katex-mathml">cntcnt</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.6151em;"></span><span
+                class="mord mathnormal">c</span><span class="mord mathnormal">n</span><span
+                class="mord mathnormal">t</span></span></span></span></span>.
+    </li>
+</ul>
+</body>
+</html>
