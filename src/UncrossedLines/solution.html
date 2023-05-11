@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Uncrossed Lines - Solution</title>
+</head>
+<body>
+<h2 id="solution">Solution</h2>
+<hr>
+<h3 id="overview">Overview</h3>
+<p>We are given two integer arrays <code>num1</code> and <code>num2</code>. The numbers from both the arrays are placed
+    horziontally on two separate lines. We can draw a line between a number from <code>num1</code> and the same number,
+    if present, in <code>num2</code>.</p>
+<p>Our task is to return the maximum number of lines we can draw without intersection.</p>
+<hr>
+<h3 id="approach-1-recursive-dynamic-programming">Approach 1: Recursive Dynamic Programming</h3>
+<h4 id="intuition">Intuition</h4>
+<p>If you are new to Dynamic Programming, please see our <a
+        href="https://leetcode.com/explore/featured/card/dynamic-programming/" target="_blank">Leetcode Explore Card</a>
+    for more information on it!</p>
+<p>Starting with the last (or first) number in both arrays is an intuitive way to solve this problem. If the last number
+    of <code>num1</code> equals the last number of <code>num2</code>, we will undoubtedly draw a line between these two
+    numbers. This line will be included in the solution because it will not intersect with any other line drawn between
+    the remaining numbers. The remaining numbers will then be examined, while the last number in both arrays will be
+    ignored.</p>
+<p>We can't draw a line between two arrays if their last numbers don't match. We now have two options to explore: drop
+    the last number of <code>num1</code> while keeping <code>num2</code> as is, or drop the last number of
+    <code>num2</code> while keeping <code>num1</code> as is. We choose the option in which we can draw more lines.</p>
+<p>To solve this problem, we can use a recursion to generate all the possible cases. The recursive relation can be
+    written as follows:</p>
+<blockquote>
+    <ol>
+        <li>If <code>nums1[i - 1] == nums2[j - 1]</code>, perform <code>answer = 1 + solve(i - 1, j - 1)</code>.</li>
+        <li>Else, perform <code>answer = max(solve(i, j - 1), solve(i - 1, j)</code>.</li>
+    </ol>
+</blockquote>
+<p>where <code>solve(int i, int j)</code> is a recursive method that returns the maximum number of lines we can draw by
+    choosing the first <code>i</code> numbers from <code>nums1</code> and the first <code>j</code> numbers from <code>nums2</code>.
+    The solution is <code>solve(n1, n2)</code>, where <code>n1</code> and <code>n2</code> are the lengths of
+    <code>num1</code> and <code>num2</code> respectively.</p>
+<p>Note that the above recursive relation is exactly the same as in the classical problem, <a
+        href="https://leetcode.com/problems/longest-common-subsequence/description/" target="_blank">Longest Common
+    Subsequence (LCS)</a>. We are basically finding the LCS from the given integer arrays.</p>
+<p>The recursion tree of the above relation would look something like this:</p>
+<p><img src="1035-1.png" alt="img"></p>
+<p>Several subproblems, such as <code>solve(n1 - 1, n2 - 2)</code>, <code>solve(n1 - 2, n2 - 1)</code>, etc., are solved
+    twice in the partial recursion tree shown above. If we draw the entire recursion tree, we can see that there are
+    many subproblems that are solved repeatedly.</p>
+<p>To avoid this issue, we store the solution of each sub-problem and when we encounter the same subproblem again, we
+    simply refer to the stored result. This is called <strong>memoization</strong>. As we know the current state of a
+    sub-problem depends on the number of elements from <code>nums1</code> and <code>nums2</code> under consideration, we
+    use a 2D array here to store the answer of a sub-problem.</p>
+<h4 id="algorithm">Algorithm</h4>
+<ol>
+    <li>Create two integer variables <code>n1</code> and <code>n2</code>. Intialize them to the size of
+        <code>nums1</code> and <code>nums2</code>.
+    </li>
+    <li>Create a 2D-array called <code>memo</code> having <code>n1 + 1</code> rows and <code>n2 + 1</code> columns where
+        <code>memo[i][j]</code> contains the maximum number of lines we can draw by choosing the first <code>i</code>
+        numbers from <code>nums1</code> and the first <code>j</code> numbers from <code>nums2</code>. Initialize it to
+        <code>-1</code>.
+    </li>
+    <li>Return <code>solve(n1, n2, nums1, nums2, memo)</code> where <code>solve</code> is a recursive method with five
+        parameters: the first <code>i</code> numbers from <code>nums1</code> under consideration, the first
+        <code>j</code> numbers from <code>nums2</code> under consideration, <code>nums1</code>, <code>nums2</code> annd
+        <code>memo</code>. We perform the following in this method:
+        <ul>
+            <li>If <code>i &lt;= 0 || j &lt;= 0</code>, it indicates that we don't have any number in one of two arrays
+                under consideration. We return <code>0</code>.
+            </li>
+            <li>If <code>memo[i][j] != -1</code>, it indicates that we have already solved this subproblem, so we return
+                <code>memo[i][j]</code>.
+            </li>
+            <li>If <code>nums[i - 1] == nums[j - 1]</code>, we add <code>1</code> to include the line between these
+                numbers and recursively solve the problem ignoring the last number of both the arrays. We perform <code>memo[i][j]
+                    = 1 + solve(i - 1, j - 1, nums1, nums2, memo)</code>.
+            </li>
+            <li>Otherwise, if the last numbers do not match, we recursively search for the maximum number of lines that
+                can be drawn ignoring the last number from both the arrays. We pick the maximum of these two. We perform
+                <code>memo[i][j] = max(solve(i, j - 1, nums1, nums2, memo), solve(i - 1, j, nums1, nums2, memo))</code>.
+            </li>
+            <li>Return <code>memo[i][j]</code>.</li>
+        </ul>
+    </li>
+</ol>
+<h4 id="implementation">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    private int solve(int i, int j, int[] nums1, int[] nums2, int[][] memo) {
+        if (i <= 0 || j <= 0) {
+            return 0;
+        }
+
+        if (memo[i][j] != -1) {
+            return memo[i][j];
+        }
+
+        if (nums1[i - 1] == nums2[j - 1]) {
+            memo[i][j] = 1 + solve(i - 1, j - 1, nums1, nums2, memo);
+        } else {
+            memo[i][j] =
+                Math.max(solve(i, j - 1, nums1, nums2, memo), solve(i - 1, j, nums1, nums2, memo));
+        }
+        return memo[i][j];
+    }
+
+    public int maxUncrossedLines(int[] nums1, int[] nums2) {
+        int n1 = nums1.length;
+        int n2 = nums2.length;
+
+        int[][] memo = new int[n1 + 1][n2 + 1];
+        for (int[] row : memo) {
+            Arrays.fill(row, -1);
+        }
+
+        return solve(n1, n2, nums1, nums2, memo);
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int solve(int i, int j, vector<int>& nums1, vector<int>& nums2, vector<vector<int>>& memo) {
+        if (i <= 0 || j <= 0) {
+            return 0;
+        }
+
+        if (memo[i][j] != -1) {
+            return memo[i][j];
+        }
+
+        if (nums1[i - 1] == nums2[j - 1]) {
+            memo[i][j] = 1 + solve(i - 1, j - 1, nums1, nums2, memo);
+        } else {
+            memo[i][j] =
+                max(solve(i, j - 1, nums1, nums2, memo), solve(i - 1, j, nums1, nums2, memo));
+        }
+        return memo[i][j];
+    }
+
+    int maxUncrossedLines(vector<int>& nums1, vector<int>& nums2) {
+        int n1 = nums1.size();
+        int n2 = nums2.size();
+
+        vector<vector<int>> memo(n1 + 1, vector<int>(n2 + 1, -1));
+
+        return solve(n1, n2, nums1, nums2, memo);
+    }
+};
+    </code>
+    Python
+    <code>
+        class Solution(object):
+    def maxUncrossedLines(self, nums1, nums2):
+        n1 = len(nums1)
+        n2 = len(nums2)
+
+        memo = {}
+
+        def solve(i, j):
+            if i <= 0 or j <= 0:
+                return 0
+
+            if (i, j) in memo:
+                return memo[(i, j)]
+
+            if nums1[i - 1] == nums2[j - 1]:
+                memo[(i, j)] = 1 + solve(i - 1, j - 1)
+            else:
+                memo[(i, j)] = max(solve(i - 1, j), solve(i, j - 1))
+            return memo[(i, j)]
+
+        return solve(n1, n2)
+    </code>
+</pre>
+<h4 id="complexity-analysis">Complexity Analysis</h4>
+<p>Here, <span class="math math-inline"><span class="katex"><span class="katex-mathml">n1n1</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.6444em;"></span><span
+        class="mord mathnormal">n</span><span class="mord">1</span></span></span></span></span> is the length of <code>nums1</code>
+    and <span class="math math-inline"><span class="katex"><span class="katex-mathml">n2n2</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.6444em;"></span><span
+            class="mord mathnormal">n</span><span class="mord">2</span></span></span></span></span> is the length of
+    <code>nums2</code>.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n1⋅n2)O(n1 \cdot n2)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mord">1</span><span class="mspace"
+                                                                                 style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal">n</span><span class="mord">2</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>Initializing the <code>memo</code> array takes <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(n1⋅n2)O(n1 \cdot n2)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mord">1</span><span class="mspace"
+                                                                                     style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal">n</span><span class="mord">2</span><span
+                    class="mclose">)</span></span></span></span></span> time.
+            </li>
+            <li>It will take <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n1⋅n2)O(n1 \cdot n2)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mord">1</span><span class="mspace"
+                                                                                     style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal">n</span><span class="mord">2</span><span
+                    class="mclose">)</span></span></span></span></span> because there are <span
+                    class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(n1⋅n2)O(n1 \cdot n2)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mord">1</span><span class="mspace"
+                                                                                     style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal">n</span><span class="mord">2</span><span
+                    class="mclose">)</span></span></span></span></span> states to iterate over. The recursive function
+                may be called multiple times for a given state, but due to memoization, each state is only computed
+                once.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n1⋅n2)O(n1 \cdot n2)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mord">1</span><span class="mspace"
+                                                                                 style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal">n</span><span class="mord">2</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>The <code>memo</code> array consumes <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(n1⋅n2)O(n1 \cdot n2)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mord">1</span><span class="mspace"
+                                                                                     style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal">n</span><span class="mord">2</span><span
+                    class="mclose">)</span></span></span></span></span> space.
+            </li>
+            <li>The recursion stack used in the solution can grow to a maximum size of <span
+                    class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(n1+n2)O(n1 + n2)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mord">1</span><span class="mspace"
+                                                                                     style="margin-right: 0.2222em;"></span><span
+                    class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal">n</span><span class="mord">2</span><span
+                    class="mclose">)</span></span></span></span></span>. When we try to form the recursion tree, we see
+                that after each node two branches are formed (when the last numbers aren't equal). In one branch, we
+                decrement <code>1</code> from <code>nums1</code> and in other branch we decrement <code>1</code> from
+                <code>nums2</code>. The recursion stack would only have one call out of the two branches. The height of
+                such a tree will be <span class="math math-inline"><span class="katex"><span class="katex-mathml">max(n1,n2))max(n1, n2))</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal">ma</span><span class="mord mathnormal">x</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mord">1</span><span
+                        class="mpunct">,</span><span class="mspace" style="margin-right: 0.1667em;"></span><span
+                        class="mord mathnormal">n</span><span class="mord">2</span><span class="mclose">))</span></span></span></span></span>
+                because at each level we are decrementing the number of elements under consideration by <code>1</code>.
+                Hence, the recursion stack will have a maximum of <span class="math math-inline"><span
+                        class="katex"><span
+                        class="katex-mathml">O(max(n1,n2))=O(n1+n2)O(max(n1, n2)) = O(n1 + n2)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">ma</span><span
+                        class="mord mathnormal">x</span><span class="mopen">(</span><span
+                        class="mord mathnormal">n</span><span class="mord">1</span><span class="mpunct">,</span><span
+                        class="mspace" style="margin-right: 0.1667em;"></span><span
+                        class="mord mathnormal">n</span><span class="mord">2</span><span class="mclose">))</span><span
+                        class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span
+                        class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span
+                        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                                 style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mord">1</span><span
+                        class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span
+                        class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+                        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal">n</span><span class="mord">2</span><span class="mclose">)</span></span></span></span></span>
+                elements.
+            </li>
+        </ul>
+    </li>
+</ul>
+<hr>
+<h3 id="approach-2-iterative-dynamic-programming">Approach 2: Iterative Dynamic Programming</h3>
+<h4 id="intuition-1">Intuition</h4>
+<p>We used memoization in the preceding approach to store the answers to subproblems in order to solve a larger problem.
+    We can also use a bottom-up approach to solve such problems without using recursion. We build answers to subproblems
+    iteratively first, then use them to build answers to larger problems.</p>
+<p>Using the same method as before, we create a 2D-array <code>dp</code>, where <code>dp[i][j]</code> contains the
+    maximum number of lines we can draw by choosing the first <code>i</code> numbers from <code>nums1</code> and the
+    first <code>j</code> numbers from <code>nums2</code>. Our answer would be <code>dp[n1][n2]</code>, <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">n1n1</span><span class="katex-html"
+                                                                                                     aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span
+            class="mord mathnormal">n</span><span class="mord">1</span></span></span></span></span> is the length of
+    <code>nums1</code> and <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">n2n2</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.6444em;"></span><span class="mord mathnormal">n</span><span
+            class="mord">2</span></span></span></span></span> is the length of <code>nums2</code>. The state transition
+    would be as follows:</p>
+<blockquote>
+    <ol>
+        <li>If <code>nums1[i - 1] == nums2[j - 1]</code>, perform <code>dp[i][j] = 1 + dp[i - 1][j - 1]</code>.</li>
+        <li>Otherwise, perform <code>dp[i][j] = max(dp[i][j - 1], dp[i - 1][j]</code>.</li>
+    </ol>
+</blockquote>
+<h4 id="algorithm-1">Algorithm</h4>
+<ol>
+    <li>Create two integer variables <code>n1</code> and <code>n2</code>. Intialize them to the size of
+        <code>nums1</code> and <code>nums2</code>.
+    </li>
+    <li>Create a 2D-array called <code>dp</code> having <code>n1 + 1</code> rows and <code>n2 + 1</code> columns where
+        <code>dp[i][j]</code> contains the maximum number of lines we can draw by choosing the first <code>i</code>
+        numbers from <code>nums1</code> and the first <code>j</code> numbers from <code>nums2</code>. It is initialized
+        to <code>0</code>.
+    </li>
+    <li>We iterate using two loops. The outer loop iterates from <code>i = 1</code> to <code>i = n1</code> incrementing
+        <code>i</code> by <code>1</code> after each iteration. We start an inner loop that iterates from <code>j =
+            1</code> to <code>j = n2</code> and perform the following:
+        <ul>
+            <li>If the last number from both the arrays under consideration are equal, i.e., <code>nums1[i - 1] ==
+                nums2[j - 1]</code>, we draw a line between two numbers and add it to the maximum number of lines that
+                can be drawn ignoring the last number from both the arrays. We perform <code>dp[i][j] = 1 + dp[i - 1][j
+                    - 1]</code>. We already have the answer for <code>dp[i - 1][j - 1]</code> which was computed in the
+                previous iteration of outer loop.
+            </li>
+            <li>Otherwise, if the last numbers do not match, we look for the maximum number of lines that can be drawn
+                ignoring the last number from both the arrays. We pick the maximum of these two. We perform <code>dp[i][j]
+                    = max(dp[i][j - 1], dp[i - 1][j])</code>.
+            </li>
+            <li>It is important to realize that since we initialized <code>dp</code> with <code>0</code> and started
+                iterations from <code>i = 1</code> and <code>j = 1</code>, all <code>dp</code> states considering <code>0</code>
+                elements from any of the arrays will be <code>0</code> which is as expected and forms the base case for
+                the solution.
+            </li>
+        </ul>
+    </li>
+    <li>Return <code>dp[n1][n2]</code>.</li>
+</ol>
+<h4 id="implementation-1">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int maxUncrossedLines(int[] nums1, int[] nums2) {
+        int n1 = nums1.length;
+        int n2 = nums2.length;
+
+        int[][] dp = new int[n1+1][n2+1];
+
+         for (int i = 1; i <= n1; i++) {
+            for (int j = 1; j <= n2; j++) {
+                if (nums1[i - 1] == nums2[j - 1]) {
+                    dp[i][j] = 1 + dp[i - 1][j - 1];
+                } else {
+                    dp[i][j] = Math.max(dp[i][j - 1], dp[i - 1][j]);
+                }
+            }
+        }
+
+        return dp[n1][n2];
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int maxUncrossedLines(vector<int>& nums1, vector<int>& nums2) {
+        int n1 = nums1.size();
+        int n2 = nums2.size();
+
+        vector<vector<int>> dp(n1 + 1, vector<int>(n2 + 1, 0));
+
+        for (int i = 1; i <= n1; i++) {
+            for (int j = 1; j <= n2; j++) {
+                if (nums1[i - 1] == nums2[j - 1]) {
+                    dp[i][j] = 1 + dp[i - 1][j - 1];
+                } else {
+                    dp[i][j] = max(dp[i][j - 1], dp[i - 1][j]);
+                }
+            }
+        }
+
+        return dp[n1][n2];
+    }
+};
+    </code>
+    Python
+    <code>
+        class Solution(object):
+    def maxUncrossedLines(self, nums1, nums2):
+        n1 = len(nums1)
+        n2 = len(nums2)
+
+        dp = [[0] * (n2 + 1) for _ in range(n1 + 1)]
+
+        for i in range(1, n1 + 1):
+            for j in range(1, n2 + 1):
+                if nums1[i - 1] == nums2[j - 1]:
+                    dp[i][j] = 1 + dp[i - 1][j - 1]
+                else:
+                    dp[i][j] = max(dp[i][j - 1], dp[i - 1][j])
+
+        return dp[n1][n2]
+    </code>
+</pre>
+<h4 id="complexity-analysis-1">Complexity Analysis</h4>
+<p>Here, <span class="math math-inline"><span class="katex"><span class="katex-mathml">n1n1</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.6444em;"></span><span
+        class="mord mathnormal">n</span><span class="mord">1</span></span></span></span></span> is the length of <code>nums1</code>
+    and <span class="math math-inline"><span class="katex"><span class="katex-mathml">n2n2</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.6444em;"></span><span
+            class="mord mathnormal">n</span><span class="mord">2</span></span></span></span></span> is the length of
+    <code>nums2</code>.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n1⋅n2)O(n1 \cdot n2)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mord">1</span><span class="mspace"
+                                                                                 style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal">n</span><span class="mord">2</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>Initializing the <code>dp</code> array takes <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(n1⋅n2)O(n1 \cdot n2)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mord">1</span><span class="mspace"
+                                                                                     style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal">n</span><span class="mord">2</span><span
+                    class="mclose">)</span></span></span></span></span> time.
+            </li>
+            <li>We fill the <code>dp</code> array which takes <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(n1⋅n2)O(n1 \cdot n2)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mord">1</span><span class="mspace"
+                                                                                     style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal">n</span><span class="mord">2</span><span
+                    class="mclose">)</span></span></span></span></span> time.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n1⋅n2)O(n1 \cdot n2)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mord">1</span><span class="mspace"
+                                                                                 style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal">n</span><span class="mord">2</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>The <code>dp</code> array consumes <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(n1⋅n2)O(n1 \cdot n2)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mord">1</span><span class="mspace"
+                                                                                     style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal">n</span><span class="mord">2</span><span
+                    class="mclose">)</span></span></span></span></span> space.
+            </li>
+        </ul>
+    </li>
+</ul>
+<hr>
+<h3 id="approach-3-dynamic-programming-with-space-optimization">Approach 3: Dynamic Programming with Space
+    Optimization</h3>
+<h4 id="intuition-2">Intuition</h4>
+<p>The state transition, as we discussed in previous approaches, is:</p>
+<blockquote>
+    <ol>
+        <li>If <code>nums1[i - 1] == nums2[j - 1]</code>, perform <code>dp[i][j] = 1 + dp[i - 1][j - 1]</code>.</li>
+        <li>Otherwise, perform <code>dp[i][j] = max(dp[i][j - 1], dp[i - 1][j]</code>.</li>
+    </ol>
+</blockquote>
+<p>If we look closely at this transition, to fill <code>dp[i][j]</code> for a particular <code>i</code> and all possible
+    values of <code>j</code>, we only need the values from the current and previous rows. To fill row <code>i</code> in
+    the <code>dp</code> grid, we need the values from row <code>i</code> (<code>dp[i][j - 1]</code>) and previously
+    computed value in the <span class="math math-inline"><span class="katex"><span class="katex-mathml">(i−1)th(i - 1)^{th}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mopen">(</span><span class="mord mathnormal">i</span><span class="mspace"
+                                                                              style="margin-right: 0.2222em;"></span><span
+            class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1.0991em; vertical-align: -0.25em;"></span><span
+            class="mord">1</span><span class="mclose"><span class="mclose">)</span><span class="msupsub"><span
+            class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.8491em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+            class="mord mathnormal mtight">t</span><span
+            class="mord mathnormal mtight">h</span></span></span></span></span></span></span></span></span></span></span></span></span>
+    row (<code>dp[i - 1][j - 1]</code> and <code>dp[i - 1][j]</code>). Values in rows <code>i - 2</code>, <code>i-
+        3</code>, and so on are no longer needed.</p>
+<p>Our task is complete if we can store the values of the previous iteration, i.e., for row <code>i - 1</code> after
+    each iteration of the outer loop.</p>
+<p>We can solve this by using two 1D arrays of size <code>n2</code>, <code>dp</code> and <code>dpPrev</code>, where
+    <code>n2</code> is the size of <code>nums2</code>. We repeat the previous approach by running two loops. The outer
+    loop runs from <code>i = 1</code> to <code>i = n1</code>, and the inner loop runs from <code>j = 1</code> to <code>j
+        = n2</code>.</p>
+<p>Now, on iteration <code>i</code>, <code>dp[j]</code> stores the maximum number of lines we can draw by choosing the
+    first <code>i</code> numbers from <code>nums1</code> and the first <code>j</code> numbers from <code>nums2</code>.
+    It is similar to what <code>dp[i][j]</code> stored in the previous approach.</p>
+<p>The other array <code>dpPrev</code> is important to understand. It helps us by remembering the previous state that we
+    completed previously. On iteration <code>i</code>, <code>dpPrev[j]</code> stores the maximum number of lines we can
+    draw by choosing the first <code>i - 1</code> numbers from <code>nums1</code> and the first <code>j</code> numbers
+    from <code>nums2</code>. It is analogous to <code>dp[i - 1][j]</code> in the previous approach.</p>
+<p>Because <code>dpPrev</code> stores the maximum number of lines we can draw by choosing the first <code>i - 1</code>
+    numbers from <code>nums1</code> and <code>dp</code> stores the the maximum number of lines we can draw by choosing
+    the first <code>i</code> numbers, we must copy the elements of <code>dp</code> to <code>dpPrev</code> after
+    iterating over all the numbers in <code>nums2</code> while considering the first <code>i</code> numbers from <code>nums1</code>
+    to prepare for the next iteration. After we copy <code>dp</code> to <code>dpPrev</code>, for the next iteration
+    which considers the first <code>i + 1</code> from <code>nums1</code>, <code>dpPrev</code> will hold values when we
+    choose the first <code>i</code> numbers from <code>nums1</code> which is exactly what we want.</p>
+<h4 id="algorithm-2">Algorithm</h4>
+<ol>
+    <li>Create two integer variables <code>n1</code> and <code>n2</code>. Intialize them to the size of
+        <code>nums1</code> and <code>nums2</code>.
+    </li>
+    <li>Create two arrays called <code>dp</code> and <code>dpPrev</code> of size <code>n2 + 1</code>.</li>
+    <li>We iterate using two loops. The outer loop iterates from <code>i = 1</code> to <code>i = n1</code> incrementing
+        <code>i</code> by <code>1</code> after each iteration. We start an inner loop that iterates from <code>j =
+            1</code> to <code>j = n2</code> and perform the following:
+        <ul>
+            <li>If the last number from both the arrays under consideration are equal, i.e., <code>nums1[i - 1] ==
+                nums2[j - 1]</code>, we draw a line between two numbers and add it to the maximum number of lines that
+                can be drawn ignoring the last number from both the arrays. We perform <code>dp[j] = 1 + dpPrev[j -
+                    1]</code>.
+            </li>
+            <li>Otherwise, if the last numbers do not match, we look for the maximum number of lines that can be drawn
+                ignoring the last number from both the arrays. We pick the maximum of these two. We perform <code>dp[j]
+                    = max(dp[j - 1], dpPrev[j])</code>.
+            </li>
+            <li>After the completion of inner loop, we copy <code>dp</code> to <code>dpPrev</code>.</li>
+        </ul>
+    </li>
+    <li>Return <code>dp[n2]</code> (or <code>dpPrev[n2]</code> as both are similar).</li>
+</ol>
+<h4 id="implementation-2">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int maxUncrossedLines(int[] nums1, int[] nums2) {
+        int n1 = nums1.length;
+        int n2 = nums2.length;
+
+        int[] dp = new int[n2 + 1];
+        int[] dpPrev = new int[n2 + 1];
+
+         for (int i = 1; i <= n1; i++) {
+            for (int j = 1; j <= n2; j++) {
+                if (nums1[i - 1] == nums2[j - 1]) {
+                    dp[j] = 1 + dpPrev[j - 1];
+                } else {
+                    dp[j] = Math.max(dp[j - 1], dpPrev[j]);
+                }
+            }
+            dpPrev = dp.clone();
+        }
+
+        return dp[n2];
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int maxUncrossedLines(vector<int>& nums1, vector<int>& nums2) {
+        int n1 = nums1.size();
+        int n2 = nums2.size();
+
+        vector<int> dp(n2 + 1), dpPrev(n2 + 1);
+
+        for (int i = 1; i <= n1; i++) {
+            for (int j = 1; j <= n2; j++) {
+                if (nums1[i - 1] == nums2[j - 1]) {
+                    dp[j] = 1 + dpPrev[j - 1];
+                } else {
+                    dp[j] = max(dp[j - 1], dpPrev[j]);
+                }
+            }
+            dpPrev = dp;
+        }
+
+        return dp[n2];
+    }
+};
+    </code>
+    Python
+    <code>
+        class Solution(object):
+    def maxUncrossedLines(self, nums1, nums2):
+        n1 = len(nums1)
+        n2 = len(nums2)
+
+        dp = [0] * (n2 + 1)
+        dpPrev = [0] * (n2 + 1)
+
+        for i in range(1, n1 + 1):
+            for j in range(1, n2 + 1):
+                if nums1[i - 1] == nums2[j - 1]:
+                    dp[j] = 1 + dpPrev[j - 1]
+                else:
+                    dp[j] = max(dp[j - 1], dpPrev[j])
+            dpPrev = dp[:]
+
+        return dp[n2]
+    </code>
+</pre>
+<h4 id="complexity-analysis-2">Complexity Analysis</h4>
+<p>Here, <span class="math math-inline"><span class="katex"><span class="katex-mathml">n1n1</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.6444em;"></span><span
+        class="mord mathnormal">n</span><span class="mord">1</span></span></span></span></span> is the length of <code>nums1</code>
+    and <span class="math math-inline"><span class="katex"><span class="katex-mathml">n2n2</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.6444em;"></span><span
+            class="mord mathnormal">n</span><span class="mord">2</span></span></span></span></span> is the length of
+    <code>nums2</code>.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n1⋅n2)O(n1 \cdot n2)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mord">1</span><span class="mspace"
+                                                                                 style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal">n</span><span class="mord">2</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>Initializing the <code>dp</code> and <code>dpPrev</code> arrays take <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(n2)O(n2)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mord">2</span><span
+                    class="mclose">)</span></span></span></span></span> time.
+            </li>
+            <li>To get the answer, we use two loops that take <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(n1⋅n2)O(n1 \cdot n2)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mord">1</span><span class="mspace"
+                                                                                     style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal">n</span><span class="mord">2</span><span
+                    class="mclose">)</span></span></span></span></span> time.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n2)O(n2)</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mord">2</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>The <code>dp</code> and <code>dpPrev</code> arrays take <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">O(n2)O(n2)</span><span class="katex-html"
+                                                                                    aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mord">2</span><span
+                    class="mclose">)</span></span></span></span></span> space each.
+            </li>
+        </ul>
+    </li>
+</ul>
+</body>
+</html>
