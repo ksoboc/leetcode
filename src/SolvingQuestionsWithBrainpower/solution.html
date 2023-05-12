@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Solving Questions With Brainpower - Solution</title>
+</head>
+<body>
+<h2 id="solution">Solution</h2>
+<hr>
+<h3 id="overview">Overview</h3>
+<p>First, we provide an example in the picture below. Note that <code>questions[0] = [points_0, brainpower_0] = [3,
+    2]</code>, so if we solve the first question, we can earn <code>3</code> points and have to skip at least
+    <code>2</code> following questions.</p>
+<p><img src="intro.png" alt="img"></p>
+<hr>
+<h3 id="approach-1-dynamic-programming-iterative">Approach 1: Dynamic Programming (Iterative)</h3>
+<h4 id="intuition">Intuition</h4>
+<p>For each question <code>questions[i]</code>, we have two options:</p>
+<ul>
+    <li>Solve it, earn points, skip some following questions.</li>
+    <li>Skip it.</li>
+</ul>
+<p>Both choices affect the options on the remaining questions. This distinctive feature implies that we can use dynamic
+    programming.</p>
+<p>Let <code>n</code> be the number of questions. Define an array <code>dp</code> where <code>dp[i]</code> is the
+    maximum points we can get by processing the questions in the suffix subarray <code>questions[i ~ n - 1]</code>, as
+    shown in the colored cells in the picture below.</p>
+<p><img src="1.png" alt="img"></p>
+<p>Now we try to fill <code>dp</code> backward. What is the value of <code>dp[i]</code>? Recall the two options we have
+    for <code>questions[i]</code>, we can either solve it or skip it.</p>
+<p><img src="2.png" alt="img"></p>
+<br>
+<p>Notice the non-decreasing feature of <code>dp</code>, that is, <code>dp[i] ≥ dp[i + 1], (For i &lt; n - 1)</code>.
+    The reason is that:</p>
+<ul>
+    <li><code>dp[i]</code> is the optimal points we get for <code>questions[i ~ n - 1]</code>.</li>
+    <li><code>dp[i + 1]</code> is the optimal points we get for <code>questions[i + 1 ~ n - 1]</code>, which has one
+        less question than <code>questions[i ~ n - 1]</code>.
+    </li>
+</ul>
+<p>In short, the question range for <code>dp[i]</code> includes the question range for <code>dp[i + 1]</code>, so we can
+    always have at least the same points as <code>dp[i + 1]</code> for <code>dp[i]</code>.</p>
+<p><img src="3.png" alt="img"></p>
+<p>Now we can update each cell. For <code>dp[i]</code>, if we solve this problem, it means that we have to skip the
+    following <code>skip[i]</code> questions. Therefore, the maximum points we can get is determined by:</p>
+<ul>
+    <li>The score of question <code>i</code>, which is <code>points[i]</code>.</li>
+    <li>The maximum score we can get in the range <code>dp[i + skip[i] + 1 ~ n]</code>, since we have to skip at least
+        <code>skip[i]</code> following questions.
+    </li>
+</ul>
+<p><strong>You may wonder why we use <code>dp[i + skip[i] + 1]</code> if we don't necessarily have to solve question
+    <code>i + skip + 1</code>. What if we actually skipped more questions?</strong></p>
+<blockquote>
+    <p>We have showed that <code>dp</code> is non-increasing, thus <code>dp[i + skip[i] + 1]</code> is the maximum value
+        in the range <code>dp[i + skip[i] + 1 ~ n]</code>. We can safely use <code>dp[i + skip[i] + 1]</code> as the
+        maximum points we can get among all possible plans, regardless of whether we solve <code>i + skip[i] + 1</code>.
+    </p>
+</blockquote>
+<p>Therefore, by solving the problem <code>i</code>, we have the maximum points as <code>points[i] + dp[i + skip[i] +
+    1]</code>.</p>
+<p><img src="5.png" alt="img"></p>
+<p>On the other hand, if we skip problem <code>i</code>, the maximum points we get is the same as the case for <code>i +
+    1</code>. That is, <code>dp[i] = dp[i + 1]</code>.</p>
+<p><img src="4.png" alt="img"></p>
+<p>To sum up, we can update <code>dp[i]</code> as the larger of the points of the two options:</p>
+<p><code>dp[i] = max(dp[i + 1], points[i] + dp[i + skip[i] + 1])</code>.</p>
+<p>Note the boundary condition: If <code>i + skip[i] + 1 &gt;= n</code>, it means that after skipping
+    <code>skip[i]</code> questions, there are no more available questions or gainable points, so we can just treat
+    <code>dp[i + skip[i] + 1]</code> as <code>0</code>.</p>
+<p>Finally, we just need to return <code>dp[0]</code> after the update ends, which stands for the optimal solution for
+    the whole question array <code>questions[0 ~ n - 1]</code>. Please take the following slides as an example.</p>
+<p>
+<div class="relative mx-auto mb-6 flex flex-col overflow-hidden rounded-lg border-[1px] border-label-1"
+     style="max-width: 601px;">
+    <div class="rounded-lg" style="max-height: 301px;"><img alt="Current"
+                                                            class="object-fit-contain !mb-0 max-h-full max-w-full"
+                                                            src="blob:https://leetcode.com/800b5ea7-7fb3-4919-9f98-9929aa441330">
+    </div>
+    <div class="absolute top-[50%] left-[50%] flex h-12 w-12 translate-x-[-50%] translate-y-[-50%] items-center justify-center rounded-full bg-black/30">
+        <div class="flex h-4 w-4 cursor-pointer items-center justify-center text-[35px]">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="h-full w-full text-white">
+                <path fill-rule="evenodd"
+                      d="M18.97 12.871l-12.96 7.29a1 1 0 01-1.49-.87V4.71a1 1 0 011.49-.872l12.96 7.29a1 1 0 010 1.743z"
+                      clip-rule="evenodd"></path>
+            </svg>
+        </div>
+    </div>
+    <div class="relative flex h-8 select-none items-center justify-around bg-black">
+        <div class="flex items-center space-x-7">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M16.091 4.929l-7.057 7.078 7.057 7.064a1 1 0 01-1.414 1.414l-7.764-7.77a1 1 0 010-1.415l7.764-7.785a1 1 0 111.415 1.414z"
+                      clip-rule="evenodd"></path>
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M18.97 12.871l-12.96 7.29a1 1 0 01-1.49-.87V4.71a1 1 0 011.49-.872l12.96 7.29a1 1 0 010 1.743z"
+                      clip-rule="evenodd"></path>
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M7.913 19.071l7.057-7.078-7.057-7.064a1 1 0 011.414-1.414l7.764 7.77a1 1 0 010 1.415l-7.764 7.785a1 1 0 01-1.414-1.414z"
+                      clip-rule="evenodd"></path>
+            </svg>
+        </div>
+        <div class="absolute right-0 mr-5 text-xs font-medium text-white">1 / 6</div>
+    </div>
+</div>
+</p>
+<br>
+<h4 id="algorithm">Algorithm</h4>
+<ol>
+    <li>
+        <p>Initialize an array <code>dp</code> of size <code>n</code>, set <code>dp[n - 1] = questions[n - 1][0]</code>.
+        </p>
+    </li>
+    <li>
+        <p>Iterate backward over index <code>i</code> from <code>n - 2</code>:</p>
+        <ul>
+            <li>If we skip question <code>i</code>, we have <code>dp[i] = dp[i + 1]</code>.</li>
+            <li>If we solve question <code>i</code>, we have <code>dp[i] = questions[i][0] + dp[i + questions[i][1] +
+                1]</code>.
+            </li>
+        </ul>
+        <p>Update <code>dp[i]</code> as the larger one.</p>
+    </li>
+    <li>
+        <p>Return <code>dp[0]</code> once we finish the iteration.</p>
+    </li>
+</ol>
+<h4 id="implementation">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public long mostPoints(int[][] questions) {
+        int n = questions.length;
+        long[] dp = new long[n];
+        dp[n - 1] = questions[n - 1][0];
+
+        for (int i = n - 2; i >= 0; --i) {
+            dp[i] = questions[i][0];
+            int skip = questions[i][1];
+            if (i + skip + 1 < n) {
+                dp[i] += dp[i + skip + 1];
+            }
+
+            // dp[i] = max(solve it, skip it)
+            dp[i] = Math.max(dp[i], dp[i + 1]);
+        }
+
+        return dp[0];
+    }
+}
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def mostPoints(self, questions: List[List[int]]) -> int:
+        n = len(questions)
+        dp = [0] * n
+        dp[-1] = questions[-1][0]
+
+        for i in range(n - 2, -1, -1):
+            dp[i] = questions[i][0]
+            skip = questions[i][1]
+            if i + skip + 1 < n:
+                dp[i] += dp[i + skip + 1]
+
+            # dp[i] = max(solve it, skip it)
+            dp[i] = max(dp[i], dp[i + 1])
+
+        return dp[0]
+    </code>
+</pre>
+<h4 id="complexity-analysis">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    be the length of the input array <code>questions</code>.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <ul>
+            <li>We need to iterate over <code>dp</code>. At each step, we calculate and update <code>dp[i]</code> which
+                take <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord">1</span><span
+                        class="mclose">)</span></span></span></span></span> time.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <ul>
+            <li>We initialize an array of size <code>n</code>.</li>
+        </ul>
+    </li>
+</ul>
+<br>
+<hr>
+<h3 id="approach-2-dynamic-programming-recursive">Approach 2: Dynamic Programming (Recursive)</h3>
+<h4 id="intuition-1">Intuition</h4>
+<p>We will implement the same algorithm as in approach 1, but using a recursive method.</p>
+<p>The idea is that each time a recursive function calls itself, it reduces the given problem into subproblems. The
+    recursion call continues until it reaches the base cases, where the subproblem can be solved without further
+    recursion.</p>
+<p>We define <code>dfs(i)</code> as the maximum points we can get by processing the problems in the range <code>[i ~ n -
+    1]</code>. Similar to approach 1, we have the same recursive formula where <code>dfs(i)</code> is the larger of the
+    points of the two options:</p>
+<p><code>dfs(i) = max(dfs(i + 1), points[i] + dfs(i + skip[i] + 1))</code></p>
+<p>Once we move on from <code>dfs(i)</code> to either <code>dfs(i + 1)</code> or <code>dfs(i + skip[i] + 1)</code>. Then
+    the function calls itself for smaller subproblems. When we meet the case that <code>i ≥ n</code>, we have reached
+    the base case where the problem can be solved by just returning <code>0</code> without further recursion!</p>
+<p>As you may have noticed from the picture, there may be many repeated calls to <code>dfs</code>. To avoid repeated
+    computation over the same case, we can use an array <code>dp</code> as memory.</p>
+<p><img src="rec.png" alt="img"></p>
+<br>
+<h4 id="algorithm-1">Algorithm</h4>
+<ol>
+    <li>Initialize an array <code>dp</code> of size <code>n</code> as memory.</li>
+    <li>Define function <code>dfs(i)</code> as the maximum points in the range <code>[i ~ n - 1]</code>.
+        <ul>
+            <li>If <code>i &gt;= n</code>, return <code>0</code>, since we can get <code>0</code> points from
+                <code>0</code> question.
+            </li>
+            <li>If <code>dp[i] != 0</code>, it means we have already computed <code>dfs(i)</code>, return
+                <code>dp[i]</code>.
+            </li>
+            <li>Otherwise, we can either solve question <code>i</code> or skip it.
+                <ul>
+                    <li>By solving it, the point we get is <code>questions[i][0] + dfs(i + questions[i][1] + 1)</code>.
+                    </li>
+                    <li>By skipping it, the point we get is <code>dfs(i + 1)</code>.</li>
+                </ul>
+            </li>
+            <li>Update <code>dp[i]</code> as the larger one.</li>
+        </ul>
+    </li>
+    <li>Call <code>dfs(0)</code> and return its result.</li>
+</ol>
+<h4 id="implementation-1">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    long dp[];
+    private long dfs(int[][] questions, int i) {
+        if (i >= questions.length) {
+            return 0;
+        }
+        if (dp[i] != 0) {
+            return dp[i];
+        }
+        long points = questions[i][0];
+        int skip = questions[i][1];
+
+        // dp[i] = max(skip it, solve it)
+        dp[i] = Math.max(points + dfs(questions, i + skip + 1), dfs(questions, i + 1));
+        return dp[i];
+    }
+
+    public long mostPoints(int[][] questions) {
+        int n = questions.length;
+        dp = new long[n];
+
+        return dfs(questions, 0);
+    }
+}
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def mostPoints(self, questions: List[List[int]]) -> int:
+        n = len(questions)
+        dp = [0] * n
+
+        def dfs(i):
+            if i >= n:
+                return 0
+            if dp[i]:
+                return dp[i]
+            points, skip = questions[i]
+
+            # dp[i] = max(skip it, solve it)
+            dp[i] = max(dfs(i + 1), points + dfs(i + skip + 1))
+            return dp[i]
+
+        return dfs(0)
+    </code>
+</pre>
+<h4 id="complexity-analysis-1">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    be the length of the input array <code>questions</code>.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <ul>
+            <li>
+                <p>Recall the picture at the beginning of this approach, the time complexity is proportional to the
+                    number of the function calls. Since we use <code>dp</code> as memory, each <code>dfs(i)</code> will
+                    be called exactly once, so the time complexity is <span class="math math-inline"><span
+                            class="katex"><span class="katex-mathml">O(n)O(n)</span><span class="katex-html"
+                                                                                          aria-hidden="true"><span
+                            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                            class="mopen">(</span><span class="mord mathnormal">n</span><span
+                            class="mclose">)</span></span></span></span></span>.</p>
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <ul>
+            <li>The space complexity is proportional to the maximum depth of the recursion tree. We have up to <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.4306em;"></span><span
+                    class="mord mathnormal">n</span></span></span></span></span> questions, which results in a recursion
+                tree of depth <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.
+            </li>
+            <li>Each function call takes <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord">1</span><span class="mclose">)</span></span></span></span></span> space.
+            </li>
+            <li>Additionally, we initialize an array <code>dp</code> of size <code>n</code> which also takes <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> space.
+            </li>
+            <li>Therefore, the overall space complexity is <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.
+            </li>
+        </ul>
+    </li>
+</ul>
+<br>
+</body>
+</html>
