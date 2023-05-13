@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Count Ways To Build Good Strings</title>
+</head>
+<body>
+<h2 id="solution">Solution</h2>
+<hr>
+<h3 id="overview">Overview</h3>
+<p>As shown in the picture, where <code>low = 2</code> and <code>high = 3</code>, all the 5 good strings are colored in
+    green. Besides, three of the invalid strings are colored in red:</p>
+<ul>
+    <li><code>1</code> is invalid as its length is smaller than <code>low</code>.</li>
+    <li><code>111</code> is invalid as it can't be made by multiple of <code>11</code>.</li>
+    <li><code>0011</code> is invalid as its length is larger than <code>high</code>.</li>
+</ul>
+<p><img src="1.png" alt="img"></p>
+<p>Here our task is to find the number of good strings, given <code>low</code>, <code>high</code>, <code>zero</code> and
+    <code>one</code>.</p>
+<hr>
+<h3 id="approach-1-dynamic-programming-iterative">Approach 1: Dynamic Programming (Iterative).</h3>
+<h4 id="intuition">Intuition</h4>
+<p>We can build an array <code>dp</code> to record the number of good strings with each length. Let <code>dp[i]</code>
+    be the number of good strings with length <code>i</code>. Set <code>dp[0] = 1</code> before filling the rest of
+    <code>dp</code> as the empty string is the only good string with length <code>0</code>.</p>
+<p><img src="2.png" alt="img"></p>
+<p>Then we try to find the relation between each problem <code>dp[i]</code> with smaller subproblems. For example, how
+    do we get the number of good strings of length <code>5</code>?</p>
+<p><img src="3.png" alt="img"></p>
+<p>Note that every good string either ends with <code>zero</code> of <code>0</code>s or <code>one</code> of
+    <code>1</code>s, which in our case is <code>0</code> or <code>11</code>.</p>
+<p><img src="4.png" alt="img"></p>
+<p>If a good string of length <code>5</code> ends with <code>0</code>, it means that every good string of length
+    <code>4</code> can be turned into a good string of length <code>5</code> by appending <code>0</code>. Thus we
+    increment <code>dp[5]</code> by <code>dp[4]</code>, which in the general case is <code>dp[end] += dp[end -
+        zero]</code>.</p>
+<p>Note that it is suggested to check if <code>end &gt;= zero</code> before we increment <code>dp[end]</code>, and only
+    apply the increase if <code>end &gt;= zero</code>.</p>
+<p><img src="5.png" alt="img"></p>
+<p>Similarly, if the string ends with <code>11</code>, it means that every good string of length <code>3</code> can be
+    turned into a good string of length <code>5</code> by appending <code>11</code>. Thus we increment
+    <code>dp[5]</code> by <code>dp[3]</code>.</p>
+<p><img src="6.png" alt="img"></p>
+<p>Now we have found both the base case <code>dp[0] = 1</code> and the recurrence relations, it's time to fill the array
+    and find the number of good strings of each length in the range <code>[low ~ high]</code>. Here we provide an
+    iterative method.</p>
+<br>
+<h4 id="algorithm">Algorithm</h4>
+<ol>
+    <li>
+        <p>Create an array <code>dp</code> of size <code>1 + high</code>. Initialize <code>dp[0] = 1</code>.</p>
+    </li>
+    <li>
+        <p>Iterate over each length <code>end</code>:</p>
+        <ul>
+            <li>If <code>end &gt;= zero</code>, increment <code>dp[end]</code> by <code>dp[end - zero]</code>.</li>
+            <li>If <code>end &gt;= one</code>, increment <code>dp[end]</code> by <code>dp[end - one]</code>.</li>
+        </ul>
+    </li>
+    <li>
+        <p>Once the iteration ends, add up the numbers in <code>dp[low ~ high]</code>.</p>
+    </li>
+</ol>
+<h4 id="implementation">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int countGoodStrings(int low, int high, int zero, int one) {
+        // Use dp[i] to record to number of good strings of length i.
+        int[] dp = new int[high + 1];
+        dp[0] = 1;
+        int mod = 1_000_000_007;
+
+        // Iterate over each length `end`.
+        for (int end = 1; end <= high; ++end) {
+            // check if the current string can be made by append zero `0`s or one `1`s.
+            if (end >= zero) {
+                dp[end] += dp[end - zero];
+            }
+            if (end >= one) {
+                dp[end] += dp[end - one];
+            }
+            dp[end] %= mod;
+        }
+
+        // Add up the number of strings with each valid length [low ~ high].
+        int answer = 0;
+        for (int i = low; i <= high; ++i) {
+            answer += dp[i];
+            answer %= mod;
+        }
+        return answer;
+    }
+}
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def countGoodStrings(self, low: int, high: int, zero: int, one: int) -> int:
+        # Use dp[i] to record to number of good strings of length i.
+        dp = [1] + [0] * (high)
+        mod = 10 ** 9 + 7
+
+        # Iterate over each length `end`.
+        for end in range(1, high + 1):
+            # check if the current string can be made by append zero `0`s or one `1`s.
+            if end >= zero:
+                dp[end] += dp[end - zero]
+            if end >= one:
+                dp[end] += dp[end - one]
+            dp[end] %= mod
+
+        # Add up the number of strings with each valid length [low ~ high].
+        return sum(dp[low : high + 1]) % mod
+    </code>
+</pre>
+<h4 id="complexity-analysis">Complexity Analysis</h4>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(high)O(\text{high})</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord text"><span class="mord">high</span></span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>We filled the array <code>dp</code> iteratively, each step includes at most two summation steps which
+                takes constant time.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(high)O(\text{high})</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord text"><span class="mord">high</span></span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>We build an array <code>dp</code> of length <code>high + 1</code>.</li>
+        </ul>
+    </li>
+</ul>
+<br>
+<hr>
+<h3 id="approach-2-dynamic-programming-recursive">Approach 2: Dynamic Programming (Recursive)</h3>
+<h4 id="intuition-1">Intuition</h4>
+<p>We will implement the same algorithm in approach 1 using a recursive method. Let <code>dfs(end)</code> be the number
+    of good strings of length <code>end</code>.</p>
+<p>The trick is as described before, each time a recursive function calls itself, it reduces the given problem <code>dfs(end)</code>
+    into subproblems <code>dfs(end - zero)</code> and <code>dfs(end - one)</code>. The recursion call continues until it
+    reaches a point where the subproblem can be solved without further recursion, that is <code>dfs(0) = 1</code>.</p>
+<p>Similarly, we will also build an auxiliary array <code>dp</code> to avoid repeated computation. Initially, we set
+    every value <code>dp[i]</code> (except <code>dp[0]</code>) as <code>-1</code>, which also implies that
+    <code>dp[i]</code> is not visited. During the recursion, if <code>dp[end] != -1</code>, it means we have already
+    calculated <code>dfs(end)</code> previously, so just return <code>dp[end]</code>.</p>
+<p><img src="7.png" alt="img"></p>
+<br>
+<h4 id="algorithm-1">Algorithm</h4>
+<ol>
+    <li>
+        <p>Create an array <code>dp</code> of size <code>1 + high</code>. Initialize <code>dp[0] = 1</code> and the
+            value of all the rest cells as <code>-1</code>.</p>
+    </li>
+    <li>
+        <p>Define a recursive function <code>dfs(end)</code>, if <code>dp[end] != -1</code>, return <code>dp[end]</code>,
+            otherwise:</p>
+        <ul>
+            <li>Set <code>answer = 0</code>.</li>
+            <li>If <code>end &gt;= zero</code>, increment <code>answer</code> by <code>dfs(end - zero)</code>.</li>
+            <li>If <code>end &gt;= one</code>, increment <code>answer</code> by <code>dfs(end - one)</code>.</li>
+            <li>Update <code>dp[end]</code> as <code>answer</code>.</li>
+        </ul>
+    </li>
+    <li>
+        <p>Once the iteration ends, add up the numbers in <code>dp[low ~ high]</code>.</p>
+    </li>
+</ol>
+<h4 id="implementation-1">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    // Use dp[i] to record to number of good strings of length i.
+    int[] dp;
+    int mod = 1_000_000_007;
+
+    // Find the number of good strings of length `end`.
+    private int dfs(int end, int zero, int one) {
+        if (dp[end] != -1)
+            return dp[end];
+        int count = 0;
+        if (end >= one) {
+            count += dfs(end - one, zero, one);
+        }
+        if (end >= zero) {
+            count += dfs(end - zero, zero, one);
+        }
+        dp[end] = count % mod;
+        return dp[end];
+    }
+
+    public int countGoodStrings(int low, int high, int zero, int one) {
+        dp = new int[high + 1];
+        Arrays.fill(dp, -1);
+        dp[0] = 1;
+
+        // Add up the number of strings with each valid length [low ~ high].
+        int answer = 0;
+        for (int end = low; end <= high; ++end) {
+            answer += dfs(end, zero, one);
+            answer %= mod;
+        }
+        return answer;
+    }
+}
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def countGoodStrings(self, low: int, high: int, zero: int, one: int) -> int:
+        # Use dp[i] to record to number of good strings of length i.
+        dp = [1] + [-1] * (high)
+        mod = 10 ** 9 + 7
+
+        # Find the number of good strings of length `end`.
+        def dfs(end):
+            if dp[end] != -1:
+                return dp[end]
+            count = 0
+            if end >= zero:
+                count += dfs(end - zero)
+            if end >= one:
+                count += dfs(end - one)
+            dp[end] = count % mod
+            return dp[end]
+
+
+        # Add up the number of strings with each valid length [low ~ high].
+        return sum(dfs(end) for end in range(low, high + 1)) % mod
+    </code>
+</pre>
+<h4 id="complexity-analysis-1">Complexity Analysis</h4>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(high)O(\text{high})</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord text"><span class="mord">high</span></span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>
+                <p>Similarly, it takes <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(high)O(\text{high})</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord text"><span class="mord">high</span></span><span
+                        class="mclose">)</span></span></span></span></span> time to fill <code>dp</code> recursively.
+                </p>
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(high)O(\text{high})</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord text"><span class="mord">high</span></span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>We build an array <code>dp</code> of length <code>high + 1</code> which takes <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(high)O(\text{high})</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord text"><span class="mord">high</span></span><span
+                    class="mclose">)</span></span></span></span></span> space.
+            </li>
+            <li>During the recursion steps, there are at most <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">high\text{high}</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+                    class="mord text"><span class="mord">high</span></span></span></span></span></span> self calls in
+                the stack, this also takes <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(high)O(\text{high})</span><span class="katex-html"
+                                                                               aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord text"><span class="mord">high</span></span><span
+                        class="mclose">)</span></span></span></span></span> space.
+            </li>
+        </ul>
+    </li>
+</ul>
+<br>
+</body>
+</html>
