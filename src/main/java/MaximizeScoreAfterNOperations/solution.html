@@ -1,0 +1,1380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Maximize Score After N Operations - Solution</title>
+</head>
+<body>
+<h2 id="solution">Solution</h2>
+<hr>
+<h3 id="overview">Overview</h3>
+<p>In this problem, we have an array of size <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">2&nbsp;*&nbsp;n\text{2 * n}</span><span class="katex-html" aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.75em;"></span><span class="mord text"><span class="mord">2&nbsp;*&nbsp;n</span></span></span></span></span></span>,
+    and we perform <span class="math math-inline"><span class="katex"><span class="katex-mathml">n\text{n}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.4306em;"></span><span
+            class="mord text"><span class="mord">n</span></span></span></span></span></span> operations, in each
+    operation, we choose two numbers <span class="math math-inline"><span class="katex"><span class="katex-mathml">x\text{x}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.4306em;"></span><span
+            class="mord text"><span class="mord">x</span></span></span></span></span></span> and <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">y\text{y}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.625em; vertical-align: -0.1944em;"></span><span
+            class="mord text"><span class="mord">y</span></span></span></span></span></span> and then we receive a score
+    of <span class="math math-inline"><span class="katex"><span class="katex-mathml">i&nbsp;*&nbsp;gcd(x,&nbsp;y)\text{i * gcd(x, y)}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">i&nbsp;*&nbsp;gcd(x,&nbsp;y)</span></span></span></span></span></span>,
+    where <span class="math math-inline"><span class="katex"><span class="katex-mathml">i\text{i}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.6679em;"></span><span
+            class="mord text"><span class="mord">i</span></span></span></span></span></span> is the current operation
+    number, and remove these two numbers from our array. We need to maximize the sum of scores at the end.</p>
+<hr>
+<h3 id="approach-1-dp-with-bitmasking-recursive">Approach 1: DP with Bitmasking (Recursive)</h3>
+<h4 id="intuition">Intuition</h4>
+<p>The problem can be solved by using a backtracking approach, we can try forming all cases of all possible pairs of
+    elements, generating the total score in each case, and selecting the one with the maximum score.</p>
+<p><img src="Slide1.PNG" alt="img1"></p>
+<p>We can write a recursive function <code>backtrack()</code> which generates all possibilities by picking two elements
+    and recursively finding the answer for the remaining array after discarding the two chosen elements. We break the
+    current <strong>bigger problem into smaller similar sub-problems</strong>.</p>
+<div class="mb-6 rounded-lg px-3 py-2.5 font-menlo text-sm bg-fill-3 dark:bg-dark-fill-3">
+    <div class="group relative" translate="no"><pre
+            style="color: rgb(212, 212, 212); font-size: 13px; text-shadow: none; font-family: Menlo, Monaco, Consolas; direction: ltr; text-align: left; white-space: pre; word-spacing: normal; word-break: normal; line-height: 1.5; tab-size: 4; hyphens: none; padding: 0px; margin: 0px; overflow: auto; background: transparent;"><code
+            class="language-php"
+            style="color: rgb(212, 212, 212); font-size: 13px; text-shadow: none; font-family: Menlo, Monaco, Consolas, &quot;Andale Mono&quot;, &quot;Ubuntu Mono&quot;, &quot;Courier New&quot;, monospace; direction: ltr; text-align: left; white-space: pre; word-spacing: normal; word-break: normal; line-height: 1.5; tab-size: 4; hyphens: none;"><span><span>def </span><span
+            class="token" style="color: rgb(220, 220, 170);">backtrack</span><span class="token"
+                                                                                   style="color: rgb(212, 212, 212);">(</span><span
+            class="token type-casting" style="color: rgb(86, 156, 214);">array</span><span class="token"
+                                                                                           style="color: rgb(212, 212, 212);">)</span><span> </span><span
+            class="token" style="color: rgb(212, 212, 212);">-&gt;</span><span> </span><span
+            class="token type-declaration" style="color: rgb(86, 156, 214);">int</span><span class="token"
+                                                                                             style="color: rgb(212, 212, 212);">:</span><span>
+</span></span><span><span>    </span><span class="token"
+                                           style="color: rgb(86, 156, 214);">for</span><span> element1 in </span><span
+            class="token type-declaration" style="color: rgb(86, 156, 214);">array</span><span class="token"
+                                                                                               style="color: rgb(212, 212, 212);">:</span><span>
+</span></span><span><span>        </span><span class="token" style="color: rgb(86, 156, 214);">for</span><span> element2 in </span><span
+            class="token type-declaration" style="color: rgb(86, 156, 214);">array</span><span class="token"
+                                                                                               style="color: rgb(212, 212, 212);">:</span><span>
+</span></span><span><span>            </span><span class="token" style="color: rgb(106, 153, 85);"># get the current score for pair (element1, element2)</span><span>
+</span></span><span><span>            </span><span class="token" style="color: rgb(106, 153, 85);"># remove both elements from the array and get the remaining array score </span><span>
+</span></span><span><span>            </span><span class="token" style="color: rgb(106, 153, 85);"># put the elements back in the array and try other elements, i.e. BACKTRACK</span></span></code></pre>
+        <div class="h-4 w-4 cursor-pointer absolute top-0 right-0">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="h-4 w-4 fill-gray-6 hover:fill-gray-7 dark:fill-dark-gray-6 dark:hover:fill-dark-gray-7 hidden group-hover:block">
+                <path fill-rule="evenodd"
+                      d="M11.3 8.3H19a3 3 0 013 3V19a3 3 0 01-3 3h-7.7a3 3 0 01-3-3v-7.7a3 3 0 013-3zm0 2a1 1 0 00-1 1V19a1 1 0 001 1H19a1 1 0 001-1v-7.7a1 1 0 00-1-1h-7.7zm-5.6 3.4a1 1 0 110 2h-.9A2.8 2.8 0 012 12.9V4.8A2.8 2.8 0 014.8 2h8.1a2.8 2.8 0 012.8 2.8v.9a1 1 0 11-2 0v-.9a.8.8 0 00-.8-.8H4.8a.8.8 0 00-.8.8v8.1a.8.8 0 00.8.8h.9z"
+                      clip-rule="evenodd"></path>
+            </svg>
+        </div>
+    </div>
+</div>
+<p>This is a brute-force approach. We can implement some optimizations.</p>
+<p>Now, say we have an array of eight elements <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">[a,&nbsp;b,&nbsp;c,&nbsp;d,&nbsp;e,&nbsp;f,&nbsp;g,&nbsp;h]\text{[a, b, c, d, e, f, g, h]}</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord text"><span
+        class="mord">[a,&nbsp;b,&nbsp;c,&nbsp;d,&nbsp;e,&nbsp;f,&nbsp;g,&nbsp;h]</span></span></span></span></span></span>.
+    Consider two cases.</p>
+<ul>
+    <li>In case 1, we picked pairs <span class="math math-inline"><span class="katex"><span class="katex-mathml">(c,&nbsp;d)\text{(c, d)}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">(c,&nbsp;d)</span></span></span></span></span></span> and <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">(b,&nbsp;e)\text{(b, e)}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">(b,&nbsp;e)</span></span></span></span></span></span>, and we are left
+        to find out the answer of the array <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">[a,&nbsp;f,&nbsp;g,&nbsp;h]\text{[a, f, g, h]}</span><span class="katex-html"
+                                                                                                aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord text"><span
+                class="mord">[a,&nbsp;f,&nbsp;g,&nbsp;h]</span></span></span></span></span></span>.
+    </li>
+    <li>In case 2, we picked pairs <span class="math math-inline"><span class="katex"><span class="katex-mathml">(b,&nbsp;c)\text{(b, c)}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">(b,&nbsp;c)</span></span></span></span></span></span> and <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">(d,&nbsp;e)\text{(d, e)}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">(d,&nbsp;e)</span></span></span></span></span></span>, and we are left
+        to find out the answer of the array <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">[a,&nbsp;f,&nbsp;g,&nbsp;h]\text{[a, f, g, h]}</span><span class="katex-html"
+                                                                                                aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord text"><span
+                class="mord">[a,&nbsp;f,&nbsp;g,&nbsp;h]</span></span></span></span></span></span>.
+    </li>
+</ul>
+<p>In both cases, we can see that the sub-problem <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">[a,&nbsp;f,&nbsp;g,&nbsp;h]\text{[a, f, g, h]}</span><span class="katex-html"
+                                                                                        aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord text"><span class="mord">[a,&nbsp;f,&nbsp;g,&nbsp;h]</span></span></span></span></span></span> needs
+    to be calculated, thus we can <strong>memoize the results</strong> to save computation time whenever a sub-problem
+    is repeated.</p>
+<p><img src="Slide2.PNG" alt="img2"></p>
+<p>Now, we know that the state of the current sub-problem depends on the remaining elements of the array. So we need to
+    memoize the result based on this state. An easy way to implement this is using <strong>bitmasking</strong>.</p>
+<p>We can keep a boolean array, and we mark picked numbers in this array.
+    But instead of using an array, we can achieve the same functionality using an integer.</p>
+<p>As integers have <span class="math math-inline"><span class="katex"><span class="katex-mathml">3232</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.6444em;"></span><span
+        class="mord">32</span></span></span></span></span> bits, each bit can be <span class="math math-inline"><span
+        class="katex"><span class="katex-mathml">00</span><span class="katex-html" aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.6444em;"></span><span
+        class="mord">0</span></span></span></span></span> or <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">11</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                                           style="height: 0.6444em;"></span><span
+        class="mord">1</span></span></span></span></span>. We can use these bits to represent if an element of our array
+    is picked or not.<br>
+    In an integer number (say <span class="math math-inline"><span class="katex"><span class="katex-mathml">mask\text{mask}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.6944em;"></span><span
+            class="mord text"><span class="mord">mask</span></span></span></span></span></span>) if the bit at position
+    <span class="math math-inline"><span class="katex"><span class="katex-mathml">i\text{i}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.6679em;"></span><span
+            class="mord text"><span class="mord">i</span></span></span></span></span></span> is <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">00</span><span class="katex-html"
+                                                                                                   aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span>,
+    it means the array element at the <span class="math math-inline"><span class="katex"><span class="katex-mathml">ith\text{i}^{th}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.9069em;"></span><span
+            class="mord"><span class="mord text"><span class="mord">i</span></span><span class="msupsub"><span
+            class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.9069em;"><span
+            style="top: -3.1208em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+            class="mord mathnormal mtight">t</span><span
+            class="mord mathnormal mtight">h</span></span></span></span></span></span></span></span></span></span></span></span></span>
+    index is not picked otherwise if it's <span class="math math-inline"><span class="katex"><span class="katex-mathml">11</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.6444em;"></span><span
+            class="mord">1</span></span></span></span></span> it means the element was picked earlier.</p>
+<p><strong>Note:</strong> If number of elements in the <code>nums</code> array will exceed <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">3232</span><span class="katex-html"
+                                                                                                 aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.6444em;"></span><span
+        class="mord">32</span></span></span></span></span> then we will not be able to use this method with a 32 bit
+    integer.</p>
+<p>So we can map the <code>mask</code> (current state) with the result, using a hashmap or an array,
+    <code>memo</code>.<br>
+    Here, the <code>mask</code>'s value will vary from <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">00</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span> (no
+    element is picked) to <span class="math math-inline"><span class="katex"><span class="katex-mathml">2nums&nbsp;array&nbsp;size−12^{\text{nums array size}} - 1</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.9138em; vertical-align: -0.0833em;"></span><span
+            class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span
+            class="vlist-r"><span class="vlist" style="height: 0.8305em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span
+            class="mord mtight">nums&nbsp;array&nbsp;size</span></span></span></span></span></span></span></span></span></span><span
+            class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">−</span><span class="mspace"
+                                                                                                   style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span>
+    (i.e. <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">111111...11111111...11</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span
+            class="mord">111111...11</span></span></span></span></span> in binary, all elements are picked).<br>
+    Thus, the <code>memo</code> array's size will be <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">2nums&nbsp;array&nbsp;size=22n2^{\text{nums array size}} = 2^{2n}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.8305em;"></span><span
+            class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span
+            class="vlist-r"><span class="vlist" style="height: 0.8305em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span
+            class="mord mtight">nums&nbsp;array&nbsp;size</span></span></span></span></span></span></span></span></span></span><span
+            class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace"
+                                                                                                   style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.8141em;"></span><span class="mord"><span
+            class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                                         style="height: 0.8141em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">2</span><span
+            class="mord mathnormal mtight">n</span></span></span></span></span></span></span></span></span></span></span></span></span>.
+</p>
+<h4 id="algorithm">Algorithm</h4>
+<ol>
+    <li>Create a function <code>backtrack</code> which takes the <code>nums</code> array, <code>mask</code> and <code>pairsPicked</code>
+        integers, and <code>memo</code> array as arguments:
+        <ul>
+            <li>If we picked all elements from the <code>nums</code> array, then we return <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">00</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.6444em;"></span><span
+                    class="mord">0</span></span></span></span></span> from here as no score can be received now.
+            </li>
+            <li>If we had already solved the same sub-problem earlier, i.e. <code>memo[mask] != -1</code>, then we
+                return the stored result from the <code>memo</code> array.
+            </li>
+            <li>Otherwise, initialize <code>maxScore</code> as <code>0</code>.</li>
+            <li>Using two nested for loops we iterate on each pair of numbers pointed by <code>firstIndex</code> and
+                <code>secondIndex</code> in the <code>nums</code> array. We check if the bit of <code>mask</code> at
+                these indices is <code>0</code> to make sure those numbers were not picked earlier.
+                <ul>
+                    <li>We mark them as picked in <code>newMask</code>, calculate the current score
+                        <code>currScore</code>, and find the score of the remaining numbers <code>remainingScore</code>
+                        recursively passing <code>newMask</code> in its parameter.
+                    </li>
+                    <li>If the <code>maxScore</code> is smaller than <code>currScore + remainingScore</code>, we update
+                        <code>maxScore</code> with it.
+                    </li>
+                    <li>At the end of the loops, we discard the picked numbers and reset the <code>mask</code> to its
+                        previous value (i.e. we are backtracking).
+                    </li>
+                </ul>
+            </li>
+            <li>In the end, we store the result of the current sub-problem in the <code>memo</code> array and return the
+                result <code>maxScore</code>.
+            </li>
+        </ul>
+    </li>
+    <li>Create a <code>memo</code> array of size <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">22n2^{2 n}</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.8141em;"></span><span class="mord"><span class="mord">2</span><span
+            class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                              style="height: 0.8141em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">2</span><span
+            class="mord mathnormal mtight">n</span></span></span></span></span></span></span></span></span></span></span></span></span>
+        and initialize with <code>-1</code>.
+    </li>
+    <li>Call the <code>backtrack</code> function with <code>mask = 0</code> and <code>pairsPicked = 0</code> to denote
+        no element is initially picked and return the result.
+    </li>
+</ol>
+<h4 id="implementation">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int backtrack(int[] nums, int mask, int pairsPicked, int[] memo) {
+        // If we have picked all the numbers from 'nums' array, we can't get more score.
+        if (2 * pairsPicked == nums.length) {
+            return 0;
+        }
+
+        // If we already solved this sub-problem then return the stored result.
+        if (memo[mask] != -1) {
+            return memo[mask];
+        }
+
+        int maxScore = 0;
+
+        // Iterate on 'nums' array to pick the first and second number of the pair.
+        for (int firstIndex = 0; firstIndex < nums.length; ++firstIndex) {
+            for (int secondIndex = firstIndex + 1; secondIndex < nums.length; ++secondIndex) {
+
+                // If the numbers are same, or already picked, then we move to next number.
+                if (((mask >> firstIndex) & 1) == 1 || ((mask >> secondIndex) & 1) == 1) {
+                    continue;
+                }
+
+                // Both numbers are marked as picked in this new mask.
+                int newMask = mask | (1 << firstIndex) | (1 << secondIndex);
+
+                // Calculate score of current pair of numbers, and the remaining array.
+                int currScore = (pairsPicked + 1) * gcd(nums[firstIndex], nums[secondIndex]);
+                int remainingScore = backtrack(nums, newMask, pairsPicked + 1, memo);
+
+                // Store the maximum score.
+                maxScore = Math.max(maxScore, currScore + remainingScore);
+                // We will use old mask in loop's next interation,
+                // means we discarded the picked number and backtracked.
+            }
+        }
+
+        // Store the result of the current sub-problem.
+        memo[mask] = maxScore;
+        return maxScore;
+    }
+
+    public int maxScore(int[] nums) {
+        int memoSize = 1 << nums.length; // 2^(nums array size)
+        int[] memo = new int[memoSize];
+        Arrays.fill(memo, -1);
+        return backtrack(nums, 0, 0, memo);
+    }
+
+    // Utility function to calculate the gcd of two numbers.
+    public int gcd(int a, int b) {
+        if (b == 0) {
+            return a;
+        }
+        return gcd(b, a % b);
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int backtrack(vector<int>& nums, int mask, int pairsPicked, vector<int>& memo) {
+        // If we have picked all the numbers from 'nums' array, we can't get more score.
+        if (2 * pairsPicked == nums.size()) {
+            return 0;
+        }
+
+        // If we already solved this sub-problem then return the stored result.
+        if (memo[mask] != -1) {
+            return memo[mask];
+        }
+
+        int maxScore = 0;
+
+        // Iterate on 'nums' array to pick the first and second number of the pair.
+        for (int firstIndex = 0; firstIndex < nums.size(); ++firstIndex) {
+            for (int secondIndex = firstIndex + 1; secondIndex < nums.size(); ++secondIndex) {
+
+                // If the numbers are same, or already picked, then we move to next number.
+                if (((mask >> firstIndex) & 1) == 1 or ((mask >> secondIndex) & 1) == 1) {
+                    continue;
+                }
+
+                // Both numbers are marked as picked in this new mask.
+                int newMask = mask | (1 << firstIndex) | ((1 << secondIndex));
+
+                // Calculate score of current pair of numbers, and the remaining array.
+                int currScore = (pairsPicked + 1) * __gcd(nums[firstIndex], nums[secondIndex]);
+                int remainingScore = backtrack(nums, newMask, pairsPicked + 1, memo);
+
+                // Store the maximum score.
+                maxScore = max(maxScore, currScore + remainingScore);
+                // We will use old mask in loop's next interation,
+                // means we discarded the picked number and backtracked.
+            }
+        }
+
+        // Store the result of the current sub-problem.
+        memo[mask] = maxScore;
+        return maxScore;
+    }
+
+    int maxScore(vector<int>& nums) {
+        int memoSize = 1 << nums.size(); // 2^(nums array size)
+        vector<int> memo(memoSize, -1);
+        return backtrack(nums, 0, 0, memo);
+    }
+};
+    </code>
+    JavaScript
+    <code>
+        let backtrack = (nums, mask, pairsPicked, memo) => {
+    // If we have picked all the numbers from 'nums' array, we can't get more score.
+    if (2 * pairsPicked == nums.length) {
+        return 0;
+    }
+
+    // If we already solved this sub-problem then return the stored result.
+    if (memo[mask] != -1) {
+        return memo[mask];
+    }
+
+    let maxScore = 0;
+
+    // Iterate on 'nums' array to pick the first and second number of the pair.
+    for (let firstIndex = 0; firstIndex < nums.length; ++firstIndex) {
+        for (let secondIndex = firstIndex + 1; secondIndex < nums.length; ++secondIndex) {
+
+            // If the numbers are same, or already picked, then we move to next number.
+            if (((mask >> firstIndex) & 1) === 1 || ((mask >> secondIndex) & 1) === 1) {
+                continue;
+            }
+
+            // Both numbers are marked as picked in this new mask.
+            const newMask = mask | (1 << firstIndex) | (1 << secondIndex);
+
+            // Calculate score of current pair of numbers, and the remaining array.
+            const currScore = (pairsPicked + 1) * gcd(nums[firstIndex], nums[secondIndex]);
+            const remainingScore = backtrack(nums, newMask, pairsPicked + 1, memo);
+
+            // Store the maximum score.
+            maxScore = Math.max(maxScore, currScore + remainingScore);
+            // We will use old mask in loop's next interation,
+            // means we discarded the picked number and backtracked.
+        }
+    }
+
+    // Store the result of the current sub-problem.
+    memo[mask] = maxScore;
+    return maxScore;
+}
+
+let maxScore = function(nums) {
+    const memoSize = 1 << nums.length; // 2^(nums array size)
+    const memo = new Array(memoSize).fill(-1);
+    return backtrack(nums, 0, 0, memo);
+};
+
+// Utility function to calculate the gcd of two numbers.
+let gcd = (a, b) => {
+  return b === 0 ? a : gcd(b, a % b);
+}
+    </code>
+    Swift
+    <code>
+        class Solution {
+    func backtrack(_ nums: [Int], _ mask: Int, _ pairsPicked: Int, _ memo: inout [Int]) -> Int {
+        // If we have picked all the numbers from 'nums' array, we can't get more score.
+        if 2 * pairsPicked == nums.count {
+            return 0
+        }
+
+        // If we already solved this sub-problem then return the stored result.
+        if memo[mask] != -1 {
+            return memo[mask]
+        }
+
+        var maxScore = 0
+
+        // Iterate on 'nums' array to pick the first and second number of the pair.
+        for firstIndex in 0..<nums.count {
+                                         for secondIndex in (firstIndex + 1)..<nums.count {
+
+                // If the numbers are same, or already picked, then we move to next number.
+                guard ((mask >> firstIndex) & 1 == 0), ((mask >> secondIndex) & 1 == 0) else {
+                    continue
+                }
+
+                // Both numbers are marked as picked in this new mask.
+                let newMask = mask | (1 << firstIndex) | (1 << secondIndex)
+
+                // Calculate score of current pair of numbers, and the remaining array.
+                let currScore = (pairsPicked + 1) * gcd(nums[firstIndex], nums[secondIndex])
+                let remainingScore = backtrack(nums, newMask, pairsPicked + 1, &memo)
+
+                // Store the maximum score.
+                maxScore = max(maxScore, currScore + remainingScore)
+                // We will use old mask in loop's next interation,
+                // means we discarded the picked number and backtracked.
+            }
+        }
+
+        // Store the result of the current sub-problem.
+        memo[mask] = maxScore
+        return maxScore
+    }
+
+    func maxScore(_ nums: [Int]) -> Int {
+        let memoSize = 1 << nums.count // 2^(nums array size)
+        var memo = Array(repeating: -1, count: memoSize)
+        return backtrack(nums, 0, 0, &memo)
+    }
+
+    // Utility function to calculate the gcd of two numbers.
+    func gcd(_ a: Int, _ b: Int) -> Int {
+        return b == 0 ? a: gcd(b, a % b)
+    }
+}
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def backtrack(self, nums: List[int], mask: int, pairsPicked: int, memo: List[int]) -> int:
+        # If we have picked all the numbers from 'nums' array, we can't get more score.
+        if 2 * pairsPicked == len(nums):
+            return 0
+
+        # If we already solved this sub-problem then return the stored result.
+        if memo[mask] != -1:
+            return memo[mask]
+
+        maxScore = 0
+
+        # Iterate on 'nums' array to pick the first and second number of the pair.
+        for firstIndex in range(len(nums)):
+            for secondIndex in range(firstIndex + 1, len(nums)):
+
+                # If the numbers are same, or already picked, then we move to next number.
+                if (mask >> firstIndex) & 1 == 1 or (mask >> secondIndex) & 1 == 1:
+                    continue
+
+                # Both numbers are marked as picked in this new mask.
+                newMask = mask | (1 << firstIndex) | (1 << secondIndex)
+
+                # Calculate score of current pair of numbers, and the remaining array.
+                currScore = (pairsPicked + 1) * math.gcd(nums[firstIndex], nums[secondIndex])
+                remainingScore = self.backtrack(nums, newMask, pairsPicked + 1, memo)
+
+                # Store the maximum score.
+                maxScore = max(maxScore, currScore + remainingScore)
+                # We will use old mask in loop's next interation,
+                # means we discarded the picked number and backtracked.
+
+        # Store the result of the current sub-problem.
+        memo[mask] = maxScore
+        return maxScore
+
+    def maxScore(self, nums: List[int]) -> int:
+        memoSize = 1 << len(nums)  # 2^(nums array size)
+        memo = [-1] * memoSize
+        return self.backtrack(nums, 0, 0, memo)
+    </code>
+</pre>
+<h4 id="complexity-analysis">Complexity Analysis</h4>
+<p>Here, <span class="math math-inline"><span class="katex"><span class="katex-mathml">m=2∗nm = 2 * n</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.4306em;"></span><span
+        class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+        class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span
+        class="strut" style="height: 0.6444em;"></span><span class="mord">2</span><span class="mspace"
+                                                                                        style="margin-right: 0.2222em;"></span><span
+        class="mbin">∗</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+        class="strut" style="height: 0.4306em;"></span><span
+        class="mord mathnormal">n</span></span></span></span></span> is the number of elements, and <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">AA</span><span class="katex-html"
+                                                                                               aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal">A</span></span></span></span></span>
+    is the maximum value in the <code>nums</code> array.<br>
+    The maximum value of <span class="math math-inline"><span class="katex"><span class="katex-mathml">AA</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.6833em;"></span><span
+            class="mord mathnormal">A</span></span></span></span></span> can be <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">10610^6</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.8141em;"></span><span class="mord">1</span><span
+            class="mord"><span class="mord">0</span><span class="msupsub"><span class="vlist-t"><span
+            class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span
+            class="mord mtight">6</span></span></span></span></span></span></span></span></span></span></span></span>.
+</p>
+<ul>
+    <li>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(22n⋅(2n)2⋅log⁡A)=O(4n⋅n2⋅log⁡A)O(2^{2n} \cdot (2n)^2 \cdot \log A) = O(4^n \cdot n^2 \cdot \log A)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span
+            class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">2</span><span
+            class="mord mathnormal mtight">n</span></span></span></span></span></span></span></span></span><span
+            class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace"
+                                                                                                   style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+            class="mopen">(</span><span class="mord">2</span><span class="mord mathnormal">n</span><span class="mclose"><span
+            class="mclose">)</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                                           style="height: 0.8141em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span
+            class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mspace"
+                                                                                               style="margin-right: 0.2222em;"></span><span
+            class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                      style="margin-right: 0.1667em;"></span><span
+            class="mord mathnormal">A</span><span class="mclose">)</span><span class="mspace"
+                                                                               style="margin-right: 0.2778em;"></span><span
+            class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord"><span class="mord">4</span><span class="msupsub"><span class="vlist-t"><span
+            class="vlist-r"><span class="vlist" style="height: 0.6644em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span
+            class="mord mathnormal mtight">n</span></span></span></span></span></span></span></span><span class="mspace"
+                                                                                                          style="margin-right: 0.2222em;"></span><span
+            class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.8141em;"></span><span class="mord"><span
+            class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span
+            class="vlist" style="height: 0.8141em;"><span style="top: -3.063em; margin-right: 0.05em;"><span
+            class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span
+            class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mspace"
+                                                                                               style="margin-right: 0.2222em;"></span><span
+            class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                      style="margin-right: 0.1667em;"></span><span
+            class="mord mathnormal">A</span><span class="mclose">)</span></span></span></span></span>
+        <ul>
+            <li>We make exponential amount of calls to <code>backtrack</code> function, but as only <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">2m2^{m}</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.6644em;"></span><span
+                    class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span
+                    class="vlist-r"><span class="vlist" style="height: 0.6644em;"><span
+                    style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                       style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+                    class="mord mathnormal mtight">m</span></span></span></span></span></span></span></span></span></span></span></span></span>
+                unique states of <code>mask</code> are possible, due to memoization, we will only evaluate <span
+                        class="math math-inline"><span class="katex"><span class="katex-mathml">2m2^{m}</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 0.6644em;"></span><span
+                        class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span
+                        class="vlist-r"><span class="vlist" style="height: 0.6644em;"><span
+                        style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                        class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+                        class="mord mathnormal mtight">m</span></span></span></span></span></span></span></span></span></span></span></span></span>
+                calls of the function (in other calls we directly return stored result).
+            </li>
+            <li>In each <code>backtrack</code> function call we iterate on all pairs using a nested for loop which will
+                take <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(m2)O(m^2)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord"><span class="mord mathnormal">m</span><span
+                        class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                          style="height: 0.8141em;"><span
+                        style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                        class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                        class="mclose">)</span></span></span></span></span> time, and for each pair, we perform a gcd
+                operation which will take at most <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(log⁡A)O(\log A)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span
+                        class="mspace" style="margin-right: 0.1667em;"></span><span
+                        class="mord mathnormal">A</span><span class="mclose">)</span></span></span></span></span> time.
+                So, we take <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(m2⋅log⁡A)O(m^2 \cdot \log A) </span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord"><span class="mord mathnormal">m</span><span
+                        class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                          style="height: 0.8141em;"><span
+                        style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                        class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                        class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span
+                        class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+                        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                        style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                              style="margin-right: 0.1667em;"></span><span
+                        class="mord mathnormal">A</span><span class="mclose">)</span></span></span></span></span> time
+                in each function call.
+            </li>
+            <li>Thus, overall we take <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(2m⋅m2⋅log⁡A)O(2^{m} \cdot m^2 \cdot \log A)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span
+                    class="vlist-r"><span class="vlist" style="height: 0.6644em;"><span
+                    style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                       style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+                    class="mord mathnormal mtight">m</span></span></span></span></span></span></span></span></span><span
+                    class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span
+                    class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut"
+                                                                                                          style="height: 0.8141em;"></span><span
+                    class="mord"><span class="mord mathnormal">m</span><span class="msupsub"><span class="vlist-t"><span
+                    class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                    style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                       style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span
+                    class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                              style="margin-right: 0.1667em;"></span><span
+                    class="mord mathnormal">A</span><span class="mclose">)</span></span></span></span></span> time.
+            </li>
+        </ul>
+    </li>
+</ul>
+<blockquote>
+    <p><strong>Note:</strong> A better upper bound for the time complexity might exist for this approach, but this
+        analysis is sufficient during the limited time of an interview setting.</p>
+</blockquote>
+<ul>
+    <li>Space complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n+22n)=O(4n)O(n + 2^{2n}) = O(4^n)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+            class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span
+            class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">2</span><span
+            class="mord mathnormal mtight">n</span></span></span></span></span></span></span></span></span><span
+            class="mclose">)</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+            class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord"><span class="mord">4</span><span class="msupsub"><span class="vlist-t"><span
+            class="vlist-r"><span class="vlist" style="height: 0.6644em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span
+            class="mord mathnormal mtight">n</span></span></span></span></span></span></span></span><span
+            class="mclose">)</span></span></span></span></span>
+        <ul>
+            <li>The recursive stack will take at most <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> space at
+                any time.
+            </li>
+            <li>We store the results of all possible states in the <code>memo</code> array, and a total of <span
+                    class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">2m=22n2^{m} = 2^{2n}</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 0.6644em;"></span><span class="mord"><span
+                    class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span
+                    class="vlist" style="height: 0.6644em;"><span style="top: -3.063em; margin-right: 0.05em;"><span
+                    class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span
+                    class="mord mtight"><span class="mord mathnormal mtight">m</span></span></span></span></span></span></span></span></span><span
+                    class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span
+                    class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut"
+                                                                                                          style="height: 0.8141em;"></span><span
+                    class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span
+                    class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                    style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                       style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">2</span><span
+                    class="mord mathnormal mtight">n</span></span></span></span></span></span></span></span></span></span></span></span></span>
+                states are possible.
+            </li>
+            <li>Thus, we use <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n+22n)=O(4n)O(n + 2^{2n}) = O(4^n)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                    class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span
+                    class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                    style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                       style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">2</span><span
+                    class="mord mathnormal mtight">n</span></span></span></span></span></span></span></span></span><span
+                    class="mclose">)</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+                    class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord"><span class="mord">4</span><span class="msupsub"><span class="vlist-t"><span
+                    class="vlist-r"><span class="vlist" style="height: 0.6644em;"><span
+                    style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                       style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">n</span></span></span></span></span></span></span></span><span
+                    class="mclose">)</span></span></span></span></span> space.
+            </li>
+        </ul>
+    </li>
+</ul>
+<br>
+<hr>
+<h3 id="approach-2-dp-with-bitmasking-iterative">Approach 2: DP with Bitmasking (Iterative)</h3>
+<h4 id="intuition-1">Intuition</h4>
+<p>The previous approach can also be implemented iteratively.</p>
+<p>We keep one integer variable <code>state</code> which will represent all the states of all possible sub-problems.<br>
+    Also, let's keep a <code>dp</code> array, where <code>dp[i]</code> will store the maximum score we can get after we
+    have picked elements represented by <code>i</code> (in binary).</p>
+<p>As we can't get more score after picking all the numbers.<br>
+    Thus, our base case will be: <span class="math math-inline"><span class="katex"><span class="katex-mathml">dp[finalMask]&nbsp;=&nbsp;0\text{dp[finalMask] = 0}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp[finalMask]&nbsp;=&nbsp;0</span></span></span></span></span></span>,
+    where <span class="math math-inline"><span class="katex"><span class="katex-mathml">finalMask&nbsp;=&nbsp;1111...111\text{finalMask = 1111...111}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.6944em;"></span><span
+            class="mord text"><span
+            class="mord">finalMask&nbsp;=&nbsp;1111...111</span></span></span></span></span></span> (in binary).</p>
+<p>When we are at a sub-problem <span class="math math-inline"><span class="katex"><span class="katex-mathml">state&nbsp;=&nbsp;X\text{state = X}</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.6833em;"></span><span
+        class="mord text"><span class="mord">state&nbsp;=&nbsp;X</span></span></span></span></span></span> and we choose
+    a pair at indices <span class="math math-inline"><span class="katex"><span class="katex-mathml">(i,&nbsp;j)\text{(i, j)}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">(i,&nbsp;j)</span></span></span></span></span></span>.<br>
+    Then the current state's score will be, the maximum score we can get with the remaining numbers and the current
+    score, i.e.</p>
+<blockquote>
+    <p><span class="math math-inline"><span class="katex"><span class="katex-mathml">dp[state]&nbsp;=&nbsp;dp[stateAfterPickingCurrPair]&nbsp;+&nbsp;operationNumber&nbsp;*&nbsp;gcd(nums[i],&nbsp;nums[j])\text{dp[state] = dp[stateAfterPickingCurrPair] + operationNumber * gcd(nums[i], nums[j])}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp[state]&nbsp;=&nbsp;dp[stateAfterPickingCurrPair]&nbsp;+&nbsp;operationNumber&nbsp;*&nbsp;gcd(nums[i],&nbsp;nums[j])</span></span></span></span></span></span>,
+    </p>
+</blockquote>
+<p>where, <span class="math math-inline"><span class="katex"><span class="katex-mathml">stateAfterPickingCurrPair&nbsp;=&nbsp;X&nbsp;|&nbsp;(1&nbsp;&lt;&lt;&nbsp;i)&nbsp;|&nbsp;(1&nbsp;&lt;&lt;&nbsp;j)\text{stateAfterPickingCurrPair = X | (1 &lt;&lt; i) | (1 &lt;&lt; j)}</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord text"><span class="mord">stateAfterPickingCurrPair&nbsp;=&nbsp;X&nbsp;|&nbsp;(1&nbsp;&lt;&lt;&nbsp;i)&nbsp;|&nbsp;(1&nbsp;&lt;&lt;&nbsp;j)</span></span></span></span></span></span>
+    (the new mask will always be greater than the current mask, this hints we need to find the result for the bigger
+    mask first).<br>
+    and, <span class="math math-inline"><span class="katex"><span class="katex-mathml">operationNumber\text{operationNumber}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+            class="mord text"><span class="mord">operationNumber</span></span></span></span></span></span> will be one
+    more than the number of pairs we already picked, <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">(number&nbsp;of&nbsp;ones&nbsp;in&nbsp;mask&nbsp;/&nbsp;2)&nbsp;+&nbsp;1\text{(number of ones in mask / 2) + 1}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">(number&nbsp;of&nbsp;ones&nbsp;in&nbsp;mask&nbsp;/&nbsp;2)&nbsp;+&nbsp;1</span></span></span></span></span></span>.
+</p>
+<p>To sum up, in this approach, we will iterate on all possible <code>states</code> in decreasing order. The maximum
+    score for the base state when all elements are picked is zero, otherwise, we iterate on all possible pairs of
+    numbers we can choose, and using the chosen numbers and the score of the state after picking the current pair (as
+    discussed above) we calculate the current state's maximum score.</p>
+<p><strong>Note:</strong> If any state represents we picked odd number of elements then we skip that state, it will not
+    be a valid state for us as we always pick numbers in pairs.</p>
+<h4 id="algorithm-1">Algorithm</h4>
+<ol>
+    <li>Initialize variable:
+        <ul>
+            <li><code>maxStates</code> as <span class="math math-inline"><span class="katex"><span class="katex-mathml">22n2^{2n}</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.8141em;"></span><span
+                    class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span
+                    class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                    style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                       style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">2</span><span
+                    class="mord mathnormal mtight">n</span></span></span></span></span></span></span></span></span></span></span></span></span>,
+                <code>finalMask</code> as <code>maxStates - 1</code>.
+            </li>
+            <li>an array <code>dp</code> of size <code>maxStates</code> to store the maximum score we can get after
+                picking the remaining numbers represented by each possible state.
+            </li>
+        </ul>
+    </li>
+    <li>Iterate on all possible states <code>state</code> from <code>finalMask</code> to <code>0</code> in decreasing
+        order:
+        <ul>
+            <li>If we have picked all numbers, we know we can't get more score as no number is remaining. Therefore, we
+                set <code>dp[state]</code> to <code>0</code> and continue to the next iteration. Otherwise, we count the
+                number of numbers already picked <code>numbersTaken</code> using built-in STL methods and calculate the
+                number of pairs formed <code>pairsFormed</code> by dividing <code>numbersTaken</code> by <code>2</code>.
+            </li>
+            <li>If <code>numbersTaken</code> is odd, it means we have picked an odd number of numbers, and this state is
+                not possible in our problem. Therefore, we continue to the next state.
+            </li>
+            <li>Using two nested for loops we iterate on each pair of remaining numbers pointed by
+                <code>firstIndex</code> and <code>secondIndex</code> in the nums array.
+                <ul>
+                    <li>We check if the bit of state at these indices is <code>0</code> to make sure those numbers were
+                        not picked earlier.
+                    </li>
+                    <li>We mark them as picked in <code>stateAfterPickingCurrPair</code>, calculate the current score
+                        <code>currentScore</code> by multiplying the number of pairs formed after picking current pair,
+                        <code>pairsFormed + 1</code> by the gcd of these two picked numbers, and find the score of the
+                        remaining numbers <code>remainingScore</code> by looking up
+                        <code>dp[stateAfterPickingCurrPair]</code>.
+                    </li>
+                    <li>If the <code>dp[state]</code> is smaller than <code>currentScore + remainingScore</code>, we
+                        update <code>dp[state]</code> with it.
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </li>
+    <li>Return the maximum score we can get by picking all numbers, which is stored in <code>dp[0]</code>.</li>
+</ol>
+<h4 id="implementation-1">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int maxScore(int[] nums) {
+        int maxStates = 1 << nums.length; // 2^(nums array size)
+        int finalMask = maxStates - 1;
+
+        // 'dp[i]' stores max score we can get after picking remaining numbers represented by 'i'.
+        int[] dp = new int[maxStates];
+
+        // Iterate on all possible states one-by-one.
+        for (int state = finalMask; state >= 0; state--) {
+            // If we have picked all numbers, we know we can't get more score as no number is remaining.
+            if (state == finalMask) {
+                dp[state] = 0;
+                continue;
+            }
+
+            int numbersTaken = Integer.bitCount(state);
+            int pairsFormed = numbersTaken / 2;
+            // States representing even numbers are taken are only valid.
+            if (numbersTaken % 2 != 0) {
+                continue;
+            }
+
+            // We have picked 'pairsFormed' pairs, we try all combinations of one more pair now.
+            // We iterate on two numbers using two nested for loops.
+            for (int firstIndex = 0; firstIndex < nums.length; firstIndex++) {
+                for (int secondIndex = firstIndex + 1; secondIndex < nums.length; secondIndex++) {
+                    // We only choose those numbers which were not already picked.
+                    if (((state >> firstIndex) & 1) == 1 || ((state >> secondIndex) & 1) == 1) {
+                        continue;
+                    }
+                    int currentScore = (pairsFormed + 1) * gcd(nums[firstIndex], nums[secondIndex]);
+                    int stateAfterPickingCurrPair = state | (1 << firstIndex) | (1 << secondIndex);
+                    int remainingScore = dp[stateAfterPickingCurrPair];
+                    dp[state] = Math.max(dp[state], currentScore + remainingScore);
+                }
+            }
+        }
+
+        // Returning score we get from 'n' remaining numbers of array.
+        return dp[0];
+    }
+
+    // Helper method to calculate GCD using Euclidean algorithm.
+    private int gcd(int a, int b) {
+        if (b == 0) {
+            return a;
+        }
+        return gcd(b, a % b);
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int maxScore(vector<int>& nums) {
+        int maxStates = 1 << nums.size(); // 2^(nums array size)
+        int finalMask = maxStates - 1;
+
+        // 'dp[i]' stores max score we can get after picking remaining numbers represented by 'i'.
+        vector<int> dp(maxStates);
+
+        // Iterate on all possible states one-by-one.
+        for (int state = finalMask; state >= 0; state -= 1) {
+            // If we have picked all numbers, we know we can't get more score as no number is remaining.
+            if (state == finalMask) {
+                dp[state] = 0;
+                continue;
+            }
+
+            int numbersTaken = __builtin_popcount(state);
+            int pairsFormed = numbersTaken / 2;
+            // States representing even numbers are taken are only valid.
+            if (numbersTaken % 2) {
+                continue;
+            }
+
+            // We have picked 'pairsFormed' pairs, we try all combinations of one more pair now.
+            // We itearte on two numbers using two nested for loops.
+            for (int firstIndex = 0; firstIndex < nums.size(); firstIndex += 1) {
+                for (int secondIndex = firstIndex + 1; secondIndex < nums.size(); secondIndex += 1) {
+                    // We only choose those numbers which were not already picked.
+                    if (((state >> firstIndex) & 1) == 1 || ((state >> secondIndex) & 1) == 1) {
+                        continue;
+                    }
+                    int currentScore = (pairsFormed + 1) * __gcd(nums[firstIndex], nums[secondIndex]);
+                    int stateAfterPickingCurrPair = state | (1 << firstIndex) | (1 << secondIndex);
+                    int remainingScore = dp[stateAfterPickingCurrPair];
+                    dp[state] = max(dp[state], currentScore + remainingScore);
+                }
+            }
+        }
+
+        // Returning score we get from 'n' remaining numbers of array.
+        return dp[0];
+    }
+};
+    </code>
+    JavaScript
+    <code>
+        var maxScore = function(nums) {
+    const maxStates = 1 << nums.length; // 2^(nums array size)
+    const finalMask = maxStates - 1;
+
+    // 'dp[i]' stores max score we can get after picking remaining numbers represented by 'i'.
+    const dp = new Array(maxStates).fill(0);
+
+    // Iterate on all possible states one-by-one.
+    for (let state = finalMask; state >= 0; state -= 1) {
+        // If we have picked all numbers, we know we can't get more score as no number is remaining.
+        if (state == finalMask) {
+            dp[state] = 0;
+            continue;
+        }
+
+        const numbersTaken = state.toString(2).split('1').length - 1;
+        const pairsFormed = numbersTaken / 2;
+        // States representing even numbers are taken are only valid.
+        if (numbersTaken % 2) {
+            continue;
+        }
+
+        // We have picked 'pairsFormed' pairs, we try all combinations of one more pair now.
+        // We itearte on two numbers using two nested for loops.
+        for (let firstIndex = 0; firstIndex < nums.length; firstIndex += 1) {
+            for (let secondIndex = firstIndex + 1; secondIndex < nums.length; secondIndex += 1) {
+                // We only choose those numbers which were not already picked.
+                if (((state >> firstIndex) & 1) == 1 || ((state >> secondIndex) & 1) == 1) {
+                    continue;
+                }
+                const currentScore = (pairsFormed + 1) * gcd(nums[firstIndex], nums[secondIndex]);
+                const stateAfterPickingCurrPair = state | (1 << firstIndex) | (1 << secondIndex);
+                const remainingScore = dp[stateAfterPickingCurrPair];
+                dp[state] = Math.max(dp[state], currentScore + remainingScore);
+            }
+        }
+    }
+
+    // Returning score we get from 'n' remaining numbers of array.
+    return dp[0];
+}
+
+// Helper function to find the gcd of two numbers.
+function gcd(a, b) {
+    if (b == 0) {
+        return a;
+    }
+    return gcd(b, a % b);
+}
+    </code>
+    Swift
+    <code>
+        class Solution {
+    func maxScore(_ nums: [Int]) -> Int {
+        let maxStates = 1 << nums.count // 2^(nums array size)
+        let finalMask = maxStates - 1
+
+        // 'dp[i]' stores max score we can get after picking remaining numbers represented by 'i'.
+        var dp = [Int](repeating: 0, count: maxStates)
+
+        // Iterate on all possible states one-by-one.
+        for state in (0...finalMask).reversed() {
+            // If we have picked all numbers, we know we can't get more score as no number is remaining.
+            guard state != finalMask else {
+                dp[state] = 0
+                continue
+            }
+
+            let numbersTaken = state.nonzeroBitCount
+            let pairsFormed = numbersTaken / 2
+            // States representing even numbers are taken are only valid.
+            guard numbersTaken % 2 == 0 else {
+                continue
+            }
+
+            // We have picked 'pairsFormed' pairs, we try all combinations of one more pair now.
+            // We itearte on two numbers using two nested for loops.
+            for firstIndex in 0..<nums.count {
+                                             for secondIndex in (firstIndex + 1)..<nums.count {
+                    // We only choose those numbers which were not already picked.
+                    guard ((state >> firstIndex) & 1 == 0), ((state >> secondIndex) & 1 == 0) else {
+                        continue
+                    }
+                    let currentScore = (pairsFormed + 1) * gcd(nums[firstIndex], nums[secondIndex])
+                    let stateAfterPickingCurrPair = state | (1 << firstIndex) | (1 << secondIndex)
+                    let remainingScore = dp[stateAfterPickingCurrPair]
+                    dp[state] = max(dp[state], currentScore + remainingScore)
+                }
+            }
+        }
+
+        // Returning score we get from 'n' remaining numbers of array.
+        return dp[0]
+    }
+
+    // Helper function to calculate gcd of two numbers
+    func gcd(_ a: Int, _ b: Int) -> Int {
+        if b == 0 {
+            return a
+        }
+        return gcd(b, a % b)
+    }
+}
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def maxScore(self, nums: List[int]) -> int:
+        maxStates = 1 << len(nums) # 2^(nums array size)
+        finalMask = maxStates - 1
+
+        # 'dp[i]' stores max score we can get after picking remaining numbers represented by 'i'.
+        dp = [0] * maxStates
+
+        # Iterate on all possible states one-by-one.
+        for state in range(finalMask, -1, -1):
+            # If we have picked all numbers, we know we can't get more score as no number is remaining.
+            if state == finalMask:
+                dp[state] = 0
+                continue
+
+            numbersTaken = bin(state).count('1')
+            pairsFormed = numbersTaken // 2
+            # States representing even numbers are taken are only valid.
+            if numbersTaken % 2:
+                continue
+
+            # We have picked 'pairsFormed' pairs, we try all combinations of one more pair now.
+            # We iterate on two numbers using two nested for loops.
+            for firstIndex in range(len(nums)):
+                for secondIndex in range(firstIndex + 1, len(nums)):
+                    # We only choose those numbers which were not already picked.
+                    if (state >> firstIndex & 1) == 1 or (state >> secondIndex & 1) == 1:
+                        continue
+                    currentScore = (pairsFormed + 1) * math.gcd(nums[firstIndex], nums[secondIndex])
+                    stateAfterPickingCurrPair = state | (1 << firstIndex) | (1 << secondIndex)
+                    remainingScore = dp[stateAfterPickingCurrPair]
+                    dp[state] = max(dp[state], currentScore + remainingScore)
+
+        # Returning score we get from 'n' remaining numbers of array.
+        return dp[0]
+    </code>
+</pre>
+<h4 id="complexity-analysis-1">Complexity Analysis</h4>
+<p>Here, <span class="math math-inline"><span class="katex"><span class="katex-mathml">m=2∗nm = 2 * n</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.4306em;"></span><span
+        class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+        class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span
+        class="strut" style="height: 0.6444em;"></span><span class="mord">2</span><span class="mspace"
+                                                                                        style="margin-right: 0.2222em;"></span><span
+        class="mbin">∗</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+        class="strut" style="height: 0.4306em;"></span><span
+        class="mord mathnormal">n</span></span></span></span></span> is the number of elements, and <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">AA</span><span class="katex-html"
+                                                                                               aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal">A</span></span></span></span></span>
+    is the maximum value in the <code>nums</code> array.<br>
+    The maximum value of <span class="math math-inline"><span class="katex"><span class="katex-mathml">AA</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.6833em;"></span><span
+            class="mord mathnormal">A</span></span></span></span></span> can be <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">10610^6</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.8141em;"></span><span class="mord">1</span><span
+            class="mord"><span class="mord">0</span><span class="msupsub"><span class="vlist-t"><span
+            class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span
+            class="mord mtight">6</span></span></span></span></span></span></span></span></span></span></span></span>.
+</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(22n⋅(2n)2⋅log⁡A)=O(4n⋅n2⋅log⁡A)O(2^{2n} \cdot (2n)^2 \cdot \log A) = O(4^n \cdot n^2 \cdot \log A)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span
+                class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+                class="mord mtight">2</span><span
+                class="mord mathnormal mtight">n</span></span></span></span></span></span></span></span></span><span
+                class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                class="mopen">(</span><span class="mord">2</span><span class="mord mathnormal">n</span><span
+                class="mclose"><span class="mclose">)</span><span class="msupsub"><span class="vlist-t"><span
+                class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mspace"
+                                                                                                   style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                      style="margin-right: 0.1667em;"></span><span
+                class="mord mathnormal">A</span><span class="mclose">)</span><span class="mspace"
+                                                                                   style="margin-right: 0.2778em;"></span><span
+                class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord"><span class="mord">4</span><span class="msupsub"><span class="vlist-t"><span
+                class="vlist-r"><span class="vlist" style="height: 0.6644em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span
+                class="mord mathnormal mtight">n</span></span></span></span></span></span></span></span><span
+                class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.8141em;"></span><span class="mord"><span
+                class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span
+                class="vlist" style="height: 0.8141em;"><span style="top: -3.063em; margin-right: 0.05em;"><span
+                class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mspace"
+                                                                                                   style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                      style="margin-right: 0.1667em;"></span><span
+                class="mord mathnormal">A</span><span class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>We iterate over <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">2m2^{m}</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 0.6644em;"></span><span class="mord"><span
+                    class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span
+                    class="vlist" style="height: 0.6644em;"><span style="top: -3.063em; margin-right: 0.05em;"><span
+                    class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span
+                    class="mord mtight"><span class="mord mathnormal mtight">m</span></span></span></span></span></span></span></span></span></span></span></span></span>
+                states.
+            </li>
+            <li>And for each state, we find the number of set bits in the current <code>state</code> which in the worst
+                case will take <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡2(2m−1))=O(log⁡22m)=O(m)O(\log_2 (2^m - 1)) = O(\log_2 2^m) = O(m)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mop"><span class="mop">lo<span
+                        style="margin-right: 0.01389em;">g</span></span><span class="msupsub"><span
+                        class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist"
+                                                                             style="height: 0.207em;"><span
+                        style="top: -2.4559em; margin-right: 0.05em;"><span class="pstrut"
+                                                                            style="height: 2.7em;"></span><span
+                        class="sizing reset-size6 size3 mtight"><span
+                        class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span
+                        class="vlist-r"><span class="vlist" style="height: 0.2441em;"><span></span></span></span></span></span></span><span
+                        class="mopen">(</span><span class="mord"><span class="mord">2</span><span class="msupsub"><span
+                        class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.6644em;"><span
+                        style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                        class="sizing reset-size6 size3 mtight"><span
+                        class="mord mathnormal mtight">m</span></span></span></span></span></span></span></span><span
+                        class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">−</span><span
+                        class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+                        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord">1</span><span class="mclose">))</span><span class="mspace"
+                                                                                 style="margin-right: 0.2778em;"></span><span
+                        class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mop"><span class="mop">lo<span
+                        style="margin-right: 0.01389em;">g</span></span><span class="msupsub"><span
+                        class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist"
+                                                                             style="height: 0.207em;"><span
+                        style="top: -2.4559em; margin-right: 0.05em;"><span class="pstrut"
+                                                                            style="height: 2.7em;"></span><span
+                        class="sizing reset-size6 size3 mtight"><span
+                        class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span
+                        class="vlist-r"><span class="vlist" style="height: 0.2441em;"><span></span></span></span></span></span></span><span
+                        class="mspace" style="margin-right: 0.1667em;"></span><span class="mord"><span
+                        class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span
+                        class="vlist" style="height: 0.6644em;"><span style="top: -3.063em; margin-right: 0.05em;"><span
+                        class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span
+                        class="mord mathnormal mtight">m</span></span></span></span></span></span></span></span><span
+                        class="mclose">)</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+                        class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">m</span><span class="mclose">)</span></span></span></span></span>
+                time, then we iterate on all pairs using a nested for loop which will take <span
+                        class="math math-inline"><span class="katex"><span class="katex-mathml">O(m2)O(m^2)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord"><span class="mord mathnormal">m</span><span
+                        class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                          style="height: 0.8141em;"><span
+                        style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                        class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                        class="mclose">)</span></span></span></span></span> time, and for each pair, we perform a gcd
+                operation which will take at most <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(log⁡A)O(\log A)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span
+                        class="mspace" style="margin-right: 0.1667em;"></span><span
+                        class="mord mathnormal">A</span><span class="mclose">)</span></span></span></span></span> time.
+                So, we take <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(m+m2⋅log⁡A)=O(m2⋅log⁡A)O(m + m^2 \cdot \log A) = O(m^2 \cdot \log A)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">m</span><span class="mspace"
+                                                                                          style="margin-right: 0.2222em;"></span><span
+                        class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                        class="base"><span class="strut" style="height: 0.8141em;"></span><span class="mord"><span
+                        class="mord mathnormal">m</span><span class="msupsub"><span class="vlist-t"><span
+                        class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                        style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                        class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                        class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span
+                        class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+                        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                        style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                              style="margin-right: 0.1667em;"></span><span
+                        class="mord mathnormal">A</span><span class="mclose">)</span><span class="mspace"
+                                                                                           style="margin-right: 0.2778em;"></span><span
+                        class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+                        class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord"><span class="mord mathnormal">m</span><span
+                        class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                          style="height: 0.8141em;"><span
+                        style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                        class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                        class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span
+                        class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+                        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                        style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                              style="margin-right: 0.1667em;"></span><span
+                        class="mord mathnormal">A</span><span class="mclose">)</span></span></span></span></span> time.
+            </li>
+            <li>Thus, overall we take <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(2m⋅m2⋅log⁡A)O(2^{m} \cdot m^2 \cdot \log A)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span
+                    class="vlist-r"><span class="vlist" style="height: 0.6644em;"><span
+                    style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                       style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+                    class="mord mathnormal mtight">m</span></span></span></span></span></span></span></span></span><span
+                    class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span
+                    class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut"
+                                                                                                          style="height: 0.8141em;"></span><span
+                    class="mord"><span class="mord mathnormal">m</span><span class="msupsub"><span class="vlist-t"><span
+                    class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                    style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                       style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span
+                    class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                              style="margin-right: 0.1667em;"></span><span
+                    class="mord mathnormal">A</span><span class="mclose">)</span></span></span></span></span> time.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(22n)=O(4n)O(2^{2n}) = O(4^n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span
+                class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+                class="mord mtight">2</span><span
+                class="mord mathnormal mtight">n</span></span></span></span></span></span></span></span></span><span
+                class="mclose">)</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+                class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord"><span class="mord">4</span><span class="msupsub"><span class="vlist-t"><span
+                class="vlist-r"><span class="vlist" style="height: 0.6644em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span
+                class="mord mathnormal mtight">n</span></span></span></span></span></span></span></span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>We keep an additional array <code>dp</code> of size <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">2m=22n2^{m} = 2^{2n}</span><span class="katex-html"
+                                                                                              aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 0.6644em;"></span><span class="mord"><span
+                    class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span
+                    class="vlist" style="height: 0.6644em;"><span style="top: -3.063em; margin-right: 0.05em;"><span
+                    class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span
+                    class="mord mtight"><span class="mord mathnormal mtight">m</span></span></span></span></span></span></span></span></span><span
+                    class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span
+                    class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut"
+                                                                                                          style="height: 0.8141em;"></span><span
+                    class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span
+                    class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                    style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                       style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">2</span><span
+                    class="mord mathnormal mtight">n</span></span></span></span></span></span></span></span></span></span></span></span></span>
+                to store results for all possible states.
+            </li>
+        </ul>
+    </li>
+</ul>
+</body>
+</html>
