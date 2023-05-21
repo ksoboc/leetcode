@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Shortest Bridge - Solution</title>
+</head>
+<body>
+<h2 id="solution">Solution</h2>
+<hr>
+<h3 id="overview">Overview</h3>
+<p>As shown in the examples below, we need to flip at least <strong>3</strong> cells to connect island <code>A</code>
+    and island <code>B</code> in the left case, and flip at least <strong>5</strong> cells in the right case.</p>
+<p><img src="intro.png" alt="img"></p>
+<hr>
+<h3 id="approach-1-depth-first-search--breadth-first-search">Approach 1: Depth-First-Search + Breadth-First-Search</h3>
+<h4 id="intuition">Intuition</h4>
+<p>If you are not familiar with the Depth-First-Search (DFS) or the Breadth-First-Search (BFS) algorithms, please refer
+    to our explore cards:</p>
+<ul>
+    <li><a href="https://leetcode.com/explore/featured/card/graph/619/depth-first-search-in-graph/" target="_blank">Depth-First-Search
+        Explore Card</a></li>
+    <li><a href="https://leetcode.com/explore/featured/card/graph/620/breadth-first-search-in-graph/" target="_blank">Breadth-First-Search
+        Explore Card</a></li>
+</ul>
+<p>In order to find the minimum number of flips required to reach the destination island, or in other words, the minimum
+    distance between the two islands, we can use a combination of DFS and BFS algorithms. Start by finding all the land
+    cells on the first island (let's call it island <code>A</code>) using the DFS method.</p>
+<p>Here's how: we start with one cell of island <code>A</code> and try to move to its four neighboring cells. If there
+    is an unvisited neighboring land cell, we move to that cell and change its value to a number like <code>2</code> to
+    avoid revisiting it again in the future and distinguish it from the land cells of the other island. We then repeat
+    the same strategy from the new cell. If we find that the current cell has no unvisited neighbors, we will backtrack
+    to the previous cell and try the next neighboring cell from there. The numbers on the cells in the following figure
+    represent the order of our visits.</p>
+<p><img src="2.png" alt="img"></p>
+<p>Now that we have found all the cells in island <code>A</code> and set them to <code>2</code>, in <code>grid</code> we
+    have:</p>
+<ul>
+    <li><code>0</code> for the water cells.</li>
+    <li><code>2</code> for the land cells of the first island (island <code>A</code>)</li>
+    <li><code>1</code> for the land cells of the second island (island <code>B</code>)</li>
+</ul>
+<p>Then, we can use BFS to find the shortest distance from island <code>A</code> to island <code>B</code>. Here is the
+    step-by-step process for the BFS algorithm:</p>
+<ol>
+    <li>We start with all the cells in island <code>A</code> as the source, and set <code>distance</code> to
+        <code>0</code>.
+    </li>
+    <li>Add all the cells of island <code>A</code> to a list <code>bfs_queue</code>.</li>
+    <li>While <code>bfs_queue</code> is not empty, we build an empty list <code>new_bfs</code> as the candidate cells
+        for the next BFS round, then we iterate over every cell <code>(x, y)</code> in <code>bfs_queue</code>.
+    </li>
+    <li>Check the four neighbors of <code>(x, y)</code> (up, down, left, and right). If a valid neighbor has value of
+        <code>0</code>, we can mark it as visited by setting the value as <code>-1</code>, then we can add this cell to
+        the list <code>new_bfs</code>. If a neighbor cell has a value of <code>1</code>, it means that we have found a
+        land cell of the second island (island <code>B</code>). Since we are traversing water cells in BFS approach, it
+        means that the first cell of island <code>B</code> we found has the shortest distance from island <code>A</code>
+        among all cells on island <code>B</code>.
+    </li>
+    <li>Once the iteration (current round) ends, if we still haven't reached island <code>B</code>, it means that we
+        should look for cells that have a longer distance from island <code>A</code>. Therefore, we increment <code>distance</code>
+        by 1, set <code>bfs_queue = new_bfs</code>, and repeat step 3.
+    </li>
+</ol>
+<p>This approach is shown in the picture below. The distance of each cell from island <code>A</code> is also shown.</p>
+<ul>
+    <li>We start with all cells in island <code>A</code> that have a distance of 0.</li>
+    <li>In the first round, we visit all water cells that have a distance of 1 from island <code>A</code>.</li>
+    <li>In the second round, we visit all water cells that have a distance of 2 from island <code>A</code>.</li>
+    <li>In the third round, we visit all water cells that have a distance of 3 from island <code>A</code>.</li>
+</ul>
+<p>After 3 rounds of BFS search, we find some land cells of island <code>B</code> being the neighbors of water cells
+    that have a distance of <code>3</code> from island <code>A</code>, we can stop the BFS search.</p>
+<p><img src="4.png" alt="img"></p>
+<p>The shortest distance between the two islands is 3, so we need at least 3 flips (highlighted in yellow) to connect
+    them.</p>
+<blockquote>
+    <p>Note that in this approach we are directly modifying the input to help us distinguish cells. It is generally not
+        good practice to modify the input, and if the interviewer is against it, you can accomplish the same
+        functionality by using a set to store cells that have already been visited instead.</p>
+</blockquote>
+<br>
+<h4 id="algorithm">Algorithm</h4>
+<ol>
+    <li>
+        <p>Iterate over the grid <code>grid</code> until we find a land cell, suppose it is
+            <code>grid[first_x][first_y]</code>.</p>
+    </li>
+    <li>
+        <p>Start from <code>grid[first_x][first_y]</code> and use depth-first search to find and set the values of all
+            cells of the same island (island <code>A</code>) to <code>2</code>.</p>
+    </li>
+    <li>
+        <p>Create a list <code>bfs_queue</code> and add all cells on island <code>A</code> to it, starting with <code>distance
+            = 0</code>.</p>
+    </li>
+    <li>
+        <p>While <code>bfs_queue</code> is not empty, we create another list <code>new_bfs</code> to collect the water
+            cells we need to visit in the next round. Iterate over cells in <code>bfs_queue</code>, for each cell <code>(x,
+                y)</code>:</p>
+        <ul>
+            <li>if <code>grid[x][y] = 1</code>, it means we have reached the second island, return <code>distance</code>.
+            </li>
+            <li>Otherwise, we look for its unvisited water neighbors (cells with value <code>0</code>), mark them as
+                <code>-1</code>, and add them to <code>new_bfs</code>.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Once the iteration ends, set <code>bfs_queue = new_bfs</code>, increment <code>distance</code> by 1, and
+            start the next round by repeating step 4.</p>
+    </li>
+</ol>
+<h4 id="implementation">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    private List<int[]> bfsQueue;
+
+    // Recursively check the neighboring land cell of current cell grid[x][y] and add all
+    // land cells of island A to bfsQueue.
+    private void dfs(int[][] grid, int x, int y, int n) {
+        grid[x][y] = 2;
+        bfsQueue.add(new int[]{x, y});
+        for (int[] pair : new int[][]{{x + 1, y}, {x - 1, y}, {x, y + 1}, {x, y - 1}}) {
+            int curX = pair[0], curY = pair[1];
+            if (0 <= curX && curX < n && 0 <= curY && curY < n && grid[curX][curY] == 1) {
+                dfs(grid, curX, curY, n);
+            }
+        }
+    }
+
+    // Find any land cell, and we treat it as a cell of island A.
+    public int shortestBridge(int[][] grid) {
+        int n = grid.length;
+        int firstX = -1, firstY = -1;
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                if (grid[i][j] == 1) {
+                    firstX = i;
+                    firstY = j;
+                    break;
+                }
+            }
+        }
+
+        // Add all land cells of island A to bfsQueue.
+        bfsQueue = new ArrayList<>();
+        dfs(grid, firstX, firstY, n);
+
+        int distance = 0;
+        while (!bfsQueue.isEmpty()) {
+            List<int[]> newBfs = new ArrayList<>();
+            for (int[] pair : bfsQueue) {
+                int x = pair[0], y = pair[1];
+                for (int[] nextPair : new int[][]{{x + 1, y}, {x - 1, y}, {x, y + 1}, {x, y - 1}}) {
+                    int curX = nextPair[0], curY = nextPair[1];
+                    if (0 <= curX && curX < n && 0 <= curY && curY < n) {
+                        if (grid[curX][curY] == 1) {
+                            return distance;
+                        } else if (grid[curX][curY] == 0) {
+                            newBfs.add(nextPair);
+                            grid[curX][curY] = -1;
+                        }
+                    }
+                }
+            }
+
+            // Once we finish one round without finding land cells of island B, we will
+            // start the next round on all water cells that are 1 cell further away from
+            // island A and increment the distance by 1.
+            bfsQueue = newBfs;
+            distance++;
+        }
+
+        return distance;
+    }
+}
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def shortestBridge(self, grid: List[List[int]]) -> int:
+        n = len(grid)
+        first_x, first_y = -1, -1
+        # Find any land cell, and we treat it as a cell of island A.
+        for i in range(n):
+            for j in range(n):
+                if grid[i][j] == 1:
+                    first_x, first_y = i, j
+                    break
+
+        # Recursively check the neighboring land cell of current cell grid[x][y] and add all
+        # land cells of island A to bfs_queue.
+        def dfs(x, y):
+            grid[x][y] = 2
+            bfs_queue.append((x, y))
+            for cur_x, cur_y in [(x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)]:
+                if 0 <= cur_x < n and 0 <= cur_y < n and grid[cur_x][cur_y] == 1:
+                    dfs(cur_x, cur_y)
+
+        # Add all land cells of island A to bfs_queue.
+        bfs_queue = []
+        dfs(first_x, first_y)
+
+        distance = 0
+        while bfs_queue:
+            new_bfs = []
+            for x, y in bfs_queue:
+                for cur_x, cur_y in [(x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)]:
+                    if 0 <= cur_x < n and 0 <= cur_y < n:
+                        if grid[cur_x][cur_y] == 1:
+                            return distance
+                        elif grid[cur_x][cur_y] == 0:
+                            new_bfs.append((cur_x, cur_y))
+                            grid[cur_x][cur_y] = -1
+
+            # Once we finish one round without finding land cells of island B, we will
+            # start the next round on all water cells that are 1 cell further away from
+            # island A and increment the distance by 1.
+            bfs_queue = new_bfs
+            distance += 1
+    </code>
+</pre>
+<h4 id="complexity-analysis">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">n×nn \times n</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+        class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+        class="mbin">×</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+        class="strut" style="height: 0.4306em;"></span><span
+        class="mord mathnormal">n</span></span></span></span></span> be the size of the input matrix <code>grid</code>.
+</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n2)O(n^2)</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+                class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>
+                <p>The general time complexity of Depth-First-Search is <span class="math math-inline"><span
+                        class="katex"><span class="katex-mathml">O(V+E)O(V + E)</span><span class="katex-html"
+                                                                                            aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal"
+                                                    style="margin-right: 0.22222em;">V</span><span class="mspace"
+                                                                                                   style="margin-right: 0.2222em;"></span><span
+                        class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.05764em;">E</span><span
+                        class="mclose">)</span></span></span></span></span>, where <span class="math math-inline"><span
+                        class="katex"><span class="katex-mathml">VV</span><span class="katex-html"
+                                                                                aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                                style="margin-right: 0.22222em;">V</span></span></span></span></span>
+                    stands for the number of vertices. The maximum number of cells in the first island is <span
+                            class="math math-inline"><span class="katex"><span class="katex-mathml">n2n^2</span><span
+                            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                           style="height: 0.8141em;"></span><span
+                            class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span
+                            class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                               style="height: 2.7em;"></span><span
+                            class="sizing reset-size6 size3 mtight"><span
+                            class="mord mtight">2</span></span></span></span></span></span></span></span></span></span></span></span>,
+                    so iterating over its cells will take <span class="math math-inline"><span class="katex"><span
+                            class="katex-mathml">O(n2)O(n^2)</span><span class="katex-html" aria-hidden="true"><span
+                            class="base"><span class="strut"
+                                               style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                            class="mopen">(</span><span class="mord"><span class="mord mathnormal">n</span><span
+                            class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                              style="height: 0.8141em;"><span
+                            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                               style="height: 2.7em;"></span><span
+                            class="sizing reset-size6 size3 mtight"><span
+                            class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                            class="mclose">)</span></span></span></span></span> time. <span
+                            class="math math-inline"><span class="katex"><span class="katex-mathml">EE</span><span
+                            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                           style="height: 0.6833em;"></span><span
+                            class="mord mathnormal"
+                            style="margin-right: 0.05764em;">E</span></span></span></span></span> is a constant here
+                    since we are only allowed to traverse in up to 4 directions.</p>
+            </li>
+            <li>
+                <p>The general time complexity of Breadth-First-Search is <span class="math math-inline"><span
+                        class="katex"><span class="katex-mathml">O(V+E)O(V + E)</span><span class="katex-html"
+                                                                                            aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal"
+                                                    style="margin-right: 0.22222em;">V</span><span class="mspace"
+                                                                                                   style="margin-right: 0.2222em;"></span><span
+                        class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.05764em;">E</span><span
+                        class="mclose">)</span></span></span></span></span>, where <span class="math math-inline"><span
+                        class="katex"><span class="katex-mathml">VV</span><span class="katex-html"
+                                                                                aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                                style="margin-right: 0.22222em;">V</span></span></span></span></span>
+                    stands for the number of vertices. The maximum number of water cells we need to check before
+                    reaching the second island is <span class="math math-inline"><span class="katex"><span
+                            class="katex-mathml">n2n^2</span><span class="katex-html" aria-hidden="true"><span
+                            class="base"><span class="strut" style="height: 0.8141em;"></span><span class="mord"><span
+                            class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+                            class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                               style="height: 2.7em;"></span><span
+                            class="sizing reset-size6 size3 mtight"><span
+                            class="mord mtight">2</span></span></span></span></span></span></span></span></span></span></span></span>,
+                    which will take <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n2)O(n^2)</span><span
+                            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                           style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                            class="mopen">(</span><span class="mord"><span class="mord mathnormal">n</span><span
+                            class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                              style="height: 0.8141em;"><span
+                            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                               style="height: 2.7em;"></span><span
+                            class="sizing reset-size6 size3 mtight"><span
+                            class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                            class="mclose">)</span></span></span></span></span> time.</p>
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n2)O(n^2)</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+                class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>
+                <p>The general space complexity of Depth-First-Search is <span class="math math-inline"><span
+                        class="katex"><span class="katex-mathml">O(V)O(V)</span><span class="katex-html"
+                                                                                      aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal"
+                                                    style="margin-right: 0.22222em;">V</span><span
+                        class="mclose">)</span></span></span></span></span>, where <span class="math math-inline"><span
+                        class="katex"><span class="katex-mathml">VV</span><span class="katex-html"
+                                                                                aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                                style="margin-right: 0.22222em;">V</span></span></span></span></span>
+                    stands for the number of vertices. The maximum number of cells in the first island is <span
+                            class="math math-inline"><span class="katex"><span class="katex-mathml">O2O^2</span><span
+                            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                           style="height: 0.8141em;"></span><span
+                            class="mord"><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                            class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                              style="height: 0.8141em;"><span
+                            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                               style="height: 2.7em;"></span><span
+                            class="sizing reset-size6 size3 mtight"><span
+                            class="mord mtight">2</span></span></span></span></span></span></span></span></span></span></span></span>,
+                    thus the space used by the recursive stack during DFS is <span class="math math-inline"><span
+                            class="katex"><span class="katex-mathml">O(n2)O(n^2)</span><span class="katex-html"
+                                                                                             aria-hidden="true"><span
+                            class="base"><span class="strut"
+                                               style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                            class="mopen">(</span><span class="mord"><span class="mord mathnormal">n</span><span
+                            class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                              style="height: 0.8141em;"><span
+                            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                               style="height: 2.7em;"></span><span
+                            class="sizing reset-size6 size3 mtight"><span
+                            class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                            class="mclose">)</span></span></span></span></span></p>
+            </li>
+            <li>
+                <p>The general space complexity of Breadth-First-Search is <span class="math math-inline"><span
+                        class="katex"><span class="katex-mathml">O(V)O(V)</span><span class="katex-html"
+                                                                                      aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal"
+                                                    style="margin-right: 0.22222em;">V</span><span
+                        class="mclose">)</span></span></span></span></span>, where <span class="math math-inline"><span
+                        class="katex"><span class="katex-mathml">VV</span><span class="katex-html"
+                                                                                aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                                style="margin-right: 0.22222em;">V</span></span></span></span></span>
+                    stands for the number of vertices. The maximum number of water cells we need to check using BFS
+                    before reaching the second island is <span class="math math-inline"><span class="katex"><span
+                            class="katex-mathml">n2n^2</span><span class="katex-html" aria-hidden="true"><span
+                            class="base"><span class="strut" style="height: 0.8141em;"></span><span class="mord"><span
+                            class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+                            class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                               style="height: 2.7em;"></span><span
+                            class="sizing reset-size6 size3 mtight"><span
+                            class="mord mtight">2</span></span></span></span></span></span></span></span></span></span></span></span>,
+                    thus the space used by the queue is <span class="math math-inline"><span class="katex"><span
+                            class="katex-mathml">O(n2)O(n^2)</span><span class="katex-html" aria-hidden="true"><span
+                            class="base"><span class="strut"
+                                               style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                            class="mopen">(</span><span class="mord"><span class="mord mathnormal">n</span><span
+                            class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                              style="height: 0.8141em;"><span
+                            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                               style="height: 2.7em;"></span><span
+                            class="sizing reset-size6 size3 mtight"><span
+                            class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                            class="mclose">)</span></span></span></span></span>.</p>
+            </li>
+            <li>
+                <p>To sum up, the overall space complexity is <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(n2)O(n^2)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord"><span class="mord mathnormal">n</span><span
+                        class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                          style="height: 0.8141em;"><span
+                        style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                        class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                        class="mclose">)</span></span></span></span></span></p>
+            </li>
+        </ul>
+    </li>
+</ul>
+<br>
+<hr>
+<h3 id="approach-2-breadth-first-search">Approach 2: Breadth-First-Search</h3>
+<h4 id="intuition-1">Intuition</h4>
+<p>In this approach, we will use the same strategy as in the previous approach, but we will use BFS instead of DFS to
+    search for all cells of island <code>A</code>. Again, we will first traverse <code>grid</code>, take the first land
+    found (assume it is <code>grid[first_x][first_y]</code>) and treat it as a land cell of Island <code>A</code>. Then,
+    we BFS over all cells of island <code>A</code> and set their values to <code>2</code> to distinguish them from the
+    other island.</p>
+<p><img src="3.png" alt="img"></p>
+<br>
+<h4 id="algorithm-1">Algorithm</h4>
+<ol>
+    <li>
+        <p>Iterate over the <code>grid</code> until we find the first land cell, suppose it is <code>grid[first_x][first_y]</code>.
+        </p>
+    </li>
+    <li>
+        <p>Create:</p>
+        <ul>
+            <li>a list <code>bfs_queue</code> and add <code>grid[first_x][first_y]</code> on island <code>A</code> to
+                it.
+            </li>
+            <li>an empty list <code>new_bfs</code> for the next round's search.</li>
+            <li>an empty list <code>second_bfs_queue</code> for searching the distance between two islands later.</li>
+        </ul>
+    </li>
+    <li>
+        <p>Iterate over <code>bfs_queue</code>, for each cell <code>grid[x][y]</code>, if <code>grid[x][y] = 1</code>:
+        </p>
+        <ul>
+            <li>set <code>grid[x][y] = 2</code></li>
+            <li>add <code>(x, y)</code> to <code>new_bfs</code> for the next round's search.</li>
+            <li>add <code>(x, y)</code> to <code>second_bfs_queue</code> for searching over water cells later.</li>
+        </ul>
+    </li>
+    <li>
+        <p>If <code>new_bfs</code> is not empty, we set <code>bfs_queue = new_bfs</code> and repeat step 3. Otherwise,
+            move on to step 5.</p>
+    </li>
+    <li>
+        <p>Set <code>distance = 0</code>.</p>
+    </li>
+    <li>
+        <p>Now we start BFS on water cells. While <code>second_bfs_queue</code> is not empty, we create an empty list
+            <code>new_bfs</code> to collect the cells we need to visit in the next round. Iterate over cells in <code>second_bfs_queue</code>,
+            for each cell <code>(x, y)</code>:</p>
+        <ul>
+            <li>if <code>grid[x][y] = 1</code>, it means we have reached the second island, return <code>distance</code>.
+            </li>
+            <li>Otherwise, we look for its unvisited water neighbors (cells with value of <code>0</code>), mark them as
+                <code>-1</code> and add them to <code>new_bfs</code>.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Once the iteration ends, set <code>second_bfs_queue = new_bfs</code>, increment <code>distance</code> by 1,
+            and repeat the step 4.</p>
+    </li>
+</ol>
+<h4 id="implementation-1">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int shortestBridge(int[][] grid) {
+        int n = grid.length;
+        int firstX = -1, firstY = -1;
+
+        // Find any land cell, and we treat it as a cell of island A.
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                if (grid[i][j] == 1) {
+                    firstX = i;
+                    firstY = j;
+                    break;
+                }
+            }
+        }
+
+        // bfsQueue for BFS on land cells of island A; secondBfsQueue for BFS on water cells.
+        List<int[]> bfsQueue = new ArrayList<>();
+        List<int[]> secondBfsQueue = new ArrayList<>();
+        bfsQueue.add(new int[]{firstX, firstY});
+        secondBfsQueue.add(new int[]{firstX, firstY});
+        grid[firstX][firstY] = 2;
+
+        // BFS for all land cells of island A and add them to secondBfsQueue.
+        while (!bfsQueue.isEmpty()) {
+            List<int[]> newBfs = new ArrayList<>();
+            for (int[] cell : bfsQueue) {
+                int x = cell[0];
+                int y = cell[1];
+                for (int[] next : new int[][]{{x + 1, y}, {x - 1, y}, {x, y + 1}, {x, y - 1}}) {
+                    int curX = next[0];
+                    int curY = next[1];
+                    if (curX >= 0 && curX < n && curY >= 0 && curY < n && grid[curX][curY] == 1) {
+                        newBfs.add(new int[]{curX, curY});
+                        secondBfsQueue.add(new int[]{curX, curY});
+                        grid[curX][curY] = 2;
+                    }
+                }
+            }
+            bfsQueue = newBfs;
+        }
+
+        int distance = 0;
+        while (!secondBfsQueue.isEmpty()) {
+            List<int[]> newBfs = new ArrayList<>();
+            for (int[] cell : secondBfsQueue) {
+                int x = cell[0];
+                int y = cell[1];
+                for (int[] next : new int[][]{{x + 1, y}, {x - 1, y}, {x, y + 1}, {x, y - 1}}) {
+                    int curX = next[0];
+                    int curY = next[1];
+                    if (curX >= 0 && curX < n && curY >= 0 && curY < n) {
+                        if (grid[curX][curY] == 1) {
+                            return distance;
+                        } else if (grid[curX][curY] == 0) {
+                            newBfs.add(new int[]{curX, curY});
+                            grid[curX][curY] = -1;
+                        }
+                    }
+                }
+            }
+
+            // Once we finish one round without finding land cells of island B, we will
+            // start the next round on all water cells that are 1 cell further away from
+            // island A and increment the distance by 1.
+            secondBfsQueue = newBfs;
+            distance++;
+        }
+        return distance;
+    }
+}
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def shortestBridge(self, grid: List[List[int]]) -> int:
+        n = len(grid)
+        first_x, first_y = -1, -1
+
+        # Find any land cell, and we treat it as a cell of island A.
+        for i in range(n):
+            for j in range(n):
+                if grid[i][j] == 1:
+                    first_x, first_y = i, j
+                    break
+
+        # bfsQueue for BFS on land cells of island A; secondBfsQueue for BFS on water cells.
+        bfs_queue = [(first_x, first_y)]
+        second_bfs_queue = [(first_x, first_y)]
+        grid[first_x][first_y] = 2
+
+        # BFS for all land cells of island A and add them to second_bfs_queue.
+        while bfs_queue:
+            new_bfs = []
+            for x, y in bfs_queue:
+                for cur_x, cur_y in [(x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)]:
+                    if 0 <= cur_x < n and 0 <= cur_y < n and grid[cur_x][cur_y] == 1:
+                        new_bfs.append((cur_x, cur_y))
+                        second_bfs_queue.append((cur_x, cur_y))
+                        grid[cur_x][cur_y] = 2
+            bfs_queue = new_bfs
+
+        distance = 0
+        while second_bfs_queue:
+            new_bfs = []
+            for x, y in second_bfs_queue:
+                for cur_x, cur_y in [(x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)]:
+                    if 0 <= cur_x < n and 0 <= cur_y < n:
+                        if grid[cur_x][cur_y] == 1:
+                            return distance
+                        elif grid[cur_x][cur_y] == 0:
+                            new_bfs.append((cur_x, cur_y))
+                            grid[cur_x][cur_y] = -1
+
+            # Once we finish one round without finding land cells of island B, we will
+            # start the next round on all water cells that are 1 cell further away from
+            # island A and increment the distance by 1.
+            second_bfs_queue = new_bfs
+            distance += 1
+    </code>
+</pre>
+<h4 id="complexity-analysis-1">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">n×nn \times n</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+        class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+        class="mbin">×</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+        class="strut" style="height: 0.4306em;"></span><span
+        class="mord mathnormal">n</span></span></span></span></span> be the size of the input matrix <code>grid</code>.
+</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n2)O(n^2)</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+                class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>The maximum number of water cells and the maximum number of land cells in island <code>A</code> we need
+                to check are <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">n2n^2</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                        class="strut" style="height: 0.8141em;"></span><span class="mord"><span class="mord mathnormal">n</span><span
+                        class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                          style="height: 0.8141em;"><span
+                        style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                        class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span></span></span></span></span>,
+                which will take <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n2)O(n^2)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord"><span class="mord mathnormal">n</span><span
+                        class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                          style="height: 0.8141em;"><span
+                        style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                        class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                        class="mclose">)</span></span></span></span></span> time.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n2)O(n^2)</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+                class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>The maximum number of land cells of island <code>A</code> that we need to check with BFS is <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">n2n^2</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.8141em;"></span><span
+                    class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+                    class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                    style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                       style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span
+                    class="mord mtight">2</span></span></span></span></span></span></span></span></span></span></span></span>,
+                thus the space used by <code>bfs_queue</code> is <span class="math math-inline"><span
+                        class="katex"><span class="katex-mathml">O(n2)O(n^2)</span><span class="katex-html"
+                                                                                         aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord"><span class="mord mathnormal">n</span><span
+                        class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                          style="height: 0.8141em;"><span
+                        style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                        class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                        class="mclose">)</span></span></span></span></span>.
+            </li>
+            <li>The maximum number of water cells we need to check using BFS before reaching the second island is <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">n2n^2</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.8141em;"></span><span
+                    class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+                    class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                    style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                       style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span
+                    class="mord mtight">2</span></span></span></span></span></span></span></span></span></span></span></span>,
+                thus the space used by <code>second_bfs_queue</code> is also <span class="math math-inline"><span
+                        class="katex"><span class="katex-mathml">O(n2)O(n^2)</span><span class="katex-html"
+                                                                                         aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord"><span class="mord mathnormal">n</span><span
+                        class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                          style="height: 0.8141em;"><span
+                        style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                        class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                        class="mclose">)</span></span></span></span></span>.
+            </li>
+            <li>To sum up, the overall space complexity is <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(n2)O(n^2)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+                    class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                    style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                       style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span
+                    class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                    class="mclose">)</span></span></span></span></span></li>
+        </ul>
+    </li>
+</ul>
+<br>
+</body>
+</html>
