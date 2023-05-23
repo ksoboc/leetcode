@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Kth Largest Element in a Stream - Solution</title>
+</head>
+<body>
+<h2 id="solution">Solution</h2>
+<hr>
+<h4 id="approach-heap">Approach: Heap</h4>
+<p>This problem is a perfect one to be solved with a heap, also known as a priority queue. If you don't know what a heap
+    is, then this article should help get you up to speed. In this article, we'll discuss the basics of what a heap does
+    and how to use one. If you're interested in the theory behind the implementation of a heap, <a
+            href="https://en.wikipedia.org/wiki/Heap_(data_structure)#Implementation" target="_blank">here</a> is a
+    resource for that.</p>
+<p>In short, a heap is a data structure that is capable of giving you the smallest (or largest) element (by some
+    criteria) in constant time, while also being able to add elements and remove the smallest (or largest) element in
+    only logarithmic time. Imagine if you wanted to replicate this functionality naively with an array. To make sure we
+    can find the smallest element in constant time, let's just keep our array sorted, so that the last element is always
+    the largest (or smallest, depending on if we're sorting in ascending or descending order). Removing the
+    largest/smallest element will take O(1) time as we are popping from the end of the array. However, to add a new
+    element, we first need to find where the element should be inserted and then insert it by shifting the array, which
+    requires O(n) time. Now, there are potential improvements to this approach, like using a deque for removals and
+    insertions and binary searching to find insertion points, but the point is that a heap makes it so we don't need to
+    worry about any of that.</p>
+<p>In summary, a heap:</p>
+<ul>
+    <li>Stores elements, and can find the smallest (min-heap) or largest (max-heap) element stored in <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord">1</span><span class="mclose">)</span></span></span></span></span>.
+    </li>
+    <li>Can add elements and remove the smallest (min-heap) or largest (max-heap) element in <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡(n))O(\log(n))</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mopen">(</span><span
+            class="mord mathnormal">n</span><span class="mclose">))</span></span></span></span></span>.
+    </li>
+    <li>Can perform insertions and removals while always maintaining the first property.</li>
+</ul>
+<p>The capability to remove and insert elements in <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">log⁡(n)\log(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+        style="margin-right: 0.01389em;">g</span></span><span class="mopen">(</span><span
+        class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> time makes heaps
+    extremely useful. For example, many problems that can be naively solved in <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">O(n2)O(n^2)</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+            class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span
+            class="mord mtight">2</span></span></span></span></span></span></span></span><span
+            class="mclose">)</span></span></span></span></span> time, can be solved in <span
+            class="math math-inline"><span class="katex"><span
+            class="katex-mathml">O(n⋅log⁡(n))O(n \cdot \log(n))</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mopen">(</span><span
+            class="mord mathnormal">n</span><span class="mclose">))</span></span></span></span></span> time by using a
+    heap. To put this in perspective, for an input size of <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">n=105n = 10^5</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.4306em;"></span><span
+            class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+            class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.8141em;"></span><span class="mord">1</span><span
+            class="mord"><span class="mord">0</span><span class="msupsub"><span class="vlist-t"><span
+            class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span
+            class="mord mtight">5</span></span></span></span></span></span></span></span></span></span></span></span>
+    elements, <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">n⋅log⁡(n)n \cdot \log(n)</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.4445em;"></span><span
+            class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mopen">(</span><span
+            class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> is over <strong>6000</strong>
+    times smaller than <span class="math math-inline"><span class="katex"><span class="katex-mathml">n2n^2</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.8141em;"></span><span
+            class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+            class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span
+            class="mord mtight">2</span></span></span></span></span></span></span></span></span></span></span></span>.
+</p>
+<p>So now that we know what a heap does, how does it help solve this problem? Let's say we have some stream of numbers,
+    <code>nums = [6, 2, 3, 1, 7]</code>, and <code>k = 3</code>. Because the input is small, we can clearly see the kth
+    smallest element is <code>3</code>. Although, earlier we said that a heap can only find an element in <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord">1</span><span class="mclose">)</span></span></span></span></span> time if it's a minimum or
+    maximum (depending on choice of implementation). Well, a heap is also capable of removing the smallest element
+    quickly, so what if we just keep removing the smallest element from <code>nums</code> until <code>nums.length ==
+        k</code>? In this case, we would have <code>nums = [3, 6, 7]</code>, and a heap can now give us our answer in
+    <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord">1</span><span class="mclose">)</span></span></span></span></span> time.</p>
+<p>That's the key to solving this problem - use a min-heap (min means that the heap will remove/find the smallest
+    element, a max heap is the same thing but for the largest element) and keep the heap at size <code>k</code>. That
+    way, the smallest element in the heap (the one we can access in <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord">1</span><span class="mclose">)</span></span></span></span></span>) will always be the kth
+    largest element. This way, when adding a number to the heap with <code>add()</code>, we can do it very quickly in
+    <span class="math math-inline"><span class="katex"><span class="katex-mathml">log⁡(n)\log(n)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mopen">(</span><span
+            class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> time. If our heap
+    exceeds size <code>k</code>, then we can also remove it very quickly. In the end, the smallest element in the heap
+    will be the answer.</p>
+<p><strong>Algorithm</strong></p>
+<ol>
+    <li>
+        <p>In the constructor, create a min heap using the elements from <code>nums</code>. Then, pop from the heap
+            until <code>heap.length == k</code>.</p>
+    </li>
+    <li>
+        <p>For every call to <code>add()</code>:</p>
+        <ul>
+            <li>First, push <code>val</code> into <code>heap</code>.</li>
+            <li>Next, check if <code>heap.length &gt; k</code>. If so, pop from the heap.</li>
+            <li>Finally, return the smallest value from the heap, which we can get in <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord">1</span><span class="mclose">)</span></span></span></span></span> time.
+            </li>
+        </ul>
+    </li>
+</ol>
+<p>
+<div class="relative mx-auto mb-6 flex flex-col overflow-hidden rounded-lg border-[1px] border-label-1"
+     style="max-width: 960px;">
+    <div class="rounded-lg" style="max-height: 540px;"><img alt="Current"
+                                                            class="object-fit-contain !mb-0 max-h-full max-w-full"
+                                                            src="blob:https://leetcode.com/2b14bf99-07da-438b-a30b-d12c4194724a">
+    </div>
+    <div class="absolute top-[50%] left-[50%] flex h-12 w-12 translate-x-[-50%] translate-y-[-50%] items-center justify-center rounded-full bg-black/30">
+        <div class="flex h-4 w-4 cursor-pointer items-center justify-center text-[35px]">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="h-full w-full text-white">
+                <path fill-rule="evenodd"
+                      d="M18.97 12.871l-12.96 7.29a1 1 0 01-1.49-.87V4.71a1 1 0 011.49-.872l12.96 7.29a1 1 0 010 1.743z"
+                      clip-rule="evenodd"></path>
+            </svg>
+        </div>
+    </div>
+    <div class="relative flex h-8 select-none items-center justify-around bg-black">
+        <div class="flex items-center space-x-7">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M16.091 4.929l-7.057 7.078 7.057 7.064a1 1 0 01-1.414 1.414l-7.764-7.77a1 1 0 010-1.415l7.764-7.785a1 1 0 111.415 1.414z"
+                      clip-rule="evenodd"></path>
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M18.97 12.871l-12.96 7.29a1 1 0 01-1.49-.87V4.71a1 1 0 011.49-.872l12.96 7.29a1 1 0 010 1.743z"
+                      clip-rule="evenodd"></path>
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M7.913 19.071l7.057-7.078-7.057-7.064a1 1 0 011.414-1.414l7.764 7.77a1 1 0 010 1.415l-7.764 7.785a1 1 0 01-1.414-1.414z"
+                      clip-rule="evenodd"></path>
+            </svg>
+        </div>
+        <div class="absolute right-0 mr-5 text-xs font-medium text-white">1 / 6</div>
+    </div>
+</div>
+</p>
+<br>
+<p><strong>Implementation</strong></p>
+<p>Most languages have built-in implementations for heaps. For the below code, we're using Java's <a
+        href="https://docs.oracle.com/javase/7/docs/api/java/util/PriorityQueue.html" target="_blank">priority queue</a>
+    and Python's <a href="https://docs.python.org/3/library/heapq.html" target="_blank">heapq</a> modules.</p>
+<pre>
+    Java
+    <code>
+        class KthLargest {
+    private static int k;
+    private PriorityQueue<Integer> heap;
+
+    public KthLargest(int k, int[] nums) {
+        this.k = k;
+        heap = new PriorityQueue<>();
+
+        for (int num: nums) {
+            heap.offer(num);
+        }
+
+        while (heap.size() > k) {
+            heap.poll();
+        }
+    }
+
+    public int add(int val) {
+        heap.offer(val);
+        if (heap.size() > k) {
+            heap.poll();
+        }
+
+        return heap.peek();
+    }
+}
+    </code>
+    Python3
+    <code>
+        class KthLargest:
+    def __init__(self, k: int, nums: List[int]):
+        self.k = k
+        self.heap = nums
+        heapq.heapify(self.heap)
+
+        while len(self.heap) > k:
+            heapq.heappop(self.heap)
+
+    def add(self, val: int) -> int:
+        heapq.heappush(self.heap, val)
+        if len(self.heap) > self.k:
+            heapq.heappop(self.heap)
+        return self.heap[0]
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<p>Given <span class="math math-inline"><span class="katex"><span class="katex-mathml">NN</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                style="margin-right: 0.10903em;">N</span></span></span></span></span>
+    as the length of <code>nums</code> and <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">MM</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                 style="margin-right: 0.10903em;">M</span></span></span></span></span>
+    as the number of calls to <code>add()</code>,</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(N⋅log⁡(N)+M⋅log⁡(k))O(N \cdot \log(N) + M \cdot \log(k))</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span class="mspace"
+                                                                                       style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                style="margin-right: 0.01389em;">g</span></span><span class="mopen">(</span><span
+                class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span class="mclose">)</span><span
+                class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                        style="margin-right: 0.10903em;">M</span><span
+                class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                style="margin-right: 0.01389em;">g</span></span><span class="mopen">(</span><span
+                class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                class="mclose">))</span></span></span></span></span></p>
+        <p>The time complexity is split into two parts. First, the constructor needs to turn <code>nums</code> into a
+            heap of size <code>k</code>. In Python, <code>heapq.heapify()</code> can turn <code>nums</code> into a heap
+            in <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(N)O(N)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                    class="mclose">)</span></span></span></span></span> time. Then, we need to remove from the heap
+            until there are only <code>k</code> elements in it, which means removing <code>N - k</code> elements. Since
+            <code>k</code> can be, say 1, in terms of big <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">OO</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                    class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                         style="margin-right: 0.02778em;">O</span></span></span></span></span>
+            this is <code>N</code> operations, with each operation costing <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">log⁡(N)\log(N)</span><span class="katex-html"
+                                                                                        aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span
+                    class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                    class="mclose">)</span></span></span></span></span>. Therefore, the constructor costs <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(N+N⋅log⁡(N))=O(N⋅log⁡(N))O(N + N \cdot \log(N)) = O(N \cdot \log(N))</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span class="mspace"
+                                                                                           style="margin-right: 0.2222em;"></span><span
+                    class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                            style="margin-right: 0.10903em;">N</span><span
+                    class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span
+                    class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut"
+                                                                                                          style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span
+                    class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                    class="mclose">))</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+                    class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span class="mspace"
+                                                                                           style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span
+                    class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                    class="mclose">))</span></span></span></span></span>.</p>
+        <p>Next, every call to <code>add()</code> involves adding an element to <code>heap</code> and potentially
+            removing an element from <code>heap</code>. Since our heap is of size <code>k</code>, every call to <code>add()</code>
+            at worst costs <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(2∗log⁡(k))=O(log⁡(k))O(2 * \log(k)) = O(\log(k))</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord">2</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">∗</span><span
+                    class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut"
+                                                                                                          style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span
+                    class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                    class="mclose">))</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+                    class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span
+                    class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                    class="mclose">))</span></span></span></span></span>. That means <code>M</code> calls to
+            <code>add()</code> costs <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(M⋅log⁡(k))O(M \cdot \log(k))</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">M</span><span class="mspace"
+                                                                                           style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span
+                    class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                    class="mclose">))</span></span></span></span></span>.</p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(N)O(N)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <p>The only extra space we use is the <code>heap</code>. While during <code>add()</code> calls we limit the size
+            of the heap to <code>k</code>, in the constructor we start by converting <code>nums</code> into a heap,
+            which means the heap will initially be of size <code>N</code>.</p>
+    </li>
+</ul>
+<br>
+<hr>
+</body>
+</html>
