@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Maximum Subsequence Score - Solution</title>
+</head>
+<body>
+<h2 id="solution">Solution</h2>
+<hr>
+<h3 id="overview">Overview</h3>
+<p>As shown in the picture below, if we select the index <code>0</code>, <code>2</code>, and <code>3</code>, the score
+    is defined as <strong>the product</strong> of the following two terms:</p>
+<ul>
+    <li>The sum of all selected <code>nums1[i]</code>, <code>sum = 1 + 3 + 2 = 6</code>.</li>
+    <li>The minimum one from the selected <code>nums2[i]</code>, <code>min = min(2, 3, 4) = 2</code>.</li>
+</ul>
+<p><img src="1.png" alt="img"></p>
+<p>Thus the score equals <code>6 * 2 = 12</code>. Our task is to find the maximum score if we pick <code>k</code>
+    indexes.</p>
+<hr>
+<h3 id="approach-priority-queue">Approach: Priority Queue</h3>
+<h4 id="intuition">Intuition</h4>
+<p>Start with a brute force approach, if we find the maximum score by checking all groups of indexes with size
+    <code>k</code>, there are <span class="math math-inline"><span class="katex"><span class="katex-mathml">(nk)=n!k!(n−k)!{n \choose k} = {{n!}\over{k! (n - k)!}}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1.2em; vertical-align: -0.35em;"></span><span
+            class="mord"><span class="mord"><span class="mopen delimcenter" style="top: 0em;"><span
+            class="delimsizing size1">(</span></span><span class="mfrac"><span class="vlist-t vlist-t2"><span
+            class="vlist-r"><span class="vlist" style="height: 0.7454em;"><span style="top: -2.355em;"><span
+            class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span
+            class="mord mtight"><span class="mord mathnormal mtight"
+                                      style="margin-right: 0.03148em;">k</span></span></span></span><span
+            style="top: -3.144em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+            class="mord mathnormal mtight">n</span></span></span></span></span><span
+            class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                       style="height: 0.345em;"><span></span></span></span></span></span><span
+            class="mclose delimcenter" style="top: 0em;"><span
+            class="delimsizing size1">)</span></span></span></span><span class="mspace"
+                                                                         style="margin-right: 0.2778em;"></span><span
+            class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 1.4001em; vertical-align: -0.52em;"></span><span
+            class="mord"><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span
+            class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.8801em;"><span
+            style="top: -2.655em;"><span class="pstrut" style="height: 3em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight"
+                                                                                    style="margin-right: 0.03148em;">k</span><span
+            class="mclose mtight">!</span><span class="mopen mtight">(</span><span
+            class="mord mathnormal mtight">n</span><span class="mbin mtight">−</span><span
+            class="mord mathnormal mtight" style="margin-right: 0.03148em;">k</span><span
+            class="mclose mtight">)!</span></span></span></span><span style="top: -3.23em;"><span class="pstrut"
+                                                                                                  style="height: 3em;"></span><span
+            class="frac-line" style="border-bottom-width: 0.04em;"></span></span><span style="top: -3.394em;"><span
+            class="pstrut" style="height: 3em;"></span><span class="sizing reset-size6 size3 mtight"><span
+            class="mord mtight"><span class="mord mathnormal mtight">n</span><span class="mclose mtight">!</span></span></span></span></span><span
+            class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                       style="height: 0.52em;"><span></span></span></span></span></span><span
+            class="mclose nulldelimiter"></span></span></span></span></span></span></span> possibilities. We can't
+    afford to check them one by one.</p>
+<p>Let's first focus on the minimum of the selected elements from <code>nums2</code>. If we pick <code>nums2[i]</code>
+    as the minimum, it means the other <code>k - 1</code> selected elements from <code>nums2</code> are larger or equal
+    to <code>nums2[i]</code>.</p>
+<p>We can thus take advantage of this restriction on the selection by sorting <code>nums2</code>, which can reduce the
+    time complexity. Assume that we have sorted <code>nums2</code> by decreasing order (Note that we can't change the
+    relative order of <code>nums1</code> and <code>nums2</code>, so its better to store each pair as <code>(nums1[i],
+        nums2[i])</code> and sort the collection of pairs according to <code>nums2[i]</code>).</p>
+<p>As shown in the picture below, if we pick <code>nums2[i]</code> (colored in red) as the minimum selected element from
+    <code>nums2</code>, we can freely select the rest <code>k - 1</code> indexes to the left of <code>i</code> without
+    changing the second term: minimum of the selected elements from <code>nums2</code>.</p>
+<p><img src="2.png" alt="img"></p>
+<p>Recall the definition of the score, the second term has been fixed as <code>nums2[i]</code>, so we can maximzie the
+    total score by maximizing the first term, that is, by selecting the maximum <code>k</code> elements from
+    <code>nums1</code> including <code>nums1[i]</code>.</p>
+<p><img src="3.png" alt="img"></p>
+<p>This can be done efficiently by maintaining a min-heap that always contains the largest <code>k</code> elements we
+    have seen. Whenever we pick a new <code>nums2[i]</code> as the minimum from <code>nums2</code>, we shall remove one
+    element from the heap (which represents removing a <code>nums1</code> number and add <code>nums[i]</code> to it. Now
+    the heap contains the largest <code>k</code> element including <code>nums1[i]</code> again, the current score equals
+    the sum of this heap times <code>nums2[i]</code>.</p>
+<p>We can iterate over <code>nums2</code> and repeat the above process. At each step, we calculate the current score and
+    update <code>answer</code> as the maximum score we have met.</p>
+<p>Take the following slides as an example:</p>
+<p>
+<div class="relative mx-auto mb-6 flex flex-col overflow-hidden rounded-lg border-[1px] border-label-1"
+     style="max-width: 601px;">
+    <div class="rounded-lg" style="max-height: 301px;"><img alt="Current"
+                                                            class="object-fit-contain !mb-0 max-h-full max-w-full"
+                                                            src="blob:https://leetcode.com/0798d507-4adc-468d-9a85-e669ffabfb74">
+    </div>
+    <div class="absolute top-[50%] left-[50%] flex h-12 w-12 translate-x-[-50%] translate-y-[-50%] items-center justify-center rounded-full bg-black/30">
+        <div class="flex h-4 w-4 cursor-pointer items-center justify-center text-[35px]">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="h-full w-full text-white">
+                <path fill-rule="evenodd"
+                      d="M18.97 12.871l-12.96 7.29a1 1 0 01-1.49-.87V4.71a1 1 0 011.49-.872l12.96 7.29a1 1 0 010 1.743z"
+                      clip-rule="evenodd"></path>
+            </svg>
+        </div>
+    </div>
+    <div class="relative flex h-8 select-none items-center justify-around bg-black">
+        <div class="flex items-center space-x-7">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M16.091 4.929l-7.057 7.078 7.057 7.064a1 1 0 01-1.414 1.414l-7.764-7.77a1 1 0 010-1.415l7.764-7.785a1 1 0 111.415 1.414z"
+                      clip-rule="evenodd"></path>
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M18.97 12.871l-12.96 7.29a1 1 0 01-1.49-.87V4.71a1 1 0 011.49-.872l12.96 7.29a1 1 0 010 1.743z"
+                      clip-rule="evenodd"></path>
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M7.913 19.071l7.057-7.078-7.057-7.064a1 1 0 011.414-1.414l7.764 7.77a1 1 0 010 1.415l-7.764 7.785a1 1 0 01-1.414-1.414z"
+                      clip-rule="evenodd"></path>
+            </svg>
+        </div>
+        <div class="absolute right-0 mr-5 text-xs font-medium text-white">1 / 3</div>
+    </div>
+</div>
+</p>
+<br>
+<h4 id="algorithm">Algorithm</h4>
+<ol>
+    <li>
+        <p>Store every pair <code>(nums1[i], nums2[i])</code> in array <code>pairs</code>, and sort <code>pairs</code>
+            by the second element (<code>nums2[i]</code>) in decreasing order.</p>
+    </li>
+    <li>
+        <p>Use a min-heap <code>top_k_heap</code> to store the first <code>k</code> <code>nums1[i]</code> and a variable
+            <code>top_k_sum</code> to store their sum.</p>
+    </li>
+    <li>
+        <p>Initialize <code>answer</code> as the sum of elements in <code>top_k_heap</code> (i.e. <code>top_k_sum</code>)
+            times <code>pairs[k - 1][1]</code>.</p>
+    </li>
+    <li>
+        <p>Iterate over indices starting from <code>k</code>, at each index <code>i</code>:</p>
+        <ul>
+            <li>Remove the smallest element stored in <code>top_k_heap</code> and from <code>top_k_sum</code>.</li>
+            <li>Add the current <code>nums1[i]</code> to the heap and <code>top_k_sum</code>.</li>
+            <li>Get the current score as the sum of <code>top_k_heap</code> (i.e. <code>top_k_sum</code>) times <code>nums2[i]</code>,
+                and update <code>answer</code> as the maximum score we have met.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Return <code>answer</code>.</p>
+    </li>
+</ol>
+<h4 id="implementation">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public long maxScore(int[] nums1, int[] nums2, int k) {
+        // Sort pair (nums1[i], nums2[i]) by nums2[i] in decreasing order.
+        int n = nums1.length;
+        int[][] pairs = new int[n][2];
+        for (int i = 0; i < n; ++i) {
+            pairs[i] = new int[]{nums1[i], nums2[i]};
+        }
+        Arrays.sort(pairs, (a, b) -> b[1] - a[1]);
+
+        // Use a min-heap to maintain the top k elements.
+        PriorityQueue<Integer> topKHeap = new PriorityQueue<>(k, (a, b) -> a - b);
+        long topKSum = 0;
+        for (int i = 0; i < k; ++i) {
+            topKSum += pairs[i][0];
+            topKHeap.add(pairs[i][0]);
+        }
+
+        // The score of the first k pairs.
+        long answer = topKSum * pairs[k - 1][1];
+
+        // Iterate over every nums2[i] as minimum from nums2.
+        for (int i = k; i < n; ++i) {
+            // Remove the smallest integer from the previous top k elements
+            // then ddd nums1[i] to the top k elements.
+            topKSum += pairs[i][0] - topKHeap.poll();
+            topKHeap.add(pairs[i][0]);
+
+            // Update answer as the maximum score.
+            answer = Math.max(answer, topKSum * pairs[i][1]);
+        }
+
+        return answer;
+    }
+}
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def maxScore(self, nums1: List[int], nums2: List[int], k: int) -> int:
+        # Sort pair (nums1[i], nums2[i]) by nums2[i] in decreasing order.
+        pairs = [(a, b) for a, b in zip(nums1, nums2)]
+        pairs.sort(key = lambda x: -x[1])
+
+        # Use a min-heap to maintain the top k elements.
+        top_k_heap = [x[0] for x in pairs[:k]]
+        top_k_sum = sum(top_k_heap)
+        heapq.heapify(top_k_heap)
+
+        # The score of the first k pairs.
+        answer = top_k_sum * pairs[k - 1][1]
+
+        # Iterate over every nums2[i] as minimum from nums2.
+        for i in range(k, len(nums1)):
+            # Remove the smallest integer from the previous top k elements
+            # then ddd nums1[i] to the top k elements.
+            top_k_sum -= heapq.heappop(top_k_heap)
+            top_k_sum += pairs[i][0]
+            heapq.heappush(top_k_heap, pairs[i][0])
+
+            # Update answer as the maximum score.
+            answer = max(answer, top_k_sum * pairs[i][1])
+
+        return answer
+    </code>
+</pre>
+<h4 id="complexity-analysis">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    be the length of the input array <code>nums1</code>.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅log⁡n)O(n \cdot \log n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                      style="margin-right: 0.1667em;"></span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>
+                <p>We need to sort <code>nums2</code>, it takes <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(n⋅log⁡n)O(n \cdot \log n)</span><span class="katex-html"
+                                                                                     aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mspace"
+                                                                                          style="margin-right: 0.2222em;"></span><span
+                        class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                                  style="margin-right: 0.1667em;"></span><span
+                        class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.</p>
+            </li>
+            <li>
+                <p>Then we iterate over <code>pairs</code> of length <code>n</code>. At each iteration step
+                    <code>i</code>, we remove the smallest element from <code>top_k_heap</code> and add one element
+                    <code>pairs[i][0]</code> to it. Both the inserting and removing operations to priority queue of size
+                    <span class="math math-inline"><span class="katex"><span class="katex-mathml">kk</span><span
+                            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                           style="height: 0.6944em;"></span><span
+                            class="mord mathnormal"
+                            style="margin-right: 0.03148em;">k</span></span></span></span></span> take <span
+                            class="math math-inline"><span class="katex"><span
+                            class="katex-mathml">O(log⁡k)O(\log k)</span><span class="katex-html"
+                                                                               aria-hidden="true"><span
+                            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                            class="mopen">(</span><span class="mop">lo<span
+                            style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                  style="margin-right: 0.1667em;"></span><span
+                            class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                            class="mclose">)</span></span></span></span></span> time.</p>
+            </li>
+            <li>
+                <p>To sum up, the overall time complexity is <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(n⋅log⁡n)O(n \cdot \log n)</span><span class="katex-html"
+                                                                                     aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mspace"
+                                                                                          style="margin-right: 0.2222em;"></span><span
+                        class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                                  style="margin-right: 0.1667em;"></span><span
+                        class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>,
+                    because <span class="math math-inline"><span class="katex"><span
+                            class="katex-mathml">k≤nk \leq n</span><span class="katex-html" aria-hidden="true"><span
+                            class="base"><span class="strut" style="height: 0.8304em; vertical-align: -0.136em;"></span><span
+                            class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span class="mspace"
+                                                                                                   style="margin-right: 0.2778em;"></span><span
+                            class="mrel">≤</span><span class="mspace"
+                                                       style="margin-right: 0.2778em;"></span></span><span class="base"><span
+                            class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>.
+                </p>
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <ul>
+            <li>We store every pair <code>(nums1[i], nums2[i])</code> in a 2-d array <code>pairs</code>, it takes <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> space.
+            </li>
+            <li>The in-place sorting method also uses some additional space, in Python, it uses <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> space and
+                in Java, it uses <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡n)O(\log n)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span
+                        class="mspace" style="margin-right: 0.1667em;"></span><span
+                        class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> space.
+            </li>
+            <li>The priority queue contains at most <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">kk</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                    class="strut" style="height: 0.6944em;"></span><span class="mord mathnormal"
+                                                                         style="margin-right: 0.03148em;">k</span></span></span></span></span>
+                elements thus it takes <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(k)O(k)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal"
+                                                    style="margin-right: 0.03148em;">k</span><span
+                        class="mclose">)</span></span></span></span></span> space.
+            </li>
+        </ul>
+    </li>
+</ul>
+<br>
+</body>
+</html>
