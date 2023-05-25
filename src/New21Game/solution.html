@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>New 21 Game - Solution</title>
+</head>
+<body>
+<h2 id="solution">Solution</h2>
+<hr>
+<blockquote>
+    <p><strong>Note.</strong> For this problem, we assume that you already know the fundamentals of dynamic programming
+        and are figuring out how to apply it to a wide range of problems, such as this one. If you are not yet at this
+        stage, we recommend checking out our relevant <a
+                href="https://leetcode.com/explore/featured/card/dynamic-programming/" target="_blank">Explore Card
+            content on dynamic programming</a> before coming back to this article.</p>
+</blockquote>
+<h3 id="approach-1-dynamic-programming">Approach 1: Dynamic Programming</h3>
+<h4 id="intuition">Intuition</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">dp[i]\text{dp}[i]</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+        class="mord mathnormal">i</span><span class="mclose">]</span></span></span></span></span> be the probability of
+    having exactly <span class="math math-inline"><span class="katex"><span class="katex-mathml">ii</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.6595em;"></span><span
+            class="mord mathnormal">i</span></span></span></span></span> points at some moment. We are interested only
+    in the states with <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">i≤ni \le n</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.7955em; vertical-align: -0.136em;"></span><span
+            class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+            class="mrel">≤</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.4306em;"></span><span
+            class="mord mathnormal">n</span></span></span></span></span>.</p>
+<p>The base case of this DP is <span class="math math-inline"><span class="katex"><span class="katex-mathml">dp[0]\text{dp}[0]</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+        class="mord">0</span><span class="mclose">]</span></span></span></span></span>. At the very beginning, Alice has
+    <span class="math math-inline"><span class="katex"><span class="katex-mathml">00</span><span class="katex-html"
+                                                                                                 aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span>
+    points, thus <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">dp[0]=1\text{dp}[0] = 1</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span class="mord">0</span><span
+            class="mclose">]</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+            class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span>.
+</p>
+<p>Now we need to write down the recurrence relation for <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">dp[i]\text{dp}[i]</span><span class="katex-html" aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+        class="mord mathnormal">i</span><span class="mclose">]</span></span></span></span></span> for <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">i&gt;0i &gt; 0</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.6986em; vertical-align: -0.0391em;"></span><span
+        class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">&gt;</span><span
+        class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut"
+                                                                                              style="height: 0.6444em;"></span><span
+        class="mord">0</span></span></span></span></span>.</p>
+<p>To have <span class="math math-inline"><span class="katex"><span class="katex-mathml">ii</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.6595em;"></span><span
+        class="mord mathnormal">i</span></span></span></span></span> points, Alice must have just drawn some number,
+    let's call it <span class="math math-inline"><span class="katex"><span class="katex-mathml">jj</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.854em; vertical-align: -0.1944em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.05724em;">j</span></span></span></span></span>, where <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">1≤j≤min⁡(i,maxPts)1 \le j \le \min (i, \text{maxPts})</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.7804em; vertical-align: -0.136em;"></span><span
+            class="mord">1</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">≤</span><span
+            class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut"
+                                                                                                  style="height: 0.854em; vertical-align: -0.1944em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.05724em;">j</span><span class="mspace"
+                                                                                   style="margin-right: 0.2778em;"></span><span
+            class="mrel">≤</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mop">min</span><span class="mopen">(</span><span class="mord mathnormal">i</span><span
+            class="mpunct">,</span><span class="mspace" style="margin-right: 0.1667em;"></span><span
+            class="mord text"><span class="mord">maxPts</span></span><span class="mclose">)</span></span></span></span></span>.
+    Before drawing this number, Alice had <span class="math math-inline"><span class="katex"><span class="katex-mathml">i−ji - j</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.7429em; vertical-align: -0.0833em;"></span><span
+            class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.854em; vertical-align: -0.1944em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.05724em;">j</span></span></span></span></span> points and
+    thus moved from the state <span class="math math-inline"><span class="katex"><span class="katex-mathml">dp[i−j]\text{dp}[i - j]</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+            class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.05724em;">j</span><span class="mclose">]</span></span></span></span></span>
+    to <span class="math math-inline"><span class="katex"><span class="katex-mathml">dp[i]\text{dp}[i]</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+            class="mord mathnormal">i</span><span class="mclose">]</span></span></span></span></span>. Since the game
+    did not end at the state <span class="math math-inline"><span class="katex"><span class="katex-mathml">dp[i−j]\text{dp}[i - j]</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+            class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.05724em;">j</span><span class="mclose">]</span></span></span></span></span>,
+    <span class="math math-inline"><span class="katex"><span class="katex-mathml">i−j&lt;ki - j &lt; k</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.7429em; vertical-align: -0.0833em;"></span><span
+            class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.854em; vertical-align: -0.1944em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.05724em;">j</span><span class="mspace"
+                                                                                   style="margin-right: 0.2778em;"></span><span
+            class="mrel">&lt;</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord mathnormal"
+                                                                                    style="margin-right: 0.03148em;">k</span></span></span></span></span>
+    must also hold.</p>
+<p>The probability of drawing <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">jj</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                                           style="height: 0.854em; vertical-align: -0.1944em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.05724em;">j</span></span></span></span></span> points at the
+    state <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">dp[i−j]\text{dp}[i - j]</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+            class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.05724em;">j</span><span class="mclose">]</span></span></span></span></span>
+    is <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">1maxPts\frac{1}{\text{maxPts}}</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1.1901em; vertical-align: -0.345em;"></span><span
+            class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span
+            class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.8451em;"><span
+            style="top: -2.655em;"><span class="pstrut" style="height: 3em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span
+            class="mord mtight">maxPts</span></span></span></span></span><span style="top: -3.23em;"><span
+            class="pstrut" style="height: 3em;"></span><span class="frac-line"
+                                                             style="border-bottom-width: 0.04em;"></span></span><span
+            style="top: -3.394em;"><span class="pstrut" style="height: 3em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">1</span></span></span></span></span><span
+            class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                       style="height: 0.345em;"><span></span></span></span></span></span><span
+            class="mclose nulldelimiter"></span></span></span></span></span></span> because all numbers in the range
+    <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">[1,maxPts][1, \text{maxPts}]</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mopen">[</span><span class="mord">1</span><span class="mpunct">,</span><span class="mspace"
+                                                                                                style="margin-right: 0.1667em;"></span><span
+            class="mord text"><span class="mord">maxPts</span></span><span class="mclose">]</span></span></span></span></span>
+    are equiprobable. Thus the probability of transitioning from <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">dp[i−j]\text{dp}[i - j]</span><span class="katex-html"
+                                                                                         aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+            class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.05724em;">j</span><span class="mclose">]</span></span></span></span></span>
+    to <span class="math math-inline"><span class="katex"><span class="katex-mathml">dp[i]\text{dp}[i]</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+            class="mord mathnormal">i</span><span class="mclose">]</span></span></span></span></span> is <span
+            class="math math-inline"><span class="katex"><span
+            class="katex-mathml">1maxPts\frac{1}{\text{maxPts}}</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1.1901em; vertical-align: -0.345em;"></span><span
+            class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span
+            class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.8451em;"><span
+            style="top: -2.655em;"><span class="pstrut" style="height: 3em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span
+            class="mord mtight">maxPts</span></span></span></span></span><span style="top: -3.23em;"><span
+            class="pstrut" style="height: 3em;"></span><span class="frac-line"
+                                                             style="border-bottom-width: 0.04em;"></span></span><span
+            style="top: -3.394em;"><span class="pstrut" style="height: 3em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">1</span></span></span></span></span><span
+            class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                       style="height: 0.345em;"><span></span></span></span></span></span><span
+            class="mclose nulldelimiter"></span></span></span></span></span></span>.</p>
+<p>To calculate <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">dp[i]\text{dp}[i]</span><span class="katex-html" aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+        class="mord mathnormal">i</span><span class="mclose">]</span></span></span></span></span>, we need to consider
+    all possible values of <span class="math math-inline"><span class="katex"><span class="katex-mathml">jj</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.854em; vertical-align: -0.1944em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.05724em;">j</span></span></span></span></span>, and sum all
+    the probabilities.</p>
+<p><span class="math math-inline"><span class="katex"><span class="katex-mathml">dp[i]\text{dp}[i]</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+        class="mord mathnormal">i</span><span class="mclose">]</span></span></span></span></span> for <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">k≤i≤nk \le i \le n</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.8304em; vertical-align: -0.136em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span class="mspace"
+                                                                               style="margin-right: 0.2778em;"></span><span
+        class="mrel">≤</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span
+        class="strut" style="height: 0.7955em; vertical-align: -0.136em;"></span><span
+        class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+        class="mrel">≤</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span
+        class="strut" style="height: 0.4306em;"></span><span
+        class="mord mathnormal">n</span></span></span></span></span> is the state of the game when it's over, and Alice
+    has <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                     aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.4306em;"></span><span
+            class="mord mathnormal">n</span></span></span></span></span> or fewer points. It implies that the answer to
+    the problem is the sum of <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">dp\text{dp}</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.8889em; vertical-align: -0.1944em;"></span><span class="mord text"><span
+            class="mord">dp</span></span></span></span></span></span> for all such states.</p>
+<p>Now we are ready to code the solution.</p>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public double new21Game(int n, int k, int maxPts) {
+        double dp[] = new double[n + 1];
+        dp[0] = 1;
+        for (int i = 1; i <= n; i++) {
+            for (int j = 1; j <= maxPts; j++) {
+                if (i - j >= 0 && i - j < k) {
+                    dp[i] += dp[i - j] / maxPts;
+                }
+            }
+        }
+        double ans = 0;
+        for (int i = k; i <= n; i++) {
+            ans += dp[i];
+        }
+        return ans;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    double new21Game(int n, int k, int maxPts) {
+        vector<double> dp(n + 1);
+        dp[0] = 1;
+        for (int i = 1; i <= n; i++) {
+            for (int j = 1; j <= maxPts; j++) {
+                if (i - j >= 0 && i - j < k) {
+                    dp[i] += dp[i - j] / maxPts;
+                }
+            }
+        }
+        return accumulate(dp.begin() + k, dp.end(), 0.0);
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def new21Game(self, n: int, k: int, maxPts: int) -> float:
+        dp = [0] * (n + 1)
+        dp[0] = 1
+        for i in range(1, n + 1):
+            for j in range(1, maxPts + 1):
+                if i - j >= 0 and i - j < k:
+                    dp[i] += dp[i - j] / maxPts
+        return sum(dp[k:])
+    </code>
+</pre>
+<p>However, this solution is too slow because its time complexity is <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">O(n⋅maxPts)O(n \cdot \text{maxPts})</span><span class="katex-html" aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+        class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+        class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord text"><span class="mord">maxPts</span></span><span
+        class="mclose">)</span></span></span></span></span>. One needs to optimize it.</p>
+<p>For finding <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">dp[i]\text{dp}[i]</span><span class="katex-html" aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+        class="mord mathnormal">i</span><span class="mclose">]</span></span></span></span></span>, we are calculating
+    the sum of the <span class="math math-inline"><span class="katex"><span class="katex-mathml">dp\text{dp}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+            class="mord text"><span class="mord">dp</span></span></span></span></span></span> values in the range <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">[max⁡(0,i−maxPts),min⁡(k−1,i−1)][\max (0, i - \text{maxPts}), \min (k - 1, i - 1)]</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mopen">[</span><span class="mop">max</span><span class="mopen">(</span><span
+            class="mord">0</span><span class="mpunct">,</span><span class="mspace"
+                                                                    style="margin-right: 0.1667em;"></span><span
+            class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">maxPts</span></span><span class="mclose">)</span><span
+            class="mpunct">,</span><span class="mspace" style="margin-right: 0.1667em;"></span><span
+            class="mop">min</span><span class="mopen">(</span><span class="mord mathnormal"
+                                                                    style="margin-right: 0.03148em;">k</span><span
+            class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">−</span><span class="mspace"
+                                                                                                   style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.854em; vertical-align: -0.1944em;"></span><span
+            class="mord">1</span><span class="mpunct">,</span><span class="mspace"
+                                                                    style="margin-right: 0.1667em;"></span><span
+            class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord">1</span><span class="mclose">)]</span></span></span></span></span>.</p>
+<p>The animation illustrates an example of calculating DP for <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">k=7k = 7</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+        class="strut" style="height: 0.6944em;"></span><span class="mord mathnormal"
+                                                             style="margin-right: 0.03148em;">k</span><span
+        class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace"
+                                                                                               style="margin-right: 0.2778em;"></span></span><span
+        class="base"><span class="strut" style="height: 0.6444em;"></span><span
+        class="mord">7</span></span></span></span></span>, <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">n=11n = 11</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+        class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span><span class="mspace"
+                                                                                                   style="margin-right: 0.2778em;"></span><span
+        class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span
+        class="strut" style="height: 0.6444em;"></span><span class="mord">11</span></span></span></span></span>, <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">maxPts=4\text{maxPts} = 4</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.6833em;"></span><span
+        class="mord text"><span class="mord">maxPts</span></span><span class="mspace"
+                                                                       style="margin-right: 0.2778em;"></span><span
+        class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span
+        class="strut" style="height: 0.6444em;"></span><span class="mord">4</span></span></span></span></span>. The cell
+    <span class="math math-inline"><span class="katex"><span class="katex-mathml">dp[i]\text{dp}[i]</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+            class="mord mathnormal">i</span><span class="mclose">]</span></span></span></span></span> is blue, and the
+    cells that contribute to <span class="math math-inline"><span class="katex"><span class="katex-mathml">dp[i]\text{dp}[i]</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+            class="mord mathnormal">i</span><span class="mclose">]</span></span></span></span></span> are yellow.</p>
+<p>
+<div class="relative mx-auto mb-6 flex flex-col overflow-hidden rounded-lg border-[1px] border-label-1"
+     style="max-width: 1000px;">
+    <div class="rounded-lg" style="max-height: 500px;"><img alt="Current"
+                                                            class="object-fit-contain !mb-0 max-h-full max-w-full"
+                                                            src="blob:https://leetcode.com/97ec1dca-18d8-446d-8d6b-15147f6761b1">
+    </div>
+    <div class="absolute top-[50%] left-[50%] flex h-12 w-12 translate-x-[-50%] translate-y-[-50%] items-center justify-center rounded-full bg-black/30">
+        <div class="flex h-4 w-4 cursor-pointer items-center justify-center text-[35px]">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="h-full w-full text-white">
+                <path fill-rule="evenodd"
+                      d="M18.97 12.871l-12.96 7.29a1 1 0 01-1.49-.87V4.71a1 1 0 011.49-.872l12.96 7.29a1 1 0 010 1.743z"
+                      clip-rule="evenodd"></path>
+            </svg>
+        </div>
+    </div>
+    <div class="relative flex h-8 select-none items-center justify-around bg-black">
+        <div class="flex items-center space-x-7">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M16.091 4.929l-7.057 7.078 7.057 7.064a1 1 0 01-1.414 1.414l-7.764-7.77a1 1 0 010-1.415l7.764-7.785a1 1 0 111.415 1.414z"
+                      clip-rule="evenodd"></path>
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M18.97 12.871l-12.96 7.29a1 1 0 01-1.49-.87V4.71a1 1 0 011.49-.872l12.96 7.29a1 1 0 010 1.743z"
+                      clip-rule="evenodd"></path>
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M7.913 19.071l7.057-7.078-7.057-7.064a1 1 0 011.414-1.414l7.764 7.77a1 1 0 010 1.415l-7.764 7.785a1 1 0 01-1.414-1.414z"
+                      clip-rule="evenodd"></path>
+            </svg>
+        </div>
+        <div class="absolute right-0 mr-5 text-xs font-medium text-white">1 / 10</div>
+    </div>
+</div>
+</p>
+<p>Instead of calculating the sum of <span class="math math-inline"><span class="katex"><span class="katex-mathml">dp\text{dp}</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+        class="mord text"><span class="mord">dp</span></span></span></span></span></span> values in the yellow segment
+    in <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">O(maxPts)O(\text{maxPts})</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord text"><span class="mord">maxPts</span></span><span class="mclose">)</span></span></span></span></span>
+    each time, one can keep this sum in a variable <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">ss</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.4306em;"></span><span
+            class="mord mathnormal">s</span></span></span></span></span>.</p>
+<p>For <span class="math math-inline"><span class="katex"><span class="katex-mathml">i=1i = 1</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.6595em;"></span><span
+        class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+        class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span
+        class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span>, the
+    yellow segment is <span class="math math-inline"><span class="katex"><span class="katex-mathml">[0,min⁡(k−1,0)][0, \min (k - 1, 0)]</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mopen">[</span><span class="mord">0</span><span class="mpunct">,</span><span class="mspace"
+                                                                                                style="margin-right: 0.1667em;"></span><span
+            class="mop">min</span><span class="mopen">(</span><span class="mord mathnormal"
+                                                                    style="margin-right: 0.03148em;">k</span><span
+            class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">−</span><span class="mspace"
+                                                                                                   style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord">1</span><span class="mpunct">,</span><span class="mspace"
+                                                                    style="margin-right: 0.1667em;"></span><span
+            class="mord">0</span><span class="mclose">)]</span></span></span></span></span> which is empty when <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">k=0k = 0</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.6944em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span class="mspace"
+                                                                                   style="margin-right: 0.2778em;"></span><span
+            class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span>
+    or contains the only cell <span class="math math-inline"><span class="katex"><span class="katex-mathml">dp[0]\text{dp}[0]</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span class="mord">0</span><span
+            class="mclose">]</span></span></span></span></span> otherwise. Thus the initial value of <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">ss</span><span class="katex-html"
+                                                                                                   aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.4306em;"></span><span
+            class="mord mathnormal">s</span></span></span></span></span> is <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">00</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span>
+    when <span class="math math-inline"><span class="katex"><span class="katex-mathml">k=0k = 0</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.6944em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span class="mspace"
+                                                                                   style="margin-right: 0.2778em;"></span><span
+            class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span>
+    and <span class="math math-inline"><span class="katex"><span class="katex-mathml">dp[0]=1\text{dp}[0]=1</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span class="mord">0</span><span
+            class="mclose">]</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+            class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span>
+    when <span class="math math-inline"><span class="katex"><span class="katex-mathml">k&gt;0k &gt; 0</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.7335em; vertical-align: -0.0391em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span class="mspace"
+                                                                                   style="margin-right: 0.2778em;"></span><span
+            class="mrel">&gt;</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span>.
+</p>
+<p>When <span class="math math-inline"><span class="katex"><span class="katex-mathml">ii</span><span class="katex-html"
+                                                                                                     aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.6595em;"></span><span class="mord mathnormal">i</span></span></span></span></span>
+    moves to the right, <span class="math math-inline"><span class="katex"><span class="katex-mathml">ss</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.4306em;"></span><span
+            class="mord mathnormal">s</span></span></span></span></span> needs to change accordingly. The above
+    animation helps to understand which <span class="math math-inline"><span class="katex"><span class="katex-mathml">dp\text{dp}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+            class="mord text"><span class="mord">dp</span></span></span></span></span></span> values one has to add to
+    and subtract from <span class="math math-inline"><span class="katex"><span class="katex-mathml">ss</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.4306em;"></span><span
+            class="mord mathnormal">s</span></span></span></span></span>. Essentially, <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">ss</span><span class="katex-html"
+                                                                                                   aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.4306em;"></span><span
+            class="mord mathnormal">s</span></span></span></span></span> is a sliding window. We remove <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">dp[i−maxPts]\text{dp}[i - \text{maxPts}]</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+            class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">maxPts</span></span><span class="mclose">]</span></span></span></span></span>
+    and add <span class="math math-inline"><span class="katex"><span class="katex-mathml">dp[i]\text{dp}[i]</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+            class="mord mathnormal">i</span><span class="mclose">]</span></span></span></span></span> until <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">i≥ki \ge k</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.7955em; vertical-align: -0.136em;"></span><span
+            class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+            class="mrel">≥</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord mathnormal"
+                                                                                    style="margin-right: 0.03148em;">k</span></span></span></span></span>.
+</p>
+<h4 id="algorithm">Algorithm</h4>
+<ol>
+    <li>Declare the array <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">dp\text{dp}</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.8889em; vertical-align: -0.1944em;"></span><span class="mord text"><span
+            class="mord">dp</span></span></span></span></span></span> and initialize it with zeros.
+    </li>
+    <li>Set <span class="math math-inline"><span class="katex"><span class="katex-mathml">dp[0]=1\text{dp}[0] = 1</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span class="mord">0</span><span
+            class="mclose">]</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+            class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span>,
+        the base case.
+    </li>
+    <li>Declare the variable <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">ss</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.4306em;"></span><span
+            class="mord mathnormal">s</span></span></span></span></span> and initialize it with <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">11</span><span class="katex-html"
+                                                                                                   aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span>
+        if <span class="math math-inline"><span class="katex"><span class="katex-mathml">k&gt;0k &gt; 0</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.7335em; vertical-align: -0.0391em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span class="mspace"
+                                                                                       style="margin-right: 0.2778em;"></span><span
+                class="mrel">&gt;</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.6444em;"></span><span
+                class="mord">0</span></span></span></span></span> or with <span class="math math-inline"><span
+                class="katex"><span class="katex-mathml">00</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 0.6444em;"></span><span
+                class="mord">0</span></span></span></span></span> otherwise.
+    </li>
+    <li>Iterate <span class="math math-inline"><span class="katex"><span class="katex-mathml">ii</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.6595em;"></span><span
+            class="mord mathnormal">i</span></span></span></span></span> from <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">11</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span>
+        to <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.4306em;"></span><span
+                class="mord mathnormal">n</span></span></span></span></span>.
+        <ul>
+            <li>Set <span class="math math-inline"><span class="katex"><span class="katex-mathml">dp[i]=smaxPts\text{dp}[i] = \frac{s}{\text{maxPts}}</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+                    class="mord mathnormal">i</span><span class="mclose">]</span><span class="mspace"
+                                                                                       style="margin-right: 0.2778em;"></span><span
+                    class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1.0404em; vertical-align: -0.345em;"></span><span
+                    class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span
+                    class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.6954em;"><span
+                    style="top: -2.655em;"><span class="pstrut" style="height: 3em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+                    class="mord text mtight"><span class="mord mtight">maxPts</span></span></span></span></span><span
+                    style="top: -3.23em;"><span class="pstrut" style="height: 3em;"></span><span class="frac-line"
+                                                                                                 style="border-bottom-width: 0.04em;"></span></span><span
+                    style="top: -3.394em;"><span class="pstrut" style="height: 3em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+                    class="mord mathnormal mtight">s</span></span></span></span></span><span
+                    class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                               style="height: 0.345em;"><span></span></span></span></span></span><span
+                    class="mclose nulldelimiter"></span></span></span></span></span></span>. Remember that <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">ss</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.4306em;"></span><span
+                    class="mord mathnormal">s</span></span></span></span></span> is the probability of all the states
+                that we could have reached <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">ii</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 0.6595em;"></span><span class="mord mathnormal">i</span></span></span></span></span>
+                from. We need to divide it by <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">maxPts\text{maxPts}</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord text"><span
+                        class="mord">maxPts</span></span></span></span></span></span> as we mentioned earlier, that is
+                the probability of reaching <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">ii</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 0.6595em;"></span><span class="mord mathnormal">i</span></span></span></span></span>
+                from each of the states.
+            </li>
+            <li>If <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">i&lt;ki &lt; k</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 0.6986em; vertical-align: -0.0391em;"></span><span
+                    class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+                    class="mrel">&lt;</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+                    class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord mathnormal"
+                                                                                            style="margin-right: 0.03148em;">k</span></span></span></span></span>,
+                add <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">dp[i]\text{dp}[i]</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+                        class="mord mathnormal">i</span><span class="mclose">]</span></span></span></span></span> to
+                <span class="math math-inline"><span class="katex"><span class="katex-mathml">ss</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 0.4306em;"></span><span
+                        class="mord mathnormal">s</span></span></span></span></span>.
+            </li>
+            <li>If <span class="math math-inline"><span class="katex"><span class="katex-mathml">i−maxPts≥0i - \text{maxPts} \ge 0</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.7429em; vertical-align: -0.0833em;"></span><span
+                    class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 0.8193em; vertical-align: -0.136em;"></span><span
+                    class="mord text"><span class="mord">maxPts</span></span><span class="mspace"
+                                                                                   style="margin-right: 0.2778em;"></span><span
+                    class="mrel">≥</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+                    class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span>
+                and <span class="math math-inline"><span class="katex"><span class="katex-mathml">i−maxPts&lt;ki - \text{maxPts} &lt; k</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 0.7429em; vertical-align: -0.0833em;"></span><span
+                        class="mord mathnormal">i</span><span class="mspace"
+                                                              style="margin-right: 0.2222em;"></span><span class="mbin">−</span><span
+                        class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+                        class="strut" style="height: 0.7224em; vertical-align: -0.0391em;"></span><span
+                        class="mord text"><span class="mord">maxPts</span></span><span class="mspace"
+                                                                                       style="margin-right: 0.2778em;"></span><span
+                        class="mrel">&lt;</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+                        class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord mathnormal"
+                                                                                                style="margin-right: 0.03148em;">k</span></span></span></span></span>,
+                subtract <span class="math math-inline"><span class="katex"><span class="katex-mathml">dp[i−maxPts]\text{dp}[i - \text{maxPts}]</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+                        class="mord mathnormal">i</span><span class="mspace"
+                                                              style="margin-right: 0.2222em;"></span><span class="mbin">−</span><span
+                        class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+                        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord text"><span
+                        class="mord">maxPts</span></span><span class="mclose">]</span></span></span></span></span> from
+                <span class="math math-inline"><span class="katex"><span class="katex-mathml">ss</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 0.4306em;"></span><span
+                        class="mord mathnormal">s</span></span></span></span></span>.
+            </li>
+        </ul>
+    </li>
+    <li>Return the sum of <span class="math math-inline"><span class="katex"><span class="katex-mathml">dp[i]\text{dp}[i]</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+            class="mord mathnormal">i</span><span class="mclose">]</span></span></span></span></span> for <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">k≤i≤nk \le i \le n</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.8304em; vertical-align: -0.136em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span class="mspace"
+                                                                                   style="margin-right: 0.2778em;"></span><span
+            class="mrel">≤</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.7955em; vertical-align: -0.136em;"></span><span
+            class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+            class="mrel">≤</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.4306em;"></span><span
+            class="mord mathnormal">n</span></span></span></span></span>.
+    </li>
+</ol>
+<h4 id="implementation">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public double new21Game(int n, int k, int maxPts) {
+        double dp[] = new double[n + 1];
+        dp[0] = 1;
+        double s = k > 0 ? 1 : 0;
+        for (int i = 1; i <= n; i++) {
+            dp[i] = s / maxPts;
+            if (i < k) {
+                s += dp[i];
+            }
+            if (i - maxPts >= 0 && i - maxPts < k) {
+                s -= dp[i - maxPts];
+            }
+        }
+        double ans = 0;
+        for (int i = k; i <= n; i++) {
+            ans += dp[i];
+        }
+        return ans;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    double new21Game(int n, int k, int maxPts) {
+        vector<double> dp(n + 1);
+        dp[0] = 1;
+        double s = k > 0 ? 1 : 0;
+        for (int i = 1; i <= n; i++) {
+            dp[i] = s / maxPts;
+            if (i < k) {
+                s += dp[i];
+            }
+            if (i - maxPts >= 0 && i - maxPts < k) {
+                s -= dp[i - maxPts];
+            }
+        }
+        return accumulate(dp.begin() + k, dp.end(), 0.0);
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def new21Game(self, n: int, k: int, maxPts: int) -> float:
+        dp = [0] * (n + 1)
+        dp[0] = 1
+        s = 1 if k > 0 else 0
+        for i in range(1, n + 1):
+            dp[i] = s / maxPts
+            if i < k:
+                s += dp[i]
+            if i - maxPts >= 0 and i - maxPts < k:
+                s -= dp[i - maxPts]
+        return sum(dp[k:])
+    </code>
+</pre>
+<h4 id="complexity-analysis">Complexity Analysis</h4>
+<ul>
+    <li>Time complexity: <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                     style="margin-right: 0.02778em;">O</span><span
+            class="mopen">(</span><span class="mord mathnormal">n</span><span
+            class="mclose">)</span></span></span></span></span>.
+    </li>
+</ul>
+<p>There are <span class="math math-inline"><span class="katex"><span class="katex-mathml">n+1n + 1</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+        class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+        class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+        class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span> states of
+    the DP. We calculate each of them in <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord">1</span><span class="mclose">)</span></span></span></span></span>.</p>
+<ul>
+    <li>Space complexity: <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                     style="margin-right: 0.02778em;">O</span><span
+            class="mopen">(</span><span class="mord mathnormal">n</span><span
+            class="mclose">)</span></span></span></span></span>.
+    </li>
+</ul>
+<p>The size of the DP array is <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">n+1n + 1</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+        class="strut" style="height: 0.6667em; vertical-align: -0.0833em;"></span><span class="mord mathnormal">n</span><span
+        class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace"
+                                                                                               style="margin-right: 0.2222em;"></span></span><span
+        class="base"><span class="strut" style="height: 0.6444em;"></span><span
+        class="mord">1</span></span></span></span></span>.</p>
+</body>
+</html>
