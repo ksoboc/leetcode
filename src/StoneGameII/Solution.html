@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Stone Game II - Solution</title>
+</head>
+<body>
+<h2 id="solution">Solution</h2>
+<hr>
+<blockquote>
+    <p><strong>Note.</strong> For this problem, we assume that you already know the fundamentals of dynamic programming
+        and are figuring out how to apply it to a wide range of problems, such as this one. If you are not yet at this
+        stage, we recommend checking out our relevant <a
+                href="https://leetcode.com/explore/featured/card/dynamic-programming/" target="_blank">Explore Card
+            content on dynamic programming</a> before coming back to this article.</p>
+</blockquote>
+<h3 id="approach-1-memoization">Approach 1: Memoization</h3>
+<h4 id="intuition">Intuition</h4>
+<p>The game described in the problem is a <a href="https://en.wikipedia.org/wiki/Zero-sum_game" target="_blank">zero-sum
+    game</a>. Since the number of stones in the piles is constant, the more stones Alice gets, the less Bob does, and
+    vice versa. In this game, the players are antagonists. In particular, it implies that Bob wants to minimize the
+    number of stones Alice gets.</p>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    denote the number of piles.</p>
+<p>For <span class="math math-inline"><span class="katex"><span class="katex-mathml">0≤p≤10 \le p \le 1</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.7804em; vertical-align: -0.136em;"></span><span
+        class="mord">0</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+        class="mrel">≤</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span
+        class="strut" style="height: 0.8304em; vertical-align: -0.1944em;"></span><span class="mord mathnormal">p</span><span
+        class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">≤</span><span class="mspace"
+                                                                                               style="margin-right: 0.2778em;"></span></span><span
+        class="base"><span class="strut" style="height: 0.6444em;"></span><span
+        class="mord">1</span></span></span></span></span>, <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">0≤i≤n0 \le i \le n</span><span class="katex-html" aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.7804em; vertical-align: -0.136em;"></span><span
+        class="mord">0</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+        class="mrel">≤</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span
+        class="strut" style="height: 0.7955em; vertical-align: -0.136em;"></span><span
+        class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+        class="mrel">≤</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span
+        class="strut" style="height: 0.4306em;"></span><span
+        class="mord mathnormal">n</span></span></span></span></span>, <span class="math math-inline"><span
+        class="katex"><span class="katex-mathml">1≤m≤n1 \le m \le n</span><span class="katex-html"
+                                                                                aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.7804em; vertical-align: -0.136em;"></span><span
+        class="mord">1</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+        class="mrel">≤</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span
+        class="strut" style="height: 0.7719em; vertical-align: -0.136em;"></span><span
+        class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+        class="mrel">≤</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span
+        class="strut" style="height: 0.4306em;"></span><span
+        class="mord mathnormal">n</span></span></span></span></span>, define <span class="math math-inline"><span
+        class="katex"><span class="katex-mathml">f(p,i,m)f(p, i, m)</span><span class="katex-html"
+                                                                                aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.10764em;">f</span><span class="mopen">(</span><span
+        class="mord mathnormal">p</span><span class="mpunct">,</span><span class="mspace"
+                                                                           style="margin-right: 0.1667em;"></span><span
+        class="mord mathnormal">i</span><span class="mpunct">,</span><span class="mspace"
+                                                                           style="margin-right: 0.1667em;"></span><span
+        class="mord mathnormal">m</span><span class="mclose">)</span></span></span></span></span> as the number of
+    stones that Alice can get in the following state of the game, provided Alice and Bob play optimally.</p>
+<blockquote>
+    <p>Parameter <span class="math math-inline"><span class="katex"><span class="katex-mathml">pp</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.625em; vertical-align: -0.1944em;"></span><span
+            class="mord mathnormal">p</span></span></span></span></span> determines whose turn it is: if <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">p=0p = 0</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.625em; vertical-align: -0.1944em;"></span><span
+            class="mord mathnormal">p</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+            class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span>,
+        then Alice moves, otherwise Bob. We are only considering the last <span class="math math-inline"><span
+                class="katex"><span class="katex-mathml">n−in-i</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.6595em;"></span><span class="mord mathnormal">i</span></span></span></span></span>
+        piles (treat <code>piles[i]</code> as the first pile). The current value of the variable <code>M</code>
+        described in the problem description is <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">mm</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 0.4306em;"></span><span
+                class="mord mathnormal">m</span></span></span></span></span>.</p>
+</blockquote>
+<p>The answer to the problem is <span class="math math-inline"><span class="katex"><span class="katex-mathml">f(0,0,1)f(0, 0, 1)</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.10764em;">f</span><span class="mopen">(</span><span class="mord">0</span><span
+        class="mpunct">,</span><span class="mspace" style="margin-right: 0.1667em;"></span><span
+        class="mord">0</span><span class="mpunct">,</span><span class="mspace"
+                                                                style="margin-right: 0.1667em;"></span><span
+        class="mord">1</span><span class="mclose">)</span></span></span></span></span> – Alice moves first, all <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                               aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    piles are in the game, and the initial value of <code>M</code> is <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">11</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span>.
+</p>
+<p>We want to know how to calculate <span class="math math-inline"><span class="katex"><span class="katex-mathml">f(p,i,m)f(p, i, m)</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.10764em;">f</span><span class="mopen">(</span><span
+        class="mord mathnormal">p</span><span class="mpunct">,</span><span class="mspace"
+                                                                           style="margin-right: 0.1667em;"></span><span
+        class="mord mathnormal">i</span><span class="mpunct">,</span><span class="mspace"
+                                                                           style="margin-right: 0.1667em;"></span><span
+        class="mord mathnormal">m</span><span class="mclose">)</span></span></span></span></span> for arbitrary <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">pp</span><span class="katex-html"
+                                                                                               aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.625em; vertical-align: -0.1944em;"></span><span
+        class="mord mathnormal">p</span></span></span></span></span>, <span class="math math-inline"><span
+        class="katex"><span class="katex-mathml">ii</span><span class="katex-html" aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.6595em;"></span><span class="mord mathnormal">i</span></span></span></span></span>,
+    <span class="math math-inline"><span class="katex"><span class="katex-mathml">mm</span><span class="katex-html"
+                                                                                                 aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.4306em;"></span><span
+            class="mord mathnormal">m</span></span></span></span></span>.</p>
+<p>Let us first define a base case: <span class="math math-inline"><span class="katex"><span class="katex-mathml">f(p,n,m)f(p, n, m)</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.10764em;">f</span><span class="mopen">(</span><span
+        class="mord mathnormal">p</span><span class="mpunct">,</span><span class="mspace"
+                                                                           style="margin-right: 0.1667em;"></span><span
+        class="mord mathnormal">n</span><span class="mpunct">,</span><span class="mspace"
+                                                                           style="margin-right: 0.1667em;"></span><span
+        class="mord mathnormal">m</span><span class="mclose">)</span></span></span></span></span> for arbitrary <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">pp</span><span class="katex-html"
+                                                                                               aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.625em; vertical-align: -0.1944em;"></span><span
+        class="mord mathnormal">p</span></span></span></span></span> and <span class="math math-inline"><span
+        class="katex"><span class="katex-mathml">mm</span><span class="katex-html" aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">m</span></span></span></span></span>.
+    Here we have <span class="math math-inline"><span class="katex"><span class="katex-mathml">i=ni = n</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.6595em;"></span><span
+            class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+            class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.4306em;"></span><span
+            class="mord mathnormal">n</span></span></span></span></span>, i.e., no piles in the game. In this case, the
+    players will make no moves, and Alice will take no stones, thus <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">f(p,n,m)=0f(p, n, m) = 0</span><span class="katex-html"
+                                                                                          aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.10764em;">f</span><span class="mopen">(</span><span
+            class="mord mathnormal">p</span><span class="mpunct">,</span><span class="mspace"
+                                                                               style="margin-right: 0.1667em;"></span><span
+            class="mord mathnormal">n</span><span class="mpunct">,</span><span class="mspace"
+                                                                               style="margin-right: 0.1667em;"></span><span
+            class="mord mathnormal">m</span><span class="mclose">)</span><span class="mspace"
+                                                                               style="margin-right: 0.2778em;"></span><span
+            class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span>.
+</p>
+<p>Consider now <span class="math math-inline"><span class="katex"><span class="katex-mathml">i&lt;ni &lt; n</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.6986em; vertical-align: -0.0391em;"></span><span
+        class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">&lt;</span><span
+        class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut"
+                                                                                              style="height: 0.4306em;"></span><span
+        class="mord mathnormal">n</span></span></span></span></span> when at least one pile is in the game. The player
+    that moves now (determined by <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">pp</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.625em; vertical-align: -0.1944em;"></span><span
+            class="mord mathnormal">p</span></span></span></span></span>) chooses a number <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">xx</span><span class="katex-html"
+                                                                                                   aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.4306em;"></span><span
+            class="mord mathnormal">x</span></span></span></span></span> and takes all the stones from the first <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">xx</span><span class="katex-html"
+                                                                                                   aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.4306em;"></span><span
+            class="mord mathnormal">x</span></span></span></span></span> remaining piles. Two inequalities must hold:
+    <span class="math math-inline"><span class="katex"><span class="katex-mathml">x≤2mx \le 2m</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.7719em; vertical-align: -0.136em;"></span><span
+            class="mord mathnormal">x</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+            class="mrel">≤</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">2</span><span
+            class="mord mathnormal">m</span></span></span></span></span> (according to the rules) and <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">x≤n−ix \le n - i</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.7719em; vertical-align: -0.136em;"></span><span
+            class="mord mathnormal">x</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+            class="mrel">≤</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+            class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6595em;"></span><span
+            class="mord mathnormal">i</span></span></span></span></span> (a player cannot take more piles than remains
+    in the game). Thus <span class="math math-inline"><span class="katex"><span class="katex-mathml">x≤min⁡(2m,n−i)x \le \min(2m, n - i)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.7719em; vertical-align: -0.136em;"></span><span
+            class="mord mathnormal">x</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+            class="mrel">≤</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mop">min</span><span class="mopen">(</span><span class="mord">2</span><span
+            class="mord mathnormal">m</span><span class="mpunct">,</span><span class="mspace"
+                                                                               style="margin-right: 0.1667em;"></span><span
+            class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal">i</span><span class="mclose">)</span></span></span></span></span>. We have two
+    possible cases.</p>
+<ul>
+    <li><span class="math math-inline"><span class="katex"><span class="katex-mathml">p=0p = 0</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.625em; vertical-align: -0.1944em;"></span><span
+            class="mord mathnormal">p</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+            class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span>,
+        Alice moves. When Alice chooses a number <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">xx</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 0.4306em;"></span><span
+                class="mord mathnormal">x</span></span></span></span></span>, she takes <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">s=ai+ai+1+⋯+ai+x−1s = a_i + a_{i + 1} + \dots + a_{i+x-1}</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.4306em;"></span><span
+                class="mord mathnormal">s</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+                class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.7333em; vertical-align: -0.15em;"></span><span
+                class="mord"><span class="mord mathnormal">a</span><span class="msupsub"><span class="vlist-t vlist-t2"><span
+                class="vlist-r"><span class="vlist" style="height: 0.3117em;"><span
+                style="top: -2.55em; margin-left: 0em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                    style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span
+                class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span
+                class="vlist-r"><span class="vlist"
+                                      style="height: 0.15em;"><span></span></span></span></span></span></span><span
+                class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.7917em; vertical-align: -0.2083em;"></span><span
+                class="mord"><span class="mord mathnormal">a</span><span class="msupsub"><span class="vlist-t vlist-t2"><span
+                class="vlist-r"><span class="vlist" style="height: 0.3117em;"><span
+                style="top: -2.55em; margin-left: 0em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                    style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+                class="mord mathnormal mtight">i</span><span class="mbin mtight">+</span><span
+                class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span
+                class="vlist-r"><span class="vlist" style="height: 0.2083em;"><span></span></span></span></span></span></span><span
+                class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+                class="minner">⋯</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.6389em; vertical-align: -0.2083em;"></span><span
+                class="mord"><span class="mord mathnormal">a</span><span class="msupsub"><span class="vlist-t vlist-t2"><span
+                class="vlist-r"><span class="vlist" style="height: 0.3117em;"><span
+                style="top: -2.55em; margin-left: 0em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                    style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+                class="mord mathnormal mtight">i</span><span class="mbin mtight">+</span><span
+                class="mord mathnormal mtight">x</span><span class="mbin mtight">−</span><span
+                class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span
+                class="vlist-r"><span class="vlist" style="height: 0.2083em;"><span></span></span></span></span></span></span></span></span></span></span>
+        stones <strong>during</strong> her move. After that, the last <span class="math math-inline"><span
+                class="katex"><span class="katex-mathml">n−(i+x)n-(i + x)</span><span class="katex-html"
+                                                                                      aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mopen">(</span><span class="mord mathnormal">i</span><span class="mspace"
+                                                                                  style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal">x</span><span class="mclose">)</span></span></span></span></span> piles remain
+        in the game (the players took <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">ii</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 0.6595em;"></span><span
+                class="mord mathnormal">i</span></span></span></span></span> piles earlier, and Alice takes <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">xx</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.4306em;"></span><span
+                class="mord mathnormal">x</span></span></span></span></span> now), Bob will move next (<span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">pp</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.625em; vertical-align: -0.1944em;"></span><span
+                class="mord mathnormal">p</span></span></span></span></span> will become <span class="math math-inline"><span
+                class="katex"><span class="katex-mathml">11</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 0.6444em;"></span><span
+                class="mord">1</span></span></span></span></span>), and the new value of <code>M</code> will be <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">max⁡(m,x)\max (m, x)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mop">max</span><span class="mopen">(</span><span class="mord mathnormal">m</span><span
+                class="mpunct">,</span><span class="mspace" style="margin-right: 0.1667em;"></span><span
+                class="mord mathnormal">x</span><span class="mclose">)</span></span></span></span></span>. Thus, Alice
+        will get <span class="math math-inline"><span class="katex"><span class="katex-mathml">f(1,i+x,max⁡(m,x))f(1, i + x, \max (m, x))</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.10764em;">f</span><span class="mopen">(</span><span
+                class="mord">1</span><span class="mpunct">,</span><span class="mspace"
+                                                                        style="margin-right: 0.1667em;"></span><span
+                class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal">x</span><span class="mpunct">,</span><span class="mspace"
+                                                                                   style="margin-right: 0.1667em;"></span><span
+                class="mop">max</span><span class="mopen">(</span><span class="mord mathnormal">m</span><span
+                class="mpunct">,</span><span class="mspace" style="margin-right: 0.1667em;"></span><span
+                class="mord mathnormal">x</span><span class="mclose">))</span></span></span></span></span> stones
+        <strong>after</strong> her current move. Adding two summands, we obtain that Alice will get <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">s+f(1,i+x,max⁡(m,x))s + f(1, i + x, \max (m, x))</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+                class="mord mathnormal">s</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.10764em;">f</span><span class="mopen">(</span><span
+                class="mord">1</span><span class="mpunct">,</span><span class="mspace"
+                                                                        style="margin-right: 0.1667em;"></span><span
+                class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal">x</span><span class="mpunct">,</span><span class="mspace"
+                                                                                   style="margin-right: 0.1667em;"></span><span
+                class="mop">max</span><span class="mopen">(</span><span class="mord mathnormal">m</span><span
+                class="mpunct">,</span><span class="mspace" style="margin-right: 0.1667em;"></span><span
+                class="mord mathnormal">x</span><span class="mclose">))</span></span></span></span></span> stones. Since
+        she plays optimally, she will choose the value <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">xx</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 0.4306em;"></span><span
+                class="mord mathnormal">x</span></span></span></span></span> that maximizes this value (we will need to
+        iterate over all <span class="math math-inline"><span class="katex"><span class="katex-mathml">xx</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.4306em;"></span><span
+                class="mord mathnormal">x</span></span></span></span></span> and take the max).
+    </li>
+    <li><span class="math math-inline"><span class="katex"><span class="katex-mathml">p=1p = 1</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.625em; vertical-align: -0.1944em;"></span><span
+            class="mord mathnormal">p</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+            class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span>,
+        Bob moves. Analogically to the previous case, Bob takes <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">s=ai+ai+1+⋯+ai+x−1s = a_i + a_{i + 1} + \dots + a_{i+x-1}</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.4306em;"></span><span
+                class="mord mathnormal">s</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+                class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.7333em; vertical-align: -0.15em;"></span><span
+                class="mord"><span class="mord mathnormal">a</span><span class="msupsub"><span class="vlist-t vlist-t2"><span
+                class="vlist-r"><span class="vlist" style="height: 0.3117em;"><span
+                style="top: -2.55em; margin-left: 0em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                    style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span
+                class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span
+                class="vlist-r"><span class="vlist"
+                                      style="height: 0.15em;"><span></span></span></span></span></span></span><span
+                class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.7917em; vertical-align: -0.2083em;"></span><span
+                class="mord"><span class="mord mathnormal">a</span><span class="msupsub"><span class="vlist-t vlist-t2"><span
+                class="vlist-r"><span class="vlist" style="height: 0.3117em;"><span
+                style="top: -2.55em; margin-left: 0em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                    style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+                class="mord mathnormal mtight">i</span><span class="mbin mtight">+</span><span
+                class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span
+                class="vlist-r"><span class="vlist" style="height: 0.2083em;"><span></span></span></span></span></span></span><span
+                class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+                class="minner">⋯</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.6389em; vertical-align: -0.2083em;"></span><span
+                class="mord"><span class="mord mathnormal">a</span><span class="msupsub"><span class="vlist-t vlist-t2"><span
+                class="vlist-r"><span class="vlist" style="height: 0.3117em;"><span
+                style="top: -2.55em; margin-left: 0em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                    style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+                class="mord mathnormal mtight">i</span><span class="mbin mtight">+</span><span
+                class="mord mathnormal mtight">x</span><span class="mbin mtight">−</span><span
+                class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span
+                class="vlist-r"><span class="vlist" style="height: 0.2083em;"><span></span></span></span></span></span></span></span></span></span></span>
+        stones during his move. However, we do not count them in the result of <span class="math math-inline"><span
+                class="katex"><span class="katex-mathml">ff</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.10764em;">f</span></span></span></span></span>, because
+        we defined <span class="math math-inline"><span class="katex"><span class="katex-mathml">ff</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.10764em;">f</span></span></span></span></span> to return
+        the number of stones Alice gets. Just like with Alice, if Bob takes <span class="math math-inline"><span
+                class="katex"><span class="katex-mathml">xx</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">x</span></span></span></span></span>
+        stones, then the next state will have <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">i=i+xi = i + x</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 0.6595em;"></span><span class="mord mathnormal">i</span><span
+                class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2778em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.7429em; vertical-align: -0.0833em;"></span><span
+                class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">x</span></span></span></span></span>
+        and <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">m=max⁡(m,x)m = \max(m, x)</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">m</span><span
+                class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2778em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">max</span><span
+                class="mopen">(</span><span class="mord mathnormal">m</span><span class="mpunct">,</span><span
+                class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal">x</span><span
+                class="mclose">)</span></span></span></span></span>. Because Alice goes next, we will have <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">p=0p = 0</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.625em; vertical-align: -0.1944em;"></span><span
+                class="mord mathnormal">p</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+                class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.6444em;"></span><span
+                class="mord">0</span></span></span></span></span>. As we mentioned earlier, Bob wants to minimize the
+        number of stones Alice receives, and thus Bob wants to minimize the return value of <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">ff</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.10764em;">f</span></span></span></span></span>. Thus,
+        <span class="math math-inline"><span class="katex"><span class="katex-mathml">f(1,i,m)f(1, i, m)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.10764em;">f</span><span class="mopen">(</span><span
+                class="mord">1</span><span class="mpunct">,</span><span class="mspace"
+                                                                        style="margin-right: 0.1667em;"></span><span
+                class="mord mathnormal">i</span><span class="mpunct">,</span><span class="mspace"
+                                                                                   style="margin-right: 0.1667em;"></span><span
+                class="mord mathnormal">m</span><span class="mclose">)</span></span></span></span></span> will be the
+        minimum of <span class="math math-inline"><span class="katex"><span class="katex-mathml">f(0,i+x,max⁡(m,x))f(0, i + x, \max (m, x))</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.10764em;">f</span><span class="mopen">(</span><span
+                class="mord">0</span><span class="mpunct">,</span><span class="mspace"
+                                                                        style="margin-right: 0.1667em;"></span><span
+                class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal">x</span><span class="mpunct">,</span><span class="mspace"
+                                                                                   style="margin-right: 0.1667em;"></span><span
+                class="mop">max</span><span class="mopen">(</span><span class="mord mathnormal">m</span><span
+                class="mpunct">,</span><span class="mspace" style="margin-right: 0.1667em;"></span><span
+                class="mord mathnormal">x</span><span class="mclose">))</span></span></span></span></span> for all valid
+        <span class="math math-inline"><span class="katex"><span class="katex-mathml">xx</span><span class="katex-html"
+                                                                                                     aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">x</span></span></span></span></span>,
+        which we will again iterate over.
+    </li>
+</ul>
+<p>Now, we are ready to code the solution.</p>
+<pre>
+    Java
+    <code>
+        class Solution {
+    private int f(int[] piles, int p, int i, int m) {
+        if (i == piles.length) {
+            return 0;
+        }
+        int res = p == 1 ? 1000000 : -1, s = 0;
+        for (int x = 1; x <= Math.min(2 * m, piles.length - i); x++) {
+            s += piles[i + x - 1];
+            if (p == 0) {
+                res = Math.max(res, s + f(piles, 1, i + x, Math.max(m, x)));
+            }
+            else {
+                res = Math.min(res, f(piles, 0, i + x, Math.max(m, x)));
+            }
+        }
+        return res;
+    }
+    public int stoneGameII(int[] piles) {
+        return f(piles, 0, 0, 1);
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int stoneGameII(vector<int>& piles) {
+        int n = piles.size();
+        function<int(int, int, int)> f = [&](int p, int i, int m) -> int {
+            if (i == n) {
+                return 0;
+            }
+            int res = p == 1 ? 1000000 : -1, s = 0;
+            for (int x = 1; x <= min(2 * m, n - i); x++) {
+                s += piles[i + x - 1];
+                if (p == 0) {
+                    res = max(res, s + f(1, i + x, max(m, x)));
+                }
+                else {
+                    res = min(res, f(0, i + x, max(m, x)));
+                }
+            }
+            return res;
+        };
+        return f(0, 0, 1);
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def stoneGameII(self, piles: List[int]) -> int:
+        n = len(piles)
+
+        def f(p, i, m):
+            if i == n:
+                return 0
+            res = 1000000 if p == 1 else -1
+            s = 0
+            for x in range(1, min(2 * m, n - i) + 1):
+                s += piles[i + x - 1]
+                if p == 0:
+                    res = max(res, s + f(1, i + x, max(m, x)))
+                else:
+                    res = min(res, f(0, i + x, max(m, x)))
+            return res
+
+        return f(0, 0, 1)
+    </code>
+</pre>
+<p>The issue here is that <span class="math math-inline"><span class="katex"><span class="katex-mathml">ff</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.10764em;">f</span></span></span></span></span> might be called
+    (exponentially) many times for the same parameters <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">(p,i,m)(p, i, m)</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mopen">(</span><span class="mord mathnormal">p</span><span class="mpunct">,</span><span
+            class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal">i</span><span
+            class="mpunct">,</span><span class="mspace" style="margin-right: 0.1667em;"></span><span
+            class="mord mathnormal">m</span><span class="mclose">)</span></span></span></span></span>.</p>
+<p>For example, we call <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">f(0,7,4)f(0, 7, 4)</span><span class="katex-html" aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.10764em;">f</span><span class="mopen">(</span><span class="mord">0</span><span
+        class="mpunct">,</span><span class="mspace" style="margin-right: 0.1667em;"></span><span
+        class="mord">7</span><span class="mpunct">,</span><span class="mspace"
+                                                                style="margin-right: 0.1667em;"></span><span
+        class="mord">4</span><span class="mclose">)</span></span></span></span></span> for the first time and calculate
+    the result for <span class="math math-inline"><span class="katex"><span class="katex-mathml">p=0p = 0</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.625em; vertical-align: -0.1944em;"></span><span
+            class="mord mathnormal">p</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+            class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span>,
+    <span class="math math-inline"><span class="katex"><span class="katex-mathml">i=7i = 7</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.6595em;"></span><span
+            class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+            class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">7</span></span></span></span></span>,
+    <span class="math math-inline"><span class="katex"><span class="katex-mathml">m=4m = 4</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.4306em;"></span><span
+            class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+            class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">4</span></span></span></span></span>.
+    But when we call <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">f(0,7,4)f(0, 7, 4)</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.10764em;">f</span><span class="mopen">(</span><span
+            class="mord">0</span><span class="mpunct">,</span><span class="mspace"
+                                                                    style="margin-right: 0.1667em;"></span><span
+            class="mord">7</span><span class="mpunct">,</span><span class="mspace"
+                                                                    style="margin-right: 0.1667em;"></span><span
+            class="mord">4</span><span class="mclose">)</span></span></span></span></span> for the second time, we
+    recompute the same result.</p>
+<p>Instead, one may keep the calculated values of <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">f(0,7,4)f(0, 7, 4)</span><span class="katex-html" aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.10764em;">f</span><span class="mopen">(</span><span class="mord">0</span><span
+        class="mpunct">,</span><span class="mspace" style="margin-right: 0.1667em;"></span><span
+        class="mord">7</span><span class="mpunct">,</span><span class="mspace"
+                                                                style="margin-right: 0.1667em;"></span><span
+        class="mord">4</span><span class="mclose">)</span></span></span></span></span> in memory. We will store the
+    table <code>dp[2][n + 1][n + 1]</code>. In this case, the process will be as follows.</p>
+<p>For example, we call <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">f(0,7,4)f(0, 7, 4)</span><span class="katex-html" aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.10764em;">f</span><span class="mopen">(</span><span class="mord">0</span><span
+        class="mpunct">,</span><span class="mspace" style="margin-right: 0.1667em;"></span><span
+        class="mord">7</span><span class="mpunct">,</span><span class="mspace"
+                                                                style="margin-right: 0.1667em;"></span><span
+        class="mord">4</span><span class="mclose">)</span></span></span></span></span> for the first time, calculate the
+    result for <span class="math math-inline"><span class="katex"><span class="katex-mathml">p=0p = 0</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.625em; vertical-align: -0.1944em;"></span><span
+            class="mord mathnormal">p</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+            class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span>,
+    <span class="math math-inline"><span class="katex"><span class="katex-mathml">i=7i = 7</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.6595em;"></span><span
+            class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+            class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">7</span></span></span></span></span>,
+    <span class="math math-inline"><span class="katex"><span class="katex-mathml">m=4m = 4</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.4306em;"></span><span
+            class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+            class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">4</span></span></span></span></span>
+    and write this result into <code>dp[0][7][4]</code>. When we call <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">f(0,7,4)f(0, 7, 4)</span><span class="katex-html"
+                                                                                    aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.10764em;">f</span><span class="mopen">(</span><span
+            class="mord">0</span><span class="mpunct">,</span><span class="mspace"
+                                                                    style="margin-right: 0.1667em;"></span><span
+            class="mord">7</span><span class="mpunct">,</span><span class="mspace"
+                                                                    style="margin-right: 0.1667em;"></span><span
+            class="mord">4</span><span class="mclose">)</span></span></span></span></span> for the second time, we do
+    not recompute the same result but return the value of <code>dp[0][7][4]</code>.</p>
+<p>Saving the function results in memory is called <a href="https://en.wikipedia.org/wiki/Memoization" target="_blank">memoization</a>.
+</p>
+<p>It is how we calculate the value of <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">ff</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                                           style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.10764em;">f</span></span></span></span></span> for each state
+    (each triplet of parameters <span class="math math-inline"><span class="katex"><span class="katex-mathml">(p,i,m)(p, i, m)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mopen">(</span><span class="mord mathnormal">p</span><span class="mpunct">,</span><span
+            class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal">i</span><span
+            class="mpunct">,</span><span class="mspace" style="margin-right: 0.1667em;"></span><span
+            class="mord mathnormal">m</span><span class="mclose">)</span></span></span></span></span>) only once.</p>
+<p>There remains one small technical question: how to know whether we call <span class="math math-inline"><span
+        class="katex"><span class="katex-mathml">f(p,i,m)f(p, i, m)</span><span class="katex-html"
+                                                                                aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.10764em;">f</span><span class="mopen">(</span><span
+        class="mord mathnormal">p</span><span class="mpunct">,</span><span class="mspace"
+                                                                           style="margin-right: 0.1667em;"></span><span
+        class="mord mathnormal">i</span><span class="mpunct">,</span><span class="mspace"
+                                                                           style="margin-right: 0.1667em;"></span><span
+        class="mord mathnormal">m</span><span class="mclose">)</span></span></span></span></span> for the first time and
+    need to compute the result, or we call it later and can return <code>dp[p][i][m]</code> which we computed earlier?
+    One can handle this by initializing the <code>dp</code> matrix with <code>-1</code>. Then <code>dp[p][i][m] =
+        -1</code> will mean that <span class="math math-inline"><span class="katex"><span class="katex-mathml">f(p,i,m)f(p, i, m)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.10764em;">f</span><span class="mopen">(</span><span
+            class="mord mathnormal">p</span><span class="mpunct">,</span><span class="mspace"
+                                                                               style="margin-right: 0.1667em;"></span><span
+            class="mord mathnormal">i</span><span class="mpunct">,</span><span class="mspace"
+                                                                               style="margin-right: 0.1667em;"></span><span
+            class="mord mathnormal">m</span><span class="mclose">)</span></span></span></span></span> was not calculated
+    yet. As soon as we find the result <span class="math math-inline"><span class="katex"><span class="katex-mathml">f(p,i,m)f(p, i, m)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.10764em;">f</span><span class="mopen">(</span><span
+            class="mord mathnormal">p</span><span class="mpunct">,</span><span class="mspace"
+                                                                               style="margin-right: 0.1667em;"></span><span
+            class="mord mathnormal">i</span><span class="mpunct">,</span><span class="mspace"
+                                                                               style="margin-right: 0.1667em;"></span><span
+            class="mord mathnormal">m</span><span class="mclose">)</span></span></span></span></span>, we will write it
+    into <code>dp[p][i][m]</code>, and this value will not be <code>-1</code> anymore.</p>
+<h4 id="algorithm">Algorithm</h4>
+<p>The function <code>f</code> takes three parameters: <code>p</code>, <code>i</code>, and <code>m</code>.</p>
+<ol>
+    <li>If <span class="math math-inline"><span class="katex"><span class="katex-mathml">i=ni = n</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.6595em;"></span><span
+            class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+            class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.4306em;"></span><span
+            class="mord mathnormal">n</span></span></span></span></span>, return <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">00</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span>.
+        (The base case of the recursion.)
+    </li>
+    <li>If <code>dp[p][i][m] != -1</code> (which means that we found this value earlier), return
+        <code>dp[p][i][m]</code>.
+    </li>
+    <li>Initialize <span class="math math-inline"><span class="katex"><span class="katex-mathml">s=0s = 0</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.4306em;"></span><span
+            class="mord mathnormal">s</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+            class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span>.
+        <span class="math math-inline"><span class="katex"><span class="katex-mathml">ss</span><span class="katex-html"
+                                                                                                     aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">s</span></span></span></span></span>
+        is the number of stones the player takes during the current move. Also initialize <code>res</code>, the return
+        value of the current state. If it's Bob's turn, initialize it with a large number since Bob wants to minimize
+        the return value. If it's Alice's turn, initialize it with a small number since Alice wants to maximize the
+        return value.
+    </li>
+    <li>Iterate <span class="math math-inline"><span class="katex"><span class="katex-mathml">xx</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.4306em;"></span><span
+            class="mord mathnormal">x</span></span></span></span></span> from <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">11</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span>
+        to <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">min⁡(2m,n−i)\min(2m, n - i)</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">min</span><span
+                class="mopen">(</span><span class="mord">2</span><span class="mord mathnormal">m</span><span
+                class="mpunct">,</span><span class="mspace" style="margin-right: 0.1667em;"></span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal">i</span><span class="mclose">)</span></span></span></span></span>, as indicated
+        by the problem description.
+        <ul>
+            <li>Add <code>piles[i + x - 1]</code> to <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">ss</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                    class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">s</span></span></span></span></span>.
+            </li>
+            <li>If <span class="math math-inline"><span class="katex"><span class="katex-mathml">p=0p = 0</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.625em; vertical-align: -0.1944em;"></span><span
+                    class="mord mathnormal">p</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+                    class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+                    class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span>
+                (Alice moves), update the result with <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">s+f(1,i+x,max⁡(m,x))s + f(1, i + x, \max(m, x))</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+                        class="mord mathnormal">s</span><span class="mspace"
+                                                              style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span
+                        class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+                        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                                 style="margin-right: 0.10764em;">f</span><span
+                        class="mopen">(</span><span class="mord">1</span><span class="mpunct">,</span><span
+                        class="mspace" style="margin-right: 0.1667em;"></span><span
+                        class="mord mathnormal">i</span><span class="mspace"
+                                                              style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span
+                        class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+                        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal">x</span><span class="mpunct">,</span><span class="mspace"
+                                                                                           style="margin-right: 0.1667em;"></span><span
+                        class="mop">max</span><span class="mopen">(</span><span class="mord mathnormal">m</span><span
+                        class="mpunct">,</span><span class="mspace" style="margin-right: 0.1667em;"></span><span
+                        class="mord mathnormal">x</span><span class="mclose">))</span></span></span></span></span> if it
+                is larger than the current <code>res</code>.
+            </li>
+            <li>If <span class="math math-inline"><span class="katex"><span class="katex-mathml">p=1p = 1</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.625em; vertical-align: -0.1944em;"></span><span
+                    class="mord mathnormal">p</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+                    class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+                    class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span>
+                (Bob moves), update the result with <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">f(0,i+x,max⁡(m,x))f(0, i + x, \max(m, x))</span><span class="katex-html"
+                                                                                                   aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.10764em;">f</span><span
+                        class="mopen">(</span><span class="mord">0</span><span class="mpunct">,</span><span
+                        class="mspace" style="margin-right: 0.1667em;"></span><span
+                        class="mord mathnormal">i</span><span class="mspace"
+                                                              style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span
+                        class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+                        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal">x</span><span class="mpunct">,</span><span class="mspace"
+                                                                                           style="margin-right: 0.1667em;"></span><span
+                        class="mop">max</span><span class="mopen">(</span><span class="mord mathnormal">m</span><span
+                        class="mpunct">,</span><span class="mspace" style="margin-right: 0.1667em;"></span><span
+                        class="mord mathnormal">x</span><span class="mclose">))</span></span></span></span></span> if it
+                is smaller than the current <code>res</code>.
+            </li>
+        </ul>
+    </li>
+    <li>Write <code>res</code> into <code>dp[p][i][m]</code>.</li>
+    <li>Return <code>res</code>.</li>
+</ol>
+<p>One needs to initialize the table <code>dp[2][n + 1][n + 1]</code> with <code>-1</code> in the main function and
+    return <span class="math math-inline"><span class="katex"><span class="katex-mathml">f(0,0,1)f(0, 0, 1)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.10764em;">f</span><span class="mopen">(</span><span
+            class="mord">0</span><span class="mpunct">,</span><span class="mspace"
+                                                                    style="margin-right: 0.1667em;"></span><span
+            class="mord">0</span><span class="mpunct">,</span><span class="mspace"
+                                                                    style="margin-right: 0.1667em;"></span><span
+            class="mord">1</span><span class="mclose">)</span></span></span></span></span>.</p>
+<h4 id="implementation">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    private int f(int[] piles, int[][][] dp, int p, int i, int m) {
+        if (i == piles.length) {
+            return 0;
+        }
+        if (dp[p][i][m] != -1) {
+            return dp[p][i][m];
+        }
+        int res = p == 1 ? 1000000 : -1, s = 0;
+        for (int x = 1; x <= Math.min(2 * m, piles.length - i); x++) {
+            s += piles[i + x - 1];
+            if (p == 0) {
+                res = Math.max(res, s + f(piles, dp, 1, i + x, Math.max(m, x)));
+            }
+            else {
+                res = Math.min(res, f(piles, dp, 0, i + x, Math.max(m, x)));
+            }
+        }
+        return dp[p][i][m] = res;
+    }
+    public int stoneGameII(int[] piles) {
+        int[][][] dp = new int[2][piles.length + 1][piles.length + 1];
+        for (int p = 0; p < 2; p++) {
+            for (int i = 0; i <= piles.length; i++) {
+                for (int m = 0; m <= piles.length; m++) {
+                    dp[p][i][m] = -1;
+                }
+            }
+        }
+        return f(piles, dp, 0, 0, 1);
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int stoneGameII(vector<int>& piles) {
+        int n = piles.size();
+        vector dp(2, vector(n + 1, vector<int>(n + 1, -1)));
+
+        function<int(int, int, int)> f = [&](int p, int i, int m) -> int {
+            if (i == n) {
+                return 0;
+            }
+            if (dp[p][i][m] != -1) {
+                return dp[p][i][m];
+            }
+            int res = p == 1 ? 1000000 : -1, s = 0;
+            for (int x = 1; x <= min(2 * m, n - i); x++) {
+                s += piles[i + x - 1];
+                if (p == 0) {
+                    res = max(res, s + f(1, i + x, max(m, x)));
+                }
+                else {
+                    res = min(res, f(0, i + x, max(m, x)));
+                }
+            }
+            return dp[p][i][m] = res;
+        };
+
+        return f(0, 0, 1);
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def stoneGameII(self, piles: List[int]) -> int:
+        n = len(piles)
+        dp = [[[-1] * (n + 1) for i in range(n + 1)] for p in range(0, 2)]
+
+        def f(p, i, m):
+            if i == n:
+                return 0
+            if dp[p][i][m] != -1:
+                return dp[p][i][m]
+            res = 1000000 if p == 1 else -1
+            s = 0
+            for x in range(1, min(2 * m, n - i) + 1):
+                s += piles[i + x - 1]
+                if p == 0:
+                    res = max(res, s + f(1, i + x, max(m, x)))
+                else:
+                    res = min(res, f(0, i + x, max(m, x)))
+            dp[p][i][m] = res
+            return res
+
+        return f(0, 0, 1)
+    </code>
+</pre>
+<h4 id="complexity-analysis">Complexity Analysis</h4>
+<ul>
+    <li>Time complexity: <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">O(n3)O(n^3)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                          style="margin-right: 0.02778em;">O</span><span
+            class="mopen">(</span><span class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span
+            class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span
+            class="mord mtight">3</span></span></span></span></span></span></span></span><span
+            class="mclose">)</span></span></span></span></span>.
+    </li>
+</ul>
+<p>There are <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n2)O(n^2)</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord"><span
+        class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span
+        class="vlist" style="height: 0.8141em;"><span style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                                         style="height: 2.7em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span
+        class="mord mtight">2</span></span></span></span></span></span></span></span><span
+        class="mclose">)</span></span></span></span></span> possible states <span class="math math-inline"><span
+        class="katex"><span class="katex-mathml">(p,i,m)(p, i, m)</span><span class="katex-html"
+                                                                              aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mopen">(</span><span class="mord mathnormal">p</span><span class="mpunct">,</span><span class="mspace"
+                                                                                                       style="margin-right: 0.1667em;"></span><span
+        class="mord mathnormal">i</span><span class="mpunct">,</span><span class="mspace"
+                                                                           style="margin-right: 0.1667em;"></span><span
+        class="mord mathnormal">m</span><span class="mclose">)</span></span></span></span></span> (<span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span class="katex-html"
+                                                                                                     aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord">1</span><span
+        class="mclose">)</span></span></span></span></span> options for <span class="math math-inline"><span
+        class="katex"><span class="katex-mathml">0≤p≤10 \le p \le 1</span><span class="katex-html"
+                                                                                aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.7804em; vertical-align: -0.136em;"></span><span
+        class="mord">0</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+        class="mrel">≤</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span
+        class="strut" style="height: 0.8304em; vertical-align: -0.1944em;"></span><span class="mord mathnormal">p</span><span
+        class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">≤</span><span class="mspace"
+                                                                                               style="margin-right: 0.2778em;"></span></span><span
+        class="base"><span class="strut" style="height: 0.6444em;"></span><span
+        class="mord">1</span></span></span></span></span>, <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                 style="margin-right: 0.02778em;">O</span><span
+        class="mopen">(</span><span class="mord mathnormal">n</span><span
+        class="mclose">)</span></span></span></span></span> options for <span class="math math-inline"><span
+        class="katex"><span class="katex-mathml">0≤i≤n0 \le i \le n</span><span class="katex-html"
+                                                                                aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.7804em; vertical-align: -0.136em;"></span><span
+        class="mord">0</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+        class="mrel">≤</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span
+        class="strut" style="height: 0.7955em; vertical-align: -0.136em;"></span><span
+        class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+        class="mrel">≤</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span
+        class="strut" style="height: 0.4306em;"></span><span
+        class="mord mathnormal">n</span></span></span></span></span> and <span class="math math-inline"><span
+        class="katex"><span class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+        class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> options for <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">1≤m≤n1 \le m \le n</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.7804em; vertical-align: -0.136em;"></span><span
+        class="mord">1</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+        class="mrel">≤</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span
+        class="strut" style="height: 0.7719em; vertical-align: -0.136em;"></span><span
+        class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+        class="mrel">≤</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span
+        class="strut" style="height: 0.4306em;"></span><span
+        class="mord mathnormal">n</span></span></span></span></span>).</p>
+<p>For each state, to calculate <span class="math math-inline"><span class="katex"><span class="katex-mathml">f(p,i,m)f(p, i, m)</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.10764em;">f</span><span class="mopen">(</span><span
+        class="mord mathnormal">p</span><span class="mpunct">,</span><span class="mspace"
+                                                                           style="margin-right: 0.1667em;"></span><span
+        class="mord mathnormal">i</span><span class="mpunct">,</span><span class="mspace"
+                                                                           style="margin-right: 0.1667em;"></span><span
+        class="mord mathnormal">m</span><span class="mclose">)</span></span></span></span></span>, we try all possible
+    values of <span class="math math-inline"><span class="katex"><span class="katex-mathml">xx</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.4306em;"></span><span
+            class="mord mathnormal">x</span></span></span></span></span> in the <code>for</code> loop, which performs
+    <span class="math math-inline"><span class="katex"><span class="katex-mathml">min⁡(2⋅m,n−i)=O(n)\min(2 \cdot m, n - i) = O(n)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mop">min</span><span class="mopen">(</span><span class="mord">2</span><span class="mspace"
+                                                                                               style="margin-right: 0.2222em;"></span><span
+            class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.7778em; vertical-align: -0.1944em;"></span><span
+            class="mord mathnormal">m</span><span class="mpunct">,</span><span class="mspace"
+                                                                               style="margin-right: 0.1667em;"></span><span
+            class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal">i</span><span class="mclose">)</span><span class="mspace"
+                                                                               style="margin-right: 0.2778em;"></span><span
+            class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> iterations.</p>
+<p>Since, for each state, we calculate <span class="math math-inline"><span class="katex"><span class="katex-mathml">f(p,i,m)f(p, i, m)</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.10764em;">f</span><span class="mopen">(</span><span
+        class="mord mathnormal">p</span><span class="mpunct">,</span><span class="mspace"
+                                                                           style="margin-right: 0.1667em;"></span><span
+        class="mord mathnormal">i</span><span class="mpunct">,</span><span class="mspace"
+                                                                           style="margin-right: 0.1667em;"></span><span
+        class="mord mathnormal">m</span><span class="mclose">)</span></span></span></span></span> only once, thus the
+    total time complexity is <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n2)⋅O(n)=O(n3)O(n^2) \cdot O(n) = O(n^3)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+            class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span
+            class="mord mtight">2</span></span></span></span></span></span></span></span><span
+            class="mclose">)</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord mathnormal">n</span><span class="mclose">)</span><span class="mspace"
+                                                                               style="margin-right: 0.2778em;"></span><span
+            class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+            class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span
+            class="mord mtight">3</span></span></span></span></span></span></span></span><span
+            class="mclose">)</span></span></span></span></span>.</p>
+<ul>
+    <li>Space complexity: <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">O(n2)O(n^2)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                          style="margin-right: 0.02778em;">O</span><span
+            class="mopen">(</span><span class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span
+            class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span
+            class="mord mtight">2</span></span></span></span></span></span></span></span><span
+            class="mclose">)</span></span></span></span></span>.
+    </li>
+</ul>
+<p>We store the table <code>dp[2][n + 1][n + 1]</code> of size <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">O(n2)O(n^2)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+        class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                      style="margin-right: 0.02778em;">O</span><span
+        class="mopen">(</span><span class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span
+        class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+        style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span
+        class="mord mtight">2</span></span></span></span></span></span></span></span><span
+        class="mclose">)</span></span></span></span></span>.</p>
+</body>
+</html>
