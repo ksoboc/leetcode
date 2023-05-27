@@ -1,0 +1,1773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Stone Game III - Solution</title>
+</head>
+<body>
+<h2 id="solution">Solution</h2>
+<hr>
+<h3 id="overview">Overview</h3>
+<blockquote>
+    <p><strong>Note.</strong> For this problem, we assume that you already know the fundamentals of dynamic programming
+        and are figuring out how to apply it to a wide range of problems, such as this one. If you are not yet at this
+        stage, we recommend checking out our relevant <a
+                href="https://leetcode.com/explore/featured/card/dynamic-programming/" target="_blank">Explore Card
+            content on dynamic programming</a> before coming back to this article.</p>
+</blockquote>
+<p>The game described in the problem is a <a href="https://en.wikipedia.org/wiki/Zero-sum_game" target="_blank">zero-sum
+    game</a>. Since the sum of all stones is constant, Alice getting more points means Bob getting less, and vice versa.
+    In zero-sum games with two rational players, both want to minimize their opponent's score since it is equivalent to
+    maximizing their own.</p>
+<p>If Alice has a higher score than Bob, she wins. If Bob's score is higher, he wins. If their scores are equal, it is a
+    tie.</p>
+<p>The thing that matters to determine the outcome of this game is the <strong>difference</strong> between the player's
+    scores. To know the result, one checks whether the difference is positive, negative, or zero at the end of the game.
+    Each player wants to maximize the difference between their score and their opponent's.</p>
+<hr>
+<h3 id="approach-1-bottom-up-dynamic-programming">Approach 1: Bottom-Up Dynamic Programming</h3>
+<h4 id="intuition">Intuition</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    denote the number of stones in the row.</p>
+<p>For <span class="math math-inline"><span class="katex"><span class="katex-mathml">0≤i≤n0 \le i \le n</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.7804em; vertical-align: -0.136em;"></span><span
+        class="mord">0</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+        class="mrel">≤</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span
+        class="strut" style="height: 0.7955em; vertical-align: -0.136em;"></span><span
+        class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+        class="mrel">≤</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span
+        class="strut" style="height: 0.4306em;"></span><span
+        class="mord mathnormal">n</span></span></span></span></span>, define <span class="math math-inline"><span
+        class="katex"><span class="katex-mathml">dp[i]\text{dp}[i]</span><span class="katex-html"
+                                                                               aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+        class="mord mathnormal">i</span><span class="mclose">]</span></span></span></span></span> as follows. Consider a
+    game with only the last <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">n−in - i</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+            class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6595em;"></span><span
+            class="mord mathnormal">i</span></span></span></span></span> stones (imagine <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">stoneValues[i]\text{stoneValues}[i]</span><span class="katex-html"
+                                                                                                     aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">stoneValues</span></span><span class="mopen">[</span><span
+            class="mord mathnormal">i</span><span class="mclose">]</span></span></span></span></span> is the first
+    stone). <span class="math math-inline"><span class="katex"><span class="katex-mathml">dp[i]\text{dp}[i]</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+            class="mord mathnormal">i</span><span class="mclose">]</span></span></span></span></span> is the first
+    player's score minus the second player's score at the end of the game.</p>
+<p>The base case of this DP is <span class="math math-inline"><span class="katex"><span class="katex-mathml">dp[n]=0\text{dp}[n] = 0</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+        class="mord mathnormal">n</span><span class="mclose">]</span><span class="mspace"
+                                                                           style="margin-right: 0.2778em;"></span><span
+        class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span
+        class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span>. Since
+    there are no stones in the game, thus the players cannot make any moves, and the difference between their scores
+    will be zero.</p>
+<p>Consider now <span class="math math-inline"><span class="katex"><span class="katex-mathml">i&lt;ni &lt; n</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.6986em; vertical-align: -0.0391em;"></span><span
+        class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">&lt;</span><span
+        class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut"
+                                                                                              style="height: 0.4306em;"></span><span
+        class="mord mathnormal">n</span></span></span></span></span> when at least one stone is in the game. Let's call
+    the first player X and the second one Y. Then <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">dp[i]\text{dp}[i]</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord text"><span
+            class="mord">dp</span></span><span class="mopen">[</span><span class="mord mathnormal">i</span><span
+            class="mclose">]</span></span></span></span></span> is the difference <span class="math math-inline"><span
+            class="katex"><span
+            class="katex-mathml">scoreX−scoreY\text{score}_\text{X} - \text{score}_\text{Y}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.7333em; vertical-align: -0.15em;"></span><span
+            class="mord"><span class="mord text"><span class="mord">score</span></span><span class="msupsub"><span
+            class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.3283em;"><span
+            style="top: -2.55em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span
+            class="mord mtight">X</span></span></span></span></span><span class="vlist-s">​</span></span><span
+            class="vlist-r"><span class="vlist" style="height: 0.15em;"><span></span></span></span></span></span></span><span
+            class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">−</span><span class="mspace"
+                                                                                                   style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.5806em; vertical-align: -0.15em;"></span><span
+            class="mord"><span class="mord text"><span class="mord">score</span></span><span class="msupsub"><span
+            class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.3283em;"><span
+            style="top: -2.55em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span
+            class="mord mtight">Y</span></span></span></span></span><span class="vlist-s">​</span></span><span
+            class="vlist-r"><span class="vlist" style="height: 0.15em;"><span></span></span></span></span></span></span></span></span></span></span>.
+</p>
+<ul>
+    <li>If the player X takes <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">11</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span> stone
+        (with index <span class="math math-inline"><span class="katex"><span class="katex-mathml">ii</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.6595em;"></span><span
+                class="mord mathnormal">i</span></span></span></span></span>), X's score for the current move is <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">stoneValue[i]\text{stoneValue}[i]</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord text"><span class="mord">stoneValue</span></span><span class="mopen">[</span><span
+                class="mord mathnormal">i</span><span class="mclose">]</span></span></span></span></span>. After that,
+        the next state will be <span class="math math-inline"><span class="katex"><span class="katex-mathml">dp[i+1]\text{dp}[i + 1]</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+                class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord">1</span><span class="mclose">]</span></span></span></span></span>, since there is one less
+        stone in the game. However, the players exchange their roles - X becomes Y, and Y becomes X.
+    </li>
+</ul>
+<blockquote>
+    <p>This might be confusing, so consider an example with names. Let's say X = Alice, and Y = Bob, at <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">dp[i]\text{dp}[i]</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+            class="mord mathnormal">i</span><span class="mclose">]</span></span></span></span></span>. Alice takes one
+        stone, and now we move to <span class="math math-inline"><span class="katex"><span class="katex-mathml">dp[i+1]\text{dp}[i + 1]</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+                class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord">1</span><span class="mclose">]</span></span></span></span></span>. However, now it's Bob's
+        turn. We defined X as the player who takes the first turn, and in this new state <span class="math math-inline"><span
+                class="katex"><span class="katex-mathml">dp[i+1]\text{dp}[i + 1]</span><span class="katex-html"
+                                                                                             aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+                class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord">1</span><span class="mclose">]</span></span></span></span></span>, Bob is moving first.
+        Therefore, X is now Bob, and Y is now Alice.</p>
+</blockquote>
+<ul>
+    <li>Remember, we defined <span class="math math-inline"><span class="katex"><span class="katex-mathml">dp[i]\text{dp}[i]</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+            class="mord mathnormal">i</span><span class="mclose">]</span></span></span></span></span> as <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">scoreX−scoreY\text{score}_\text{X} - \text{score}_\text{Y}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.7333em; vertical-align: -0.15em;"></span><span
+            class="mord"><span class="mord text"><span class="mord">score</span></span><span class="msupsub"><span
+            class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.3283em;"><span
+            style="top: -2.55em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span
+            class="mord mtight">X</span></span></span></span></span><span class="vlist-s">​</span></span><span
+            class="vlist-r"><span class="vlist" style="height: 0.15em;"><span></span></span></span></span></span></span><span
+            class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">−</span><span class="mspace"
+                                                                                                   style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.5806em; vertical-align: -0.15em;"></span><span
+            class="mord"><span class="mord text"><span class="mord">score</span></span><span class="msupsub"><span
+            class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.3283em;"><span
+            style="top: -2.55em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span
+            class="mord mtight">Y</span></span></span></span></span><span class="vlist-s">​</span></span><span
+            class="vlist-r"><span class="vlist" style="height: 0.15em;"><span></span></span></span></span></span></span></span></span></span></span>.
+        Thus, <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">dp[i+1]\text{dp}[i + 1]</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+                class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord">1</span><span class="mclose">]</span></span></span></span></span> is actually the future
+        value of <span class="math math-inline"><span class="katex"><span class="katex-mathml">scoreY−scoreX\text{score}_\text{Y} - \text{score}_\text{X}</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.7333em; vertical-align: -0.15em;"></span><span
+                class="mord"><span class="mord text"><span class="mord">score</span></span><span class="msupsub"><span
+                class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.3283em;"><span
+                style="top: -2.55em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span
+                class="mord mtight">Y</span></span></span></span></span><span class="vlist-s">​</span></span><span
+                class="vlist-r"><span class="vlist"
+                                      style="height: 0.15em;"><span></span></span></span></span></span></span><span
+                class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">−</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.5806em; vertical-align: -0.15em;"></span><span
+                class="mord"><span class="mord text"><span class="mord">score</span></span><span class="msupsub"><span
+                class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.3283em;"><span
+                style="top: -2.55em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span
+                class="mord mtight">X</span></span></span></span></span><span class="vlist-s">​</span></span><span
+                class="vlist-r"><span class="vlist"
+                                      style="height: 0.15em;"><span></span></span></span></span></span></span></span></span></span></span>
+        from the "perspective" of <span class="math math-inline"><span class="katex"><span class="katex-mathml">dp[i]\text{dp}[i]</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+                class="mord mathnormal">i</span><span class="mclose">]</span></span></span></span></span>, since X and Y
+        have swapped.
+    </li>
+    <li>Thus, if player X only takes <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">11</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span>
+        stone, then it will result in a score difference of <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">stoneValue[i]−dp[i+1]\text{stoneValue}[i] - \text{dp}[i + 1]</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord text"><span class="mord">stoneValue</span></span><span class="mopen">[</span><span
+                class="mord mathnormal">i</span><span class="mclose">]</span><span class="mspace"
+                                                                                   style="margin-right: 0.2222em;"></span><span
+                class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+                class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord">1</span><span class="mclose">]</span></span></span></span></span>. The minus is to flip
+        <span class="math math-inline"><span class="katex"><span class="katex-mathml">scoreY−scoreX\text{score}_\text{Y} - \text{score}_\text{X}</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.7333em; vertical-align: -0.15em;"></span><span
+                class="mord"><span class="mord text"><span class="mord">score</span></span><span class="msupsub"><span
+                class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.3283em;"><span
+                style="top: -2.55em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span
+                class="mord mtight">Y</span></span></span></span></span><span class="vlist-s">​</span></span><span
+                class="vlist-r"><span class="vlist"
+                                      style="height: 0.15em;"><span></span></span></span></span></span></span><span
+                class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">−</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.5806em; vertical-align: -0.15em;"></span><span
+                class="mord"><span class="mord text"><span class="mord">score</span></span><span class="msupsub"><span
+                class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.3283em;"><span
+                style="top: -2.55em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span
+                class="mord mtight">X</span></span></span></span></span><span class="vlist-s">​</span></span><span
+                class="vlist-r"><span class="vlist"
+                                      style="height: 0.15em;"><span></span></span></span></span></span></span></span></span></span></span>
+        into <span class="math math-inline"><span class="katex"><span class="katex-mathml">scoreX−scoreY\text{score}_\text{X} - \text{score}_\text{Y}</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.7333em; vertical-align: -0.15em;"></span><span
+                class="mord"><span class="mord text"><span class="mord">score</span></span><span class="msupsub"><span
+                class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.3283em;"><span
+                style="top: -2.55em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span
+                class="mord mtight">X</span></span></span></span></span><span class="vlist-s">​</span></span><span
+                class="vlist-r"><span class="vlist"
+                                      style="height: 0.15em;"><span></span></span></span></span></span></span><span
+                class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">−</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.5806em; vertical-align: -0.15em;"></span><span
+                class="mord"><span class="mord text"><span class="mord">score</span></span><span class="msupsub"><span
+                class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.3283em;"><span
+                style="top: -2.55em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span
+                class="mord mtight">Y</span></span></span></span></span><span class="vlist-s">​</span></span><span
+                class="vlist-r"><span class="vlist"
+                                      style="height: 0.15em;"><span></span></span></span></span></span></span></span></span></span></span>.
+    </li>
+    <li>Similarly, if X takes two stones (with indices <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">ii</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.6595em;"></span><span
+            class="mord mathnormal">i</span></span></span></span></span> and <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">i+1i + 1</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.7429em; vertical-align: -0.0833em;"></span><span
+            class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span>),
+        the difference <span class="math math-inline"><span class="katex"><span class="katex-mathml">scoreX−scoreY\text{score}_\text{X} - \text{score}_\text{Y}</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.7333em; vertical-align: -0.15em;"></span><span
+                class="mord"><span class="mord text"><span class="mord">score</span></span><span class="msupsub"><span
+                class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.3283em;"><span
+                style="top: -2.55em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span
+                class="mord mtight">X</span></span></span></span></span><span class="vlist-s">​</span></span><span
+                class="vlist-r"><span class="vlist"
+                                      style="height: 0.15em;"><span></span></span></span></span></span></span><span
+                class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">−</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.5806em; vertical-align: -0.15em;"></span><span
+                class="mord"><span class="mord text"><span class="mord">score</span></span><span class="msupsub"><span
+                class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.3283em;"><span
+                style="top: -2.55em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span
+                class="mord mtight">Y</span></span></span></span></span><span class="vlist-s">​</span></span><span
+                class="vlist-r"><span class="vlist"
+                                      style="height: 0.15em;"><span></span></span></span></span></span></span></span></span></span></span>
+        will be <span class="math math-inline"><span class="katex"><span class="katex-mathml">stoneValue[i]+stoneValue[i+1]−dp[i+2]\text{stoneValue}[i] + \text{stoneValue}[i + 1] - \text{dp}[i + 2]</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord text"><span class="mord">stoneValue</span></span><span class="mopen">[</span><span
+                class="mord mathnormal">i</span><span class="mclose">]</span><span class="mspace"
+                                                                                   style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord text"><span class="mord">stoneValue</span></span><span class="mopen">[</span><span
+                class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord">1</span><span class="mclose">]</span><span class="mspace"
+                                                                        style="margin-right: 0.2222em;"></span><span
+                class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+                class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord">2</span><span class="mclose">]</span></span></span></span></span>.
+    </li>
+    <li>Finally, if X takes three stones, the difference will be <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">stoneValue[i]+stoneValue[i+1]+stoneValue[i+2]−dp[i+3]\text{stoneValue}[i] + \text{stoneValue}[i + 1] + \text{stoneValue}[i + 2] - \text{dp}[i + 3]</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">stoneValue</span></span><span class="mopen">[</span><span
+            class="mord mathnormal">i</span><span class="mclose">]</span><span class="mspace"
+                                                                               style="margin-right: 0.2222em;"></span><span
+            class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">stoneValue</span></span><span class="mopen">[</span><span
+            class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord">1</span><span class="mclose">]</span><span class="mspace"
+                                                                    style="margin-right: 0.2222em;"></span><span
+            class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">stoneValue</span></span><span class="mopen">[</span><span
+            class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord">2</span><span class="mclose">]</span><span class="mspace"
+                                                                    style="margin-right: 0.2222em;"></span><span
+            class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+            class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord">3</span><span class="mclose">]</span></span></span></span></span>.
+    </li>
+</ul>
+<blockquote>
+    <p>If you're confused about this logic, think about it like this.</p>
+    <ol>
+        <li>
+            <p><span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">dp[i]\text{dp}[i]</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+                    class="mord mathnormal">i</span><span class="mclose">]</span></span></span></span></span> is some
+                number that the first player wants to maximize.</p>
+        </li>
+        <li>
+            <p>After the first player moves, the second player moves. Therefore the next <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">dp\text{dp}</span><span class="katex-html"
+                                                                                     aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+                    class="mord text"><span class="mord">dp</span></span></span></span></span></span> state will be some
+                number the second player wants to maximize.</p>
+        </li>
+        <li>
+            <p>Since both players try to maximize these values, we can think of these values as their scores.</p>
+        </li>
+        <li>
+            <p>Because one player's gain is the other player's loss, we need to <strong>subtract</strong> the next <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">dp\text{dp}</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+                    class="mord text"><span class="mord">dp</span></span></span></span></span></span> state. It is
+                because the next <span class="math math-inline"><span class="katex"><span class="katex-mathml">dp\text{dp}</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+                        class="mord text"><span class="mord">dp</span></span></span></span></span></span> state
+                represents the other player's "score", and their gain is our loss.</p>
+        </li>
+    </ol>
+</blockquote>
+<p>Since X plays optimally, they will choose the option that maximizes the difference <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">scoreX−scoreY\text{score}_\text{X} - \text{score}_\text{Y}</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.7333em; vertical-align: -0.15em;"></span><span
+        class="mord"><span class="mord text"><span class="mord">score</span></span><span class="msupsub"><span
+        class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.3283em;"><span
+        style="top: -2.55em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span class="mord mtight">X</span></span></span></span></span><span
+        class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                   style="height: 0.15em;"><span></span></span></span></span></span></span><span
+        class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">−</span><span class="mspace"
+                                                                                               style="margin-right: 0.2222em;"></span></span><span
+        class="base"><span class="strut" style="height: 0.5806em; vertical-align: -0.15em;"></span><span
+        class="mord"><span class="mord text"><span class="mord">score</span></span><span class="msupsub"><span
+        class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.3283em;"><span
+        style="top: -2.55em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span class="mord mtight">Y</span></span></span></span></span><span
+        class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                   style="height: 0.15em;"><span></span></span></span></span></span></span></span></span></span></span>.
+    It implies that <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">dp[i]\text{dp}[i]</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord text"><span
+            class="mord">dp</span></span><span class="mopen">[</span><span class="mord mathnormal">i</span><span
+            class="mclose">]</span></span></span></span></span> is the maximum of the above three values. We will try
+    all three.</p>
+<p>Having all DP values computed, one can answer who wins using only <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">dp[0]\text{dp}[0]</span><span class="katex-html" aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+        class="mord">0</span><span class="mclose">]</span></span></span></span></span>, which is the score difference in
+    the game with all <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.4306em;"></span><span
+            class="mord mathnormal">n</span></span></span></span></span> stones present. Since Alice is the first
+    player, this value being positive means Alice wins.</p>
+<h4 id="algorithm">Algorithm</h4>
+<ol>
+    <li>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.4306em;"></span><span
+            class="mord mathnormal">n</span></span></span></span></span> be the number of stones.
+    </li>
+    <li>Declare the array <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">dp\text{dp}</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.8889em; vertical-align: -0.1944em;"></span><span class="mord text"><span
+            class="mord">dp</span></span></span></span></span></span> of size <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">n+1n + 1</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+            class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span>.
+    </li>
+    <li>Set <span class="math math-inline"><span class="katex"><span class="katex-mathml">dp[n]=0\text{dp}[n] = 0</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+            class="mord mathnormal">n</span><span class="mclose">]</span><span class="mspace"
+                                                                               style="margin-right: 0.2778em;"></span><span
+            class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span>.
+        (The base case of the DP).
+    </li>
+    <li>Iterate <span class="math math-inline"><span class="katex"><span class="katex-mathml">ii</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.6595em;"></span><span
+            class="mord mathnormal">i</span></span></span></span></span> from <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">n−1n - 1</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+            class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span>
+        to <span class="math math-inline"><span class="katex"><span class="katex-mathml">00</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.6444em;"></span><span
+                class="mord">0</span></span></span></span></span>.
+        <ul>
+            <li>Set <span class="math math-inline"><span class="katex"><span class="katex-mathml">dp[i]=stoneValue[i]−dp[i+1]\text{dp}[i] = \text{stoneValue}[i] - \text{dp}[i + 1]</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+                    class="mord mathnormal">i</span><span class="mclose">]</span><span class="mspace"
+                                                                                       style="margin-right: 0.2778em;"></span><span
+                    class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord text"><span class="mord">stoneValue</span></span><span class="mopen">[</span><span
+                    class="mord mathnormal">i</span><span class="mclose">]</span><span class="mspace"
+                                                                                       style="margin-right: 0.2222em;"></span><span
+                    class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+                    class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord">1</span><span class="mclose">]</span></span></span></span></span> (take one stone).
+            </li>
+            <li>If <span class="math math-inline"><span class="katex"><span class="katex-mathml">i+2≤ni + 2 \le n</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.7429em; vertical-align: -0.0833em;"></span><span
+                    class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 0.7804em; vertical-align: -0.136em;"></span><span
+                    class="mord">2</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">≤</span><span
+                    class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut"
+                                                                                                          style="height: 0.4306em;"></span><span
+                    class="mord mathnormal">n</span></span></span></span></span>, update <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">dp[i]\text{dp}[i]</span><span class="katex-html"
+                                                                                           aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+                    class="mord mathnormal">i</span><span class="mclose">]</span></span></span></span></span> with <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">stoneValue[i]+stoneValue[i+1]−dp[i+2]\text{stoneValue}[i] + \text{stoneValue}[i + 1] - \text{dp}[i + 2]</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord text"><span class="mord">stoneValue</span></span><span class="mopen">[</span><span
+                    class="mord mathnormal">i</span><span class="mclose">]</span><span class="mspace"
+                                                                                       style="margin-right: 0.2222em;"></span><span
+                    class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord text"><span class="mord">stoneValue</span></span><span class="mopen">[</span><span
+                    class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord">1</span><span class="mclose">]</span><span class="mspace"
+                                                                            style="margin-right: 0.2222em;"></span><span
+                    class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+                    class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord">2</span><span class="mclose">]</span></span></span></span></span> (take two stones) if
+                it's larger.
+            </li>
+            <li>If <span class="math math-inline"><span class="katex"><span class="katex-mathml">i+3≤ni + 3 \le n</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.7429em; vertical-align: -0.0833em;"></span><span
+                    class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 0.7804em; vertical-align: -0.136em;"></span><span
+                    class="mord">3</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">≤</span><span
+                    class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut"
+                                                                                                          style="height: 0.4306em;"></span><span
+                    class="mord mathnormal">n</span></span></span></span></span>, update <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">dp[i]\text{dp}[i]</span><span class="katex-html"
+                                                                                           aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+                    class="mord mathnormal">i</span><span class="mclose">]</span></span></span></span></span> with <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">stoneValue[i]+stoneValue[i+1]+stoneValue[i+2]−dp[i+3]\text{stoneValue}[i] + \text{stoneValue}[i + 1] + \text{stoneValue}[i + 2] - \text{dp}[i + 3]</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord text"><span class="mord">stoneValue</span></span><span class="mopen">[</span><span
+                    class="mord mathnormal">i</span><span class="mclose">]</span><span class="mspace"
+                                                                                       style="margin-right: 0.2222em;"></span><span
+                    class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord text"><span class="mord">stoneValue</span></span><span class="mopen">[</span><span
+                    class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord">1</span><span class="mclose">]</span><span class="mspace"
+                                                                            style="margin-right: 0.2222em;"></span><span
+                    class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord text"><span class="mord">stoneValue</span></span><span class="mopen">[</span><span
+                    class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord">2</span><span class="mclose">]</span><span class="mspace"
+                                                                            style="margin-right: 0.2222em;"></span><span
+                    class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+                    class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord">3</span><span class="mclose">]</span></span></span></span></span> (take three stones)
+                if it's larger.
+            </li>
+        </ul>
+    </li>
+    <li>If <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">dp[0]&gt;0\text{dp}[0] &gt; 0</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span class="mord">0</span><span
+            class="mclose">]</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+            class="mrel">&gt;</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span>,
+        Alice wins.
+    </li>
+    <li>If <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">dp[0]&lt;0\text{dp}[0] &lt; 0</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span class="mord">0</span><span
+            class="mclose">]</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+            class="mrel">&lt;</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span>,
+        Bob wins.
+    </li>
+    <li>If <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">dp[0]=0\text{dp}[0] = 0</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span class="mord">0</span><span
+            class="mclose">]</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+            class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span>,
+        it is a tie.
+    </li>
+</ol>
+<h4 id="implementation">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public String stoneGameIII(int[] stoneValue) {
+        int n = stoneValue.length;
+        int[] dp = new int [n + 1];
+        for (int i = n - 1; i >= 0; i--) {
+            dp[i] = stoneValue[i] - dp[i + 1];
+            if (i + 2 <= n) {
+                dp[i] = Math.max(dp[i], stoneValue[i] + stoneValue[i + 1] - dp[i + 2]);
+            }
+            if (i + 3 <= n) {
+                dp[i] = Math.max(dp[i], stoneValue[i] + stoneValue[i + 1] + stoneValue[i + 2] - dp[i + 3]);
+            }
+        }
+        if (dp[0] > 0) {
+            return "Alice";
+        }
+        if (dp[0] < 0) {
+            return "Bob";
+        }
+        return "Tie";
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    string stoneGameIII(vector<int>& stoneValue) {
+        int n = stoneValue.size();
+        vector<int> dp(n + 1);
+        for (int i = n - 1; i >= 0; i--) {
+            dp[i] = stoneValue[i] - dp[i + 1];
+            if (i + 2 <= n) {
+                dp[i] = max(dp[i], stoneValue[i] + stoneValue[i + 1] - dp[i + 2]);
+            }
+            if (i + 3 <= n) {
+                dp[i] = max(dp[i], stoneValue[i] + stoneValue[i + 1] + stoneValue[i + 2] - dp[i + 3]);
+            }
+        }
+        if (dp[0] > 0) {
+            return "Alice";
+        }
+        if (dp[0] < 0) {
+            return "Bob";
+        }
+        return "Tie";
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def stoneGameIII(self, stoneValue: List[int]) -> str:
+        n = len(stoneValue)
+        dp = [0] * (n + 1)
+        for i in range(n - 1, -1, -1):
+            dp[i] = stoneValue[i] - dp[i + 1]
+            if i + 2 <= n:
+                dp[i] = max(dp[i], stoneValue[i] + stoneValue[i + 1] - dp[i + 2])
+            if i + 3 <= n:
+                dp[i] = max(dp[i], stoneValue[i] + stoneValue[i + 1]
+                            + stoneValue[i + 2] - dp[i + 3])
+        if dp[0] > 0:
+            return "Alice"
+        if dp[0] < 0:
+            return "Bob"
+        return "Tie"
+    </code>
+</pre>
+<h4 id="complexity-analysis">Complexity Analysis</h4>
+<ul>
+    <li>Time complexity: <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                     style="margin-right: 0.02778em;">O</span><span
+            class="mopen">(</span><span class="mord mathnormal">n</span><span
+            class="mclose">)</span></span></span></span></span>.
+    </li>
+</ul>
+<p>There is a <code>for</code> loop that performs <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                                           style="height: 0.4306em;"></span><span
+        class="mord mathnormal">n</span></span></span></span></span> iterations. For each state, we try up to three
+    options: to take <span class="math math-inline"><span class="katex"><span class="katex-mathml">11</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.6444em;"></span><span
+            class="mord">1</span></span></span></span></span>, <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">22</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.6444em;"></span><span class="mord">2</span></span></span></span></span>, or
+    <span class="math math-inline"><span class="katex"><span class="katex-mathml">33</span><span class="katex-html"
+                                                                                                 aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">3</span></span></span></span></span>
+    stones, so each iteration takes <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord">1</span><span class="mclose">)</span></span></span></span></span> time.</p>
+<ul>
+    <li>Space complexity: <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                     style="margin-right: 0.02778em;">O</span><span
+            class="mopen">(</span><span class="mord mathnormal">n</span><span
+            class="mclose">)</span></span></span></span></span>.
+    </li>
+</ul>
+<p>We store the array <code>dp[n + 1]</code> of size <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                 style="margin-right: 0.02778em;">O</span><span
+        class="mopen">(</span><span class="mord mathnormal">n</span><span
+        class="mclose">)</span></span></span></span></span>.</p>
+<hr>
+<h3 id="approach-2-top-down-dynamic-programming-memoization">Approach 2: Top-Down Dynamic Programming (Memoization)</h3>
+<h4 id="intuition-1">Intuition</h4>
+<p>In this approach, we will calculate the same DP as in the previous one, but the manner of organizing computations
+    will differ.</p>
+<p>We will use the recursive function <span class="math math-inline"><span class="katex"><span class="katex-mathml">f(i)f(i)</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.10764em;">f</span><span class="mopen">(</span><span
+        class="mord mathnormal">i</span><span class="mclose">)</span></span></span></span></span> that returns the value
+    of <span class="math math-inline"><span class="katex"><span class="katex-mathml">dp[i]\text{dp}[i]</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+            class="mord mathnormal">i</span><span class="mclose">]</span></span></span></span></span>.</p>
+<p>The base case of the recursive function is <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">i=ni = n</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+        class="strut" style="height: 0.6595em;"></span><span class="mord mathnormal">i</span><span class="mspace"
+                                                                                                   style="margin-right: 0.2778em;"></span><span
+        class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span
+        class="strut" style="height: 0.4306em;"></span><span
+        class="mord mathnormal">n</span></span></span></span></span> – the same as the base case of the DP: <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">f(n)f(n)</span><span class="katex-html"
+                                                                                                     aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.10764em;">f</span><span class="mopen">(</span><span
+        class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> returns zero.</p>
+<p>One can rewrite the DP recurrence relation in terms of <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">ff</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                                           style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.10764em;">f</span></span></span></span></span> as follows: <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">f(i)f(i)</span><span class="katex-html"
+                                                                                                     aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.10764em;">f</span><span class="mopen">(</span><span
+        class="mord mathnormal">i</span><span class="mclose">)</span></span></span></span></span> returns the maximum of
+    three values: <span class="math math-inline"><span class="katex"><span class="katex-mathml">stoneValue[i]−f(i+1)\text{stoneValue}[i] - f(i + 1)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">stoneValue</span></span><span class="mopen">[</span><span
+            class="mord mathnormal">i</span><span class="mclose">]</span><span class="mspace"
+                                                                               style="margin-right: 0.2222em;"></span><span
+            class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.10764em;">f</span><span class="mopen">(</span><span
+            class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord">1</span><span class="mclose">)</span></span></span></span></span> (take one stone), <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">stoneValue[i]+stoneValue[i+1]−f(i+2)\text{stoneValue}[i] + \text{stoneValue}[i + 1] - f(i + 2)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">stoneValue</span></span><span class="mopen">[</span><span
+            class="mord mathnormal">i</span><span class="mclose">]</span><span class="mspace"
+                                                                               style="margin-right: 0.2222em;"></span><span
+            class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">stoneValue</span></span><span class="mopen">[</span><span
+            class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord">1</span><span class="mclose">]</span><span class="mspace"
+                                                                    style="margin-right: 0.2222em;"></span><span
+            class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.10764em;">f</span><span class="mopen">(</span><span
+            class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord">2</span><span class="mclose">)</span></span></span></span></span> (take two stones), <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">stoneValue[i]+stoneValue[i+1]+stoneValue[i+2]−f(i+3)\text{stoneValue}[i] + \text{stoneValue}[i + 1] + \text{stoneValue}[i + 2] - f(i + 3)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">stoneValue</span></span><span class="mopen">[</span><span
+            class="mord mathnormal">i</span><span class="mclose">]</span><span class="mspace"
+                                                                               style="margin-right: 0.2222em;"></span><span
+            class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">stoneValue</span></span><span class="mopen">[</span><span
+            class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord">1</span><span class="mclose">]</span><span class="mspace"
+                                                                    style="margin-right: 0.2222em;"></span><span
+            class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">stoneValue</span></span><span class="mopen">[</span><span
+            class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord">2</span><span class="mclose">]</span><span class="mspace"
+                                                                    style="margin-right: 0.2222em;"></span><span
+            class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.10764em;">f</span><span class="mopen">(</span><span
+            class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord">3</span><span class="mclose">)</span></span></span></span></span> (take three stones).</p>
+<p>The answer to the problem is <span class="math math-inline"><span class="katex"><span class="katex-mathml">f(0)=dp[0]f(0) = \text{dp}[0]</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.10764em;">f</span><span class="mopen">(</span><span class="mord">0</span><span
+        class="mclose">)</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+        class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span
+        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord text"><span
+        class="mord">dp</span></span><span class="mopen">[</span><span class="mord">0</span><span
+        class="mclose">]</span></span></span></span></span>.</p>
+<p>Here is an implementation of this function.</p>
+<pre>
+    Java
+    <code>
+        class Solution {
+    private int f(int[] stoneValue, int n, int i) {
+        if (i == n) {
+            return 0;
+        }
+        int result = stoneValue[i] - f(stoneValue, n, i + 1);
+        if (i + 2 <= n) {
+            result = Math.max(result, stoneValue[i]
+                + stoneValue[i + 1] - f(stoneValue, n, i + 2));
+        }
+        if (i + 3 <= n) {
+            result = Math.max(result, stoneValue[i] + stoneValue[i + 1]
+                + stoneValue[i + 2] - f(stoneValue, n, i + 3));
+        }
+        return result;
+    }
+
+    public String stoneGameIII(int[] stoneValue) {
+        int dif = f(stoneValue, stoneValue.length, 0);
+        if (dif > 0) {
+            return "Alice";
+        }
+        if (dif < 0) {
+            return "Bob";
+        }
+        return "Tie";
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    string stoneGameIII(vector<int>& stoneValue) {
+        int n = stoneValue.size();
+
+        function<int(int)> f = [&](int i) -> int {
+            if (i == n) {
+                return 0;
+            }
+            int result = stoneValue[i] - f(i + 1);
+            if (i + 2 <= n) {
+                result = max(result, stoneValue[i] + stoneValue[i + 1] - f(i + 2));
+            }
+            if (i + 3 <= n) {
+                result = max(result, stoneValue[i] + stoneValue[i + 1]
+                    + stoneValue[i + 2] - f(i + 3));
+            }
+            return result;
+        };
+
+        int dif = f(0);
+        if (dif > 0) {
+            return "Alice";
+        }
+        if (dif < 0) {
+            return "Bob";
+        }
+        return "Tie";
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def stoneGameIII(self, stoneValue: List[int]) -> str:
+        n = len(stoneValue)
+
+        def f(i):
+            if i == n:
+                return 0
+            result = stoneValue[i] - f(i + 1)
+            if i + 2 <= n:
+                result = max(result, stoneValue[i] + stoneValue[i + 1] - f(i + 2))
+            if i + 3 <= n:
+                result = max(result, stoneValue[i] + stoneValue[i + 1]
+                            + stoneValue[i + 2] - f(i + 3))
+            return result
+
+        dif = f(0)
+        if dif > 0:
+            return "Alice"
+        if dif < 0:
+            return "Bob"
+        return "Tie"
+    </code>
+</pre>
+<p>The issue here is that <span class="math math-inline"><span class="katex"><span class="katex-mathml">ff</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.10764em;">f</span></span></span></span></span> might be called
+    (exponentially) many times for the same parameter <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">ii</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.6595em;"></span><span
+            class="mord mathnormal">i</span></span></span></span></span>.</p>
+<p>Each time we call, for instance, <span class="math math-inline"><span class="katex"><span class="katex-mathml">f(4)f(4)</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.10764em;">f</span><span class="mopen">(</span><span class="mord">4</span><span
+        class="mclose">)</span></span></span></span></span>, we recompute the same result for <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">i=4i = 4</span><span class="katex-html"
+                                                                                                     aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.6595em;"></span><span class="mord mathnormal">i</span><span
+        class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace"
+                                                                                               style="margin-right: 0.2778em;"></span></span><span
+        class="base"><span class="strut" style="height: 0.6444em;"></span><span
+        class="mord">4</span></span></span></span></span>.</p>
+<p>Instead, one may keep the calculated values of <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">f(i)f(i)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                 style="margin-right: 0.10764em;">f</span><span
+        class="mopen">(</span><span class="mord mathnormal">i</span><span
+        class="mclose">)</span></span></span></span></span> in memory. We will store the same DP array as in the
+    previous approach. In this case, the process will be as follows.</p>
+<p>For example, we call <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">f(4)f(4)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                 style="margin-right: 0.10764em;">f</span><span
+        class="mopen">(</span><span class="mord">4</span><span class="mclose">)</span></span></span></span></span> for
+    the first time, calculate the result for <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">i=4i = 4</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.6595em;"></span><span class="mord mathnormal">i</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2778em;"></span><span
+            class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">4</span></span></span></span></span>,
+    and write this result into <span class="math math-inline"><span class="katex"><span class="katex-mathml">dp[4]\text{dp}[4]</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span class="mord">4</span><span
+            class="mclose">]</span></span></span></span></span>. When we call <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">f(4)f(4)</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.10764em;">f</span><span class="mopen">(</span><span
+            class="mord">4</span><span class="mclose">)</span></span></span></span></span> for the second time, we
+    immediately return <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">dp[4]\text{dp}[4]</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord text"><span
+            class="mord">dp</span></span><span class="mopen">[</span><span class="mord">4</span><span
+            class="mclose">]</span></span></span></span></span>.</p>
+<p>In this way, we calculate the value of <span class="math math-inline"><span class="katex"><span class="katex-mathml">ff</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.10764em;">f</span></span></span></span></span> for each state
+    (each parameter <span class="math math-inline"><span class="katex"><span class="katex-mathml">ii</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.6595em;"></span><span
+            class="mord mathnormal">i</span></span></span></span></span>) only once.</p>
+<p>There remains one small technical question: how to know whether we call <span class="math math-inline"><span
+        class="katex"><span class="katex-mathml">f(i)f(i)</span><span class="katex-html" aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.10764em;">f</span><span class="mopen">(</span><span
+        class="mord mathnormal">i</span><span class="mclose">)</span></span></span></span></span> for the first time and
+    need to compute the result, or we call it later and can return <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">dp[i]\text{dp}[i]</span><span class="katex-html"
+                                                                                   aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+            class="mord mathnormal">i</span><span class="mclose">]</span></span></span></span></span> found earlier? One
+    can handle this by initializing the <span class="math math-inline"><span class="katex"><span class="katex-mathml">dp\text{dp}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+            class="mord text"><span class="mord">dp</span></span></span></span></span></span> array with a huge value
+    like <span class="math math-inline"><span class="katex"><span class="katex-mathml">10910^9</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.8141em;"></span><span
+            class="mord">1</span><span class="mord"><span class="mord">0</span><span class="msupsub"><span
+            class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span
+            class="mord mtight">9</span></span></span></span></span></span></span></span></span></span></span></span>
+    that could not possibly occur normally. Then <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">dp[i]=109\text{dp}[i] = 10^9</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+            class="mord mathnormal">i</span><span class="mclose">]</span><span class="mspace"
+                                                                               style="margin-right: 0.2778em;"></span><span
+            class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.8141em;"></span><span class="mord">1</span><span
+            class="mord"><span class="mord">0</span><span class="msupsub"><span class="vlist-t"><span
+            class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span
+            class="mord mtight">9</span></span></span></span></span></span></span></span></span></span></span></span>
+    will mean that we have not calculated <span class="math math-inline"><span class="katex"><span class="katex-mathml">f(i)f(i)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.10764em;">f</span><span class="mopen">(</span><span
+            class="mord mathnormal">i</span><span class="mclose">)</span></span></span></span></span> yet. As soon as we
+    find the result of <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">f(i)f(i)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                     style="margin-right: 0.10764em;">f</span><span
+            class="mopen">(</span><span class="mord mathnormal">i</span><span
+            class="mclose">)</span></span></span></span></span>, we will write it into <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">dp[i]\text{dp}[i]</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+            class="mord mathnormal">i</span><span class="mclose">]</span></span></span></span></span>, and this value
+    will not be <span class="math math-inline"><span class="katex"><span class="katex-mathml">10910^9</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.8141em;"></span><span
+            class="mord">1</span><span class="mord"><span class="mord">0</span><span class="msupsub"><span
+            class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span
+            class="mord mtight">9</span></span></span></span></span></span></span></span></span></span></span></span>
+    anymore.</p>
+<h4 id="algorithm-1">Algorithm</h4>
+<p>The function <span class="math math-inline"><span class="katex"><span class="katex-mathml">ff</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.10764em;">f</span></span></span></span></span> takes a parameter
+    <span class="math math-inline"><span class="katex"><span class="katex-mathml">ii</span><span class="katex-html"
+                                                                                                 aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6595em;"></span><span
+            class="mord mathnormal">i</span></span></span></span></span>.</p>
+<ol>
+    <li>If <span class="math math-inline"><span class="katex"><span class="katex-mathml">i=ni = n</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.6595em;"></span><span
+            class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+            class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.4306em;"></span><span
+            class="mord mathnormal">n</span></span></span></span></span>, return <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">00</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span>.
+    </li>
+    <li>If <span class="math math-inline"><span class="katex"><span class="katex-mathml">dp[i]\text{dp}[i]</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+            class="mord mathnormal">i</span><span class="mclose">]</span></span></span></span></span> was computed
+        previously, return <span class="math math-inline"><span class="katex"><span class="katex-mathml">dp[i]\text{dp}[i]</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+                class="mord mathnormal">i</span><span class="mclose">]</span></span></span></span></span>.
+    </li>
+    <li>Set <span class="math math-inline"><span class="katex"><span class="katex-mathml">dp[i]=stoneValue[i]−f(i+1)\text{dp}[i] = \text{stoneValue}[i] - f(i + 1)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+            class="mord mathnormal">i</span><span class="mclose">]</span><span class="mspace"
+                                                                               style="margin-right: 0.2778em;"></span><span
+            class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">stoneValue</span></span><span class="mopen">[</span><span
+            class="mord mathnormal">i</span><span class="mclose">]</span><span class="mspace"
+                                                                               style="margin-right: 0.2222em;"></span><span
+            class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.10764em;">f</span><span class="mopen">(</span><span
+            class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord">1</span><span class="mclose">)</span></span></span></span></span> (take one stone).
+    </li>
+    <li>If <span class="math math-inline"><span class="katex"><span class="katex-mathml">i+2≤ni + 2 \le n</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.7429em; vertical-align: -0.0833em;"></span><span
+            class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.7804em; vertical-align: -0.136em;"></span><span
+            class="mord">2</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">≤</span><span
+            class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut"
+                                                                                                  style="height: 0.4306em;"></span><span
+            class="mord mathnormal">n</span></span></span></span></span>, update <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">dp[i]\text{dp}[i]</span><span class="katex-html"
+                                                                                   aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+            class="mord mathnormal">i</span><span class="mclose">]</span></span></span></span></span> with <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">stoneValue[i]+stoneValue[i+1]−f(i+2)\text{stoneValue}[i] + \text{stoneValue}[i + 1] - f(i + 2)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">stoneValue</span></span><span class="mopen">[</span><span
+            class="mord mathnormal">i</span><span class="mclose">]</span><span class="mspace"
+                                                                               style="margin-right: 0.2222em;"></span><span
+            class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">stoneValue</span></span><span class="mopen">[</span><span
+            class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord">1</span><span class="mclose">]</span><span class="mspace"
+                                                                    style="margin-right: 0.2222em;"></span><span
+            class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.10764em;">f</span><span class="mopen">(</span><span
+            class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord">2</span><span class="mclose">)</span></span></span></span></span> (take two stones).
+    </li>
+    <li>If <span class="math math-inline"><span class="katex"><span class="katex-mathml">i+3≤ni + 3 \le n</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.7429em; vertical-align: -0.0833em;"></span><span
+            class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.7804em; vertical-align: -0.136em;"></span><span
+            class="mord">3</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">≤</span><span
+            class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut"
+                                                                                                  style="height: 0.4306em;"></span><span
+            class="mord mathnormal">n</span></span></span></span></span>, update <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">dp[i]\text{dp}[i]</span><span class="katex-html"
+                                                                                   aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+            class="mord mathnormal">i</span><span class="mclose">]</span></span></span></span></span> with <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">stoneValue[i]+stoneValue[i+1]+stoneValue[i+2]−f(i+3)\text{stoneValue}[i] + \text{stoneValue}[i + 1] + \text{stoneValue}[i + 2] - f(i + 3)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">stoneValue</span></span><span class="mopen">[</span><span
+            class="mord mathnormal">i</span><span class="mclose">]</span><span class="mspace"
+                                                                               style="margin-right: 0.2222em;"></span><span
+            class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">stoneValue</span></span><span class="mopen">[</span><span
+            class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord">1</span><span class="mclose">]</span><span class="mspace"
+                                                                    style="margin-right: 0.2222em;"></span><span
+            class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">stoneValue</span></span><span class="mopen">[</span><span
+            class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord">2</span><span class="mclose">]</span><span class="mspace"
+                                                                    style="margin-right: 0.2222em;"></span><span
+            class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.10764em;">f</span><span class="mopen">(</span><span
+            class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord">3</span><span class="mclose">)</span></span></span></span></span> (take three stones).
+    </li>
+    <li>Return <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">dp[i]\text{dp}[i]</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord text"><span
+            class="mord">dp</span></span><span class="mopen">[</span><span class="mord mathnormal">i</span><span
+            class="mclose">]</span></span></span></span></span>.
+    </li>
+</ol>
+<p>One needs to call <span class="math math-inline"><span class="katex"><span class="katex-mathml">f(0)f(0)</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.10764em;">f</span><span class="mopen">(</span><span class="mord">0</span><span
+        class="mclose">)</span></span></span></span></span>.</p>
+<ul>
+    <li>If <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">f(0)&gt;0f(0) &gt; 0</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.10764em;">f</span><span class="mopen">(</span><span
+            class="mord">0</span><span class="mclose">)</span><span class="mspace"
+                                                                    style="margin-right: 0.2778em;"></span><span
+            class="mrel">&gt;</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span>,
+        Alice wins.
+    </li>
+    <li>If <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">f(0)&lt;0f(0) &lt; 0</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.10764em;">f</span><span class="mopen">(</span><span
+            class="mord">0</span><span class="mclose">)</span><span class="mspace"
+                                                                    style="margin-right: 0.2778em;"></span><span
+            class="mrel">&lt;</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span>,
+        Bob wins.
+    </li>
+    <li>If <span class="math math-inline"><span class="katex"><span class="katex-mathml">f(0)=0f(0) = 0</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.10764em;">f</span><span class="mopen">(</span><span
+            class="mord">0</span><span class="mclose">)</span><span class="mspace"
+                                                                    style="margin-right: 0.2778em;"></span><span
+            class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span>,
+        it is a tie.
+    </li>
+</ul>
+<h4 id="implementation-1">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    int notComputed = 1000000000;
+    int[] dp;
+
+    private int f(int[] stoneValue, int n, int i) {
+        if (i == n) {
+            return 0;
+        }
+        if (dp[i] != notComputed) {
+            return dp[i];
+        }
+        dp[i] = stoneValue[i] - f(stoneValue, n, i + 1);
+        if (i + 2 <= n) {
+            dp[i] = Math.max(dp[i], stoneValue[i]
+                + stoneValue[i + 1] - f(stoneValue, n, i + 2));
+        }
+        if (i + 3 <= n) {
+            dp[i] = Math.max(dp[i], stoneValue[i] + stoneValue[i + 1]
+                + stoneValue[i + 2] - f(stoneValue, n, i + 3));
+        }
+        return dp[i];
+    }
+
+    public String stoneGameIII(int[] stoneValue) {
+        int n = stoneValue.length;
+        dp = new int [n + 1];
+        for (int i = 0; i < n; i++) {
+            dp[i] = notComputed;
+        }
+        int dif = f(stoneValue, stoneValue.length, 0);
+        if (dif > 0) {
+            return "Alice";
+        }
+        if (dif < 0) {
+            return "Bob";
+        }
+        return "Tie";
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    string stoneGameIII(vector<int>& stoneValue) {
+        int n = stoneValue.size();
+        int notComputed = 1000000000;
+        vector<int> dp(n + 1, notComputed);
+
+        function<int(int)> f = [&](int i) -> int {
+            if (i == n) {
+                return 0;
+            }
+            if (dp[i] != notComputed) {
+                return dp[i];
+            }
+            dp[i] = stoneValue[i] - f(i + 1);
+            if (i + 2 <= n) {
+                dp[i] = max(dp[i], stoneValue[i] + stoneValue[i + 1] - f(i + 2));
+            }
+            if (i + 3 <= n) {
+                dp[i] = max(dp[i], stoneValue[i] + stoneValue[i + 1]
+                    + stoneValue[i + 2] - f(i + 3));
+            }
+            return dp[i];
+        };
+
+        int dif = f(0);
+        if (dif > 0) {
+            return "Alice";
+        }
+        if (dif < 0) {
+            return "Bob";
+        }
+        return "Tie";
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def stoneGameIII(self, stoneValue: List[int]) -> str:
+        n = len(stoneValue)
+        not_computed = 10**9
+        dp = [not_computed] * (n + 1)
+
+        def f(i):
+            if i == n:
+                return 0
+            if dp[i] != not_computed:
+                return dp[i]
+            dp[i] = stoneValue[i] - f(i + 1)
+            if i + 2 <= n:
+                dp[i] = max(dp[i], stoneValue[i] + stoneValue[i + 1] - f(i + 2))
+            if i + 3 <= n:
+                dp[i] = max(dp[i], stoneValue[i] + stoneValue[i + 1]
+                            + stoneValue[i + 2] - f(i + 3))
+            return dp[i]
+
+        dif = f(0)
+        if dif > 0:
+            return "Alice"
+        if dif < 0:
+            return "Bob"
+        return "Tie"
+    </code>
+</pre>
+<h4 id="complexity-analysis-1">Complexity Analysis</h4>
+<ul>
+    <li>Time complexity: <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                     style="margin-right: 0.02778em;">O</span><span
+            class="mopen">(</span><span class="mord mathnormal">n</span><span
+            class="mclose">)</span></span></span></span></span>.
+    </li>
+</ul>
+<p>Even though we changed the order of calculating DP, the time complexity is the same as in the previous approach: for
+    each <span class="math math-inline"><span class="katex"><span class="katex-mathml">ii</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6595em;"></span><span
+            class="mord mathnormal">i</span></span></span></span></span>, we compute <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">dp[i]\text{dp}[i]</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+            class="mord mathnormal">i</span><span class="mclose">]</span></span></span></span></span> in <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord">1</span><span class="mclose">)</span></span></span></span></span>. Since we store the results
+    in memory, we will calculate each <span class="math math-inline"><span class="katex"><span class="katex-mathml">dp[i]\text{dp}[i]</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+            class="mord mathnormal">i</span><span class="mclose">]</span></span></span></span></span> only once.</p>
+<ul>
+    <li>Space complexity: <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                     style="margin-right: 0.02778em;">O</span><span
+            class="mopen">(</span><span class="mord mathnormal">n</span><span
+            class="mclose">)</span></span></span></span></span>.
+    </li>
+</ul>
+<p>It is the same as in the first approach.</p>
+<hr>
+<h3 id="approach-3-bottom-up-dynamic-programming-space-complexity-optimized">Approach 3: Bottom-Up Dynamic Programming,
+    Space Complexity Optimized</h3>
+<h4 id="intuition-2">Intuition</h4>
+<p>To solve the problem with <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                 style="margin-right: 0.02778em;">O</span><span
+        class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span></span> space
+    complexity, we can use the observation that we only ever need the values <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">dp[i+1]\text{dp}[i+1]</span><span class="katex-html"
+                                                                                       aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+            class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord">1</span><span class="mclose">]</span></span></span></span></span>, <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">dp[i+2]\text{dp}[i+2]</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+            class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord">2</span><span class="mclose">]</span></span></span></span></span>, and <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">dp[i+3]\text{dp}[i+3]</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+            class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord">3</span><span class="mclose">]</span></span></span></span></span> to calculate <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">dp[i]\text{dp}[i]</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+            class="mord mathnormal">i</span><span class="mclose">]</span></span></span></span></span>. Therefore, we
+    only need to keep track of the current and the next three values of <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">dp\text{dp}</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+            class="mord text"><span class="mord">dp</span></span></span></span></span></span>.</p>
+<p>Now, the size of <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">dp\text{dp}</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+        class="strut" style="height: 0.8889em; vertical-align: -0.1944em;"></span><span class="mord text"><span
+        class="mord">dp</span></span></span></span></span></span> will be <span class="math math-inline"><span
+        class="katex"><span class="katex-mathml">44</span><span class="katex-html" aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.6444em;"></span><span
+        class="mord">4</span></span></span></span></span> instead of <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">n+1n + 1</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+        class="strut" style="height: 0.6667em; vertical-align: -0.0833em;"></span><span class="mord mathnormal">n</span><span
+        class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace"
+                                                                                               style="margin-right: 0.2222em;"></span></span><span
+        class="base"><span class="strut" style="height: 0.6444em;"></span><span
+        class="mord">1</span></span></span></span></span>. Whenever we want to access <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">dp[i]\text{dp}[i]</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+        class="mord mathnormal">i</span><span class="mclose">]</span></span></span></span></span>, we will use <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">dp[i%4]\text{dp}[i \% 4]</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+        class="mord mathnormal">i</span><span class="mord">%4</span><span
+        class="mclose">]</span></span></span></span></span> instead.</p>
+<p>When counting <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">dp[i%4]\text{dp}[i \% 4]</span><span class="katex-html" aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+        class="mord mathnormal">i</span><span class="mord">%4</span><span
+        class="mclose">]</span></span></span></span></span>, we will use the values of <span
+        class="math math-inline"><span class="katex"><span
+        class="katex-mathml">dp[(i+1)%4]\text{dp}[(i + 1) \% 4]</span><span class="katex-html" aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord text"><span class="mord">dp</span></span><span class="mopen">[(</span><span class="mord mathnormal">i</span><span
+        class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace"
+                                                                                               style="margin-right: 0.2222em;"></span></span><span
+        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord">1</span><span class="mclose">)</span><span class="mord">%4</span><span
+        class="mclose">]</span></span></span></span></span>, <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">dp[(i+2)%4]\text{dp}[(i + 2) \% 4]</span><span class="katex-html" aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord text"><span class="mord">dp</span></span><span class="mopen">[(</span><span class="mord mathnormal">i</span><span
+        class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace"
+                                                                                               style="margin-right: 0.2222em;"></span></span><span
+        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord">2</span><span class="mclose">)</span><span class="mord">%4</span><span
+        class="mclose">]</span></span></span></span></span>, and <span class="math math-inline"><span
+        class="katex"><span class="katex-mathml">dp[(i+3)%4]\text{dp}[(i + 3) \% 4]</span><span class="katex-html"
+                                                                                                aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord text"><span class="mord">dp</span></span><span class="mopen">[(</span><span class="mord mathnormal">i</span><span
+        class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace"
+                                                                                               style="margin-right: 0.2222em;"></span></span><span
+        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord">3</span><span class="mclose">)</span><span class="mord">%4</span><span
+        class="mclose">]</span></span></span></span></span>. All four indices in the array are distinct.</p>
+<p>Note that an array of size <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">33</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                                           style="height: 0.6444em;"></span><span
+        class="mord">3</span></span></span></span></span> would be insufficient, since <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">dp[i%3]\text{dp}[i \% 3]</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+        class="mord mathnormal">i</span><span class="mord">%3</span><span
+        class="mclose">]</span></span></span></span></span> would "collide" with <span class="math math-inline"><span
+        class="katex"><span class="katex-mathml">dp[(i+3)%3]\text{dp}[(i + 3) \% 3]</span><span class="katex-html"
+                                                                                                aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord text"><span class="mord">dp</span></span><span class="mopen">[(</span><span class="mord mathnormal">i</span><span
+        class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace"
+                                                                                               style="margin-right: 0.2222em;"></span></span><span
+        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord">3</span><span class="mclose">)</span><span class="mord">%3</span><span
+        class="mclose">]</span></span></span></span></span>.</p>
+<h4 id="algorithm-2">Algorithm</h4>
+<p>It is the same as in Approach 1, with the only difference being the size of <span class="math math-inline"><span
+        class="katex"><span class="katex-mathml">dp\text{dp}</span><span class="katex-html" aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+        class="mord text"><span class="mord">dp</span></span></span></span></span></span> and that we take all indices
+    in the array <span class="math math-inline"><span class="katex"><span class="katex-mathml">dp\text{dp}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+            class="mord text"><span class="mord">dp</span></span></span></span></span></span> modulo <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">44</span><span class="katex-html"
+                                                                                                   aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">4</span></span></span></span></span>.
+</p>
+<ol>
+    <li>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.4306em;"></span><span
+            class="mord mathnormal">n</span></span></span></span></span> be the number of stones.
+    </li>
+    <li>Declare the array <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">dp\text{dp}</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.8889em; vertical-align: -0.1944em;"></span><span class="mord text"><span
+            class="mord">dp</span></span></span></span></span></span> of size <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">44</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">4</span></span></span></span></span>.
+    </li>
+    <li>Set <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">dp[n%4]=0\text{dp}[n \% 4] = 0</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+            class="mord mathnormal">n</span><span class="mord">%4</span><span class="mclose">]</span><span
+            class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace"
+                                                                                                   style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span>.
+        (The base case of the DP).
+    </li>
+    <li>Iterate <span class="math math-inline"><span class="katex"><span class="katex-mathml">ii</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.6595em;"></span><span
+            class="mord mathnormal">i</span></span></span></span></span> from <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">n−1n - 1</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+            class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span>
+        to <span class="math math-inline"><span class="katex"><span class="katex-mathml">00</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.6444em;"></span><span
+                class="mord">0</span></span></span></span></span>.
+        <ul>
+            <li>Set <span class="math math-inline"><span class="katex"><span class="katex-mathml">dp[i%4]=stoneValue[i]−dp[(i+1)%4]\text{dp}[i \% 4] = \text{stoneValue}[i] - \text{dp}[(i + 1) \% 4]</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+                    class="mord mathnormal">i</span><span class="mord">%4</span><span class="mclose">]</span><span
+                    class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span
+                    class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut"
+                                                                                                          style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord text"><span class="mord">stoneValue</span></span><span class="mopen">[</span><span
+                    class="mord mathnormal">i</span><span class="mclose">]</span><span class="mspace"
+                                                                                       style="margin-right: 0.2222em;"></span><span
+                    class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord text"><span class="mord">dp</span></span><span class="mopen">[(</span><span
+                    class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord">1</span><span class="mclose">)</span><span class="mord">%4</span><span
+                    class="mclose">]</span></span></span></span></span> (take one stone).
+            </li>
+            <li>If <span class="math math-inline"><span class="katex"><span class="katex-mathml">i+2≤ni + 2 \le n</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.7429em; vertical-align: -0.0833em;"></span><span
+                    class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 0.7804em; vertical-align: -0.136em;"></span><span
+                    class="mord">2</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">≤</span><span
+                    class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut"
+                                                                                                          style="height: 0.4306em;"></span><span
+                    class="mord mathnormal">n</span></span></span></span></span>, update <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">dp[i]\text{dp}[i]</span><span class="katex-html"
+                                                                                           aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+                    class="mord mathnormal">i</span><span class="mclose">]</span></span></span></span></span> with <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">stoneValue[i]+stoneValue[i+1]−dp[(i+2)%4]\text{stoneValue}[i] + \text{stoneValue}[i + 1] - \text{dp}[(i + 2) \% 4]</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord text"><span class="mord">stoneValue</span></span><span class="mopen">[</span><span
+                    class="mord mathnormal">i</span><span class="mclose">]</span><span class="mspace"
+                                                                                       style="margin-right: 0.2222em;"></span><span
+                    class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord text"><span class="mord">stoneValue</span></span><span class="mopen">[</span><span
+                    class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord">1</span><span class="mclose">]</span><span class="mspace"
+                                                                            style="margin-right: 0.2222em;"></span><span
+                    class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord text"><span class="mord">dp</span></span><span class="mopen">[(</span><span
+                    class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord">2</span><span class="mclose">)</span><span class="mord">%4</span><span
+                    class="mclose">]</span></span></span></span></span> (take two stones) if it's larger.
+            </li>
+            <li>If <span class="math math-inline"><span class="katex"><span class="katex-mathml">i+3≤ni + 3 \le n</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.7429em; vertical-align: -0.0833em;"></span><span
+                    class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 0.7804em; vertical-align: -0.136em;"></span><span
+                    class="mord">3</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">≤</span><span
+                    class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut"
+                                                                                                          style="height: 0.4306em;"></span><span
+                    class="mord mathnormal">n</span></span></span></span></span>, update <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">dp[i]\text{dp}[i]</span><span class="katex-html"
+                                                                                           aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+                    class="mord mathnormal">i</span><span class="mclose">]</span></span></span></span></span> with <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">stoneValue[i]+stoneValue[i+1]+stoneValue[i+2]−dp[(i+3)%4]\text{stoneValue}[i] + \text{stoneValue}[i + 1] + \text{stoneValue}[i + 2] - \text{dp}[(i + 3) \% 4]</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord text"><span class="mord">stoneValue</span></span><span class="mopen">[</span><span
+                    class="mord mathnormal">i</span><span class="mclose">]</span><span class="mspace"
+                                                                                       style="margin-right: 0.2222em;"></span><span
+                    class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord text"><span class="mord">stoneValue</span></span><span class="mopen">[</span><span
+                    class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord">1</span><span class="mclose">]</span><span class="mspace"
+                                                                            style="margin-right: 0.2222em;"></span><span
+                    class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord text"><span class="mord">stoneValue</span></span><span class="mopen">[</span><span
+                    class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord">2</span><span class="mclose">]</span><span class="mspace"
+                                                                            style="margin-right: 0.2222em;"></span><span
+                    class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord text"><span class="mord">dp</span></span><span class="mopen">[(</span><span
+                    class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord">3</span><span class="mclose">)</span><span class="mord">%4</span><span
+                    class="mclose">]</span></span></span></span></span> (take three stones) if it's larger.
+            </li>
+        </ul>
+    </li>
+    <li>If <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">dp[0]&gt;0\text{dp}[0] &gt; 0</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span class="mord">0</span><span
+            class="mclose">]</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+            class="mrel">&gt;</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span>,
+        Alice wins.
+    </li>
+    <li>If <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">dp[0]&lt;0\text{dp}[0] &lt; 0</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span class="mord">0</span><span
+            class="mclose">]</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+            class="mrel">&lt;</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span>,
+        Bob wins.
+    </li>
+    <li>If <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">dp[0]=0\text{dp}[0] = 0</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span class="mord">0</span><span
+            class="mclose">]</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+            class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span>,
+        it is a tie.
+    </li>
+</ol>
+<h4 id="implementation-2">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public String stoneGameIII(int[] stoneValue) {
+        int n = stoneValue.length;
+        int[] dp = new int [4];
+        for (int i = n - 1; i >= 0; i--) {
+            dp[i % 4] = stoneValue[i] - dp[(i + 1) % 4];
+            if (i + 2 <= n) {
+                dp[i % 4] = Math.max(dp[i % 4], stoneValue[i] + stoneValue[i + 1]
+                    - dp[(i + 2) % 4]);
+            }
+            if (i + 3 <= n) {
+                dp[i % 4] = Math.max(dp[i % 4], stoneValue[i] + stoneValue[i + 1]
+                    + stoneValue[i + 2] - dp[(i + 3) % 4]);
+            }
+        }
+        if (dp[0] > 0) {
+            return "Alice";
+        }
+        if (dp[0] < 0) {
+            return "Bob";
+        }
+        return "Tie";
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    string stoneGameIII(vector<int>& stoneValue) {
+        int n = stoneValue.size();
+        vector<int> dp(4);
+        for (int i = n - 1; i >= 0; i--) {
+            dp[i % 4] = stoneValue[i] - dp[(i + 1) % 4];
+            if (i + 2 <= n) {
+                dp[i % 4] = max(dp[i % 4], stoneValue[i]
+                    + stoneValue[i + 1] - dp[(i + 2) % 4]);
+            }
+            if (i + 3 <= n) {
+                dp[i % 4] = max(dp[i % 4], stoneValue[i] + stoneValue[i + 1]
+                    + stoneValue[i + 2] - dp[(i + 3) % 4]);
+            }
+        }
+        if (dp[0] > 0) {
+            return "Alice";
+        }
+        if (dp[0] < 0) {
+            return "Bob";
+        }
+        return "Tie";
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def stoneGameIII(self, stoneValue: List[int]) -> str:
+        n = len(stoneValue)
+        dp = [0] * 4
+        for i in range(n - 1, -1, -1):
+            dp[i % 4] = stoneValue[i] - dp[(i + 1) % 4]
+            if i + 2 <= n:
+                dp[i % 4] = max(dp[i % 4], stoneValue[i]
+                		+ stoneValue[i + 1] - dp[(i + 2) % 4])
+            if i + 3 <= n:
+                dp[i % 4] = max(dp[i % 4], stoneValue[i] + stoneValue[i + 1]
+                           	+ stoneValue[i + 2] - dp[(i + 3) % 4])
+        if dp[0] > 0:
+            return "Alice"
+        if dp[0] < 0:
+            return "Bob"
+        return "Tie"
+    </code>
+</pre>
+<h4 id="complexity-analysis-2">Complexity Analysis</h4>
+<ul>
+    <li>Time complexity: <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                     style="margin-right: 0.02778em;">O</span><span
+            class="mopen">(</span><span class="mord mathnormal">n</span><span
+            class="mclose">)</span></span></span></span></span>.
+    </li>
+</ul>
+<p>It is the same as in Approach 1.</p>
+<ul>
+    <li>Space complexity: <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                     style="margin-right: 0.02778em;">O</span><span
+            class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span></span>.
+    </li>
+</ul>
+<p>We have eliminated the need for an entire array to store the DP values. Instead, we only keep track of the current
+    and next three values. Therefore, the space complexity of this solution is <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord">1</span><span class="mclose">)</span></span></span></span></span>.</p>
+</body>
+</html>
