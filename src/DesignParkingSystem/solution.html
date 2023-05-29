@@ -1,0 +1,1949 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Design Parking System - Solution</title>
+</head>
+<body>
+<h2 id="solution">Solution</h2>
+<hr>
+<h3 id="overview">Overview</h3>
+<p>The problem is to <strong>design</strong> a parking system.</p>
+<blockquote>
+    <p>A <strong>design</strong> problem is a problem where we have to <strong>implement</strong> a class or a data
+        structure. This class usually has multiple functions that we have to implement. This falls under the category of
+        <a href="https://leetcode.com/tag/oop/" target="_blank"><strong>Object Oriented Programming</strong></a></p>
+</blockquote>
+<p>In this problem, we have to implement the <code>ParkingSystem</code> class. It will have the following components:
+</p>
+<ul>
+    <li>
+        <p><code>ParkingSystem</code> constructor. Whenever any user or test case wants to create a new parking system,
+            they will call this constructor. They need to specify the number of parking slots available for each type of
+            car (<code>small</code>, <code>medium</code>, or <code>large</code>).</p>
+        <p><strong>We</strong> have to write code to store this information in the class. This information will perhaps
+            be used in other functions.</p>
+        <blockquote>
+            <p>Different languages have different ways to implement constructors.</p>
+            <ul>
+                <li>In Python, we use <code>__init__</code> function to implement the constructor.</li>
+                <li>In C++ and Java, the name of the constructor is the same as the name of the class.</li>
+            </ul>
+        </blockquote>
+    </li>
+    <li>
+        <p><code>addCar</code> function. Whenever any user or test case wants to add a car to the parking system, they
+            will call this function. They need to specify the type of the car, <code>carType</code> using an integer.
+        </p>
+        <ul>
+            <li>if they want to add a <code>big</code> car, they will pass <code>1</code> as the argument.</li>
+            <li>if they want to add a <code>medium</code> car, they will pass <code>2</code> as the argument.</li>
+            <li>if they want to add a <code>small</code> car, they will pass <code>3</code> as the argument.</li>
+        </ul>
+        <br>
+        <p><strong>We</strong> have to write code to check if there is a parking slot available for the given type of
+            car.</p>
+        <ul>
+            <li>If there is a parking slot available, we have to add the car to the parking system and return
+                <code>true</code>.
+            </li>
+            <li>Otherwise, we have to return <code>false</code>.</li>
+        </ul>
+    </li>
+</ul>
+<details>
+    <summary> In these problems, the user often faces difficulty in understanding the <b>input</b> and <b>output</b>
+        format. Let's pick one <b>example</b> and understand its <b>input</b> and <b>output</b> anatomy. If you are not
+        familiar with design problems, it is advisable to expand the section by clicking here.
+        <p><br></p></summary>
+    <p></p>
+    <div class="mb-6 rounded-lg px-3 py-2.5 font-menlo text-sm bg-fill-3 dark:bg-dark-fill-3">
+        <div class="group relative" translate="no"><pre
+                style="color: rgb(212, 212, 212); font-size: 13px; text-shadow: none; font-family: Menlo, Monaco, Consolas; direction: ltr; text-align: left; white-space: pre; word-spacing: normal; word-break: normal; line-height: 1.5; tab-size: 4; hyphens: none; padding: 0px; margin: 0px; overflow: auto; background: transparent none repeat scroll 0% 0%;"><code
+                class="language-javascript"
+                style="color: rgb(156, 220, 254); font-size: 13px; text-shadow: none; font-family: Menlo, Monaco, Consolas, &quot;Andale Mono&quot;, &quot;Ubuntu Mono&quot;, &quot;Courier New&quot;, monospace; direction: ltr; text-align: left; white-space: pre; word-spacing: normal; word-break: normal; line-height: 1.5; tab-size: 4; hyphens: none;"><span><span
+                class="token" style="color: rgb(212, 212, 212);">[</span><span class="token"
+                                                                               style="color: rgb(206, 145, 120);">"ParkingSystem"</span><span
+                class="token" style="color: rgb(212, 212, 212);">,</span><span> </span><span class="token"
+                                                                                             style="color: rgb(206, 145, 120);">"addCar"</span><span
+                class="token" style="color: rgb(212, 212, 212);">,</span><span> </span><span class="token"
+                                                                                             style="color: rgb(206, 145, 120);">"addCar"</span><span
+                class="token" style="color: rgb(212, 212, 212);">,</span><span> </span><span class="token"
+                                                                                             style="color: rgb(206, 145, 120);">"addCar"</span><span
+                class="token" style="color: rgb(212, 212, 212);">,</span><span> </span><span class="token"
+                                                                                             style="color: rgb(206, 145, 120);">"addCar"</span><span
+                class="token" style="color: rgb(212, 212, 212);">]</span><span>
+</span></span><span><span></span><span class="token" style="color: rgb(212, 212, 212);">[</span><span class="token"
+                                                                                                      style="color: rgb(212, 212, 212);">[</span><span
+                class="token" style="color: rgb(181, 206, 168);">1</span><span class="token"
+                                                                               style="color: rgb(212, 212, 212);">,</span><span> </span><span
+                class="token" style="color: rgb(181, 206, 168);">1</span><span class="token"
+                                                                               style="color: rgb(212, 212, 212);">,</span><span> </span><span
+                class="token" style="color: rgb(181, 206, 168);">0</span><span class="token"
+                                                                               style="color: rgb(212, 212, 212);">]</span><span
+                class="token" style="color: rgb(212, 212, 212);">,</span><span> </span><span class="token"
+                                                                                             style="color: rgb(212, 212, 212);">[</span><span
+                class="token" style="color: rgb(181, 206, 168);">1</span><span class="token"
+                                                                               style="color: rgb(212, 212, 212);">]</span><span
+                class="token" style="color: rgb(212, 212, 212);">,</span><span> </span><span class="token"
+                                                                                             style="color: rgb(212, 212, 212);">[</span><span
+                class="token" style="color: rgb(181, 206, 168);">2</span><span class="token"
+                                                                               style="color: rgb(212, 212, 212);">]</span><span
+                class="token" style="color: rgb(212, 212, 212);">,</span><span> </span><span class="token"
+                                                                                             style="color: rgb(212, 212, 212);">[</span><span
+                class="token" style="color: rgb(181, 206, 168);">3</span><span class="token"
+                                                                               style="color: rgb(212, 212, 212);">]</span><span
+                class="token" style="color: rgb(212, 212, 212);">,</span><span> </span><span class="token"
+                                                                                             style="color: rgb(212, 212, 212);">[</span><span
+                class="token" style="color: rgb(181, 206, 168);">1</span><span class="token"
+                                                                               style="color: rgb(212, 212, 212);">]</span><span
+                class="token" style="color: rgb(212, 212, 212);">]</span></span></code></pre>
+            <div class="h-4 w-4 cursor-pointer absolute top-0 right-0">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                     class="h-4 w-4 fill-gray-6 hover:fill-gray-7 dark:fill-dark-gray-6 dark:hover:fill-dark-gray-7 hidden group-hover:block">
+                    <path fill-rule="evenodd"
+                          d="M11.3 8.3H19a3 3 0 013 3V19a3 3 0 01-3 3h-7.7a3 3 0 01-3-3v-7.7a3 3 0 013-3zm0 2a1 1 0 00-1 1V19a1 1 0 001 1H19a1 1 0 001-1v-7.7a1 1 0 00-1-1h-7.7zm-5.6 3.4a1 1 0 110 2h-.9A2.8 2.8 0 012 12.9V4.8A2.8 2.8 0 014.8 2h8.1a2.8 2.8 0 012.8 2.8v.9a1 1 0 11-2 0v-.9a.8.8 0 00-.8-.8H4.8a.8.8 0 00-.8.8v8.1a.8.8 0 00.8.8h.9z"
+                          clip-rule="evenodd"></path>
+                </svg>
+            </div>
+        </div>
+    </div>
+    <p>This input is actually <strong>NOT</strong> an array. The array has been given to describe a <strong>sequence of
+        function calls</strong> by the online judge.</p>
+    <blockquote>
+        <p>If readers want to explore more, they can read <a href="https://en.wikipedia.org/wiki/Dispatch_table"
+                                                             target="_blank">Dispatch Table</a></p>
+    </blockquote>
+    <p>In our code, we <strong>won't be able to access the array</strong>. This array only helps in letting us know the
+        function calls that will be made by the online judge.</p>
+    <p>More particularly,</p>
+    <ul>
+        <li>the first array stores the sequence of function calls, and</li>
+        <li>the second array stores the <strong>respective</strong> arguments for each function call.</li>
+    </ul>
+    <p>Thus, the above input can be interpreted as:</p>
+    <ul>
+        <li>
+            <p>First, the online judge will call the <code>ParkingSystem</code> constructor with arguments <code>1, 1,
+                0</code>.</p>
+            <p>We were given in the description that <code>ParkingSystem</code> requires three arguments,
+                <code>big</code>, <code>medium</code>, and <code>small</code>. These <code>[1, 1, 0]</code> are the
+                respective values for these arguments.</p>
+            <p>Do we have to return anything from the constructor? No. We just have to store some (or all) of these
+                arguments so that we can use them in other functions if needed. Thus, the first element of the <strong>output</strong>
+                array is <code>null</code>.</p>
+        </li>
+        <li>
+            <p>Then, the online judge will call the <code>addCar</code> function with argument <code>1</code>.</p>
+            <p>We were given in the description that <code>addCar</code> requires one argument, <code>carType</code>.
+                This <code>1</code> is the value for this argument and represents a <code>big</code> car.</p>
+            <p>This has to be interpreted as, "Is there a parking slot available for a <code>big</code> car?". If yes,
+                then add the car to the parking system and return <code>true</code>. Otherwise, return
+                <code>false</code>.</p>
+            <p>Now, we know that while creating our object, we were given that there is <code>1</code> parking slot
+                available for a <code>big</code> car. And we know that no car has been added to the parking system yet.
+                Thus, we will return <code>true</code> and add the car to the slot available for a <code>big</code> car.
+            </p>
+            <p>Hence, the second element of the <strong>output</strong> array is <code>true</code>.</p>
+        </li>
+        <li>
+            <p>Then, the online judge will call the <code>addCar</code> function with argument <code>2</code>.</p>
+            <p>This <code>2</code> is the value for this argument and represents a <code>medium</code> car.</p>
+            <p>This has to be interpreted as, "Is there a parking slot available for a <code>medium</code> car?". If
+                yes, then add the car to the parking system and return <code>true</code>. Otherwise, return
+                <code>false</code>.</p>
+            <p>Now, we know that while creating our object, we were given that there is <code>1</code> parking slot
+                available for a <code>medium</code> car. And we know that no car has been added to the parking system
+                yet. Thus, we will return <code>true</code> and add the car to the slot available for a
+                <code>medium</code> car.</p>
+            <p>Hence, the third element of the <strong>output</strong> array is <code>true</code>.</p>
+        </li>
+        <li>
+            <p>Then, the online judge will call the <code>addCar</code> function with argument <code>3</code>.</p>
+            <p>This <code>3</code> is the value for this argument and represents a <code>small</code> car.</p>
+            <p>This has to be interpreted as, "Is there a parking slot available for a <code>small</code> car?". If yes,
+                then add the car to the parking system and return <code>true</code>. Otherwise, return
+                <code>false</code>.</p>
+            <p>Now, we know that while creating our object, we were given that there is <code>0</code> parking slot
+                available for <code>small</code> car. Thus, we cannot add the car to the parking system because no slots
+                are available. Hence, we will return <code>false</code>.</p>
+            <p>Hence, the fourth element of the <strong>output</strong> array is <code>false</code>.</p>
+        </li>
+        <li>
+            <p>Lastly, the online judge will call the <code>addCar</code> function with argument <code>1</code>.</p>
+            <p>This <code>1</code> is the value for this argument and represents a <code>big</code> car.</p>
+            <p>This has to be interpreted as, "Is there a parking slot available for <code>big</code> car?". If yes,
+                then add the car to the parking system and return <code>true</code>. Otherwise, return
+                <code>false</code>.</p>
+            <p>Now, we know that while creating our object, we were given that there is <code>1</code> parking slot
+                available for <code>big</code> car. And we know that one car has already been added to the parking
+                system. Thus, we will return <code>false</code> because no slots are available.</p>
+            <p>Hence, the fifth element of the <strong>output</strong> array is <code>false</code>.</p>
+        </li>
+    </ul>
+    <p>Thus, the <strong>output</strong> array as illustrated in the example is</p>
+    <div class="mb-6 rounded-lg px-3 py-2.5 font-menlo text-sm bg-fill-3 dark:bg-dark-fill-3">
+        <div class="group relative" translate="no">
+            <pre style="color: rgb(212, 212, 212); font-size: 13px; text-shadow: none; font-family: Menlo, Monaco, Consolas; direction: ltr; text-align: left; white-space: pre; word-spacing: normal; word-break: normal; line-height: 1.5; tab-size: 4; hyphens: none; padding: 0px; margin: 0px; overflow: auto; background: transparent none repeat scroll 0% 0%;"><code
+                    class="language-javascript"
+                    style="color: rgb(156, 220, 254); font-size: 13px; text-shadow: none; font-family: Menlo, Monaco, Consolas, &quot;Andale Mono&quot;, &quot;Ubuntu Mono&quot;, &quot;Courier New&quot;, monospace; direction: ltr; text-align: left; white-space: pre; word-spacing: normal; word-break: normal; line-height: 1.5; tab-size: 4; hyphens: none;"><span><span
+                    class="token" style="color: rgb(212, 212, 212);">[</span><span class="token null nil"
+                                                                                   style="color: rgb(86, 156, 214);">null</span><span
+                    class="token" style="color: rgb(212, 212, 212);">,</span><span> </span><span class="token"
+                                                                                                 style="color: rgb(86, 156, 214);">true</span><span
+                    class="token" style="color: rgb(212, 212, 212);">,</span><span> </span><span class="token"
+                                                                                                 style="color: rgb(86, 156, 214);">true</span><span
+                    class="token" style="color: rgb(212, 212, 212);">,</span><span> </span><span class="token"
+                                                                                                 style="color: rgb(86, 156, 214);">false</span><span
+                    class="token" style="color: rgb(212, 212, 212);">,</span><span> </span><span class="token"
+                                                                                                 style="color: rgb(86, 156, 214);">false</span><span
+                    class="token" style="color: rgb(212, 212, 212);">]</span></span></code></pre>
+            <div class="h-4 w-4 cursor-pointer absolute top-0 right-0">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                     class="h-4 w-4 fill-gray-6 hover:fill-gray-7 dark:fill-dark-gray-6 dark:hover:fill-dark-gray-7 hidden group-hover:block">
+                    <path fill-rule="evenodd"
+                          d="M11.3 8.3H19a3 3 0 013 3V19a3 3 0 01-3 3h-7.7a3 3 0 01-3-3v-7.7a3 3 0 013-3zm0 2a1 1 0 00-1 1V19a1 1 0 001 1H19a1 1 0 001-1v-7.7a1 1 0 00-1-1h-7.7zm-5.6 3.4a1 1 0 110 2h-.9A2.8 2.8 0 012 12.9V4.8A2.8 2.8 0 014.8 2h8.1a2.8 2.8 0 012.8 2.8v.9a1 1 0 11-2 0v-.9a.8.8 0 00-.8-.8H4.8a.8.8 0 00-.8.8v8.1a.8.8 0 00.8.8h.9z"
+                          clip-rule="evenodd"></path>
+                </svg>
+            </div>
+        </div>
+    </div>
+    <p>It's worth mentioning that we <strong>don't</strong> have to return any array. We just have to make sure that all
+        functions return the correct value. The array is just a representation of the correct output sequence, and need
+        not be explicitly returned.</p>
+    <p></p></details>
+<p>There are a plethora of similar <a href="https://leetcode.com/tag/design/" target="_blank">Design Problems</a> on
+    LeetCode. A few of them are listed below:</p>
+<ul>
+    <li><a href="https://leetcode.com/problems/lru-cache/" target="_blank">LRU Cache</a></li>
+    <li><a href="https://leetcode.com/problems/implement-trie-prefix-tree/" target="_blank">Implement Trie (Prefix
+        Tree)</a></li>
+    <li><a href="https://leetcode.com/problems/implement-stack-using-queues/" target="_blank">Implement Stack using
+        Queues</a></li>
+    <li><a href="https://leetcode.com/problems/implement-queue-using-stacks/" target="_blank">Implement Queue using
+        Stacks</a></li>
+    <li><a href="https://leetcode.com/problems/design-browser-history/" target="_blank">Design Browser History</a></li>
+    <li><a href="https://leetcode.com/problems/design-linked-list/" target="_blank">Design Linked List</a></li>
+</ul>
+<hr>
+<h3 id="approach-1-parking-array">Approach 1: Parking Array</h3>
+<h4 id="intuition">Intuition</h4>
+<p>Initially, we have to initialize our object given slots for each type of car.</p>
+<p>Let <code>totalSlots</code> be the combined number of slots for all types of cars. What we can do is create an array
+    of size <code>totalSlots</code> and initialize it with <code>None</code> representing no car is parked in that slot.
+</p>
+<details>
+    <summary><b> Do we need to separately store the number of slots for each type of car? Click to Reveal</b></summary>
+    <p>
+    </p>
+    <p>The answer is <strong>yes</strong>. Because we can only add the car to the parking system <strong>if there is a
+        slot available for that type of car</strong>.</p>
+    <p></p>
+</details>
+<p>Thus, while creating an object we need to store the following information:</p>
+<ul>
+    <li>Parking limit for <code>big</code> cars</li>
+    <li>Parking limit for <code>medium</code> cars</li>
+    <li>Parking limit for <code>small</code> cars</li>
+    <li>An array of size <code>totalSlots</code> which represents the parked cars.</li>
+</ul>
+<p><strong>Constructor</strong> in pseudo-code will look like this:</p>
+<div class="mb-6 rounded-lg px-3 py-2.5 font-menlo text-sm bg-fill-3 dark:bg-dark-fill-3">
+    <div class="group relative" translate="no"><pre
+            style="color: rgb(212, 212, 212); font-size: 13px; text-shadow: none; font-family: Menlo, Monaco, Consolas; direction: ltr; text-align: left; white-space: pre; word-spacing: normal; word-break: normal; line-height: 1.5; tab-size: 4; hyphens: none; padding: 0px; margin: 0px; overflow: auto; background: transparent none repeat scroll 0% 0%;"><code
+            class="language-kotlin"
+            style="color: rgb(212, 212, 212); font-size: 13px; text-shadow: none; font-family: Menlo, Monaco, Consolas, &quot;Andale Mono&quot;, &quot;Ubuntu Mono&quot;, &quot;Courier New&quot;, monospace; direction: ltr; text-align: left; white-space: pre; word-spacing: normal; word-break: normal; line-height: 1.5; tab-size: 4; hyphens: none;"><span><span
+            class="token" style="color: rgb(220, 220, 170);">ParkingSystem</span><span class="token"
+                                                                                       style="color: rgb(212, 212, 212);">(</span><span>int big</span><span
+            class="token" style="color: rgb(212, 212, 212);">,</span><span> int medium</span><span class="token"
+                                                                                                   style="color: rgb(212, 212, 212);">,</span><span> int small</span><span
+            class="token" style="color: rgb(212, 212, 212);">)</span><span> </span><span class="token"
+                                                                                         style="color: rgb(212, 212, 212);">{</span><span>
+</span></span><span>
+</span><span><span>    </span><span class="token" style="color: rgb(106, 153, 85);">// Store the parking limit for each type of car</span><span>
+</span></span><span><span>    </span><span class="token" style="color: rgb(86, 156, 214);">this</span><span
+            class="token" style="color: rgb(212, 212, 212);">.</span><span>bigLimit </span><span class="token"
+                                                                                                 style="color: rgb(212, 212, 212);">=</span><span> big
+</span></span><span><span>    </span><span class="token" style="color: rgb(86, 156, 214);">this</span><span
+            class="token" style="color: rgb(212, 212, 212);">.</span><span>mediumLimit </span><span class="token"
+                                                                                                    style="color: rgb(212, 212, 212);">=</span><span> medium
+</span></span><span><span>    </span><span class="token" style="color: rgb(86, 156, 214);">this</span><span
+            class="token" style="color: rgb(212, 212, 212);">.</span><span>smallLimit </span><span class="token"
+                                                                                                   style="color: rgb(212, 212, 212);">=</span><span> small
+</span></span><span>
+</span><span><span>    </span><span class="token" style="color: rgb(106, 153, 85);">// Create an Array to store parked cars</span><span>
+</span></span><span><span>    </span><span class="token" style="color: rgb(86, 156, 214);">this</span><span
+            class="token" style="color: rgb(212, 212, 212);">.</span><span>parkingArray </span><span class="token"
+                                                                                                     style="color: rgb(212, 212, 212);">=</span><span> </span><span
+            class="token" style="color: rgb(212, 212, 212);">[</span><span>None</span><span class="token"
+                                                                                            style="color: rgb(212, 212, 212);">]</span><span> </span><span
+            class="token" style="color: rgb(212, 212, 212);">*</span><span> </span><span class="token"
+                                                                                         style="color: rgb(212, 212, 212);">(</span><span>big </span><span
+            class="token" style="color: rgb(212, 212, 212);">+</span><span> medium </span><span class="token"
+                                                                                                style="color: rgb(212, 212, 212);">+</span><span> small</span><span
+            class="token" style="color: rgb(212, 212, 212);">)</span><span>
+</span></span><span>
+</span><span><span></span><span class="token" style="color: rgb(212, 212, 212);">}</span></span></code></pre>
+        <div class="h-4 w-4 cursor-pointer absolute top-0 right-0">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="h-4 w-4 fill-gray-6 hover:fill-gray-7 dark:fill-dark-gray-6 dark:hover:fill-dark-gray-7 hidden group-hover:block">
+                <path fill-rule="evenodd"
+                      d="M11.3 8.3H19a3 3 0 013 3V19a3 3 0 01-3 3h-7.7a3 3 0 01-3-3v-7.7a3 3 0 013-3zm0 2a1 1 0 00-1 1V19a1 1 0 001 1H19a1 1 0 001-1v-7.7a1 1 0 00-1-1h-7.7zm-5.6 3.4a1 1 0 110 2h-.9A2.8 2.8 0 012 12.9V4.8A2.8 2.8 0 014.8 2h8.1a2.8 2.8 0 012.8 2.8v.9a1 1 0 11-2 0v-.9a.8.8 0 00-.8-.8H4.8a.8.8 0 00-.8.8v8.1a.8.8 0 00.8.8h.9z"
+                      clip-rule="evenodd"></path>
+            </svg>
+        </div>
+    </div>
+</div>
+<p>The <code>this</code> keyword is used to access the current object's attributes and methods. Different languages have
+    different ways to access the current object's attributes and methods. For example, in Python, we can use the <code>self</code>
+    keyword to access the current object's attributes and methods.</p>
+<br>
+<p><strong>Function</strong> <code>addCar</code> will take one argument, <code>carType</code>. This argument will be an
+    integer representing the type of car. <strong>Using stored information</strong>, we have to check if there is a slot
+    available for that type of car. If yes, then we have to add the car to the parking system and return
+    <code>true</code>. Otherwise, return <code>false</code>.</p>
+<p>We are given <code>carType</code>. After that, we are only interested in the limit for that type of car. For example,
+    if <code>carType</code> is <code>1</code>, then we are only interested in <code>bigLimit</code>, and so on.</p>
+<p>Thus, we can store this limit in a variable <code>limit</code>.</p>
+<p>After that, we have to check if there is a slot available for that type of car. Let's make a policy that we will
+    always add the car to the first available empty slot from the left.</p>
+<p>Hence, we can traverse linearly through the array from the left and <code>count</code> the number of cars parked in
+    the system of that type.</p>
+<p>We will traverse linearly up to <code>null</code>, or can even stop if <code>count</code> becomes equal to <code>limit</code>.
+</p>
+<p>If we stopped because <code>count</code> became equal to <code>limit</code>, then we will return <code>false</code>
+    because no slots are available for that type of car. Otherwise, we will return <code>true</code> and add the car to
+    the first available empty slot from the left.</p>
+<p>Thus, the <strong>function</strong> <code>addCar</code> in the pseudo-code will look like this:</p>
+<div class="mb-6 rounded-lg px-3 py-2.5 font-menlo text-sm bg-fill-3 dark:bg-dark-fill-3">
+    <div class="group relative" translate="no"><pre
+            style="color: rgb(212, 212, 212); font-size: 13px; text-shadow: none; font-family: Menlo, Monaco, Consolas; direction: ltr; text-align: left; white-space: pre; word-spacing: normal; word-break: normal; line-height: 1.5; tab-size: 4; hyphens: none; padding: 0px; margin: 0px; overflow: auto; background: transparent none repeat scroll 0% 0%;"><code
+            class="language-kotlin"
+            style="color: rgb(212, 212, 212); font-size: 13px; text-shadow: none; font-family: Menlo, Monaco, Consolas, &quot;Andale Mono&quot;, &quot;Ubuntu Mono&quot;, &quot;Courier New&quot;, monospace; direction: ltr; text-align: left; white-space: pre; word-spacing: normal; word-break: normal; line-height: 1.5; tab-size: 4; hyphens: none;"><span><span>bool </span><span
+            class="token" style="color: rgb(220, 220, 170);">addCar</span><span class="token"
+                                                                                style="color: rgb(212, 212, 212);">(</span><span>int carType</span><span
+            class="token" style="color: rgb(212, 212, 212);">)</span><span> </span><span class="token"
+                                                                                         style="color: rgb(212, 212, 212);">{</span><span>
+</span></span><span>
+</span><span><span>    </span><span class="token" style="color: rgb(106, 153, 85);">// Store the limit for the type of car</span><span>
+</span></span><span><span>    </span><span class="token"
+                                           style="color: rgb(86, 156, 214);">if</span><span> carType </span><span
+            class="token" style="color: rgb(212, 212, 212);">==</span><span> </span><span class="token"
+                                                                                          style="color: rgb(181, 206, 168);">1</span><span
+            class="token" style="color: rgb(212, 212, 212);">:</span><span>
+</span></span><span><span>        limit </span><span class="token"
+                                                     style="color: rgb(212, 212, 212);">=</span><span> </span><span
+            class="token" style="color: rgb(86, 156, 214);">this</span><span class="token"
+                                                                             style="color: rgb(212, 212, 212);">.</span><span>bigLimit
+</span></span><span><span>    elif carType </span><span class="token"
+                                                        style="color: rgb(212, 212, 212);">==</span><span> </span><span
+            class="token" style="color: rgb(181, 206, 168);">2</span><span class="token"
+                                                                           style="color: rgb(212, 212, 212);">:</span><span>
+</span></span><span><span>        limit </span><span class="token"
+                                                     style="color: rgb(212, 212, 212);">=</span><span> </span><span
+            class="token" style="color: rgb(86, 156, 214);">this</span><span class="token"
+                                                                             style="color: rgb(212, 212, 212);">.</span><span>mediumLimit
+</span></span><span><span>    </span><span class="token" style="color: rgb(86, 156, 214);">else</span><span
+            class="token" style="color: rgb(212, 212, 212);">:</span><span>
+</span></span><span><span>        limit </span><span class="token"
+                                                     style="color: rgb(212, 212, 212);">=</span><span> </span><span
+            class="token" style="color: rgb(86, 156, 214);">this</span><span class="token"
+                                                                             style="color: rgb(212, 212, 212);">.</span><span>smallLimit
+</span></span><span>
+</span><span><span>    </span><span class="token" style="color: rgb(106, 153, 85);">// Traverse linearly through the array from the left</span><span>
+</span></span><span><span>    count </span><span class="token" style="color: rgb(212, 212, 212);">=</span><span> </span><span
+            class="token" style="color: rgb(181, 206, 168);">0</span><span>
+</span></span><span><span>    </span><span class="token"
+                                           style="color: rgb(86, 156, 214);">for</span><span> i </span><span
+            class="token" style="color: rgb(212, 212, 212);">=</span><span> </span><span class="token"
+                                                                                         style="color: rgb(181, 206, 168);">0</span><span> </span><span
+            class="token" style="color: rgb(212, 212, 212);">..</span><span class="token"
+                                                                            style="color: rgb(212, 212, 212);">.</span><span> </span><span
+            class="token" style="color: rgb(220, 220, 170);">size</span><span class="token"
+                                                                              style="color: rgb(212, 212, 212);">(</span><span
+            class="token" style="color: rgb(86, 156, 214);">this</span><span class="token"
+                                                                             style="color: rgb(212, 212, 212);">.</span><span>parkingArray</span><span
+            class="token" style="color: rgb(212, 212, 212);">)</span><span> </span><span class="token"
+                                                                                         style="color: rgb(212, 212, 212);">-</span><span> </span><span
+            class="token" style="color: rgb(181, 206, 168);">1</span><span> </span><span class="token"
+                                                                                         style="color: rgb(212, 212, 212);">{</span><span>
+</span></span><span>
+</span><span><span>        </span><span class="token" style="color: rgb(106, 153, 85);">// Count the number of cars parked in the system of that type</span><span>
+</span></span><span><span>        </span><span class="token"
+                                               style="color: rgb(86, 156, 214);">if</span><span> </span><span
+            class="token" style="color: rgb(86, 156, 214);">this</span><span class="token"
+                                                                             style="color: rgb(212, 212, 212);">.</span><span>parkingArray</span><span
+            class="token" style="color: rgb(212, 212, 212);">[</span><span>i</span><span class="token"
+                                                                                         style="color: rgb(212, 212, 212);">]</span><span> </span><span
+            class="token" style="color: rgb(212, 212, 212);">==</span><span> carType
+</span></span><span><span>            count </span><span class="token"
+                                                         style="color: rgb(212, 212, 212);">++</span><span>
+</span></span><span>
+</span><span><span>        </span><span class="token" style="color: rgb(106, 153, 85);">// Stop if the count becomes equal to the limit</span><span>
+</span></span><span><span>        </span><span class="token"
+                                               style="color: rgb(86, 156, 214);">if</span><span> count </span><span
+            class="token" style="color: rgb(212, 212, 212);">==</span><span> limit
+</span></span><span><span>            </span><span class="token"
+                                                   style="color: rgb(86, 156, 214);">return</span><span> </span><span
+            class="token" style="color: rgb(86, 156, 214);">false</span><span>
+</span></span><span>
+</span><span><span>        </span><span class="token" style="color: rgb(106, 153, 85);">// If the count is less than the limit, then add the car </span><span>
+</span></span><span><span>        </span><span class="token" style="color: rgb(106, 153, 85);">// to the first available empty slot from the left</span><span>
+</span></span><span><span>        </span><span class="token"
+                                               style="color: rgb(86, 156, 214);">if</span><span> </span><span
+            class="token" style="color: rgb(86, 156, 214);">this</span><span class="token"
+                                                                             style="color: rgb(212, 212, 212);">.</span><span>parkingArray</span><span
+            class="token" style="color: rgb(212, 212, 212);">[</span><span>i</span><span class="token"
+                                                                                         style="color: rgb(212, 212, 212);">]</span><span> </span><span
+            class="token" style="color: rgb(86, 156, 214);">is</span><span> </span><span class="token"
+                                                                                         style="color: rgb(86, 156, 214);">null</span><span
+            class="token" style="color: rgb(212, 212, 212);">:</span><span>
+</span></span><span><span>            </span><span class="token" style="color: rgb(86, 156, 214);">this</span><span
+            class="token" style="color: rgb(212, 212, 212);">.</span><span>parkingArray</span><span class="token"
+                                                                                                    style="color: rgb(212, 212, 212);">[</span><span>i</span><span
+            class="token" style="color: rgb(212, 212, 212);">]</span><span> </span><span class="token"
+                                                                                         style="color: rgb(212, 212, 212);">=</span><span> carType
+</span></span><span><span>            </span><span class="token"
+                                                   style="color: rgb(86, 156, 214);">return</span><span> </span><span
+            class="token" style="color: rgb(86, 156, 214);">true</span><span>
+</span></span><span>
+</span><span><span>    </span><span class="token" style="color: rgb(212, 212, 212);">}</span><span>
+</span></span><span><span></span><span class="token" style="color: rgb(212, 212, 212);">}</span></span></code></pre>
+        <div class="h-4 w-4 cursor-pointer absolute top-0 right-0">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="h-4 w-4 fill-gray-6 hover:fill-gray-7 dark:fill-dark-gray-6 dark:hover:fill-dark-gray-7 hidden group-hover:block">
+                <path fill-rule="evenodd"
+                      d="M11.3 8.3H19a3 3 0 013 3V19a3 3 0 01-3 3h-7.7a3 3 0 01-3-3v-7.7a3 3 0 013-3zm0 2a1 1 0 00-1 1V19a1 1 0 001 1H19a1 1 0 001-1v-7.7a1 1 0 00-1-1h-7.7zm-5.6 3.4a1 1 0 110 2h-.9A2.8 2.8 0 012 12.9V4.8A2.8 2.8 0 014.8 2h8.1a2.8 2.8 0 012.8 2.8v.9a1 1 0 11-2 0v-.9a.8.8 0 00-.8-.8H4.8a.8.8 0 00-.8.8v8.1a.8.8 0 00.8.8h.9z"
+                      clip-rule="evenodd"></path>
+            </svg>
+        </div>
+    </div>
+</div>
+<p>Thus using this approach we can solve the problem. Once solved, readers are advised to see codes in other languages
+    and compare how classes and objects are implemented in different languages.</p>
+<h4 id="algorithm">Algorithm</h4>
+<ol>
+    <li>
+        <p>In the <strong>constructor</strong> (<code>ParkingSystem</code> function, or <code>__init__</code> method in
+            Python, or equivalent in other languages)</p>
+        <ul>
+            <li>
+                <p>Store the parking limit for each type of car. These limits will be constant.</p>
+            </li>
+            <li>
+                <p>Create an array to store parked cars. The size of this array will be the sum of all parking limits
+                    given as arguments. Initially, all slots will be empty (<code>null</code>, <code>0</code>, or <code>-1</code>)
+                </p>
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>In the <strong>function</strong> <code>addCar</code>, the <code>carType</code> will be given as an argument.
+        </p>
+        <ul>
+            <li>
+                <p>Save the limit for the type of car in a variable <code>limit</code>.</p>
+            </li>
+            <li>
+                <p>Traverse linearly through the array from the left.</p>
+            </li>
+            <li>
+                <p>Count the number of cars parked in the system of that type.</p>
+            </li>
+            <li>
+                <p>Stop if <code>count</code> becomes equal to <code>limit</code>, and return <code>false</code> since
+                    the car cannot be added to the parking system.</p>
+            </li>
+            <li>
+                <p>If the first empty slot (<code>null</code>) is found, then add the car to that slot and return <code>true</code>.
+                </p>
+            </li>
+        </ul>
+    </li>
+</ol>
+<h4 id="implementation">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class ParkingSystem {
+
+    // Parking limit for each type of car
+    int bigLimit, mediumLimit, smallLimit;
+
+    // Create an Array to store parked cars
+    int[] parkingArray;
+
+    public ParkingSystem(int big, int medium, int small) {
+
+        // Parking limit for each type of car
+        this.bigLimit = big;
+        this.mediumLimit = medium;
+        this.smallLimit = small;
+
+        // Create an Array to store parked cars
+        this.parkingArray = new int[big + medium + small];
+        for (int i = 0; i < this.parkingArray.length; i++) {
+            this.parkingArray[i] = 0;
+        }
+    }
+
+    public boolean addCar(int carType) {
+
+        // Depending on carType, store the limit for the type of car
+        int limit = 0;
+        if (carType == 1) {
+            limit = this.bigLimit;
+        } else if (carType == 2) {
+            limit = this.mediumLimit;
+        } else {
+            limit = this.smallLimit;
+        }
+
+        // Traverse linearly through the array from the left
+        int count = 0;
+        for (int i = 0; i < this.parkingArray.length; i++) {
+
+            // Count the number of cars parked in the system of that type
+            if (this.parkingArray[i] == carType) {
+                count++;
+            }
+
+            // Stop if the count becomes equal to the limit
+            if (count == limit) {
+                return false;
+            }
+
+            // If the count is less than the limit, then add the car
+            // to the first available empty slot from the left
+            if (this.parkingArray[i] == 0) {
+                this.parkingArray[i] = carType;
+                return true;
+            }
+        }
+
+        // If no empty slot is found, then return False.
+        // However, this line will never be executed if count < limit
+        // because slot will be found before count becomes equal to limit
+        return false;
+    }
+}
+    </code>
+    C++
+    <code>
+        class ParkingSystem {
+public:
+
+    // Parking limit for each type of car
+    int bigLimit, mediumLimit, smallLimit;
+
+    // Create an Array to store parked cars
+    int* parkingArray;
+
+    ParkingSystem(int big, int medium, int small) {
+
+        // Parking limit for each type of car
+        this->bigLimit = big;
+        this->mediumLimit = medium;
+        this->smallLimit = small;
+
+        // Create an Array to store parked cars.
+        this->parkingArray = (int*)malloc((big + medium + small) * sizeof(int));
+        for (int i = 0; i < big + medium + small; i++) {
+            this->parkingArray[i] = -1;
+        }
+    }
+
+    bool addCar(int carType) {
+
+        // Depending on carType, store the limit for the type of car
+        int limit = 0;
+        if (carType == 1) {
+            limit = this->bigLimit;
+        } else if (carType == 2) {
+            limit = this->mediumLimit;
+        } else {
+            limit = this->smallLimit;
+        }
+
+        // Traverse linearly through the array from the left
+        int count = 0;
+        for (int i = 0; i < this->bigLimit + this->mediumLimit + this->smallLimit; i++) {
+            // Count the number of cars parked in the system of that type
+            if (this->parkingArray[i] == carType) {
+                count++;
+            }
+
+            // Stop if the count becomes equal to the limit
+            if (count == limit) {
+                return false;
+            }
+
+            // If the count is less than the limit, then add the car
+            // to the first available empty slot from the left
+            if (this->parkingArray[i] == -1) {
+                this->parkingArray[i] = carType;
+                return true;
+            }
+        }
+
+        // If no empty slot is found, then return False.
+        // However, this line will never be executed if count < limit
+        // because slot will be found before count becomes equal to limit
+        return false;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class ParkingSystem:
+
+    def __init__(self, big: int, medium: int, small: int):
+
+        # Parking limit for each type of car
+        self.big_limit = big
+        self.medium_limit = medium
+        self.small_limit = small
+
+        # Create an Array to store parked cars
+        self.parking_array = [None] * (big + medium + small)
+
+    def addCar(self, carType: int) -> bool:
+
+        # Depending on carType, store the limit for the type of car
+        if carType == 1:
+            limit = self.big_limit
+        elif carType == 2:
+            limit = self.medium_limit
+        else:
+            limit = self.small_limit
+
+        # Traverse linearly through the array from the left
+        count = 0
+        for i in range(len(self.parking_array)):
+
+            # Count the number of cars parked in the system of that type
+            if self.parking_array[i] == carType:
+                count += 1
+
+            # Stop if the count becomes equal to the limit
+            if count == limit:
+                return False
+
+            # If the count is less than the limit, then add the car
+            # to the first available empty slot from the left
+            if self.parking_array[i] is None:
+                self.parking_array[i] = carType
+                return True
+
+        # If no empty slot is found, then return False.
+        # However, this line will never be executed if count < limit
+        # because slot will be found before count becomes equal to limit
+        return False
+    </code>
+</pre>
+<h4 id="complexity-analysis">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">NN</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                style="margin-right: 0.10903em;">N</span></span></span></span></span>
+    be the number of function calls. Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">TT</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.6833em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.13889em;">T</span></span></span></span></span> be the total
+    number of cars that can be parked in the parking system.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(N⋅T)O(N \cdot T)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span class="mspace"
+                                                                                       style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.13889em;">T</span><span
+                class="mclose">)</span></span></span></span></span>.</p>
+        <p>In the <code>addCall</code> function, we traverse linearly through the array from the left. This traversal
+            will be of <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(T)O(T)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.13889em;">T</span><span
+                    class="mclose">)</span></span></span></span></span> time complexity and will be done <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">NN</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.6833em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">N</span></span></span></span></span> times.
+        </p>
+        <p>Hence, the overall time complexity will be <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(N⋅T)O(N \cdot T)</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span class="mspace"
+                                                                                       style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.13889em;">T</span><span
+                class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(T)O(T)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.13889em;">T</span><span
+                class="mclose">)</span></span></span></span></span>.</p>
+        <p>We are saving the parking limit for each type of car in a variable. These are three variables, and hence, the
+            space complexity for them will be constant.</p>
+        <p>However, storing parking information will take <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(T)O(T)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.13889em;">T</span><span
+                class="mclose">)</span></span></span></span></span> space. Hence, the overall space complexity will be
+            <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(T)O(T)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.13889em;">T</span><span
+                    class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+</ul>
+<hr>
+<h3 id="approach-2-saving-count">Approach 2: Saving Count</h3>
+<h4 id="intuition-1">Intuition</h4>
+<p>As will be pointed out by many readers, we somewhat over-engineered the problem in the <a
+        href="#approach-1-parking-array" rel="noopener noreferrer nofollow ugc" target="_self">previous approach</a>.
+</p>
+<p>Let's analyze how!</p>
+<blockquote>
+    <p>Mixing up all cars in a single array made us traverse linearly through the array from the left to find the first
+        empty slot.</p>
+</blockquote>
+<blockquote>
+    <p>What if we had separate arrays for each type of car? Then, we could have simply checked if the size of the array
+        is less than the limit for that type of car. If yes, then we could have added the car to the array by resizing
+        it and return <code>true</code>. If not, then we could have returned <code>false</code>.</p>
+</blockquote>
+<blockquote>
+    <p>We can save limits as constants as we did in the <a href="#approach-1-parking-array"
+                                                           rel="noopener noreferrer nofollow ugc" target="_self">previous
+        approach</a>, and make sure that size of the array of each type of car doesn't exceed the limit for that type of
+        car.</p>
+</blockquote>
+<p>That being said, what's the silly thing that we are <strong>still</strong> doing?</p>
+<p>It turns out that we are only interested in the number of cars of each type that are parked in the parking system.
+    Nothing else! Storing car types in the array is redundant. We only need the count of cars of each type.</p>
+<p>The <strong>constructor</strong>, instead of saving <code>parkingArray</code> will save three variables: <code>bigCount</code>,
+    <code>mediumCount</code>, and <code>smallCount</code>. These variables will store the number of cars of each type
+    that are parked in the parking system. Initially, all of them will be zero.</p>
+<div class="mb-6 rounded-lg px-3 py-2.5 font-menlo text-sm bg-fill-3 dark:bg-dark-fill-3">
+    <div class="group relative" translate="no"><pre
+            style="color: rgb(212, 212, 212); font-size: 13px; text-shadow: none; font-family: Menlo, Monaco, Consolas; direction: ltr; text-align: left; white-space: pre; word-spacing: normal; word-break: normal; line-height: 1.5; tab-size: 4; hyphens: none; padding: 0px; margin: 0px; overflow: auto; background: transparent none repeat scroll 0% 0%;"><code
+            class="language-kotlin"
+            style="color: rgb(212, 212, 212); font-size: 13px; text-shadow: none; font-family: Menlo, Monaco, Consolas, &quot;Andale Mono&quot;, &quot;Ubuntu Mono&quot;, &quot;Courier New&quot;, monospace; direction: ltr; text-align: left; white-space: pre; word-spacing: normal; word-break: normal; line-height: 1.5; tab-size: 4; hyphens: none;"><span><span
+            class="token" style="color: rgb(220, 220, 170);">ParkingSystem</span><span class="token"
+                                                                                       style="color: rgb(212, 212, 212);">(</span><span>int big</span><span
+            class="token" style="color: rgb(212, 212, 212);">,</span><span> int medium</span><span class="token"
+                                                                                                   style="color: rgb(212, 212, 212);">,</span><span> int small</span><span
+            class="token" style="color: rgb(212, 212, 212);">)</span><span> </span><span class="token"
+                                                                                         style="color: rgb(212, 212, 212);">{</span><span>
+</span></span><span>
+</span><span><span>    </span><span class="token" style="color: rgb(106, 153, 85);">// Store the parking limit for each type of car</span><span>
+</span></span><span><span>    </span><span class="token" style="color: rgb(86, 156, 214);">this</span><span
+            class="token" style="color: rgb(212, 212, 212);">.</span><span>bigLimit </span><span class="token"
+                                                                                                 style="color: rgb(212, 212, 212);">=</span><span> big
+</span></span><span><span>    </span><span class="token" style="color: rgb(86, 156, 214);">this</span><span
+            class="token" style="color: rgb(212, 212, 212);">.</span><span>mediumLimit </span><span class="token"
+                                                                                                    style="color: rgb(212, 212, 212);">=</span><span> medium
+</span></span><span><span>    </span><span class="token" style="color: rgb(86, 156, 214);">this</span><span
+            class="token" style="color: rgb(212, 212, 212);">.</span><span>smallLimit </span><span class="token"
+                                                                                                   style="color: rgb(212, 212, 212);">=</span><span> small
+</span></span><span>
+</span><span><span>    </span><span class="token" style="color: rgb(106, 153, 85);">// Count of cars of each type</span><span>
+</span></span><span><span>    </span><span class="token" style="color: rgb(106, 153, 85);">// that are parked in the parking system</span><span>
+</span></span><span><span>    </span><span class="token" style="color: rgb(86, 156, 214);">this</span><span
+            class="token" style="color: rgb(212, 212, 212);">.</span><span>bigCount </span><span class="token"
+                                                                                                 style="color: rgb(212, 212, 212);">=</span><span> </span><span
+            class="token" style="color: rgb(181, 206, 168);">0</span><span>
+</span></span><span><span>    </span><span class="token" style="color: rgb(86, 156, 214);">this</span><span
+            class="token" style="color: rgb(212, 212, 212);">.</span><span>mediumCount </span><span class="token"
+                                                                                                    style="color: rgb(212, 212, 212);">=</span><span> </span><span
+            class="token" style="color: rgb(181, 206, 168);">0</span><span>
+</span></span><span><span>    </span><span class="token" style="color: rgb(86, 156, 214);">this</span><span
+            class="token" style="color: rgb(212, 212, 212);">.</span><span>smallCount </span><span class="token"
+                                                                                                   style="color: rgb(212, 212, 212);">=</span><span> </span><span
+            class="token" style="color: rgb(181, 206, 168);">0</span><span>
+</span></span><span><span></span><span class="token" style="color: rgb(212, 212, 212);">}</span></span></code></pre>
+        <div class="h-4 w-4 cursor-pointer absolute top-0 right-0">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="h-4 w-4 fill-gray-6 hover:fill-gray-7 dark:fill-dark-gray-6 dark:hover:fill-dark-gray-7 hidden group-hover:block">
+                <path fill-rule="evenodd"
+                      d="M11.3 8.3H19a3 3 0 013 3V19a3 3 0 01-3 3h-7.7a3 3 0 01-3-3v-7.7a3 3 0 013-3zm0 2a1 1 0 00-1 1V19a1 1 0 001 1H19a1 1 0 001-1v-7.7a1 1 0 00-1-1h-7.7zm-5.6 3.4a1 1 0 110 2h-.9A2.8 2.8 0 012 12.9V4.8A2.8 2.8 0 014.8 2h8.1a2.8 2.8 0 012.8 2.8v.9a1 1 0 11-2 0v-.9a.8.8 0 00-.8-.8H4.8a.8.8 0 00-.8.8v8.1a.8.8 0 00.8.8h.9z"
+                      clip-rule="evenodd"></path>
+            </svg>
+        </div>
+    </div>
+</div>
+<p>Now, in the <code>addCar</code> function, we will check if the count of cars of that type is less than the limit for
+    that type of car.</p>
+<ul>
+    <li>
+        <p>If yes, then we will increment the count of cars of that type by one, and return <code>true</code>.</p>
+    </li>
+    <li>
+        <p>If not, then we will return <code>false</code>.</p>
+    </li>
+</ul>
+<div class="mb-6 rounded-lg px-3 py-2.5 font-menlo text-sm bg-fill-3 dark:bg-dark-fill-3">
+    <div class="group relative" translate="no"><pre
+            style="color: rgb(212, 212, 212); font-size: 13px; text-shadow: none; font-family: Menlo, Monaco, Consolas; direction: ltr; text-align: left; white-space: pre; word-spacing: normal; word-break: normal; line-height: 1.5; tab-size: 4; hyphens: none; padding: 0px; margin: 0px; overflow: auto; background: transparent none repeat scroll 0% 0%;"><code
+            class="language-kotlin"
+            style="color: rgb(212, 212, 212); font-size: 13px; text-shadow: none; font-family: Menlo, Monaco, Consolas, &quot;Andale Mono&quot;, &quot;Ubuntu Mono&quot;, &quot;Courier New&quot;, monospace; direction: ltr; text-align: left; white-space: pre; word-spacing: normal; word-break: normal; line-height: 1.5; tab-size: 4; hyphens: none;"><span><span>boolean </span><span
+            class="token" style="color: rgb(220, 220, 170);">addCar</span><span class="token"
+                                                                                style="color: rgb(212, 212, 212);">(</span><span>int carType</span><span
+            class="token" style="color: rgb(212, 212, 212);">)</span><span> </span><span class="token"
+                                                                                         style="color: rgb(212, 212, 212);">{</span><span>
+</span></span><span>
+</span><span><span>    </span><span class="token"
+                                    style="color: rgb(106, 153, 85);">// Depending on carType, decide</span><span>
+</span></span><span><span>    </span><span class="token" style="color: rgb(86, 156, 214);">if</span><span> </span><span
+            class="token" style="color: rgb(212, 212, 212);">(</span><span>carType </span><span class="token"
+                                                                                                style="color: rgb(212, 212, 212);">==</span><span> </span><span
+            class="token" style="color: rgb(181, 206, 168);">1</span><span class="token"
+                                                                           style="color: rgb(212, 212, 212);">)</span><span> </span><span
+            class="token" style="color: rgb(212, 212, 212);">{</span><span>
+</span></span><span><span>        </span><span class="token"
+                                               style="color: rgb(86, 156, 214);">if</span><span> </span><span
+            class="token" style="color: rgb(212, 212, 212);">(</span><span class="token"
+                                                                           style="color: rgb(86, 156, 214);">this</span><span
+            class="token" style="color: rgb(212, 212, 212);">.</span><span>bigCount </span><span class="token"
+                                                                                                 style="color: rgb(212, 212, 212);">&lt;</span><span> </span><span
+            class="token" style="color: rgb(86, 156, 214);">this</span><span class="token"
+                                                                             style="color: rgb(212, 212, 212);">.</span><span>bigLimit</span><span
+            class="token" style="color: rgb(212, 212, 212);">)</span><span> </span><span class="token"
+                                                                                         style="color: rgb(212, 212, 212);">{</span><span>
+</span></span><span><span>            </span><span class="token" style="color: rgb(86, 156, 214);">this</span><span
+            class="token" style="color: rgb(212, 212, 212);">.</span><span>bigCount</span><span class="token"
+                                                                                                style="color: rgb(212, 212, 212);">++</span><span>
+</span></span><span><span>            </span><span class="token"
+                                                   style="color: rgb(86, 156, 214);">return</span><span> </span><span
+            class="token" style="color: rgb(86, 156, 214);">true</span><span>
+</span></span><span><span>        </span><span class="token" style="color: rgb(212, 212, 212);">}</span><span>
+</span></span><span><span>        </span><span class="token" style="color: rgb(86, 156, 214);">else</span><span> </span><span
+            class="token" style="color: rgb(212, 212, 212);">{</span><span>
+</span></span><span><span>            </span><span class="token"
+                                                   style="color: rgb(86, 156, 214);">return</span><span> </span><span
+            class="token" style="color: rgb(86, 156, 214);">false</span><span>
+</span></span><span><span>        </span><span class="token" style="color: rgb(212, 212, 212);">}</span><span>
+</span></span><span><span>    </span><span class="token"
+                                           style="color: rgb(86, 156, 214);">else</span><span> </span><span
+            class="token" style="color: rgb(86, 156, 214);">if</span><span> </span><span class="token"
+                                                                                         style="color: rgb(212, 212, 212);">(</span><span>carType </span><span
+            class="token" style="color: rgb(212, 212, 212);">==</span><span> </span><span class="token"
+                                                                                          style="color: rgb(181, 206, 168);">2</span><span
+            class="token" style="color: rgb(212, 212, 212);">)</span><span> </span><span class="token"
+                                                                                         style="color: rgb(212, 212, 212);">{</span><span>
+</span></span><span><span>        </span><span class="token"
+                                               style="color: rgb(86, 156, 214);">if</span><span> </span><span
+            class="token" style="color: rgb(212, 212, 212);">(</span><span class="token"
+                                                                           style="color: rgb(86, 156, 214);">this</span><span
+            class="token" style="color: rgb(212, 212, 212);">.</span><span>mediumCount </span><span class="token"
+                                                                                                    style="color: rgb(212, 212, 212);">&lt;</span><span> </span><span
+            class="token" style="color: rgb(86, 156, 214);">this</span><span class="token"
+                                                                             style="color: rgb(212, 212, 212);">.</span><span>mediumLimit</span><span
+            class="token" style="color: rgb(212, 212, 212);">)</span><span> </span><span class="token"
+                                                                                         style="color: rgb(212, 212, 212);">{</span><span>
+</span></span><span><span>            </span><span class="token" style="color: rgb(86, 156, 214);">this</span><span
+            class="token" style="color: rgb(212, 212, 212);">.</span><span>mediumCount</span><span class="token"
+                                                                                                   style="color: rgb(212, 212, 212);">++</span><span>
+</span></span><span><span>            </span><span class="token"
+                                                   style="color: rgb(86, 156, 214);">return</span><span> </span><span
+            class="token" style="color: rgb(86, 156, 214);">true</span><span>
+</span></span><span><span>        </span><span class="token" style="color: rgb(212, 212, 212);">}</span><span>
+</span></span><span><span>        </span><span class="token" style="color: rgb(86, 156, 214);">else</span><span> </span><span
+            class="token" style="color: rgb(212, 212, 212);">{</span><span>
+</span></span><span><span>            </span><span class="token"
+                                                   style="color: rgb(86, 156, 214);">return</span><span> </span><span
+            class="token" style="color: rgb(86, 156, 214);">false</span><span>
+</span></span><span><span>        </span><span class="token" style="color: rgb(212, 212, 212);">}</span><span>
+</span></span><span><span>    </span><span class="token"
+                                           style="color: rgb(86, 156, 214);">else</span><span> </span><span
+            class="token" style="color: rgb(212, 212, 212);">{</span><span>
+</span></span><span><span>        </span><span class="token"
+                                               style="color: rgb(86, 156, 214);">if</span><span> </span><span
+            class="token" style="color: rgb(212, 212, 212);">(</span><span class="token"
+                                                                           style="color: rgb(86, 156, 214);">this</span><span
+            class="token" style="color: rgb(212, 212, 212);">.</span><span>smallCount </span><span class="token"
+                                                                                                   style="color: rgb(212, 212, 212);">&lt;</span><span> </span><span
+            class="token" style="color: rgb(86, 156, 214);">this</span><span class="token"
+                                                                             style="color: rgb(212, 212, 212);">.</span><span>smallLimit</span><span
+            class="token" style="color: rgb(212, 212, 212);">)</span><span> </span><span class="token"
+                                                                                         style="color: rgb(212, 212, 212);">{</span><span>
+</span></span><span><span>            </span><span class="token" style="color: rgb(86, 156, 214);">this</span><span
+            class="token" style="color: rgb(212, 212, 212);">.</span><span>smallCount</span><span class="token"
+                                                                                                  style="color: rgb(212, 212, 212);">++</span><span>
+</span></span><span><span>            </span><span class="token"
+                                                   style="color: rgb(86, 156, 214);">return</span><span> </span><span
+            class="token" style="color: rgb(86, 156, 214);">true</span><span>
+</span></span><span><span>        </span><span class="token" style="color: rgb(212, 212, 212);">}</span><span>
+</span></span><span><span>        </span><span class="token" style="color: rgb(86, 156, 214);">else</span><span> </span><span
+            class="token" style="color: rgb(212, 212, 212);">{</span><span>
+</span></span><span><span>            </span><span class="token"
+                                                   style="color: rgb(86, 156, 214);">return</span><span> </span><span
+            class="token" style="color: rgb(86, 156, 214);">false</span><span>
+</span></span><span><span>        </span><span class="token" style="color: rgb(212, 212, 212);">}</span><span>
+</span></span><span><span>    </span><span class="token" style="color: rgb(212, 212, 212);">}</span><span>
+</span></span><span>
+</span><span><span>    </span><span class="token" style="color: rgb(106, 153, 85);">// Return False if carType is invalid</span><span>
+</span></span><span><span>    </span><span class="token"
+                                           style="color: rgb(86, 156, 214);">return</span><span> </span><span
+            class="token" style="color: rgb(86, 156, 214);">false</span><span>
+</span></span><span><span></span><span class="token" style="color: rgb(212, 212, 212);">}</span></span></code></pre>
+        <div class="h-4 w-4 cursor-pointer absolute top-0 right-0">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="h-4 w-4 fill-gray-6 hover:fill-gray-7 dark:fill-dark-gray-6 dark:hover:fill-dark-gray-7 hidden group-hover:block">
+                <path fill-rule="evenodd"
+                      d="M11.3 8.3H19a3 3 0 013 3V19a3 3 0 01-3 3h-7.7a3 3 0 01-3-3v-7.7a3 3 0 013-3zm0 2a1 1 0 00-1 1V19a1 1 0 001 1H19a1 1 0 001-1v-7.7a1 1 0 00-1-1h-7.7zm-5.6 3.4a1 1 0 110 2h-.9A2.8 2.8 0 012 12.9V4.8A2.8 2.8 0 014.8 2h8.1a2.8 2.8 0 012.8 2.8v.9a1 1 0 11-2 0v-.9a.8.8 0 00-.8-.8H4.8a.8.8 0 00-.8.8v8.1a.8.8 0 00.8.8h.9z"
+                      clip-rule="evenodd"></path>
+            </svg>
+        </div>
+    </div>
+</div>
+<blockquote>
+    <p><strong>Interview Tip:</strong> The previous approach works, however, it was over-engineered. It is important to
+        understand that we should not over-engineer the problem. We should only do what is required.</p>
+    <p>Saving <code>parkingArray</code> was redundant, at least in this problem.</p>
+    <p>A good programmer should be able to identify the problem and come up with a solution that does what is required,
+        and nothing more.</p>
+    <p>Also in the previous approach we were allocating an entire array of variable size. In this approach, we are only
+        allocating three variables. This is a good optimization. Now, whatever may be the size of the parking system, we
+        only need constant space.</p>
+</blockquote>
+<p>Readers are encouraged to try this approach on their own before moving ahead.</p>
+<h4 id="algorithm-1">Algorithm</h4>
+<ol>
+    <li>
+        <p>Save the parking limit for each type of car in three variables, <code>bigLimit</code>,
+            <code>mediumLimit</code>, and <code>smallLimit</code>. It should be done when an object of the <code>ParkingSystem</code>
+            class is constructed. Also, in the constructor, initialize the count of cars of each type to zero. Let these
+            variables be <code>bigCount</code>, <code>mediumCount</code>, and <code>smallCount</code>.</p>
+    </li>
+    <li>
+        <p>When the <code>addCar</code> function is called, depending on the value of <code>carType</code>, check if the
+            count of cars of that type is less than the limit for that type of car.</p>
+        <ul>
+            <li>If yes, then increment the count of cars of that type by one, and return <code>true</code>.</li>
+            <li>If not, then return <code>false</code>.</li>
+        </ul>
+    </li>
+</ol>
+<h4 id="implementation-1">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class ParkingSystem {
+
+    // Parking limit for each type of car
+    int bigLimit, mediumLimit, smallLimit;
+
+    // Count of cars of each type
+    int bigCount, mediumCount, smallCount;
+
+    public ParkingSystem(int big, int medium, int small) {
+
+        // Store the parking limit for each type of car
+        this.bigLimit = big;
+        this.mediumLimit = medium;
+        this.smallLimit = small;
+
+        // Count of cars of each type
+        this.bigCount = 0;
+        this.mediumCount = 0;
+        this.smallCount = 0;
+    }
+
+    public boolean addCar(int carType) {
+
+        // Depending on carType, decide
+        if (carType == 1) {
+            if (this.bigCount < this.bigLimit) {
+                this.bigCount++;
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+        else if (carType == 2) {
+            if (this.mediumCount < this.mediumLimit) {
+                this.mediumCount++;
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+        else if (carType == 3) {
+            if (this.smallCount < this.smallLimit) {
+                this.smallCount++;
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+
+        // Return False if carType is invalid.
+        // Although, this will never happen because of constraints.
+        // But we are doing it for completeness.
+        return false;
+    }
+}
+    </code>
+    C++
+    <code>
+        class ParkingSystem {
+public:
+
+    // Parking limit for each type of car
+    int bigLimit, mediumLimit, smallLimit;
+
+    // Count of cars of each type
+    int bigCount, mediumCount, smallCount;
+
+    ParkingSystem(int big, int medium, int small) {
+
+        // Store the parking limit for each type of car
+        this->bigLimit = big;
+        this->mediumLimit = medium;
+        this->smallLimit = small;
+
+        // Count of cars of each type
+        this->bigCount = 0;
+        this->mediumCount = 0;
+        this->smallCount = 0;
+    }
+
+    bool addCar(int carType) {
+
+        // Depending on carType, decide
+        if (carType == 1) {
+            if (this->bigCount < this->bigLimit) {
+                this->bigCount++;
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+        else if (carType == 2) {
+            if (this->mediumCount < this->mediumLimit) {
+                this->mediumCount++;
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+        else if (carType == 3) {
+            if (this->smallCount < this->smallLimit) {
+                this->smallCount++;
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+
+        // Return False if carType is invalid.
+        // Although, this will never happen because of constraints.
+        // But we are doing it for completeness.
+        return false;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class ParkingSystem:
+
+    def __init__(self, big: int, medium: int, small: int):
+
+        # Store the parking limit for each type of car
+        self.big_limit = big
+        self.medium_limit = medium
+        self.small_limit = small
+
+        # Count of cars of each type
+        self.big_count = 0
+        self.medium_count = 0
+        self.small_count = 0
+
+    def addCar(self, carType: int) -> bool:
+
+        # Depending on carType, make the decision
+        if carType == 1:
+            if self.big_count < self.big_limit:
+                self.big_count += 1
+                return True
+            else:
+                return False
+        elif carType == 2:
+            if self.medium_count < self.medium_limit:
+                self.medium_count += 1
+                return True
+            else:
+                return False
+        elif carType == 3:
+            if self.small_count < self.small_limit:
+                self.small_count += 1
+                return True
+            else:
+                return False
+
+        # Return False if carType is invalid.
+        # Although, this will never happen because of constraints.
+        # But we are doing it for completeness.
+        return False
+    </code>
+</pre>
+<h4 id="complexity-analysis-1">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">NN</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                style="margin-right: 0.10903em;">N</span></span></span></span></span>
+    be the number of function calls.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(N)O(N)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                class="mclose">)</span></span></span></span></span>.</p>
+        <ul>
+            <li>
+                <p>In the <strong>constructor</strong>, we save the parking limit and initialize the count of cars of
+                    each type to zero. This is done in constant time.</p>
+            </li>
+            <li>
+                <p>In the <strong>addCar</strong> function, we check if the count of cars of a particular type is less
+                    than the limit. This is done in constant time.</p>
+            </li>
+        </ul>
+        <p>Hence, the overall time complexity will be <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(N)O(N)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                class="mclose">)</span></span></span></span></span> since there are <span class="math math-inline"><span
+                class="katex"><span class="katex-mathml">NN</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                        style="margin-right: 0.10903em;">N</span></span></span></span></span>
+            function-calls.</p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord">1</span><span
+                class="mclose">)</span></span></span></span></span>.</p>
+        <ul>
+            <li>
+                <p>In the <strong>constructor</strong>, we use three variables to store the parking limit for each type
+                    of car, and three variables to store the count of cars of each type. Hence, the space complexity
+                    will be <span class="math math-inline"><span class="katex"><span
+                            class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span
+                            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                            class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span></span>.
+                </p>
+            </li>
+            <li>
+                <p>In the <strong>addCar</strong> function, we do not use any extra space. Hence, the space complexity
+                    will be <span class="math math-inline"><span class="katex"><span
+                            class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span
+                            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                            class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span></span>.
+                </p>
+            </li>
+        </ul>
+        <p>Hence, the overall space complexity will be <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord">1</span><span
+                class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+</ul>
+<hr>
+<h3 id="approach-3-array-of-count-and-limit">Approach 3: Array of Count and Limit</h3>
+<h4 id="intuition-2">Intuition</h4>
+<p>In the <a href="#approach-2-saving-count" rel="noopener noreferrer nofollow ugc" target="_self">previous approach</a>,
+    we saved the count of cars of each type in three variables: <code>bigCount</code>, <code>mediumCount</code>, and
+    <code>smallCount</code>.</p>
+<p>We only had three types of cars, so it was okay to save the count in three variables. But, what if we have hundreds
+    of types of cars? Is it a good idea to save the count of each type in a separate variable?</p>
+<p>It turns out that if data represents the same type of thing <em>(or data is <strong>homogeneous</strong>)</em>, then
+    we can use an array to store them.</p>
+<p>Hence, in this approach, we can club the three variables <code>bigCount</code>, <code>mediumCount</code>, and <code>smallCount</code>
+    into one array. Also, we can club the three variables <code>bigLimit</code>, <code>mediumLimit</code>, and <code>smallLimit</code>
+    into one array.</p>
+<p>Now, does the order of these variables matter, or <strong>can we gain any advantage if they are stored in one
+    specific order instead of another?</strong><br>
+    For answering this, let's re-read the following portion of the problem statement</p>
+<blockquote>
+    <p><code>carType</code> can be of three kinds: big, medium, or small, which are represented by <code>1</code>,
+        <code>2</code>, and <code>3</code> respectively.</p>
+</blockquote>
+<p>This hints that if we store</p>
+<ul>
+    <li>big cars at index <code>1</code>,</li>
+    <li>medium cars at index <code>2</code>,</li>
+    <li>and small cars at index <code>3</code>,</li>
+</ul>
+<p>then we can directly access the count of cars of a particular type by using <code>carType</code> as the index.</p>
+<blockquote>
+    <p><strong>Interview Tip:</strong> Reading the problem statement multiple times helps to formulate solutions
+        elegantly.</p>
+</blockquote>
+<p><strong>What about index-0, then?</strong></p>
+<blockquote>
+    <p>Arrays in most programming languages are 0-indexed. This means that the first element of the array is stored at
+        index <code>0</code>.</p>
+</blockquote>
+<p>There are two ways to handle this:</p>
+<ol>
+    <li>
+        <p>We can allocate an array of size 4, and store the count and limit of cars at index <code>1</code>,
+            <code>2</code>, and <code>3</code>. On Index <code>0</code>, we can store some dummy value.</p>
+        <p>The <code>carType</code> here will directly act as an index.</p>
+    </li>
+    <li>
+        <p>We can allocate an array of size 3, and store the count and limit of cars at index <code>0</code>,
+            <code>1</code>, and <code>2</code>.</p>
+        <p>The <code>carType</code> here will act as an index after subtracting <code>1</code> from it.</p>
+    </li>
+</ol>
+<p>Readers can choose any of the two ways. We will proceed with the second way.</p>
+<ul>
+    <li>index-0 will be used for big cars,</li>
+    <li>index-1 will be used for medium cars,</li>
+    <li>index-2 will be used for small cars.</li>
+</ul>
+<p>After implementing code on their own, readers can appreciate the compactness obtained.</p>
+<h4 id="algorithm-2">Algorithm</h4>
+<ol>
+    <li>
+        <p>In the <strong>constructor</strong>, create two arrays of size 3, <code>count</code> and <code>limit</code>.
+        </p>
+        <ul>
+            <li>
+                <p><code>limit</code> will store the parking limit of each type of car. Index <code>0</code> will be
+                    used for big cars, index <code>1</code> will be used for medium cars, and index <code>2</code> will
+                    be used for small cars. These limits will be passed as <code>big</code>, <code>medium</code>, and
+                    <code>small</code> respectively as parameters to the <strong>constructor</strong>.</p>
+            </li>
+            <li>
+                <p><code>count</code> will store the count of cars of each type. Index <code>0</code> will be used for
+                    big cars, index <code>1</code> will be used for medium cars, and index <code>2</code> will be used
+                    for small cars. Initially, all the counts will be <code>0</code>.</p>
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>In the <strong>addCar</strong> function, if the count of cars of <code>carType</code> is less than the limit,
+            then increment the count of that type by 1 and return <code>true</code>. Else, return <code>false</code>.
+        </p>
+        <p>The <code>if</code> condition will be similar to <code>if count[carType - 1] &lt; limit[carType - 1]</code>.
+        </p>
+    </li>
+</ol>
+<h4 id="implementation-2">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class ParkingSystem {
+
+    // Parking limit of each type of car
+    int[] limit;
+
+    // Count of cars of each type
+    int[] count;
+
+    public ParkingSystem(int big, int medium, int small) {
+
+        // Parking limit of each type of car
+        this.limit = new int[]{big, medium, small};
+
+        // Count of cars of each type
+        this.count = new int[]{0, 0, 0};
+    }
+
+    public boolean addCar(int carType) {
+
+        // If space is available, allocate and return True
+        if (this.count[carType - 1] < this.limit[carType - 1]) {
+            this.count[carType - 1]++;
+            return true;
+        }
+
+        // Else, return False
+        return false;
+    }
+}
+    </code>
+    C++
+    <code>
+        class ParkingSystem {
+public:
+
+    // Parking limit of each type of car
+    vector<int> limit;
+
+    // Count of cars of each type
+    vector<int> count;
+
+    ParkingSystem(int big, int medium, int small) {
+
+        // Parking limit of each type of car
+        this->limit = {big, medium, small};
+
+        // Count of cars of each type
+        this->count = {0, 0, 0};
+    }
+
+    bool addCar(int carType) {
+
+        // If space is available, allocate and return True
+        if (this->count[carType - 1] < this->limit[carType - 1]) {
+            this->count[carType - 1]++;
+            return true;
+        }
+
+        // Else, return False
+        return false;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class ParkingSystem:
+
+    def __init__(self, big: int, medium: int, small: int):
+
+        # Parking limit of each type of car
+        self.limit = [big, medium, small]
+
+        # Count of cars of each type
+        self.count = [0, 0, 0]
+
+    def addCar(self, carType: int) -> bool:
+
+        # If space is available, allocate and return True
+        if self.count[carType - 1] < self.limit[carType - 1]:
+            self.count[carType - 1] += 1
+            return True
+
+        # Else, return False
+        return False
+    </code>
+</pre>
+<h4 id="complexity-analysis-2">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">NN</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                style="margin-right: 0.10903em;">N</span></span></span></span></span>
+    be the number of function calls.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(N)O(N)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                class="mclose">)</span></span></span></span></span>.</p>
+        <ul>
+            <li>
+                <p>In the <strong>constructor</strong>, we create two arrays of constant size, <code>count</code> and
+                    <code>limit</code>. Hence, the time complexity will be <span class="math math-inline"><span
+                            class="katex"><span class="katex-mathml">O(1)O(1)</span><span class="katex-html"
+                                                                                          aria-hidden="true"><span
+                            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                            class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span></span>.
+                </p>
+            </li>
+            <li>
+                <p>In the <strong>addCar</strong> function, we check if the count of cars of a particular type is less
+                    than the limit. This is done in constant time.</p>
+            </li>
+        </ul>
+        <p>Hence, the overall time complexity will be <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(N)O(N)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                class="mclose">)</span></span></span></span></span> since there are <span class="math math-inline"><span
+                class="katex"><span class="katex-mathml">NN</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                        style="margin-right: 0.10903em;">N</span></span></span></span></span>
+            function-calls.</p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord">1</span><span
+                class="mclose">)</span></span></span></span></span>.</p>
+        <ul>
+            <li>
+                <p>In the <strong>constructor</strong>, we create two arrays of constant size, <code>count</code> and
+                    <code>limit</code>. Hence, the space complexity will be <span class="math math-inline"><span
+                            class="katex"><span class="katex-mathml">O(1)O(1)</span><span class="katex-html"
+                                                                                          aria-hidden="true"><span
+                            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                            class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span></span>.
+                </p>
+            </li>
+            <li>
+                <p>In the <strong>addCar</strong> function, we do not use any extra space. Hence, the space complexity
+                    will be <span class="math math-inline"><span class="katex"><span
+                            class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span
+                            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                            class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span></span>.
+                </p>
+            </li>
+        </ul>
+        <p>Hence, the overall space complexity will be <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord">1</span><span
+                class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+</ul>
+<hr>
+<h3 id="approach-4-single-array">Approach 4: Single Array</h3>
+<h4 id="intuition-3">Intuition</h4>
+<p>In the <a href="#approach-3-array-of-count-and-limit" rel="noopener noreferrer nofollow ugc" target="_self">previous
+    approach</a>, we used two arrays, <code>count</code> and <code>limit</code>. Can we brainstorm a way to use only one
+    array?</p>
+<p>The condition to check if we can <code>addCar</code> or not was</p>
+<p><span class="math math-inline"><span class="katex"><span class="katex-mathml">⇝\rightsquigarrow</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.3779em;"></span><span
+        class="mrel amsrm">⇝</span></span></span></span></span> <code>count[i] &lt; limit[i]</code></p>
+<p><span class="math math-inline"><span class="katex"><span class="katex-mathml">⇝\rightsquigarrow</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.3779em;"></span><span
+        class="mrel amsrm">⇝</span></span></span></span></span> <code>limit[i] &gt; count[i]</code></p>
+<p><span class="math math-inline"><span class="katex"><span class="katex-mathml">⇝\rightsquigarrow</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.3779em;"></span><span
+        class="mrel amsrm">⇝</span></span></span></span></span> <code>limit[i] - count[i] &gt; 0</code></p>
+<p>What exactly does <code>limit[i] - count[i]</code> represent? It represents the number of empty slots available for a
+    particular type of car. Hence, we can use this value to store the count of cars of a particular type.</p>
+<p>Initially, all slots will be empty. Hence, we can initialize the array with the parking limit of each type of car
+    provided as arguments to the <strong>constructor</strong>.</p>
+<p>And in the <strong>function</strong>, we can check if the number of empty slots is greater than <code>0</code>. If
+    yes, then we can <code>addCar</code> and decrement the number of empty slots by <code>1</code>. In this case, we
+    will return <code>true</code>. Else, we will return <code>false</code>.</p>
+<h4 id="algorithm-3">Algorithm</h4>
+<ol>
+    <li>
+        <p>In the <strong>constructor</strong>, create one array of size 3. Let's call it <code>empty</code>.</p>
+        <p><code>empty</code> will store the number of empty slots available for each type of car. Index <code>0</code>
+            will be used for big cars, index <code>1</code> will be used for medium cars, and index <code>2</code> will
+            be used for small cars. These limits will be passed as <code>big</code>, <code>medium</code>, and <code>small</code>
+            respectively as parameters to the <strong>constructor</strong>. Initially, all the empty slots will be equal
+            to the parking limit of each type of car.</p>
+    </li>
+    <li>
+        <p>In the <strong>addCar</strong> function, if the number of empty slots for <code>carType</code> is greater
+            than <code>0</code>, then decrement the number of empty slots by 1 and return <code>true</code>. Else,
+            return <code>false</code>.</p>
+        <p>The <code>if</code> condition will be similar to <code>if empty[carType - 1] &gt; 0</code>.</p>
+    </li>
+</ol>
+<br>
+Here is the visual representation of the above algorithm.
+<div class="relative mx-auto mb-6 flex flex-col overflow-hidden rounded-lg border-[1px] border-label-1"
+     style="max-width: 1280px;">
+    <div class="rounded-lg" style="max-height: 720px;"><img alt="Current"
+                                                            class="object-fit-contain !mb-0 max-h-full max-w-full"
+                                                            src="blob:https://leetcode.com/56fdea5a-f8c5-4ef0-b24e-29b616dc7c97">
+    </div>
+    <div class="absolute top-[50%] left-[50%] flex h-12 w-12 translate-x-[-50%] translate-y-[-50%] items-center justify-center rounded-full bg-black/30">
+        <div class="flex h-4 w-4 cursor-pointer items-center justify-center text-[35px]">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="h-full w-full text-white">
+                <path fill-rule="evenodd"
+                      d="M18.97 12.871l-12.96 7.29a1 1 0 01-1.49-.87V4.71a1 1 0 011.49-.872l12.96 7.29a1 1 0 010 1.743z"
+                      clip-rule="evenodd"></path>
+            </svg>
+        </div>
+    </div>
+    <div class="relative flex h-8 select-none items-center justify-around bg-black">
+        <div class="flex items-center space-x-7">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M16.091 4.929l-7.057 7.078 7.057 7.064a1 1 0 01-1.414 1.414l-7.764-7.77a1 1 0 010-1.415l7.764-7.785a1 1 0 111.415 1.414z"
+                      clip-rule="evenodd"></path>
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M18.97 12.871l-12.96 7.29a1 1 0 01-1.49-.87V4.71a1 1 0 011.49-.872l12.96 7.29a1 1 0 010 1.743z"
+                      clip-rule="evenodd"></path>
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M7.913 19.071l7.057-7.078-7.057-7.064a1 1 0 011.414-1.414l7.764 7.77a1 1 0 010 1.415l-7.764 7.785a1 1 0 01-1.414-1.414z"
+                      clip-rule="evenodd"></path>
+            </svg>
+        </div>
+        <div class="absolute right-0 mr-5 text-xs font-medium text-white">1 / 31</div>
+    </div>
+</div>
+<br>
+<h4 id="implementation-3">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class ParkingSystem {
+
+    // Number of empty slots for each type of car
+    int[] empty;
+
+    public ParkingSystem(int big, int medium, int small) {
+        this.empty = new int[]{big, medium, small};
+    }
+
+    public boolean addCar(int carType) {
+
+        // If space is available, allocate and return True
+        if (this.empty[carType - 1] > 0) {
+            this.empty[carType - 1]--;
+            return true;
+        }
+
+        // Else, return False
+        return false;
+    }
+}
+    </code>
+    C++
+    <code>
+        class ParkingSystem {
+public:
+
+    // Number of empty slots for each type of car
+    vector<int> empty;
+
+    ParkingSystem(int big, int medium, int small) {
+        this->empty = vector<int>{big, medium, small};
+    }
+
+    bool addCar(int carType) {
+
+        // If space is available, allocate and return True
+        if (this->empty[carType - 1] > 0) {
+            this->empty[carType - 1]--;
+            return true;
+        }
+
+        // Else, return False
+        return false;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class ParkingSystem:
+
+    def __init__(self, big: int, medium: int, small: int):
+
+        # Number of empty slots for each type of car
+        self.empty = [big, medium, small]
+
+    def addCar(self, carType: int) -> bool:
+
+        # If space is available, allocate and return True
+        if self.empty[carType - 1] > 0:
+            self.empty[carType - 1] -= 1
+            return True
+
+        # Else, return False
+        return False
+    </code>
+</pre>
+<h4 id="complexity-analysis-3">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">NN</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                style="margin-right: 0.10903em;">N</span></span></span></span></span>
+    be the number of function calls.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(N)O(N)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                class="mclose">)</span></span></span></span></span>.</p>
+        <ul>
+            <li>
+                <p>In the <strong>constructor</strong>, we create one array of constant size, <code>empty</code>. Hence,
+                    the time complexity will be <span class="math math-inline"><span class="katex"><span
+                            class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span
+                            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                            class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span></span>.
+                </p>
+            </li>
+            <li>
+                <p>In the <strong>addCar</strong> function, we check if the number of empty slots for a particular type
+                    of car is greater than <code>0</code>. This is done in constant time.</p>
+            </li>
+        </ul>
+        <p>Hence, the overall time complexity will be <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(N)O(N)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                class="mclose">)</span></span></span></span></span> since there are <span class="math math-inline"><span
+                class="katex"><span class="katex-mathml">NN</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                        style="margin-right: 0.10903em;">N</span></span></span></span></span>
+            function-calls.</p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord">1</span><span
+                class="mclose">)</span></span></span></span></span>.</p>
+        <ul>
+            <li>
+                <p>In the <strong>constructor</strong>, we create one array of constant size, <code>empty</code>. Hence,
+                    the space complexity will be <span class="math math-inline"><span class="katex"><span
+                            class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span
+                            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                            class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span></span>.
+                </p>
+            </li>
+            <li>
+                <p>In the <strong>addCar</strong> function, we do not use any extra space. Hence, the space complexity
+                    will be <span class="math math-inline"><span class="katex"><span
+                            class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span
+                            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                            class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span></span>.
+                </p>
+            </li>
+        </ul>
+        <p>Hence, the overall space complexity will be <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord">1</span><span
+                class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+</ul>
+<hr>
+<h3 id="extra">Extra</h3>
+<details>
+    <summary> Many Programming Language has some <b>cool functionalities</b> that can be used to solve problems smartly.
+        While this way is often not beginner-friendly, they often compact the code. Sometimes, they are even faster than
+        conventional approaches. A few times they are slower too.
+        <br>
+        <br>
+        These functionalities are not always intuitive and are not always easy to understand. But, they are worth
+        learning. They are often labeled as syntactic sugar.
+        <br>
+        <br>
+        Readers can click here to go through some of these cool functionalities.
+    </summary>
+    <p>
+    </p>
+    <p>The condition to check if we can <code>addCar</code> in the <a href="#approach-4-single-array"
+                                                                      rel="noopener noreferrer nofollow ugc"
+                                                                      target="_self">previous approach</a> was</p>
+    <div class="mb-6 rounded-lg px-3 py-2.5 font-menlo text-sm bg-fill-3 dark:bg-dark-fill-3">
+        <div class="group relative" translate="no">
+            <pre style="color: rgb(212, 212, 212); font-size: 13px; text-shadow: none; font-family: Menlo, Monaco, Consolas; direction: ltr; text-align: left; white-space: pre; word-spacing: normal; word-break: normal; line-height: 1.5; tab-size: 4; hyphens: none; padding: 0px; margin: 0px; overflow: auto; background: transparent none repeat scroll 0% 0%;"><code
+                    class="language-php"
+                    style="color: rgb(212, 212, 212); font-size: 13px; text-shadow: none; font-family: Menlo, Monaco, Consolas, &quot;Andale Mono&quot;, &quot;Ubuntu Mono&quot;, &quot;Courier New&quot;, monospace; direction: ltr; text-align: left; white-space: pre; word-spacing: normal; word-break: normal; line-height: 1.5; tab-size: 4; hyphens: none;"><span><span
+                    class="token" style="color: rgb(86, 156, 214);">if</span><span> </span><span class="token"
+                                                                                                 style="color: rgb(86, 156, 214);">empty</span><span
+                    class="token" style="color: rgb(212, 212, 212);">[</span><span>carType </span><span class="token"
+                                                                                                        style="color: rgb(212, 212, 212);">-</span><span> </span><span
+                    class="token" style="color: rgb(181, 206, 168);">1</span><span class="token"
+                                                                                   style="color: rgb(212, 212, 212);">]</span><span> </span><span
+                    class="token" style="color: rgb(212, 212, 212);">&gt;</span><span> </span><span class="token"
+                                                                                                    style="color: rgb(181, 206, 168);">0</span></span></code></pre>
+            <div class="h-4 w-4 cursor-pointer absolute top-0 right-0">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                     class="h-4 w-4 fill-gray-6 hover:fill-gray-7 dark:fill-dark-gray-6 dark:hover:fill-dark-gray-7 hidden group-hover:block">
+                    <path fill-rule="evenodd"
+                          d="M11.3 8.3H19a3 3 0 013 3V19a3 3 0 01-3 3h-7.7a3 3 0 01-3-3v-7.7a3 3 0 013-3zm0 2a1 1 0 00-1 1V19a1 1 0 001 1H19a1 1 0 001-1v-7.7a1 1 0 00-1-1h-7.7zm-5.6 3.4a1 1 0 110 2h-.9A2.8 2.8 0 012 12.9V4.8A2.8 2.8 0 014.8 2h8.1a2.8 2.8 0 012.8 2.8v.9a1 1 0 11-2 0v-.9a.8.8 0 00-.8-.8H4.8a.8.8 0 00-.8.8v8.1a.8.8 0 00.8.8h.9z"
+                          clip-rule="evenodd"></path>
+                </svg>
+            </div>
+        </div>
+    </div>
+    <p>We can use the decrement operator <code>--</code> to <strong>post</strong>-decrement the value of <code>empty[carType
+        - 1]</code> by <code>1</code> and check if the value is greater than <code>0</code> in a single line. If greater
+        than <code>0</code>, return <code>True</code>, decrementation already happened. Else, return <code>False</code>.
+    </p>
+    <p>The <code>if</code> condition will be similar to what we have to return. Thus we can compact the code.</p>
+    <div class="mb-6 rounded-lg px-3 py-2.5 font-menlo text-sm bg-fill-3 dark:bg-dark-fill-3">
+        <div class="group relative" translate="no"><pre
+                style="color: rgb(212, 212, 212); font-size: 13px; text-shadow: none; font-family: Menlo, Monaco, Consolas; direction: ltr; text-align: left; white-space: pre; word-spacing: normal; word-break: normal; line-height: 1.5; tab-size: 4; hyphens: none; padding: 0px; margin: 0px; overflow: auto; background: transparent none repeat scroll 0% 0%;"><code
+                class="language-java"
+                style="color: rgb(212, 212, 212); font-size: 13px; text-shadow: none; font-family: Menlo, Monaco, Consolas, &quot;Andale Mono&quot;, &quot;Ubuntu Mono&quot;, &quot;Courier New&quot;, monospace; direction: ltr; text-align: left; white-space: pre; word-spacing: normal; word-break: normal; line-height: 1.5; tab-size: 4; hyphens: none;"><span><span
+                class="token" style="color: rgb(86, 156, 214);">public</span><span> </span><span class="token"
+                                                                                                 style="color: rgb(86, 156, 214);">boolean</span><span> </span><span
+                class="token" style="color: rgb(220, 220, 170);">addCar</span><span class="token"
+                                                                                    style="color: rgb(212, 212, 212);">(</span><span
+                class="token" style="color: rgb(86, 156, 214);">int</span><span> carType</span><span class="token"
+                                                                                                     style="color: rgb(212, 212, 212);">)</span><span> </span><span
+                class="token" style="color: rgb(212, 212, 212);">{</span><span>
+</span></span><span><span>    </span><span class="token"
+                                           style="color: rgb(86, 156, 214);">return</span><span> empty</span><span
+                class="token" style="color: rgb(212, 212, 212);">[</span><span>carType </span><span class="token"
+                                                                                                    style="color: rgb(212, 212, 212);">-</span><span> </span><span
+                class="token" style="color: rgb(181, 206, 168);">1</span><span class="token"
+                                                                               style="color: rgb(212, 212, 212);">]</span><span
+                class="token" style="color: rgb(212, 212, 212);">--</span><span> </span><span class="token"
+                                                                                              style="color: rgb(212, 212, 212);">&gt;</span><span> </span><span
+                class="token" style="color: rgb(181, 206, 168);">0</span><span class="token"
+                                                                               style="color: rgb(212, 212, 212);">;</span><span>
+</span></span><span><span></span><span class="token" style="color: rgb(212, 212, 212);">}</span></span></code></pre>
+            <div class="h-4 w-4 cursor-pointer absolute top-0 right-0">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                     class="h-4 w-4 fill-gray-6 hover:fill-gray-7 dark:fill-dark-gray-6 dark:hover:fill-dark-gray-7 hidden group-hover:block">
+                    <path fill-rule="evenodd"
+                          d="M11.3 8.3H19a3 3 0 013 3V19a3 3 0 01-3 3h-7.7a3 3 0 01-3-3v-7.7a3 3 0 013-3zm0 2a1 1 0 00-1 1V19a1 1 0 001 1H19a1 1 0 001-1v-7.7a1 1 0 00-1-1h-7.7zm-5.6 3.4a1 1 0 110 2h-.9A2.8 2.8 0 012 12.9V4.8A2.8 2.8 0 014.8 2h8.1a2.8 2.8 0 012.8 2.8v.9a1 1 0 11-2 0v-.9a.8.8 0 00-.8-.8H4.8a.8.8 0 00-.8.8v8.1a.8.8 0 00.8.8h.9z"
+                          clip-rule="evenodd"></path>
+                </svg>
+            </div>
+        </div>
+    </div>
+    <p>This will always decrement the value of <code>empty[carType - 1]</code> by <code>1</code> and then check if the
+        value is positive. The value will be decremented always, even if the condition is <code>false</code>. Thus,
+        <code>empty[carType - 1]</code> may be negative which is absurd logically. Although, the code will still work
+        fine.</p>
+    <p>Moreover, in the <strong>constraints</strong>, it is mentioned that</p>
+    <blockquote>
+        <p>At most <code>1000</code> calls will be made to <code>addCar</code></p>
+    </blockquote>
+    <p>If we call <code>addCar</code> 1000 times, then <code>empty[carType - 1]</code> will be decremented 1000 times.
+    </p>
+    <p>However, if there were more calls than the magnitude of <code>Integer.MIN_VALUE</code>, then the value of <code>empty[carType
+        - 1]</code> from negative may <strong>overflow</strong> to positive. Thus, the code will not work as expected.
+    </p>
+    <p>A minute change in the condition can solve this problem.</p>
+    <div class="mb-6 rounded-lg px-3 py-2.5 font-menlo text-sm bg-fill-3 dark:bg-dark-fill-3">
+        <div class="group relative" translate="no"><pre
+                style="color: rgb(212, 212, 212); font-size: 13px; text-shadow: none; font-family: Menlo, Monaco, Consolas; direction: ltr; text-align: left; white-space: pre; word-spacing: normal; word-break: normal; line-height: 1.5; tab-size: 4; hyphens: none; padding: 0px; margin: 0px; overflow: auto; background: transparent none repeat scroll 0% 0%;"><code
+                class="language-php"
+                style="color: rgb(212, 212, 212); font-size: 13px; text-shadow: none; font-family: Menlo, Monaco, Consolas, &quot;Andale Mono&quot;, &quot;Ubuntu Mono&quot;, &quot;Courier New&quot;, monospace; direction: ltr; text-align: left; white-space: pre; word-spacing: normal; word-break: normal; line-height: 1.5; tab-size: 4; hyphens: none;"><span><span
+                class="token" style="color: rgb(86, 156, 214);">public</span><span> boolean </span><span class="token"
+                                                                                                         style="color: rgb(220, 220, 170);">addCar</span><span
+                class="token" style="color: rgb(212, 212, 212);">(</span><span class="token type-declaration"
+                                                                               style="color: rgb(86, 156, 214);">int</span><span> carType</span><span
+                class="token" style="color: rgb(212, 212, 212);">)</span><span> </span><span class="token"
+                                                                                             style="color: rgb(212, 212, 212);">{</span><span>
+</span></span><span><span>    </span><span class="token"
+                                           style="color: rgb(86, 156, 214);">return</span><span> </span><span
+                class="token" style="color: rgb(86, 156, 214);">empty</span><span class="token"
+                                                                                  style="color: rgb(212, 212, 212);">[</span><span>carType </span><span
+                class="token" style="color: rgb(212, 212, 212);">-</span><span> </span><span class="token"
+                                                                                             style="color: rgb(181, 206, 168);">1</span><span
+                class="token" style="color: rgb(212, 212, 212);">]</span><span> </span><span class="token"
+                                                                                             style="color: rgb(212, 212, 212);">&gt;</span><span> </span><span
+                class="token" style="color: rgb(181, 206, 168);">0</span><span> </span><span class="token"
+                                                                                             style="color: rgb(212, 212, 212);">&amp;&amp;</span><span> </span><span
+                class="token" style="color: rgb(212, 212, 212);">--</span><span class="token"
+                                                                                style="color: rgb(86, 156, 214);">empty</span><span
+                class="token" style="color: rgb(212, 212, 212);">[</span><span>carType </span><span class="token"
+                                                                                                    style="color: rgb(212, 212, 212);">-</span><span> </span><span
+                class="token" style="color: rgb(181, 206, 168);">1</span><span class="token"
+                                                                               style="color: rgb(212, 212, 212);">]</span><span> </span><span
+                class="token" style="color: rgb(212, 212, 212);">&gt;=</span><span> </span><span class="token"
+                                                                                                 style="color: rgb(181, 206, 168);">0</span><span
+                class="token" style="color: rgb(212, 212, 212);">;</span><span>
+</span></span><span><span></span><span class="token" style="color: rgb(212, 212, 212);">}</span></span></code></pre>
+            <div class="h-4 w-4 cursor-pointer absolute top-0 right-0">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                     class="h-4 w-4 fill-gray-6 hover:fill-gray-7 dark:fill-dark-gray-6 dark:hover:fill-dark-gray-7 hidden group-hover:block">
+                    <path fill-rule="evenodd"
+                          d="M11.3 8.3H19a3 3 0 013 3V19a3 3 0 01-3 3h-7.7a3 3 0 01-3-3v-7.7a3 3 0 013-3zm0 2a1 1 0 00-1 1V19a1 1 0 001 1H19a1 1 0 001-1v-7.7a1 1 0 00-1-1h-7.7zm-5.6 3.4a1 1 0 110 2h-.9A2.8 2.8 0 012 12.9V4.8A2.8 2.8 0 014.8 2h8.1a2.8 2.8 0 012.8 2.8v.9a1 1 0 11-2 0v-.9a.8.8 0 00-.8-.8H4.8a.8.8 0 00-.8.8v8.1a.8.8 0 00.8.8h.9z"
+                          clip-rule="evenodd"></path>
+                </svg>
+            </div>
+        </div>
+    </div>
+    <p>This uses the <strong>short-circuiting</strong> property of the <code>&amp;&amp;</code> operator. If the first
+        condition is <code>false</code>, then the second condition will not be evaluated. Thus, the value of <code>empty[carType
+            - 1]</code> will not be decremented.</p>
+    <p>Another minute optimization is that we can use <code>short</code> instead of <code>int</code> for an
+        <code>empty</code> array. This will reduce the space complexity. This we are doing because the parking limit is
+        less than <code>1000</code>. Thus, we can use <code>short</code> instead of <code>int</code>. However, if the
+        parking limit was <code>1000000</code>, then we would have to use <code>int</code> instead of <code>short</code>.
+    </p>
+    <p>Here is the new code.</p>
+    <div class="mb-6 rounded-lg px-3 py-2.5 font-menlo text-sm bg-fill-3 dark:bg-dark-fill-3">
+        <div class="group relative" translate="no"><pre
+                style="color: rgb(212, 212, 212); font-size: 13px; text-shadow: none; font-family: Menlo, Monaco, Consolas; direction: ltr; text-align: left; white-space: pre; word-spacing: normal; word-break: normal; line-height: 1.5; tab-size: 4; hyphens: none; padding: 0px; margin: 0px; overflow: auto; background: transparent none repeat scroll 0% 0%;"><code
+                class="language-cpp"
+                style="color: rgb(212, 212, 212); font-size: 13px; text-shadow: none; font-family: Menlo, Monaco, Consolas, &quot;Andale Mono&quot;, &quot;Ubuntu Mono&quot;, &quot;Courier New&quot;, monospace; direction: ltr; text-align: left; white-space: pre; word-spacing: normal; word-break: normal; line-height: 1.5; tab-size: 4; hyphens: none;"><span><span
+                class="token" style="color: rgb(86, 156, 214);">class</span><span> </span><span class="token"
+                                                                                                style="color: rgb(78, 201, 176);">ParkingSystem</span><span> </span><span
+                class="token" style="color: rgb(212, 212, 212);">{</span><span>
+</span></span><span>
+</span><span><span>    </span><span class="token" style="color: rgb(86, 156, 214);">short</span><span class="token"
+                                                                                                      style="color: rgb(212, 212, 212);">[</span><span
+                class="token" style="color: rgb(212, 212, 212);">]</span><span> empty</span><span class="token"
+                                                                                                  style="color: rgb(212, 212, 212);">;</span><span>
+</span></span><span>
+</span><span><span>    </span><span class="token" style="color: rgb(86, 156, 214);">public</span><span> </span><span
+                class="token" style="color: rgb(220, 220, 170);">ParkingSystem</span><span class="token"
+                                                                                           style="color: rgb(212, 212, 212);">(</span><span
+                class="token" style="color: rgb(86, 156, 214);">int</span><span> big</span><span class="token"
+                                                                                                 style="color: rgb(212, 212, 212);">,</span><span> </span><span
+                class="token" style="color: rgb(86, 156, 214);">int</span><span> medium</span><span class="token"
+                                                                                                    style="color: rgb(212, 212, 212);">,</span><span> </span><span
+                class="token" style="color: rgb(86, 156, 214);">int</span><span> small</span><span class="token"
+                                                                                                   style="color: rgb(212, 212, 212);">)</span><span> </span><span
+                class="token" style="color: rgb(212, 212, 212);">{</span><span>
+</span></span><span><span>        </span><span class="token" style="color: rgb(86, 156, 214);">this</span><span
+                class="token" style="color: rgb(212, 212, 212);">.</span><span>empty </span><span class="token"
+                                                                                                  style="color: rgb(212, 212, 212);">=</span><span> </span><span
+                class="token" style="color: rgb(86, 156, 214);">new</span><span> </span><span class="token"
+                                                                                              style="color: rgb(86, 156, 214);">short</span><span
+                class="token" style="color: rgb(212, 212, 212);">[</span><span class="token"
+                                                                               style="color: rgb(212, 212, 212);">]</span><span
+                class="token" style="color: rgb(212, 212, 212);">{</span><span class="token"
+                                                                               style="color: rgb(212, 212, 212);">(</span><span
+                class="token" style="color: rgb(86, 156, 214);">short</span><span class="token"
+                                                                                  style="color: rgb(212, 212, 212);">)</span><span> big</span><span
+                class="token" style="color: rgb(212, 212, 212);">,</span><span> </span><span class="token"
+                                                                                             style="color: rgb(212, 212, 212);">(</span><span
+                class="token" style="color: rgb(86, 156, 214);">short</span><span class="token"
+                                                                                  style="color: rgb(212, 212, 212);">)</span><span> medium</span><span
+                class="token" style="color: rgb(212, 212, 212);">,</span><span> </span><span class="token"
+                                                                                             style="color: rgb(212, 212, 212);">(</span><span
+                class="token" style="color: rgb(86, 156, 214);">short</span><span class="token"
+                                                                                  style="color: rgb(212, 212, 212);">)</span><span> small</span><span
+                class="token" style="color: rgb(212, 212, 212);">}</span><span class="token"
+                                                                               style="color: rgb(212, 212, 212);">;</span><span>
+</span></span><span><span>    </span><span class="token" style="color: rgb(212, 212, 212);">}</span><span>
+</span></span><span>
+</span><span><span>    </span><span class="token"
+                                    style="color: rgb(86, 156, 214);">public</span><span> boolean </span><span
+                class="token" style="color: rgb(220, 220, 170);">addCar</span><span class="token"
+                                                                                    style="color: rgb(212, 212, 212);">(</span><span
+                class="token" style="color: rgb(86, 156, 214);">int</span><span> carType</span><span class="token"
+                                                                                                     style="color: rgb(212, 212, 212);">)</span><span> </span><span
+                class="token" style="color: rgb(212, 212, 212);">{</span><span>
+</span></span><span><span>        </span><span class="token"
+                                               style="color: rgb(86, 156, 214);">return</span><span> empty</span><span
+                class="token" style="color: rgb(212, 212, 212);">[</span><span>carType </span><span class="token"
+                                                                                                    style="color: rgb(212, 212, 212);">-</span><span> </span><span
+                class="token" style="color: rgb(181, 206, 168);">1</span><span class="token"
+                                                                               style="color: rgb(212, 212, 212);">]</span><span> </span><span
+                class="token" style="color: rgb(212, 212, 212);">&gt;</span><span> </span><span class="token"
+                                                                                                style="color: rgb(181, 206, 168);">0</span><span> </span><span
+                class="token" style="color: rgb(212, 212, 212);">&amp;&amp;</span><span> </span><span class="token"
+                                                                                                      style="color: rgb(212, 212, 212);">--</span><span>empty</span><span
+                class="token" style="color: rgb(212, 212, 212);">[</span><span>carType </span><span class="token"
+                                                                                                    style="color: rgb(212, 212, 212);">-</span><span> </span><span
+                class="token" style="color: rgb(181, 206, 168);">1</span><span class="token"
+                                                                               style="color: rgb(212, 212, 212);">]</span><span> </span><span
+                class="token" style="color: rgb(212, 212, 212);">&gt;=</span><span> </span><span class="token"
+                                                                                                 style="color: rgb(181, 206, 168);">0</span><span
+                class="token" style="color: rgb(212, 212, 212);">;</span><span>
+</span></span><span><span>    </span><span class="token" style="color: rgb(212, 212, 212);">}</span><span>
+</span></span><span><span></span><span class="token" style="color: rgb(212, 212, 212);">}</span></span></code></pre>
+            <div class="h-4 w-4 cursor-pointer absolute top-0 right-0">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                     class="h-4 w-4 fill-gray-6 hover:fill-gray-7 dark:fill-dark-gray-6 dark:hover:fill-dark-gray-7 hidden group-hover:block">
+                    <path fill-rule="evenodd"
+                          d="M11.3 8.3H19a3 3 0 013 3V19a3 3 0 01-3 3h-7.7a3 3 0 01-3-3v-7.7a3 3 0 013-3zm0 2a1 1 0 00-1 1V19a1 1 0 001 1H19a1 1 0 001-1v-7.7a1 1 0 00-1-1h-7.7zm-5.6 3.4a1 1 0 110 2h-.9A2.8 2.8 0 012 12.9V4.8A2.8 2.8 0 014.8 2h8.1a2.8 2.8 0 012.8 2.8v.9a1 1 0 11-2 0v-.9a.8.8 0 00-.8-.8H4.8a.8.8 0 00-.8.8v8.1a.8.8 0 00.8.8h.9z"
+                          clip-rule="evenodd"></path>
+                </svg>
+            </div>
+        </div>
+    </div>
+    <p>Programmers often use the <code>false</code> value of <code>0</code> to check if a variable is <code>false</code>.
+    </p>
+    <p>Thus, this line in Python3</p>
+    <div class="mb-6 rounded-lg px-3 py-2.5 font-menlo text-sm bg-fill-3 dark:bg-dark-fill-3">
+        <div class="group relative" translate="no">
+            <pre style="color: rgb(212, 212, 212); font-size: 13px; text-shadow: none; font-family: Menlo, Monaco, Consolas; direction: ltr; text-align: left; white-space: pre; word-spacing: normal; word-break: normal; line-height: 1.5; tab-size: 4; hyphens: none; padding: 0px; margin: 0px; overflow: auto; background: transparent none repeat scroll 0% 0%;"><code
+                    class="language-php"
+                    style="color: rgb(212, 212, 212); font-size: 13px; text-shadow: none; font-family: Menlo, Monaco, Consolas, &quot;Andale Mono&quot;, &quot;Ubuntu Mono&quot;, &quot;Courier New&quot;, monospace; direction: ltr; text-align: left; white-space: pre; word-spacing: normal; word-break: normal; line-height: 1.5; tab-size: 4; hyphens: none;"><span><span
+                    class="token" style="color: rgb(86, 156, 214);">if</span><span> </span><span class="token"
+                                                                                                 style="color: rgb(86, 156, 214);">self</span><span
+                    class="token" style="color: rgb(212, 212, 212);">.</span><span class="token"
+                                                                                   style="color: rgb(86, 156, 214);">empty</span><span
+                    class="token" style="color: rgb(212, 212, 212);">[</span><span>carType </span><span class="token"
+                                                                                                        style="color: rgb(212, 212, 212);">-</span><span> </span><span
+                    class="token" style="color: rgb(181, 206, 168);">1</span><span class="token"
+                                                                                   style="color: rgb(212, 212, 212);">]</span><span> </span><span
+                    class="token" style="color: rgb(212, 212, 212);">&gt;</span><span> </span><span class="token"
+                                                                                                    style="color: rgb(181, 206, 168);">0</span><span
+                    class="token" style="color: rgb(212, 212, 212);">:</span></span></code></pre>
+            <div class="h-4 w-4 cursor-pointer absolute top-0 right-0">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                     class="h-4 w-4 fill-gray-6 hover:fill-gray-7 dark:fill-dark-gray-6 dark:hover:fill-dark-gray-7 hidden group-hover:block">
+                    <path fill-rule="evenodd"
+                          d="M11.3 8.3H19a3 3 0 013 3V19a3 3 0 01-3 3h-7.7a3 3 0 01-3-3v-7.7a3 3 0 013-3zm0 2a1 1 0 00-1 1V19a1 1 0 001 1H19a1 1 0 001-1v-7.7a1 1 0 00-1-1h-7.7zm-5.6 3.4a1 1 0 110 2h-.9A2.8 2.8 0 012 12.9V4.8A2.8 2.8 0 014.8 2h8.1a2.8 2.8 0 012.8 2.8v.9a1 1 0 11-2 0v-.9a.8.8 0 00-.8-.8H4.8a.8.8 0 00-.8.8v8.1a.8.8 0 00.8.8h.9z"
+                          clip-rule="evenodd"></path>
+                </svg>
+            </div>
+        </div>
+    </div>
+    <p>can be written as</p>
+    <div class="mb-6 rounded-lg px-3 py-2.5 font-menlo text-sm bg-fill-3 dark:bg-dark-fill-3">
+        <div class="group relative" translate="no">
+            <pre style="color: rgb(212, 212, 212); font-size: 13px; text-shadow: none; font-family: Menlo, Monaco, Consolas; direction: ltr; text-align: left; white-space: pre; word-spacing: normal; word-break: normal; line-height: 1.5; tab-size: 4; hyphens: none; padding: 0px; margin: 0px; overflow: auto; background: transparent none repeat scroll 0% 0%;"><code
+                    class="language-php"
+                    style="color: rgb(212, 212, 212); font-size: 13px; text-shadow: none; font-family: Menlo, Monaco, Consolas, &quot;Andale Mono&quot;, &quot;Ubuntu Mono&quot;, &quot;Courier New&quot;, monospace; direction: ltr; text-align: left; white-space: pre; word-spacing: normal; word-break: normal; line-height: 1.5; tab-size: 4; hyphens: none;"><span><span
+                    class="token" style="color: rgb(86, 156, 214);">if</span><span> </span><span class="token"
+                                                                                                 style="color: rgb(86, 156, 214);">self</span><span
+                    class="token" style="color: rgb(212, 212, 212);">.</span><span class="token"
+                                                                                   style="color: rgb(86, 156, 214);">empty</span><span
+                    class="token" style="color: rgb(212, 212, 212);">[</span><span>carType </span><span class="token"
+                                                                                                        style="color: rgb(212, 212, 212);">-</span><span> </span><span
+                    class="token" style="color: rgb(181, 206, 168);">1</span><span class="token"
+                                                                                   style="color: rgb(212, 212, 212);">]</span><span
+                    class="token" style="color: rgb(212, 212, 212);">:</span></span></code></pre>
+            <div class="h-4 w-4 cursor-pointer absolute top-0 right-0">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                     class="h-4 w-4 fill-gray-6 hover:fill-gray-7 dark:fill-dark-gray-6 dark:hover:fill-dark-gray-7 hidden group-hover:block">
+                    <path fill-rule="evenodd"
+                          d="M11.3 8.3H19a3 3 0 013 3V19a3 3 0 01-3 3h-7.7a3 3 0 01-3-3v-7.7a3 3 0 013-3zm0 2a1 1 0 00-1 1V19a1 1 0 001 1H19a1 1 0 001-1v-7.7a1 1 0 00-1-1h-7.7zm-5.6 3.4a1 1 0 110 2h-.9A2.8 2.8 0 012 12.9V4.8A2.8 2.8 0 014.8 2h8.1a2.8 2.8 0 012.8 2.8v.9a1 1 0 11-2 0v-.9a.8.8 0 00-.8-.8H4.8a.8.8 0 00-.8.8v8.1a.8.8 0 00.8.8h.9z"
+                          clip-rule="evenodd"></path>
+                </svg>
+            </div>
+        </div>
+    </div>
+    <p>All these small things are often impressive. Readers can gain these skills by solving more problems.</p>
+    <p></p>
+</details>
+<hr>
+</body>
+</html>
