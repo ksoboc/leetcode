@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Detonate the Maximum Bombs - Solution</title>
+</head>
+<body>
+    <h2 id="solution">Solution</h2>
+    <hr>
+    <h3 id="overview">Overview</h3>
+    <p>We can transform the map of bombs into a graph by representing each bomb <code>i</code> as a node <code>i</code> in
+        the same location. The equivalent of bomb 1 detonating bomb 2 is a directed edge from node 1 to node 2.</p>
+    <p><img src="1.png" alt="img"></p>
+    <p>To determine whether bomb 1 detonates bomb 2, we can compare the Euclidean distance between their centers and the
+        radius of bomb 1. If the distance is less than or equal to the radius of bomb 1, then bomb 1 can detonate bomb 2.
+        Note that this relationship is not commutative: <strong>bomb 1 detonating bomb 2 does not necessarily imply the
+            converse is also true</strong>.</p>
+    <p><img src="3.png" alt="img"></p>
+    <p><span class="math math-inline"><span class="katex"><span class="katex-mathml">distance2=(x1−x2)2+(y1−y2)2\text{distance}^2 = (x_1 - x_2)^2 + (y_1 - y_2)^2</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.8984em;"></span><span
+            class="mord"><span class="mord text"><span class="mord">distance</span></span><span class="msupsub"><span
+            class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.8984em;"><span
+            style="top: -3.1473em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span
+            class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mspace"
+                                                                                               style="margin-right: 0.2778em;"></span><span
+            class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span
+            class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mopen">(</span><span
+            class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span
+            class="vlist-r"><span class="vlist" style="height: 0.3011em;"><span
+            style="top: -2.55em; margin-left: 0em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span
+            class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                       style="height: 0.15em;"><span></span></span></span></span></span></span><span
+            class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">−</span><span class="mspace"
+                                                                                                   style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+            class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span
+            class="vlist-r"><span class="vlist" style="height: 0.3011em;"><span
+            style="top: -2.55em; margin-left: 0em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span
+            class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                       style="height: 0.15em;"><span></span></span></span></span></span></span><span
+            class="mclose"><span class="mclose">)</span><span class="msupsub"><span class="vlist-t"><span
+            class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span
+            class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mspace"
+                                                                                               style="margin-right: 0.2222em;"></span><span
+            class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+            class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mopen">(</span><span
+            class="mord"><span class="mord mathnormal" style="margin-right: 0.03588em;">y</span><span class="msupsub"><span
+            class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.3011em;"><span
+            style="top: -2.55em; margin-left: -0.0359em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                      style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span
+            class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                       style="height: 0.15em;"><span></span></span></span></span></span></span><span
+            class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">−</span><span class="mspace"
+                                                                                                   style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+            class="mord"><span class="mord mathnormal" style="margin-right: 0.03588em;">y</span><span class="msupsub"><span
+            class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.3011em;"><span
+            style="top: -2.55em; margin-left: -0.0359em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                      style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span
+            class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                       style="height: 0.15em;"><span></span></span></span></span></span></span><span
+            class="mclose"><span class="mclose">)</span><span class="msupsub"><span class="vlist-t"><span
+            class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span
+            class="mord mtight">2</span></span></span></span></span></span></span></span></span></span></span></span></p>
+    <p>Therefore, the original problem can be transformed into a graph traversal problem where we calculate the total number
+        of reachable nodes from each node <code>i</code>.</p>
+    <p>Starting with building the graph, we need to traverse each pair of two distinct bombs <code>(i, j)</code> to check if
+        bomb <code>i</code> detonates bomb <code>j</code>. If so, we create a directed edge from node <code>i</code> to node
+        <code>j</code>. We consider all different pairs of nodes, and note that <strong>two pairs of the same bombs in
+            different orders are considered to be different</strong>. In short, we consider both <code>(i, j)</code> and
+        <code>(j, i)</code>.</p>
+    <p><img src="2.png" alt="img"></p>
+    <p>Each of the following methods begins with the building process above.</p>
+    <hr>
+    <h3 id="approach-1-depth-first-search-recursive">Approach 1: Depth-First Search, Recursive</h3>
+    <h4 id="intuition">Intuition</h4>
+    <blockquote>
+        <p>If you are not familiar with depth-first (DFS) search, please refer to our explore cards <a
+                href="https://leetcode.com/explore/learn/card/graph/619/depth-first-search-in-graph/" target="_blank">Depth-First
+            Search Explore Card</a>. We will focus on the usage in this article and not the implementation details.</p>
+    </blockquote>
+    <p>In DFS, we explore nodes as far as possible along each branch. Upon reaching the end of the current branch, we
+        backtrack to the next possible branch and continue exploring. Once we encounter an unvisited node, we take one of
+        its neighbor nodes (if it exists) as the next node on this branch. Recursively call the function to the next node
+        and solve the subproblem. If we reach the end of this branch, we backtrack to the previous node and visit the next
+        neighbor node (if it exists), and repeat the process.</p>
+    <p>We can use a hash set <code>visited</code> to keep track of all the visited nodes. Initially, <code>visited</code> is
+        empty. When we find an unvisited neighbor node, we can add it to <code>visited</code> so it won't be visited
+        anymore.</p>
+    <p>At the end of the DFS, we can return the size of <code>visited</code> as the number of visited nodes (detonated
+        bombs).</p>
+    <p><img src="d1.png" alt="img"></p>
+    <p>We will perform the DFS from each node and update <code>answer</code> as the maximum number of reachable nodes
+        starting from each node.</p>
+    <br>
+    <h4 id="algorithm">Algorithm</h4>
+    <ol>
+        <li>
+            <p>Initialize <code>answer</code> as 0.</p>
+        </li>
+        <li>
+            <p>Create hash map <code>graph</code> containing all directed edges corresponding to the detonation
+                relationships between all bombs.</p>
+        </li>
+        <li>
+            <p>Create an empty hash set <code>visited</code>.</p>
+        </li>
+        <li>
+            <p>Define a recursive function <code>dfs(cur)</code> to recursively find all reachable nodes from node
+                <code>cur</code>:</p>
+            <ul>
+                <li>Add <code>cur</code> to <code>visited</code>.</li>
+                <li>Recursively call <code>dfs(neib)</code> on each unvisited neighbor of <code>cur</code>.</li>
+            </ul>
+        </li>
+        <li>
+            <p>Repeat from step 3 for each node <code>i</code> and update <code>answer</code> as the maximum size of <code>visited</code>
+                after each DFS.</p>
+        </li>
+        <li>
+            <p>Return <code>answer</code> when all DFS operations are complete.</p>
+        </li>
+    </ol>
+    <h4 id="implementation">Implementation</h4>
+    <pre>
+        Java
+        <code>
+            class Solution {
+    public int maximumDetonation(int[][] bombs) {
+        Map<Integer, List<Integer>> graph = new HashMap<>();
+        int n = bombs.length;
+
+        // Build the graph
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                if (i == j) {
+                    continue;
+                }
+                int xi = bombs[i][0], yi = bombs[i][1], ri = bombs[i][2];
+                int xj = bombs[j][0], yj = bombs[j][1];
+
+                // Create a path from node i to node j, if bomb i detonates bomb j.
+                if ((long)ri * ri >= (long)(xi - xj) * (xi - xj) + (long)(yi - yj) * (yi - yj)) {
+                    graph.computeIfAbsent(i, k -> new ArrayList<>()).add(j);
+                }
+            }
+        }
+
+        int answer = 0;
+        for (int i = 0; i < n; i++) {
+            int count = dfs(i, new HashSet<>(), graph);
+            answer = Math.max(answer, count);
+        }
+
+        return answer;
+    }
+
+    // DFS to get the number of nodes reachable from a given node cur
+    private int dfs(int cur, Set<Integer> visited, Map<Integer, List<Integer>> graph) {
+        visited.add(cur);
+        int count = 1;
+        for (int neib : graph.getOrDefault(cur, new ArrayList<>())) {
+            if (!visited.contains(neib)) {
+                count += dfs(neib, visited, graph);
+            }
+        }
+        return count;
+    }
+}
+        </code>
+        Python3
+        <code>
+            class Solution:
+    def maximumDetonation(self, bombs: List[List[int]]) -> int:
+        graph = collections.defaultdict(list)
+        n = len(bombs)
+
+        # Build the graph
+        for i in range(n):
+            for j in range(n):
+                if i == j:
+                    continue
+                xi, yi, ri = bombs[i]
+                xj, yj, _ = bombs[j]
+
+                # Create a path from node i to node j, if bomb i detonates bomb j.
+                if ri ** 2 >= (xi - xj) ** 2 + (yi - yj) ** 2:
+                    graph[i].append(j)
+
+        # DFS to get the number of nodes reachable from a given node cur
+        def dfs(cur, visited):
+            visited.add(cur)
+            for neib in graph[cur]:
+                if neib not in visited:
+                    dfs(neib, visited)
+            return len(visited)
+
+        answer = 0
+        for i in range(n):
+            visited = set()
+            answer = max(answer, dfs(i, visited))
+
+        return answer
+        </code>
+    </pre>
+     <h4 id="complexity-analysis">Complexity Analysis</h4>
+    <p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                        aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+        be the number of bombs, so there are <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.4306em;"></span><span
+                class="mord mathnormal">n</span></span></span></span></span> nodes and at most <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">n2n^2</span><span class="katex-html"
+                                                                                                          aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 0.8141em;"></span><span class="mord"><span
+                class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span
+                class="vlist" style="height: 0.8141em;"><span style="top: -3.063em; margin-right: 0.05em;"><span
+                class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight">2</span></span></span></span></span></span></span></span></span></span></span></span>
+        edges in the equivalence graph.</p>
+    <ul>
+        <li>
+            <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(n3)O(n^3)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+                    class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                    style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span
+                    class="mord mtight">3</span></span></span></span></span></span></span></span><span
+                    class="mclose">)</span></span></span></span></span></p>
+            <ul>
+                <li>Building the graph takes <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n2)O(n^2)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                        class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+                        class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                        style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                           style="height: 2.7em;"></span><span
+                        class="sizing reset-size6 size3 mtight"><span
+                        class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                        class="mclose">)</span></span></span></span></span> time.
+                </li>
+                <li>The time complexity of a typical DFS is <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(V+E)O(V + E)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                        class="mord mathnormal" style="margin-right: 0.22222em;">V</span><span class="mspace"
+                                                                                               style="margin-right: 0.2222em;"></span><span
+                        class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.05764em;">E</span><span
+                        class="mclose">)</span></span></span></span></span> where <span class="math math-inline"><span
+                        class="katex"><span class="katex-mathml">VV</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                                style="margin-right: 0.22222em;">V</span></span></span></span></span>
+                    represents the number of nodes, and <span class="math math-inline"><span class="katex"><span
+                            class="katex-mathml">EE</span><span class="katex-html" aria-hidden="true"><span
+                            class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                                    style="margin-right: 0.05764em;">E</span></span></span></span></span>
+                    represents the number of edges. More specifically, there are <span class="math math-inline"><span
+                            class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                    aria-hidden="true"><span
+                            class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+                    nodes and <span class="math math-inline"><span class="katex"><span
+                            class="katex-mathml">n2n^2</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                            class="strut" style="height: 0.8141em;"></span><span class="mord"><span class="mord mathnormal">n</span><span
+                            class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                              style="height: 0.8141em;"><span
+                            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                            class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span></span></span></span></span>
+                    edges in this problem.
+                    <ul>
+                        <li>Each node is only visited once, which takes <span class="math math-inline"><span
+                                class="katex"><span class="katex-mathml">O(n)O(n)</span><span class="katex-html"
+                                                                                              aria-hidden="true"><span
+                                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                                class="mopen">(</span><span class="mord mathnormal">n</span><span
+                                class="mclose">)</span></span></span></span></span> time.
+                        </li>
+                        <li>For each node, we may need to explore up to <span class="math math-inline"><span
+                                class="katex"><span class="katex-mathml">n−1n - 1</span><span class="katex-html"
+                                                                                              aria-hidden="true"><span
+                                class="base"><span class="strut"
+                                                   style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+                                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                                class="mbin">−</span><span class="mspace"
+                                                           style="margin-right: 0.2222em;"></span></span><span class="base"><span
+                                class="strut" style="height: 0.6444em;"></span><span
+                                class="mord">1</span></span></span></span></span> edges to find all its neighbors. Since
+                            there are <span class="math math-inline"><span class="katex"><span
+                                    class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span
+                                    class="base"><span class="strut" style="height: 0.4306em;"></span><span
+                                    class="mord mathnormal">n</span></span></span></span></span> nodes, the total number of
+                            edges we explore is at most <span class="math math-inline"><span class="katex"><span
+                                    class="katex-mathml">n(n−1)=O(n2)n(n - 1) = O(n^2)</span><span class="katex-html"
+                                                                                                   aria-hidden="true"><span
+                                    class="base"><span class="strut"
+                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                                    class="mord mathnormal">n</span><span class="mopen">(</span><span
+                                    class="mord mathnormal">n</span><span class="mspace"
+                                                                          style="margin-right: 0.2222em;"></span><span
+                                    class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                                    class="base"><span class="strut"
+                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                                    class="mord">1</span><span class="mclose">)</span><span class="mspace"
+                                                                                            style="margin-right: 0.2778em;"></span><span
+                                    class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+                                    class="base"><span class="strut"
+                                                       style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                                    class="mopen">(</span><span class="mord"><span class="mord mathnormal">n</span><span
+                                    class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                                      style="height: 0.8141em;"><span
+                                    style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                       style="height: 2.7em;"></span><span
+                                    class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                                    class="mclose">)</span></span></span></span></span>.
+                        </li>
+                    </ul>
+                </li>
+                <li>We need to perform <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                        class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+                    depth-first searches.
+                </li>
+            </ul>
+        </li>
+        <li>
+            <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(n2)O(n^2)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+                    class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                    style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span
+                    class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                    class="mclose">)</span></span></span></span></span></p>
+            <ul>
+                <li>The space complexity of DFS is <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">(n2)(n^2)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                        class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span class="mopen">(</span><span
+                        class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+                        class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                        style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                           style="height: 2.7em;"></span><span
+                        class="sizing reset-size6 size3 mtight"><span
+                        class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                        class="mclose">)</span></span></span></span></span>:
+                    <ul>
+                        <li>There are <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n2)O(n^2)</span><span
+                                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                               style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                                class="mopen">(</span><span class="mord"><span class="mord mathnormal">n</span><span
+                                class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                                  style="height: 0.8141em;"><span
+                                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                   style="height: 2.7em;"></span><span
+                                class="sizing reset-size6 size3 mtight"><span
+                                class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                                class="mclose">)</span></span></span></span></span> edges stored in <code>graph</code>.
+                        </li>
+                        <li>We need to maintain a hash set that contains at most <span class="math math-inline"><span
+                                class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                        aria-hidden="true"><span
+                                class="base"><span class="strut" style="height: 0.4306em;"></span><span
+                                class="mord mathnormal">n</span></span></span></span></span> visited nodes
+                        </li>
+                        <li>The call stack of <code>dfs</code> contains also takes <span class="math math-inline"><span
+                                class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                        aria-hidden="true"><span
+                                class="base"><span class="strut" style="height: 0.4306em;"></span><span
+                                class="mord mathnormal">n</span></span></span></span></span> space.
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </li>
+    </ul>
+    <br>
+    <hr>
+    <h3 id="approach-2-depth-first-search-iterative">Approach 2: Depth-First Search, Iterative</h3>
+    <h4 id="intuition-1">Intuition</h4>
+    <p>We can also implement DFS iteratively using a stack to replicate recursive self-calls to <code>dfs</code>. Since the
+        operations on a stack are performed in First In, Last Out (FILO) order. Therefore, the top node on the stack always
+        leads to the next branch: whenever we reach the end of the current branch, we can get the node on the top of the
+        stack and move along the branch that starts from it.</p>
+    <p>A hash set <code>visited</code> is used to store all the visited nodes, so we don't need to take them into account.
+        Once we add an unvisited node to the stack, we immediately add it to <code>visited</code> to prevent it from being
+        revisited later.</p>
+    <p><img src="d2.png" alt="img"></p>
+    <p>Similarly, we will perform the DFS from each node <code>i</code>, and update <code>answer</code> as the maximum
+        number of reachable nodes starting from each node.</p>
+    <br>
+    <h4 id="algorithm-1">Algorithm</h4>
+    <ol>
+        <li>
+            <p>Initialize <code>answer</code> as 0.</p>
+        </li>
+        <li>
+            <p>Create a hash map <code>graph</code> containing all directed edges corresponding to the detonation
+                relationships between all bombs.</p>
+        </li>
+        <li>
+            <p>Define a function <code>dfs(i)</code> that iteratively finds all reachable nodes from node <code>i</code>.
+            </p>
+            <ul>
+                <li>Initialize an empty stack <code>stack</code> and an empty hash set <code>visited</code>.</li>
+                <li>Add <code>i</code> to <code>stack</code> and <code>visited</code>.</li>
+                <li>While <code>stack</code> is not empty, pop up the top element <code>cur</code>.</li>
+                <li>Check if <code>cur</code> has any unvisited neighbor nodes, and if so, add them to <code>visited</code>
+                    and <code>stack</code> and repeat the previous step.
+                </li>
+                <li>When the iteration is complete, return the size of <code>visited</code>.</li>
+            </ul>
+        </li>
+        <li>
+            <p>Call <code>dfs</code> on every node <code>i</code> and update <code>answer</code> as the maximum size of
+                <code>visited</code>.</p>
+        </li>
+        <li>
+            <p>Return <code>answer</code> when all DFS operations are complete.</p>
+        </li>
+    </ol>
+    <h4 id="implementation-1">Implementation</h4>
+    <pre>
+        Java
+        <code>
+            class Solution {
+    public int maximumDetonation(int[][] bombs) {
+        Map<Integer, List<Integer>> graph = new HashMap<>();
+        int n = bombs.length;
+
+        // Build the graph
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                if (i == j) {
+                    continue;
+                }
+                int xi = bombs[i][0], yi = bombs[i][1], ri = bombs[i][2];
+                int xj = bombs[j][0], yj = bombs[j][1];
+
+                // Create a path from node i to node j, if bomb i detonates bomb j.
+                if ((long)ri * ri >= (long)(xi - xj) * (xi - xj) + (long)(yi - yj) * (yi - yj)) {
+                    graph.computeIfAbsent(i, k -> new ArrayList<>()).add(j);
+                }
+            }
+        }
+
+        int answer = 0;
+        for (int i = 0; i < n; i++) {
+            answer = Math.max(answer, dfs(i, graph));
+        }
+
+        return answer;
+    }
+
+    private int dfs(int i, Map<Integer, List<Integer>> graph) {
+        Stack<Integer> stack = new Stack<>();
+        Set<Integer> visited = new HashSet<>();
+        stack.push(i);
+        visited.add(i);
+        while (!stack.isEmpty()) {
+            int cur = stack.pop();
+            for (int neib : graph.getOrDefault(cur, new ArrayList<>())) {
+                if (!visited.contains(neib)) {
+                    visited.add(neib);
+                    stack.push(neib);
+                }
+            }
+        }
+        return visited.size();
+    }
+}
+        </code>
+        Python3
+        <code>
+            class Solution:
+    def maximumDetonation(self, bombs: List[List[int]]) -> int:
+        graph = collections.defaultdict(list)
+        n = len(bombs)
+
+        # Build the graph
+        for i in range(n):
+            for j in range(n):
+                xi, yi, ri = bombs[i]
+                xj, yj, _ = bombs[j]
+
+                # Create a path from i to j, if bomb i detonates bomb j.
+                if ri ** 2 >= (xi - xj) ** 2 + (yi - yj) ** 2:
+                    graph[i].append(j)
+
+        def dfs(i):
+            stack = [i]
+            visited = set([i])
+            while stack:
+                cur = stack.pop()
+                for neib in graph[cur]:
+                    if neib not in visited:
+                        visited.add(neib)
+                        stack.append(neib)
+            return len(visited)
+
+        answer = 0
+        for i in range(n):
+            answer = max(answer, dfs(i))
+
+        return answer
+        </code>
+    </pre>
+    <h4 id="complexity-analysis-1">Complexity Analysis</h4>
+    <p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                        aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+        be the number of bombs, so there are <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.4306em;"></span><span
+                class="mord mathnormal">n</span></span></span></span></span> nodes and at most <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">n2n^2</span><span class="katex-html"
+                                                                                                          aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 0.8141em;"></span><span class="mord"><span
+                class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span
+                class="vlist" style="height: 0.8141em;"><span style="top: -3.063em; margin-right: 0.05em;"><span
+                class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight">2</span></span></span></span></span></span></span></span></span></span></span></span>
+        edges in the equivalence graph.</p>
+    <ul>
+        <li>
+            <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(n3)O(n^3)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+                    class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                    style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span
+                    class="mord mtight">3</span></span></span></span></span></span></span></span><span
+                    class="mclose">)</span></span></span></span></span></p>
+            <ul>
+                <li>The time complexity of a typical DFS is <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(V+E)O(V + E)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                        class="mord mathnormal" style="margin-right: 0.22222em;">V</span><span class="mspace"
+                                                                                               style="margin-right: 0.2222em;"></span><span
+                        class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.05764em;">E</span><span
+                        class="mclose">)</span></span></span></span></span> where <span class="math math-inline"><span
+                        class="katex"><span class="katex-mathml">VV</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                                style="margin-right: 0.22222em;">V</span></span></span></span></span>
+                    represents the number of nodes, and <span class="math math-inline"><span class="katex"><span
+                            class="katex-mathml">EE</span><span class="katex-html" aria-hidden="true"><span
+                            class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                                    style="margin-right: 0.05764em;">E</span></span></span></span></span>
+                    represents the number of edges. More specifically, there are <span class="math math-inline"><span
+                            class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                    aria-hidden="true"><span
+                            class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+                    nodes and <span class="math math-inline"><span class="katex"><span
+                            class="katex-mathml">n2n^2</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                            class="strut" style="height: 0.8141em;"></span><span class="mord"><span class="mord mathnormal">n</span><span
+                            class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                              style="height: 0.8141em;"><span
+                            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                            class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span></span></span></span></span>
+                    edges in this problem.
+                    <ul>
+                        <li>Building <code>graph</code> takes <span class="math math-inline"><span class="katex"><span
+                                class="katex-mathml">O(n2)O(n^2)</span><span class="katex-html" aria-hidden="true"><span
+                                class="base"><span class="strut"
+                                                   style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                                class="mopen">(</span><span class="mord"><span class="mord mathnormal">n</span><span
+                                class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                                  style="height: 0.8141em;"><span
+                                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                   style="height: 2.7em;"></span><span
+                                class="sizing reset-size6 size3 mtight"><span
+                                class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                                class="mclose">)</span></span></span></span></span> time.
+                        </li>
+                        <li>For each node, we may need to explore up to <span class="math math-inline"><span
+                                class="katex"><span class="katex-mathml">n−1n - 1</span><span class="katex-html"
+                                                                                              aria-hidden="true"><span
+                                class="base"><span class="strut"
+                                                   style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+                                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                                class="mbin">−</span><span class="mspace"
+                                                           style="margin-right: 0.2222em;"></span></span><span class="base"><span
+                                class="strut" style="height: 0.6444em;"></span><span
+                                class="mord">1</span></span></span></span></span> edges to find all its neighbors. Since
+                            there are <span class="math math-inline"><span class="katex"><span
+                                    class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span
+                                    class="base"><span class="strut" style="height: 0.4306em;"></span><span
+                                    class="mord mathnormal">n</span></span></span></span></span> nodes, the total number of
+                            edges we explore is at most <span class="math math-inline"><span class="katex"><span
+                                    class="katex-mathml">n(n−1)=O(n2)n(n - 1) = O(n^2)</span><span class="katex-html"
+                                                                                                   aria-hidden="true"><span
+                                    class="base"><span class="strut"
+                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                                    class="mord mathnormal">n</span><span class="mopen">(</span><span
+                                    class="mord mathnormal">n</span><span class="mspace"
+                                                                          style="margin-right: 0.2222em;"></span><span
+                                    class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                                    class="base"><span class="strut"
+                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                                    class="mord">1</span><span class="mclose">)</span><span class="mspace"
+                                                                                            style="margin-right: 0.2778em;"></span><span
+                                    class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+                                    class="base"><span class="strut"
+                                                       style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                                    class="mopen">(</span><span class="mord"><span class="mord mathnormal">n</span><span
+                                    class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                                      style="height: 0.8141em;"><span
+                                    style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                       style="height: 2.7em;"></span><span
+                                    class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                                    class="mclose">)</span></span></span></span></span>.
+                        </li>
+                    </ul>
+                </li>
+                <li>We need to perform <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                        class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+                    breadth-first searches.
+                </li>
+            </ul>
+        </li>
+        <li>
+            <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(n2)O(n^2)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+                    class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                    style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span
+                    class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                    class="mclose">)</span></span></span></span></span></p>
+            <ul>
+                <li>We use a hash map to store all edges, which requires <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(n2)O(n^2)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                        class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+                        class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                        style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                           style="height: 2.7em;"></span><span
+                        class="sizing reset-size6 size3 mtight"><span
+                        class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                        class="mclose">)</span></span></span></span></span> space.
+                </li>
+                <li>We use a hash set <code>visited</code> to record all visited nodes, which takes <span
+                        class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                        class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> space.
+                </li>
+                <li>We use a stack <code>stack</code> to store all the nodes to be visited, and in the worst-case scenario,
+                    there may be <span class="math math-inline"><span class="katex"><span
+                            class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                            class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+                    nodes in <code>stack</code>.
+                </li>
+                <li>To sum up, the space complexity is <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(n2)O(n^2)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                        class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+                        class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                        style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                           style="height: 2.7em;"></span><span
+                        class="sizing reset-size6 size3 mtight"><span
+                        class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                        class="mclose">)</span></span></span></span></span>.
+                </li>
+            </ul>
+        </li>
+    </ul>
+    <br>
+    <hr>
+    <h3 id="approach-3-breadth-first-search">Approach 3: Breadth-First Search</h3>
+    <h4 id="intuition-2">Intuition</h4>
+    <blockquote>
+        <p>If you are not familiar with breadth-first search, please refer to our explore cards <a
+                href="https://leetcode.com/explore/learn/card/graph/620/breadth-first-search-in-graph/" target="_blank">Breadth-First
+            Search Explore Card</a>. We will focus on the usage in this article and not the implementation details.</p>
+    </blockquote>
+    <p>In BFS, we explore the nodes in the order of their depth. Assuming that the starting node has a depth of
+        <code>0</code>, we will explore all nodes at the present depth (<code>d</code>) before moving on to all nodes at the
+        next depth (<code>d + 1</code>).</p>
+    <p>Back to this problem, we start with node <code>i</code> with <code>depth = 0</code>, then we mark all its unvisited
+        neighbor nodes with <code>depth = 1</code> to be visited soon, once we visit a node with <code>depth = 1</code>, we
+        mark all its unvisited neighbor nodes with <code>depth = 2</code> as well.</p>
+    <p>We can use a queue as a container to store all nodes to be visited without mixing the order, and a hash set <code>visited</code>
+        to store all visited nodes. When we enqueue a node, we immediately add it to <code>visited</code>, which prevents it
+        from being enqueued again by other nodes later.</p>
+    <p>Once the BFS is complete, the number of visited nodes (denoted bombs) is the size of <code>visited</code>.</p>
+    <p><img src="b1.png" alt="img"></p>
+    <p>We will perform BFS from each node <code>i</code> and update <code>answer</code> as the maximum number of reachable
+        nodes starting from each node.</p>
+    <br>
+    <h4 id="algorithm-2">Algorithm</h4>
+    <ol>
+        <li>
+            <p>Initialize <code>answer</code> as 0.</p>
+        </li>
+        <li>
+            <p>Create hash map <code>graph</code> containing all directed edges corresponding to the detonation
+                relationships between all bombs.</p>
+        </li>
+        <li>
+            <p>Define a function <code>bfs(i)</code> that finds all the reachable nodes from node <code>i</code>.</p>
+            <ul>
+                <li>Initialize an empty queue <code>queue</code> and an empty hash set <code>visited</code>.</li>
+                <li>Add <code>i</code> to both <code>queue</code> and <code>visited</code>.</li>
+                <li>While the queue is not empty, dequeue the fisrt node <code>cur</code>.</li>
+                <li>Check if <code>cur</code> has any unvisited neighbor nodes, if so, enqueue them into <code>queue</code>,
+                    add them to <code>visited</code>, and repeat the previous step.
+                </li>
+                <li>Return the size of <code>visited</code> when the iteration is complete.</li>
+            </ul>
+        </li>
+        <li>
+            <p>Call <code>bfs</code> on every node <code>i</code> and update <code>answer</code> as the maximum size of
+                <code>visited</code> after each BFS.</p>
+        </li>
+        <li>
+            <p>Return <code>answer</code> when the all BFS operations are complete.</p>
+        </li>
+    </ol>
+    <h4 id="implementation-2">Implementation</h4>
+    <pre>
+        Java
+        <code>
+            class Solution {
+    public int maximumDetonation(int[][] bombs) {
+        Map<Integer, List<Integer>> graph = new HashMap<>();
+        int n = bombs.length;
+
+        // Build the graph
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                int xi = bombs[i][0], yi = bombs[i][1], ri = bombs[i][2];
+                int xj = bombs[j][0], yj = bombs[j][1];
+
+                // Create a path from node i to node j, if bomb i detonates bomb j.
+                if ((long)ri * ri >= (long)(xi - xj) * (xi - xj) + (long)(yi - yj) * (yi - yj)) {
+                    graph.computeIfAbsent(i, k -> new ArrayList<>()).add(j);
+                }
+            }
+        }
+
+        int answer = 0;
+        for (int i = 0; i < n; i++) {
+            answer = Math.max(answer, bfs(i, graph));
+        }
+
+        return answer;
+    }
+
+    private int bfs(int i, Map<Integer, List<Integer>> graph) {
+        Deque<Integer> queue = new ArrayDeque<>();
+        Set<Integer> visited = new HashSet<>();
+        queue.offer(i);
+        visited.add(i);
+        while (!queue.isEmpty()) {
+            int cur = queue.poll();
+            for (int neib : graph.getOrDefault(cur, new ArrayList<>())) {
+                if (!visited.contains(neib)) {
+                    visited.add(neib);
+                    queue.offer(neib);
+                }
+            }
+        }
+        return visited.size();
+    }
+}
+        </code>
+        Python3
+        <code>
+            class Solution:
+    def maximumDetonation(self, bombs: List[List[int]]) -> int:
+        graph = collections.defaultdict(list)
+        n = len(bombs)
+
+        # Build the graph
+        for i in range(n):
+            for j in range(n):
+                if i == j:
+                    continue
+                xi, yi, ri = bombs[i]
+                xj, yj, _ = bombs[j]
+
+                # Create a path from node i to node j, if bomb i detonates bomb j.
+                if ri ** 2 >= (xi - xj) ** 2 + (yi - yj) ** 2:
+                    graph[i].append(j)
+
+        def bfs(i):
+            queue = collections.deque([i])
+            visited = set([i])
+            while queue:
+                cur = queue.popleft()
+                for neib in graph[cur]:
+                    if neib not in visited:
+                        visited.add(neib)
+                        queue.append(neib)
+            return len(visited)
+
+        answer = 0
+        for i in range(n):
+            answer = max(answer, bfs(i))
+
+        return answer
+        </code>
+    </pre>
+    <h4 id="complexity-analysis-2">Complexity Analysis</h4>
+    <p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                        aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+        be the number of bombs.</p>
+    <ul>
+        <li>
+            <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(n3)O(n^3)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+                    class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                    style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span
+                    class="mord mtight">3</span></span></span></span></span></span></span></span><span
+                    class="mclose">)</span></span></span></span></span></p>
+            <ul>
+                <li>In a typical BFS search, the time complexity is <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(V+E)O(V + E)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                        class="mord mathnormal" style="margin-right: 0.22222em;">V</span><span class="mspace"
+                                                                                               style="margin-right: 0.2222em;"></span><span
+                        class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.05764em;">E</span><span
+                        class="mclose">)</span></span></span></span></span> where <span class="math math-inline"><span
+                        class="katex"><span class="katex-mathml">VV</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                                style="margin-right: 0.22222em;">V</span></span></span></span></span>
+                    is the number of nodes and <span class="math math-inline"><span class="katex"><span
+                            class="katex-mathml">EE</span><span class="katex-html" aria-hidden="true"><span
+                            class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                                    style="margin-right: 0.05764em;">E</span></span></span></span></span>
+                    is the number of edges. There are <span class="math math-inline"><span class="katex"><span
+                            class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span
+                            class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+                    nodes and at most <span class="math math-inline"><span class="katex"><span
+                            class="katex-mathml">n2n^2</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                            class="strut" style="height: 0.8141em;"></span><span class="mord"><span class="mord mathnormal">n</span><span
+                            class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                              style="height: 0.8141em;"><span
+                            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                            class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span></span></span></span></span>
+                    edges in this problem.
+                    <ul>
+                        <li>Building <code>graph</code> takes <span class="math math-inline"><span class="katex"><span
+                                class="katex-mathml">O(n2)O(n^2)</span><span class="katex-html" aria-hidden="true"><span
+                                class="base"><span class="strut"
+                                                   style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                                class="mopen">(</span><span class="mord"><span class="mord mathnormal">n</span><span
+                                class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                                  style="height: 0.8141em;"><span
+                                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                   style="height: 2.7em;"></span><span
+                                class="sizing reset-size6 size3 mtight"><span
+                                class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                                class="mclose">)</span></span></span></span></span> time.
+                        </li>
+                        <li>Each node is enqueued and dequeued once, it takes <span class="math math-inline"><span
+                                class="katex"><span class="katex-mathml">O(n)O(n)</span><span class="katex-html"
+                                                                                              aria-hidden="true"><span
+                                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                                class="mopen">(</span><span class="mord mathnormal">n</span><span
+                                class="mclose">)</span></span></span></span></span> to handle all nodes.
+                        </li>
+                        <li>For each node, we may need to explore up to <span class="math math-inline"><span
+                                class="katex"><span class="katex-mathml">n−1n - 1</span><span class="katex-html"
+                                                                                              aria-hidden="true"><span
+                                class="base"><span class="strut"
+                                                   style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+                                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                                class="mbin">−</span><span class="mspace"
+                                                           style="margin-right: 0.2222em;"></span></span><span class="base"><span
+                                class="strut" style="height: 0.6444em;"></span><span
+                                class="mord">1</span></span></span></span></span> edges to find all its neighbors. Since
+                            there are <span class="math math-inline"><span class="katex"><span
+                                    class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span
+                                    class="base"><span class="strut" style="height: 0.4306em;"></span><span
+                                    class="mord mathnormal">n</span></span></span></span></span> nodes, the total number of
+                            edges we explore is at most <span class="math math-inline"><span class="katex"><span
+                                    class="katex-mathml">n(n−1)=O(n2)n(n - 1) = O(n^2)</span><span class="katex-html"
+                                                                                                   aria-hidden="true"><span
+                                    class="base"><span class="strut"
+                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                                    class="mord mathnormal">n</span><span class="mopen">(</span><span
+                                    class="mord mathnormal">n</span><span class="mspace"
+                                                                          style="margin-right: 0.2222em;"></span><span
+                                    class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                                    class="base"><span class="strut"
+                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                                    class="mord">1</span><span class="mclose">)</span><span class="mspace"
+                                                                                            style="margin-right: 0.2778em;"></span><span
+                                    class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+                                    class="base"><span class="strut"
+                                                       style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                                    class="mopen">(</span><span class="mord"><span class="mord mathnormal">n</span><span
+                                    class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                                      style="height: 0.8141em;"><span
+                                    style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                       style="height: 2.7em;"></span><span
+                                    class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                                    class="mclose">)</span></span></span></span></span>.
+                        </li>
+                    </ul>
+                </li>
+                <li>We need to perform <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                        class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+                    breadth-first searches.
+                </li>
+            </ul>
+        </li>
+        <li>
+            <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(n2)O(n^2)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+                    class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                    style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span
+                    class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                    class="mclose">)</span></span></span></span></span></p>
+            <ul>
+                <li>There are at <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(n2)O(n^2)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                        class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+                        class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                        style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                           style="height: 2.7em;"></span><span
+                        class="sizing reset-size6 size3 mtight"><span
+                        class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                        class="mclose">)</span></span></span></span></span> edges stored in <code>graph</code>.
+                </li>
+                <li><code>queue</code> can store up to <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                        class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+                    nodes.
+                </li>
+            </ul>
+        </li>
+    </ul>
+    <br>
+</body>
+</html>
