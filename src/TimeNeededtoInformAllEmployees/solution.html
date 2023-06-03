@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Time Needed to Inform All Employees - Solution</title>
+</head>
+<body>
+<h2 id="solution">Solution</h2>
+<hr>
+<h4 id="overview">Overview</h4>
+<p>There are <span class="math math-inline"><span class="katex"><span class="katex-mathml">NN</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.6833em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.10903em;">N</span></span></span></span></span> employees in a
+    company with IDs from <span class="math math-inline"><span class="katex"><span class="katex-mathml">00</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.6444em;"></span><span
+            class="mord">0</span></span></span></span></span> to <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">N−1N - 1</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.7667em; vertical-align: -0.0833em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span class="mspace"
+                                                                                   style="margin-right: 0.2222em;"></span><span
+            class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span>;
+    the company forms a tree structure with the root as <code>headID</code>. Each employee except the
+    <code>headID</code> has a manager, which is present in the array <code>manager</code>. Also, each employee needs
+    some time to inform their subordinates of any piece of information, which is provided by the array
+    <code>informTime</code>. An employee passes on the information to all the subordinates at the same time. We need to
+    find out how long it takes for all the employees to receive the information from the head employee.</p>
+<p>If we know when each employee will know the information, we can just find the maximum of all and return that. Hence,
+    we need to find a way to iterate over all the employees with keeping the time they were made aware of the
+    information. In this article, we will discuss two ways of iterating with the constraints we need.</p>
+<p>The image below is showing a tree structure with thirteen employees, each having an informing time as shown in the
+    array. The numbers above each node are when they receive the information, hence the <code>headID</code> has the
+    information at <code>0</code>, and its subordinates get it at <code>informTime[headID]</code> and so on.</p>
+<p><img src="1376A.png" alt="fig"><br>
+    <br></p>
+<hr>
+<h4 id="approach-1-depth-first-search-dfs">Approach 1: Depth-First Search (DFS)</h4>
+<p><strong>Intuition</strong></p>
+<p>Before we use any iterating algorithm, we need to prepare the tree in a way we can iterate quickly. The information
+    starts from the <code>headID</code> at time <code>0</code>, then it traverses to its subordinates at the time <code>informTime[headID]</code>,
+    and then their subordinates pass it on to their subordinates, and so on. Therefore, we need the parent-to-child
+    relationship to iterate instead of the child-to-parent relationship that we have in the input. To do this, we would
+    create an edge from <code>manager[i]</code> to <code>i</code> when the <code>manager[i]</code> isn't <code>-1</code>.
+</p>
+<p>We start the DFS from the root node, i.e. <code>headID</code> with the <code>time</code> as <code>0</code>, then we
+    iterate over its subordinates with <code>time</code> as <code>time + informTime[parent]</code>. Before we iterate
+    over the subordinates, we update the variable <code>maxTime</code>, which is the maximum <code>time</code> we have
+    seen so far. In the end, we can just return the <code>maxTime</code>, which is the time for the employee that got
+    the information at last.</p>
+<p>Note that we don't have to keep track of the nodes we have traversed, as the structure we are traversing over is a
+    directed tree without any cycles. Hence, we will never visit a node twice.</p>
+<p><strong>Algorithm</strong></p>
+<ol>
+    <li>
+        <p>Create an adjacency list <code>adjList</code>; the <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">ithi^{th}</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 0.8491em;"></span><span class="mord"><span
+                class="mord mathnormal">i</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span
+                class="vlist" style="height: 0.8491em;"><span style="top: -3.063em; margin-right: 0.05em;"><span
+                class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight"><span class="mord mathnormal mtight">t</span><span
+                class="mord mathnormal mtight">h</span></span></span></span></span></span></span></span></span></span></span></span></span>
+            index here would store the adjacent nodes to the employee with ID <code>i</code>.</p>
+    </li>
+    <li>
+        <p>Iterate over the employees from <code>0</code> to <code>N - 1</code>, and for each employee <code>i</code>,
+            store an edge <code>manager[i] -&gt; i</code> if <code>manager[i]</code> isn't <code>-1</code>.</p>
+    </li>
+    <li>
+        <p>Start the DFS with node <code>headID</code> and <code>time</code> as <code>0</code> for each node as <code>curr</code>:
+        </p>
+        <p>i. Update the maximum time we have seen, <code>maxTime</code>, by comparing it with <code>time</code>.</p>
+        <p>ii. Iterate over the adjacent nodes of <code>curr</code>, and for each adjacent node, perform DFS with time
+            as <code>time + informTime[curr]</code>.</p>
+    </li>
+    <li>
+        <p>When the DFS is finished, return <code>maxTime</code>.</p>
+    </li>
+</ol>
+<p><strong>Implementation</strong></p>
+<pre>
+    Java
+    <code>
+        class Solution {
+    int maxTime = Integer.MIN_VALUE;
+
+    void DFS(ArrayList<ArrayList<Integer>> adjList, int[] informTime, int curr, int time) {
+        // Maximum time for an employee to get the news.
+        maxTime = Math.max(maxTime, time);
+
+        for (int adjacent : adjList.get(curr)) {
+            // Visit the subordinate employee who gets the news after informTime[curr] unit time.
+            DFS(adjList, informTime, adjacent, time + informTime[curr]);
+        }
+    }
+
+    public int numOfMinutes(int n, int headID, int[] manager, int[] informTime) {
+        ArrayList<ArrayList<Integer>> adjList = new ArrayList<ArrayList<Integer>>(n);
+
+        for (int i = 0; i < n; i++) {
+            adjList.add(new ArrayList<Integer>());
+        }
+
+        // Making an adjacent list, each index stores the Ids of subordinate employees.
+        for (int i = 0; i < n; i++) {
+            if (manager[i] != -1) {
+                adjList.get(manager[i]).add(i);
+            }
+        }
+
+        DFS(adjList, informTime, headID, 0);
+        return maxTime;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int maxTime = INT_MIN;
+
+    void DFS(vector<int> adjList[], vector<int>& informTime, int curr, int time) {
+        // Maximum time for an employee to get the news.
+        maxTime = max(maxTime, time);
+
+        for (int adjacent : adjList[curr]) {
+            // Visit the subordinate employee who gets the news after informTime[curr] unit time.
+            DFS(adjList, informTime, adjacent, time + informTime[curr]);
+        }
+    }
+    int numOfMinutes(int n, int headID, vector<int>& manager, vector<int>& informTime) {
+        vector<int> adjList[n];
+
+        // Making an adjacent list, each index stores the Ids of subordinate employees.
+        for (int i = 0; i < n; i++) {
+            if (manager[i] != -1) {
+                adjList[manager[i]].push_back(i);
+            }
+        }
+
+        DFS(adjList, informTime, headID, 0);
+        return maxTime;
+    }
+};
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<p>Here, <span class="math math-inline"><span class="katex"><span class="katex-mathml">NN</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                style="margin-right: 0.10903em;">N</span></span></span></span></span>
+    is the number of employees.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(N)O(N)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                class="mclose">)</span></span></span></span></span>.</p>
+        <p>We first iterate over the employees to create the adjacency list; then, we perform the DFS, where we iterate
+            over each node once to find when they get the information from <code>headID</code>.</p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(N)O(N)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                class="mclose">)</span></span></span></span></span>.</p>
+        <p>The size of the adjacency list is <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">NN</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                     style="margin-right: 0.10903em;">N</span></span></span></span></span>,
+            and there will be only <span class="math math-inline"><span class="katex"><span class="katex-mathml">N−1N - 1</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.7667em; vertical-align: -0.0833em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span class="mspace"
+                                                                                           style="margin-right: 0.2222em;"></span><span
+                    class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span>
+            edges in the tree. There will be some stack space needed for DFS. The maximum active stack calls would equal
+            the number of nodes for a skewed tree. Hence the total space complexity would be <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(N)O(N)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                    class="mclose">)</span></span></span></span></span>.<br>
+            <br></p>
+    </li>
+</ul>
+<hr>
+<h4 id="approach-2-breadth-first-search-bfs">Approach 2: Breadth-First Search (BFS)</h4>
+<p><strong>Intuition</strong></p>
+<p>The other way to iterate over nodes while keeping the time it takes to get information is using Breadth-First Seach
+    (BFS). We can start from the <code>headID</code> with time as <code>0</code> and for each child node, put all the
+    subordinates in the queue with time as <code>informTime[parent]</code>. Then similar to the DFS approach, we will
+    update the maximum time we have seen so far, <code>maxTime</code> each time we extract a node from the queue. Also,
+    we don't need to keep track of visited nodes just like we didn't in DFS, as there aren't any cycles.</p>
+<p><strong>Algorithm</strong></p>
+<ol>
+    <li>Create an adjacency list <code>adjList</code>; the <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">ithi^{th}</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.8491em;"></span><span class="mord"><span
+            class="mord mathnormal">i</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span
+            class="vlist" style="height: 0.8491em;"><span style="top: -3.063em; margin-right: 0.05em;"><span
+            class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span
+            class="mord mtight"><span class="mord mathnormal mtight">t</span><span
+            class="mord mathnormal mtight">h</span></span></span></span></span></span></span></span></span></span></span></span></span>
+        index here would store the adjacent nodes to the employee with ID <code>i</code>.
+    </li>
+    <li>Iterate over the employees from <code>0</code> to <code>N - 1</code>, and for each employee <code>i</code>,
+        store an edge <code>manager[i] -&gt; i</code> if <code>manager[i]</code> isn't <code>-1</code>.
+    </li>
+    <li>Initialize a queue <code>q</code> of pairs of integers. The first integer is the ID of an employee, and the
+        second integer is the time at which this employee gets the information.
+    </li>
+    <li>Insert the first entry into the queue as <code>(headID, 0)</code>.</li>
+    <li>Keep extracting pairs from the queue until it's empty. For each pair, update the <code>maxTime</code> first and
+        then push each subordinate of the current employee with the additional time required to inform the subordinates
+        via <code>informTime</code>.
+    </li>
+    <li>Return <code>maxTime</code> when the BFS is finished.</li>
+</ol>
+<p><strong>Implementation</strong></p>
+<pre>
+    Java
+    <code>
+        class Solution {
+    int maxTime = Integer.MIN_VALUE;
+
+    public int numOfMinutes(int n, int headID, int[] manager, int[] informTime) {
+        ArrayList<ArrayList<Integer>> adjList = new ArrayList<ArrayList<Integer>>(n);
+
+        for (int i = 0; i < n; i++) {
+            adjList.add(new ArrayList<Integer>());
+        }
+
+        // Making an adjacent list, each index stores the Ids of subordinate employees.
+        for (int i = 0; i < n; i++) {
+            if (manager[i] != -1) {
+                adjList.get(manager[i]).add(i);
+            }
+        }
+
+        Queue<Pair<Integer, Integer>> q = new LinkedList<>();
+        q.add(new Pair<>(headID, 0));
+
+        while (!q.isEmpty()) {
+            Pair<Integer, Integer> employeePair = q.remove();
+
+            int parent = employeePair.getKey();
+            int time = employeePair.getValue();
+            for (int adjacent : adjList.get(parent)) {
+                q.add(new Pair<>(adjacent, time + informTime[parent]));
+                // Maximum time for an employee to get the news.
+                maxTime = Math.max(maxTime, time);
+
+            }
+        }
+
+        return maxTime;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int maxTime = INT_MIN;
+
+    int numOfMinutes(int n, int headID, vector<int>& manager, vector<int>& informTime) {
+        vector<int> adjList[n];
+
+        // Making an adjacent list, each index stores the Ids of subordinate employees.
+        for (int i = 0; i < n; i++) {
+            if (manager[i] != -1) {
+                adjList[manager[i]].push_back(i);
+            }
+        }
+
+        queue<pair<int, int>>q;
+        q.push({headID, 0});
+
+        while (!q.empty()) {
+            pair<int, int> manager = q.front();
+            q.pop();
+
+            int parent = manager.first;
+            int time = manager.second;
+            // Maximum time for an employee to get the news.
+            maxTime = max(maxTime, time);
+
+            for (int adjacent : adjList[parent]) {
+                q.push({adjacent, time + informTime[parent]});
+            }
+        }
+
+        return maxTime;
+    }
+};
+
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<p>Here, <span class="math math-inline"><span class="katex"><span class="katex-mathml">NN</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                style="margin-right: 0.10903em;">N</span></span></span></span></span>
+    is the number of employees.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(N)O(N)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                class="mclose">)</span></span></span></span></span>.</p>
+        <p>We first iterate over the employees to create the adjacency list; then, we perform the BFS, where we iterate
+            over each node once to find when they get the information from <code>headID</code>.</p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(N)O(N)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                class="mclose">)</span></span></span></span></span>.</p>
+        <p>The size of the adjacency list is <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">NN</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                     style="margin-right: 0.10903em;">N</span></span></span></span></span>,
+            and there will be only <span class="math math-inline"><span class="katex"><span class="katex-mathml">N−1N - 1</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.7667em; vertical-align: -0.0833em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span class="mspace"
+                                                                                           style="margin-right: 0.2222em;"></span><span
+                    class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span>
+            edges in the tree. Also, the size of the queue could be at max <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">O(N)O(N)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                    class="mclose">)</span></span></span></span></span>. Hence the total space complexity would be <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(N)O(N)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                    class="mclose">)</span></span></span></span></span>.<br>
+            <br></p>
+    </li>
+</ul>
+<hr>
+</body>
+</html>
