@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Can Make Arithmetic Progression From Sequence</title>
+</head>
+<body>
+<h2 id="solution">Solution</h2>
+<hr>
+<h3 id="approach-1-sort">Approach 1: Sort</h3>
+<h4 id="intuition">Intuition</h4>
+<p>Let's start with the most intuitive method. Since we want to determine if <code>arr</code> can make an arithmetic
+    progression, we can first sort the <code>arr</code> and then check if the difference between each pair of adjacent
+    numbers is equal.</p>
+<p><img src="1.png" alt="img"></p>
+<br>
+<h4 id="algorithm">Algorithm</h4>
+<ol>
+    <li>Sort <code>arr</code>.</li>
+    <li>Record the first pair difference <code>diff = arr[1] - arr[0]</code>.</li>
+    <li>Iterate over the sorted <code>arr</code> from <code>i = 2</code>, check if every pair difference equals <code>diff</code>,
+        return <code>False</code> if not.
+    </li>
+    <li>Return <code>True</code> when the iteration ends.</li>
+</ol>
+<h4 id="implementation">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public boolean canMakeArithmeticProgression(int[] arr) {
+        Arrays.sort(arr);
+        int diff = arr[1] - arr[0];
+
+        for (int i = 2; i < arr.length; ++i) {
+            if (arr[i] - arr[i - 1] != diff) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    bool canMakeArithmeticProgression(vector<int>& arr) {
+        sort(arr.begin(), arr.end());
+        int diff = arr[1] - arr[0];
+
+        for (int i = 2; i < arr.size(); ++i) {
+            if (arr[i] - arr[i - 1] != diff) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def canMakeArithmeticProgression(self, arr: List[int]) -> bool:
+        arr.sort()
+        diff = arr[1] - arr[0]
+        for i in range(2, len(arr)):
+            if arr[i] - arr[i - 1] != diff:
+                return False
+        return True
+    </code>
+</pre>
+<h4 id="complexity-analysis">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    be the length of the input array <code>arr</code>.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅log⁡n)O(n\cdot\log n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                      style="margin-right: 0.1667em;"></span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>Sorting <code>arr</code> takes <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(n⋅log⁡n)O(n\cdot\log n)</span><span class="katex-html"
+                                                                               aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                              style="margin-right: 0.1667em;"></span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> time on
+                average.
+            </li>
+            <li>Iterating the sorted <code>arr</code> takes <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> time.
+            </li>
+            <li>Therefore, the overall time complexity is <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(n⋅log⁡n)O(n\cdot\log n)</span><span class="katex-html"
+                                                                               aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                              style="margin-right: 0.1667em;"></span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+            or <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(log⁡n)O(\log n)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                              style="margin-right: 0.1667em;"></span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>Some extra space is used when we sort <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">arr\text{arr}</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord text"><span
+                    class="mord">arr</span></span></span></span></span></span> in place. The space complexity of the
+                sorting algorithm depends on the programming language.
+                <ul>
+                    <li>In python, the <code>sort</code> method sorts a list using the Timsort algorithm, which is a
+                        combination of Merge Sort and Insertion Sort and uses <span class="math math-inline"><span
+                                class="katex"><span class="katex-mathml">O(n)O(n)</span><span class="katex-html"
+                                                                                              aria-hidden="true"><span
+                                class="base"><span class="strut"
+                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                                class="mopen">(</span><span class="mord mathnormal">n</span><span
+                                class="mclose">)</span></span></span></span></span> additional space.
+                    </li>
+                    <li>In C++, the sort() function is implemented as a hybrid of Quick Sort, Heap Sort, and Insertion
+                        Sort, with worst-case space complexity of <span class="math math-inline"><span
+                                class="katex"><span class="katex-mathml">O(log⁡n)O(\log n)</span><span
+                                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                                class="mopen">(</span><span class="mop">lo<span
+                                style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                      style="margin-right: 0.1667em;"></span><span
+                                class="mord mathnormal">n</span><span
+                                class="mclose">)</span></span></span></span></span>.
+                    </li>
+                    <li>In Java, Arrays.sort() is implemented using a variant of the Quick Sort algorithm which has a
+                        space complexity of <span class="math math-inline"><span class="katex"><span
+                                class="katex-mathml">O(log⁡n)O(\log n)</span><span class="katex-html"
+                                                                                   aria-hidden="true"><span
+                                class="base"><span class="strut"
+                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                                class="mopen">(</span><span class="mop">lo<span
+                                style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                      style="margin-right: 0.1667em;"></span><span
+                                class="mord mathnormal">n</span><span
+                                class="mclose">)</span></span></span></span></span>.
+                    </li>
+                </ul>
+            </li>
+            <li>We then traverse both arrays and calculate the cumulative product sum, this step takes <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord">1</span><span class="mclose">)</span></span></span></span></span> extra space.
+            </li>
+            <li>To sum up, the overall space complexity is <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> for Python
+                and <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(log⁡n)O(\log n)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span
+                        class="mspace" style="margin-right: 0.1667em;"></span><span
+                        class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> for
+                C++ and Java.
+            </li>
+        </ul>
+    </li>
+</ul>
+<br>
+<hr>
+<h3 id="approach-2-set">Approach 2: Set</h3>
+<h4 id="intuition-1">Intuition</h4>
+<p>Actually, we don't need to sort <code>arr</code>. Instead, we can take advantage of a feature of the arithmetic
+    sequence: the difference between any two adjacent terms is equal.</p>
+<p>Let's assume we have an arithmetic sequence where the first term is <code>min_value</code> and every successive
+    element has a common difference <code>diff</code>. Then, the difference between each number <code>arr[i]</code> and
+    <code>min_value</code> must be divisible by <code>diff</code>. We can determine <code>diff</code> by finding the
+    minimum and maximum values, taking their difference, and dividing by the number of elements between the minimum and
+    maximum which is <code>n - 1</code>. <code>diff = (max_value - min_value) / (n - 1)</code>.</p>
+<p><img src="2.png" alt="img"></p>
+<p>Next, we traverse <code>arr</code> and check if each element <code>arr[i]</code> belongs to this arithmetic sequence.
+    If the difference between <code>arr[i]</code> and <code>min_value</code> is a multiple of <code>diff</code>, then
+    <code>arr[i]</code> belongs to this sequence, otherwise, it does not.</p>
+<p>This strategy might not work if there are duplicate elements. For example, let <code>arr = [1, 2, 3, 2, 5]</code>.
+    <code>diff</code> would be <code>(5 - 1) / 4 = 1</code>. The algorithm will be "tricked" since each element will
+    pass the test (arr[i] - 1 divisible by 1).</p>
+<p>To counteract this, we will use a set <code>number_set</code> to store all the elements we encounter. After
+    traversing the array, if the size of the set is equal to <code>n</code>, then the numbers are distinct and must form
+    an arithmetic sequence from <code>min_value</code> to <code>max_value</code>. As shown in the picture below, <code>[3,
+        9, 7, 1, 5]</code> forms an arithmetic sequence while <code>[2, 9, 7, 1, 5]</code> doesn't.</p>
+<p><img src="2_1.png" alt="img"></p>
+<p>Note that we need to consider some special cases:</p>
+<ul>
+    <li>If <code>max_value - min_value</code> is not divisible by <code>n - 1</code>, it means <code>arr</code> can't
+        form an arithmetic sequence, return <code>false</code>.
+    </li>
+    <li>If we have <code>diff = 0</code>, it means that all the numbers in <code>arr</code> are equal, and we can return
+        <code>true</code> directly.
+    </li>
+</ul>
+<br>
+<h4 id="algorithm-1">Algorithm</h4>
+<ol>
+    <li>
+        <p>Find the minimum value <code>min_value</code> and the maximum value <code>max_value</code> of
+            <code>arr</code>, let <code>n</code> be the length of <code>arr</code>.</p>
+    </li>
+    <li>
+        <p>Check if <code>max_value - min_value</code> is divisible by <code>n - 1</code>, return <code>false</code> if
+            not. Otherwise, set <code>diff = (max_value - min_value) / (n - 1)</code>.</p>
+    </li>
+    <li>
+        <p>Initialize an empty set <code>number_set</code>.</p>
+    </li>
+    <li>
+        <p>Iterate over <code>arr</code>, for each number <code>arr[i]</code>:</p>
+        <ul>
+            <li>Check if <code>arr[i] - min_value</code> is divisible by <code>diff</code>, return <code>false</code> if
+                not.
+            </li>
+            <li>Add <code>arr[i]</code> to <code>number_set</code>.</li>
+        </ul>
+    </li>
+    <li>
+        <p>Return <code>true</code> if the size of <code>number_set</code> equals <code>n</code>, return
+            <code>false</code> otherwise.</p>
+    </li>
+</ol>
+<h4 id="implementation-1">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public boolean canMakeArithmeticProgression(int[] arr) {
+        int minValue = Arrays.stream(arr).min().getAsInt();
+        int maxValue = Arrays.stream(arr).max().getAsInt();
+        int n = arr.length;
+
+        if (maxValue - minValue == 0) {
+            return true;
+        }
+
+        if ((maxValue - minValue) % (n - 1) != 0) {
+            return false;
+        }
+
+        int diff = (maxValue - minValue) / (n - 1);
+        Set<Integer> numberSet = new HashSet<>();
+
+        for (int i = 0; i < n; i++) {
+            if ((arr[i] - minValue) % diff != 0) {
+                return false;
+            }
+            numberSet.add(arr[i]);
+        }
+
+        return numberSet.size() == n;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    bool canMakeArithmeticProgression(vector<int>& arr) {
+        int minValue = *min_element(arr.begin(), arr.end());
+        int maxValue = *max_element(arr.begin(), arr.end());
+        int n = arr.size();
+
+        if (maxValue - minValue == 0) {
+            return true;
+        }
+
+        if ((maxValue - minValue) % (n - 1) != 0) {
+            return false;
+        }
+
+        int diff = (maxValue - minValue) / (n - 1);
+        unordered_set<int> numberSet;
+
+        for (int i = 0; i < n; i++) {
+            if ((arr[i] - minValue) % diff != 0) {
+                return false;
+            }
+            numberSet.insert(arr[i]);
+        }
+
+        return numberSet.size() == n;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def canMakeArithmeticProgression(self, arr: List[int]) -> bool:
+        min_value, max_value = min(arr), max(arr)
+        n = len(arr)
+
+        if max_value - min_value == 0:
+            return True
+        if (max_value - min_value) % (n - 1):
+
+            return False
+
+        diff = (max_value - min_value) // (n - 1)
+        number_set = set()
+
+        for a in arr:
+            if (a - min_value) % diff:
+                return False
+            number_set.add(a)
+
+        return len(number_set) == n
+    </code>
+</pre>
+<h4 id="complexity-analysis-1">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    be the length of the input array <code>arr</code>.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <ul>
+            <li>Finding the minimum and maximum values takes <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> time.
+            </li>
+            <li>We iterate over <code>arr</code>, for each element <code>arr[i]</code>, we verify if it belongs to the
+                arithmetic sequence then add it to the hash set, which takes <span class="math math-inline"><span
+                        class="katex"><span class="katex-mathml">O(1)O(1)</span><span class="katex-html"
+                                                                                      aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord">1</span><span
+                        class="mclose">)</span></span></span></span></span> time.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <ul>
+            <li>We create a set to store all visited elements, there might be at most <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.4306em;"></span><span
+                    class="mord mathnormal">n</span></span></span></span></span> distinct elements in the set.
+            </li>
+        </ul>
+    </li>
+</ul>
+<br>
+<hr>
+<h3 id="approach-3-in-place-modification">Approach 3: In-place Modification</h3>
+<h4 id="intuition-2">Intuition</h4>
+<p>In the previous solution, we used a set <code>number_set</code> to store all the traversed numbers in
+    <code>arr</code>. However, by making in-place adjustments to the original array, we can actually avoid this extra
+    space overhead. Note that it is usually not considered good practice to modify the input and you should clarify with
+    an interviewer. We are including this approach for completeness.</p>
+<p>We will continue to use ideas from the previous approach. First, find the maximum value <code>max_value</code> and
+    the minimum value <code>min_value</code> of <code>arr</code>, and calculate the common difference <code>diff</code>
+    as <code>diff = (max_value - min_value) / (n - 1)</code>.</p>
+<p><img src="3.png" alt="img"></p>
+<p>Now we have the common difference <code>diff</code> and the first term <code>min_value</code>. Given a number <code>arr[i]</code>,
+    we can calculate its position <code>j</code> in the arithmetic sequence as <code>j = (arr[i] - min_value) /
+        diff</code>.</p>
+<p>If <code>j</code> is already equal to <code>i</code>, then this number <code>arr[i]</code> is already in the correct
+    position and we can move on to the next <code>i</code>. Otherwise, we swap <code>arr[i]</code> with
+    <code>arr[j]</code>. We can put one number (<code>arr[i]</code>) in its correct position with each step.</p>
+<p>In reference to the following image, for <code>i = 0</code>, <code>arr[i] = 3</code> is not in the correct position,
+    so we compute the correct index <code>j</code> it belongs to using <code>j = (arr[i] - 1) / diff = 1</code>, then we
+    swap <code>arr[0]</code> with <code>arr[1]</code>. Note that we don't need to create the sorted <code>arr</code>, it
+    is just for reference in the image.</p>
+<p><img src="3_1.png" alt="img"></p>
+<p>Please refer to the following slides as an detailed example:</p>
+<p>
+<div class="relative mx-auto mb-6 flex flex-col overflow-hidden rounded-lg border-[1px] border-label-1"
+     style="max-width: 601px;">
+    <div class="rounded-lg" style="max-height: 301px;"><img alt="Current"
+                                                            class="object-fit-contain !mb-0 max-h-full max-w-full"
+                                                            src="blob:https://leetcode.com/282e14c2-1fbc-4b4e-ac10-eb5dfc4f457f">
+    </div>
+    <div class="absolute top-[50%] left-[50%] flex h-12 w-12 translate-x-[-50%] translate-y-[-50%] items-center justify-center rounded-full bg-black/30">
+        <div class="flex h-4 w-4 cursor-pointer items-center justify-center text-[35px]">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="h-full w-full text-white">
+                <path fill-rule="evenodd"
+                      d="M18.97 12.871l-12.96 7.29a1 1 0 01-1.49-.87V4.71a1 1 0 011.49-.872l12.96 7.29a1 1 0 010 1.743z"
+                      clip-rule="evenodd"></path>
+            </svg>
+        </div>
+    </div>
+    <div class="relative flex h-8 select-none items-center justify-around bg-black">
+        <div class="flex items-center space-x-7">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M16.091 4.929l-7.057 7.078 7.057 7.064a1 1 0 01-1.414 1.414l-7.764-7.77a1 1 0 010-1.415l7.764-7.785a1 1 0 111.415 1.414z"
+                      clip-rule="evenodd"></path>
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M18.97 12.871l-12.96 7.29a1 1 0 01-1.49-.87V4.71a1 1 0 011.49-.872l12.96 7.29a1 1 0 010 1.743z"
+                      clip-rule="evenodd"></path>
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M7.913 19.071l7.057-7.078-7.057-7.064a1 1 0 011.414-1.414l7.764 7.77a1 1 0 010 1.415l-7.764 7.785a1 1 0 01-1.414-1.414z"
+                      clip-rule="evenodd"></path>
+            </svg>
+        </div>
+        <div class="absolute right-0 mr-5 text-xs font-medium text-white">1 / 10</div>
+    </div>
+</div>
+</p>
+<br>
+<p>Note that we need to consider some special cases:</p>
+<ul>
+    <li>If <code>max_value - min_value</code> is not divisible by <code>n - 1</code>, it means <code>arr</code> can't
+        form an arithmetic sequence, return <code>false</code>.
+    </li>
+    <li>If we have <code>arr[i] = arr[j], (i != j)</code>, return <code>false</code>. This is the case mentioned in the
+        previous approach where duplicate elements can "trick" our strategy. In the previous approach, we used a set to
+        detect this case.
+    </li>
+</ul>
+<br>
+<h4 id="algorithm-2">Algorithm</h4>
+<ol>
+    <li>
+        <p>Find the minimum value <code>min_value</code> and the maximum value <code>max_value</code> of
+            <code>arr</code>, let <code>n</code> be the length of <code>arr</code>.</p>
+    </li>
+    <li>
+        <p>Check if <code>max_value - min_value</code> is divisible by <code>n - 1</code>, return <code>false</code> if
+            not. Otherwise, set <code>diff = (max_value - min_value) / (n - 1)</code>.</p>
+    </li>
+    <li>
+        <p>Set the starting index <code>i</code> as <code>i = 0</code>, while <code>i &lt; n</code>:</p>
+        <ul>
+            <li>If <code>arr[i]</code> equals <code>min_value + i * diff</code>, move on by letting <code>i = i +
+                1</code>.
+            </li>
+            <li>Else if <code>arr[i] - min_value</code> is not divisible by <code>diff</code>, return false.</li>
+            <li>Otherwise, find the correct index that <code>arr[i]</code> belongs to using <code>j = (arr[i] -
+                min_value) / diff</code>. If <code>arr[i] = arr[j]</code>, return <code>false</code>, otherwise, swap
+                <code>arr[i]</code> with <code>arr[j]</code>.
+            </li>
+        </ul>
+        <p>Repeat step 3.</p>
+    </li>
+    <li>
+        <p>Return <code>true</code> when the while loop ends.</p>
+    </li>
+</ol>
+<h4 id="implementation-2">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public boolean canMakeArithmeticProgression(int[] arr) {
+        int minValue = Arrays.stream(arr).min().getAsInt();
+        int maxValue = Arrays.stream(arr).max().getAsInt();
+        int n = arr.length;
+
+        if (maxValue - minValue == 0) {
+            return true;
+        }
+
+        if ((maxValue - minValue) % (n - 1) != 0) {
+            return false;
+        }
+
+        int diff = (maxValue - minValue) / (n - 1);
+        Set<Integer> numberSet = new HashSet<>();
+
+        for (int i = 0; i < n; i++) {
+            if ((arr[i] - minValue) % diff != 0) {
+                return false;
+            }
+            numberSet.add(arr[i]);
+        }
+
+        return numberSet.size() == n;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    bool canMakeArithmeticProgression(vector<int>& arr) {
+        int minValue = *min_element(arr.begin(), arr.end());
+        int maxValue = *max_element(arr.begin(), arr.end());
+        int n = arr.size();
+
+        if (maxValue - minValue == 0) {
+            return true;
+        }
+
+        if ((maxValue - minValue) % (n - 1) != 0) {
+            return false;
+        }
+
+        int diff = (maxValue - minValue) / (n - 1);
+        unordered_set<int> numberSet;
+
+        for (int i = 0; i < n; i++) {
+            if ((arr[i] - minValue) % diff != 0) {
+                return false;
+            }
+            numberSet.insert(arr[i]);
+        }
+
+        return numberSet.size() == n;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def canMakeArithmeticProgression(self, arr: List[int]) -> bool:
+        min_value, max_value = min(arr), max(arr)
+        n = len(arr)
+
+        if max_value - min_value == 0:
+            return True
+        if (max_value - min_value) % (n - 1):
+
+            return False
+
+        diff = (max_value - min_value) // (n - 1)
+        number_set = set()
+
+        for a in arr:
+            if (a - min_value) % diff:
+                return False
+            number_set.add(a)
+
+        return len(number_set) == n
+    </code>
+</pre>
+<h4 id="complexity-analysis-2">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    be the length of the input array <code>arr</code>.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <ul>
+            <li>Finding the minimum and maximum values takes <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> time.
+            </li>
+            <li>We used a while loop to help place every element <code>arr[i]</code> in its correct position. Each
+                <code>arr[i]</code> is visited and swapped only once, thus the while loop takes at most <span
+                        class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+                time as well.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord">1</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>We modified <code>arr</code> in place.</li>
+        </ul>
+    </li>
+</ul>
+<br>
+</body>
+</html>
