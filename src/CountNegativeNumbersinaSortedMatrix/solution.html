@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Count Negative Numbers in a Sorted Matrix</title>
+</head>
+<body>
+<h2 id="solution">Solution</h2>
+<hr>
+<h3 id="approach-1-brute-force">Approach 1: Brute Force</h3>
+<h4 id="intuition">Intuition</h4>
+<p>We need to count the number of negative elements in the given matrix <code>grid</code>.<br>
+    The brute force way is to iterate over all matrix elements and count all the negative elements.</p>
+<h4 id="algorithm">Algorithm</h4>
+<ol>
+    <li>Initialize a variable <code>count = 0</code>, to count the total number of negative elements in the matrix.</li>
+    <li>Using two nested for-loops iterate on each <code>element</code> of the matrix <code>grid</code>, and if the
+        <code>element</code> is negative increment the <code>count</code> by <code>1</code>.
+    </li>
+    <li>Return <code>count</code>.</li>
+</ol>
+<h4 id="implementation">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int countNegatives(int[][] grid) {
+        int count = 0;
+        // Iterate on all elements of the matrix one by one.
+        for (int[] row : grid) {
+            for (int element : row) {
+                // If the current element is negative, we count it.
+                if (element < 0) {
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int countNegatives(vector<vector<int>>& grid) {
+        int count = 0;
+        // Iterate on all elements of the matrix one by one.
+        for (auto& row : grid) {
+            for (auto& element : row) {
+                // If the current element is negative, we count it.
+                if (element < 0) {
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def countNegatives(self, grid: List[List[int]]) -> int:
+        count = 0
+        # Iterate on all elements of the matrix one by one.
+        for row in grid:
+            for element in row:
+                # If the current element is negative, we count it.
+                if element < 0:
+                    count += 1
+        return count
+    </code>
+    TypeScript
+    <code>
+        function countNegatives(grid: number[][]): number {
+    let count = 0;
+    // Iterate on all elements of the matrix one by one.
+    for (const row of grid) {
+        for (const element of row) {
+            // If the current element is negative, we count it.
+            if (element < 0) {
+                count++;
+            }
+        }
+    }
+    return count;
+};
+    </code>
+</pre>
+<h4 id="complexity-analysis">Complexity Analysis</h4>
+<p>Here, <span class="math math-inline"><span class="katex"><span class="katex-mathml">m×nm \times n</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+        class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+        class="mbin">×</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+        class="strut" style="height: 0.4306em;"></span><span
+        class="mord mathnormal">n</span></span></span></span></span> is the size of the input matrix.</p>
+<ul>
+    <li>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(m⋅n)O(m \cdot n)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        <ul>
+            <li>We iterate on each element of the matrix once, and the total number of the elements in the matrix is
+                <span class="math math-inline"><span class="katex"><span class="katex-mathml">m⋅nm \cdot n</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 0.4445em;"></span><span
+                        class="mord mathnormal">m</span><span class="mspace"
+                                                              style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span
+                        class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+                        class="strut" style="height: 0.4306em;"></span><span
+                        class="mord mathnormal">n</span></span></span></span></span>.
+            </li>
+        </ul>
+    </li>
+    <li>Space complexity: <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                     style="margin-right: 0.02778em;">O</span><span
+            class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span></span>
+        <ul>
+            <li>We don't use any additional space.</li>
+        </ul>
+    </li>
+</ul>
+<br>
+<hr>
+<h3 id="approach-2-binary-search">Approach 2: Binary Search</h3>
+<h4 id="intuition-1">Intuition</h4>
+<p>We can use the fact that the elements in the rows are sorted. In the previous approach, we were linearly iterating on
+    all row elements.<br>
+    But instead, we can use <strong>binary search</strong> to find the first negative element of each row, and as
+    elements are sorted, all elements after the first negative element will also be negative.</p>
+<p><strong>Understanding how binary search works here:</strong><br>
+    In binary search algorithms, we keep two pointers <code>left</code> and <code>right</code> pointing to the ends of
+    the search space. Then we find the middle position of the current search space <code>mid</code> to reduce the search
+    space by half until only one element is left in the search space.</p>
+<p>We repeatedly reduce our search space based on the following conditions:</p>
+<ul>
+    <li>If the element at the <code>mid</code> position is non-negative then it will mean elements from
+        <code>left</code> to <code>mid</code> all are non-negative, thus we can discard these elements as the first
+        negative element will be present in elements from <code>mid + 1</code> to <code>right</code>.
+    </li>
+    <li>Otherwise, if it is negative then it means elements from <code>mid</code> to <code>right</code> all are
+        negative, thus we can discard these elements, as the first negative element will be present in elements from
+        <code>left</code> to <code>mid</code>.
+    </li>
+</ul>
+<p>In the end, we will be left will only one element in our search space which will be the first negative element.</p>
+<p><img src="Slide1.PNG" alt="binary_search"></p>
+<blockquote>
+    <p><strong>Note</strong>: If you are new to this concept we recommend you to read our <a
+            href="https://leetcode.com/explore/learn/card/binary-search/" target="_blank">Binary Search Explore Card</a>.<br>
+        Also, we are listing some related problems for you to practice:</p>
+    <ul>
+        <li><a href="https://leetcode.com/problems/binary-search/" target="_blank">Binary Search</a></li>
+        <li><a href="https://leetcode.com/problems/sqrtx/" target="_blank">Sqrt(x)</a></li>
+        <li><a href="https://leetcode.com/problems/guess-number-higher-or-lower/" target="_blank">Guess Number Higher or
+            Lower</a></li>
+    </ul>
+</blockquote>
+<h4 id="algorithm-1">Algorithm</h4>
+<ol>
+    <li>
+        <p>Initialize variables:</p>
+        <ul>
+            <li><code>count = 0</code>, to count the total number of negative elements in the matrix.</li>
+            <li><code>n = grid[0].size()</code>, to store the number of elements in each row.</li>
+        </ul>
+    </li>
+    <li>
+        <p>We iterate on each <code>row</code> of the matrix <code>grid</code>, and for each row, we find the index of
+            the first negative element <code>left</code>. As all the elements from <code>left</code> to <code>n -
+                1</code> will be negative elements thus we increment <code>count</code> by <code>n - left</code>.<br>
+            <strong>Note:</strong> You can use in-built STL methods for the binary search like <code>upper_bound</code>,
+            etc., or implement it on your own.</p>
+    </li>
+    <li>
+        <p>Return <code>count</code>.</p>
+    </li>
+</ol>
+<h4 id="implementation-1">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int countNegatives(int[][] grid) {
+        int count = 0;
+        int n = grid[0].length;
+        // Iterate on all rows of the matrix one by one.
+        for (int[] row : grid) {
+            // Using binary search find the index
+            // which has the first negative element.
+            int left = 0, right = n - 1;
+            while (left <= right) {
+                int mid = (right + left) / 2;
+                if (row[mid] < 0) {
+                    right = mid - 1;
+                } else {
+                    left = mid + 1;
+                }
+            }
+            // 'left' points to the first negative element,
+            // which means 'n - left' is the number of all negative elements.
+            count += (n - left);
+        }
+        return count;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int countNegatives(vector<vector<int>>& grid) {
+        int count = 0;
+        int n = grid[0].size();
+        // Iterate on all rows of the matrix one by one.
+        for (auto& row : grid) {
+            // Using binary search find the index of the first negative element.
+            int index = upper_bound(row.begin(), row.end(), 0, greater<int>()) - row.begin();
+            // 'index' points to the first negative element,
+            // which means 'n - index' is the number of all negative elements.
+            count += (n - index);
+        }
+        return count;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def countNegatives(self, grid: List[List[int]]) -> int:
+        count = 0
+        n = len(grid[0])
+        # Iterate on all rows of the matrix one by one.
+        for row in grid:
+            # Using binary search find the index
+            # which has the first negative element.
+            left, right = 0, n - 1
+            while left <= right:
+                mid = (right + left) // 2
+                if row[mid] < 0:
+                    right = mid - 1
+                else:
+                    left = mid + 1
+            # 'left' points to the first negative element,
+            # which means 'n - left' is the number of all negative elements.
+            count += (n - left)
+        return count
+    </code>
+    TypeScript
+    <code>
+        function countNegatives(grid: number[][]): number {
+    let count = 0;
+    const n = grid[0].length;
+    // Iterate on all rows of the matrix one by one.
+    for (const row of grid) {
+        // Using binary search find the index
+        // which has the first negative element.
+        let left = 0;
+        let right = n - 1;
+        while (left <= right) {
+            const mid = Math.floor((right + left) / 2);
+            if (row[mid] < 0) {
+                right = mid - 1;
+            } else {
+                left = mid + 1;
+            }
+        }
+        // 'left' points to the first negative element,
+        // which means 'n - left' is the number of all negative elements.
+        count += n - left;
+    }
+    return count;
+};
+    </code>
+</pre>
+<h4 id="complexity-analysis-1">Complexity Analysis</h4>
+<p>Here, <span class="math math-inline"><span class="katex"><span class="katex-mathml">m×nm \times n</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+        class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+        class="mbin">×</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+        class="strut" style="height: 0.4306em;"></span><span
+        class="mord mathnormal">n</span></span></span></span></span> is the size of the input matrix.</p>
+<ul>
+    <li>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(mlog⁡n)O(m \log n)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.1667em;"></span><span
+            class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                      style="margin-right: 0.1667em;"></span><span
+            class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        <ul>
+            <li>For each row of the matrix we perform a binary search which will take <span
+                    class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(log⁡n)O(\log n)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                              style="margin-right: 0.1667em;"></span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> time.
+            </li>
+            <li>Thus, for <span class="math math-inline"><span class="katex"><span class="katex-mathml">mm</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.4306em;"></span><span
+                    class="mord mathnormal">m</span></span></span></span></span> rows, overall we will take <span
+                    class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(mlog⁡n)O(m \log n)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.1667em;"></span><span
+                    class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                              style="margin-right: 0.1667em;"></span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> time.
+            </li>
+        </ul>
+    </li>
+    <li>Space complexity: <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                     style="margin-right: 0.02778em;">O</span><span
+            class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span></span>
+        <ul>
+            <li>We don't use any additional space.</li>
+        </ul>
+    </li>
+</ul>
+<br>
+<hr>
+<h3 id="approach-3-linear-traversal">Approach 3: Linear Traversal</h3>
+<h4 id="intuition-2">Intuition</h4>
+<p>In the problem description, it's given that the numbers are also sorted in column-wise order. This implies that, if
+    <span class="math math-inline"><span class="katex"><span class="katex-mathml">ith\text{i}^{th}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.9069em;"></span><span
+            class="mord"><span class="mord text"><span class="mord">i</span></span><span class="msupsub"><span
+            class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.9069em;"><span
+            style="top: -3.1208em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+            class="mord mathnormal mtight">t</span><span
+            class="mord mathnormal mtight">h</span></span></span></span></span></span></span></span></span></span></span></span></span>
+    row has the first negative element at index <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">x\text{x}</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.4306em;"></span><span class="mord text"><span
+            class="mord">x</span></span></span></span></span></span>, then the first negative for <span
+            class="math math-inline"><span class="katex"><span
+            class="katex-mathml">i&nbsp;+&nbsp;1th\text{i + 1}^{th}</span><span class="katex-html"
+                                                                                aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.9902em; vertical-align: -0.0833em;"></span><span
+            class="mord"><span class="mord text"><span class="mord">i&nbsp;+&nbsp;1</span></span><span
+            class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                              style="height: 0.9069em;"><span
+            style="top: -3.1208em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+            class="mord mathnormal mtight">t</span><span
+            class="mord mathnormal mtight">h</span></span></span></span></span></span></span></span></span></span></span></span></span>
+    row can never be at indices greater than <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">x\text{x}</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.4306em;"></span><span class="mord text"><span
+            class="mord">x</span></span></span></span></span></span>.</p>
+<p><img src="Slide2.PNG" alt="linear_traversal"></p>
+<p>Thus, it means if we know the index of the first negative element of any row then the next row's first negative
+    element will be present on the left side of the previous row's first negative index.</p>
+<p>So we traverse from right to left in each row starting from the previous row's first negative element's index to find
+    the current row's first negative element index.</p>
+<h4 id="algorithm-2">Algorithm</h4>
+<ol>
+    <li>
+        <p>Initialize variables:</p>
+        <ul>
+            <li><code>count = 0</code>, to count the total number of negative elements in the matrix.</li>
+            <li><code>n = grid[0].size()</code>, to store the number of elements in each row.</li>
+            <li><code>currRowNegativeIndex = n - 1</code>, to store the current row's first negative element's index.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>For each <code>row</code> of the grid, we decrease <code>currRowNegativeIndex</code> by <code>1</code> until
+            we point to the last positive element of the current row. And thus, we know all elements to the right of
+            this pointer will be negative so we add <code>n - (currRowNegativeIndex + 1)</code> to the
+            <code>count</code>.</p>
+    </li>
+    <li>
+        <p>Return <code>count</code>.</p>
+    </li>
+</ol>
+<h4 id="implementation-2">Implementation</h4>
+<pre>
+    Java
+    <code>
+        int count = 0;
+    int n = grid[0].length;
+    int currRowNegativeIndex = n - 1;
+
+    // Iterate on all rows of the matrix one by one.
+    for (int[] row : grid) {
+        // Decrease 'currRowNegativeIndex' so that it points to current row's last positive element.
+        while (currRowNegativeIndex >= 0 && row[currRowNegativeIndex] < 0) {
+            currRowNegativeIndex--;
+        }
+        // 'currRowNegativeIndex' points to the last positive element,
+        // which means 'n - (currRowNegativeIndex + 1)' is the number of all negative elements.
+        count += (n - (currRowNegativeIndex + 1));
+    }
+    return count;
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int countNegatives(vector<vector<int>>& grid) {
+        int count = 0;
+        int n = grid[0].size();
+        int currRowNegativeIndex = n - 1;
+
+        // Iterate on all rows of the matrix one by one.
+        for (auto& row : grid) {
+            // Decrease 'currRowNegativeIndex' so that it points to current row's last positive element.
+            while (currRowNegativeIndex >= 0 && row[currRowNegativeIndex] < 0) {
+                currRowNegativeIndex--;
+            }
+            // 'currRowNegativeIndex' points to the last positive element,
+            // which means 'n - (currRowNegativeIndex + 1)' is the number of all negative elements.
+            count += (n - (currRowNegativeIndex + 1));
+        }
+        return count;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def countNegatives(self, grid: List[List[int]]) -> int:
+        count = 0
+        n = len(grid[0])
+        currRowNegativeIndex = n - 1
+
+        # Iterate on all rows of the matrix one by one.
+        for row in grid:
+            # Decrease 'currRowNegativeIndex' so that it points to current row's last positive element.
+            while currRowNegativeIndex >= 0 and row[currRowNegativeIndex] < 0:
+                currRowNegativeIndex -= 1
+            # 'currRowNegativeIndex' points to the last positive element,
+            # which means 'n - (currRowNegativeIndex + 1)' is the number of all negative elements.
+            count += (n - (currRowNegativeIndex + 1))
+        return count
+    </code>
+    TypeScript
+    <code>
+        function countNegatives(grid: number[][]): number {
+    let count = 0;
+    let n = grid[0].length;
+    let currRowNegativeIndex = n - 1;
+
+    // Iterate on all rows of the matrix one by one.
+    for (let row of grid) {
+        // Decrease 'currRowNegativeIndex' so that it points to current row's last positive element.
+        while (currRowNegativeIndex >= 0 && row[currRowNegativeIndex] < 0) {
+            currRowNegativeIndex--;
+        }
+        // 'currRowNegativeIndex' points to the last positive element,
+        // which means 'n - (currRowNegativeIndex + 1)' is the number of all negative elements.
+        count += (n - (currRowNegativeIndex + 1));
+    }
+    return count;
+};
+    </code>
+</pre>
+<h4 id="complexity-analysis-2">Complexity Analysis</h4>
+<p>Here, <span class="math math-inline"><span class="katex"><span class="katex-mathml">m×nm \times n</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+        class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+        class="mbin">×</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+        class="strut" style="height: 0.4306em;"></span><span
+        class="mord mathnormal">n</span></span></span></span></span> is the size of the input matrix.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(m+n)O(m + n)</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>We will iterate on one row and one column i.e. <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">(m+n)(m + n)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mopen">(</span><span class="mord mathnormal">m</span><span class="mspace"
+                                                                                      style="margin-right: 0.2222em;"></span><span
+                    class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> elements
+                of the matrix.
+            </li>
+            <li>An easier way to think about this: we start in the top right square. We can only move left and down, and
+                we cannot move more than <span class="math math-inline"><span class="katex"><span class="katex-mathml">m+nm + n</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+                        class="mord mathnormal">m</span><span class="mspace"
+                                                              style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span
+                        class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+                        class="strut" style="height: 0.4306em;"></span><span
+                        class="mord mathnormal">n</span></span></span></span></span> times without exiting the grid.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord">1</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>We don't use any additional space.</li>
+        </ul>
+    </li>
+</ul>
+</body>
+</html>
