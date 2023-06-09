@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Find Smallest Letter Greater Than Target - Solution</title>
+</head>
+<body>
+<h2 id="solution">Solution</h2>
+<hr>
+<h3 id="overview">Overview</h3>
+<p>We are given array of characters <code>letters</code> that is sorted in non-decreasing order, and a character <code>target</code>.
+</p>
+<p>Our task is to find the smallest character in <code>letters</code> that is lexicographically greater than <code>target</code>.
+    If such a character does not exist, we have to return the first character in <code>letters</code>.</p>
+<hr>
+<h3 id="approach-1-brute-force">Approach 1: Brute Force</h3>
+<h4 id="intuition">Intuition</h4>
+<p>We can use brute force to go through all of the characters in <code>letters</code> and compare each of them to <code>target</code>.
+    When we come across a letter that is lexicographically greater than <code>target</code>, we return it. If no letter
+    greater than <code>target</code> is found, we return the first character.</p>
+<p>Every character has an ASCII value associated with it. For example, the ASCII value of <code>a</code> is
+    <code>97</code>, <code>b</code> is <code>98</code>, and so on. We can simply use logical operators
+    (<code>&gt;</code>, <code>&lt;</code>, <code>==</code>) to compare two characters that use these ASCII values for
+    comparison internally.</p>
+<h4 id="algorithm">Algorithm</h4>
+<ol>
+    <li>Iterate over all the characters in <code>letters</code> and for each <code>letter</code>, check if <code>letter
+        &gt; target</code>. If <code>letter &gt; target</code>, return <code>letter</code>.
+    </li>
+    <li>We did not get any <code>letter</code> that is lexicographically greater than <code>target</code>. We return
+        <code>letters[0]</code>.
+    </li>
+</ol>
+<h4 id="implementation">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public char nextGreatestLetter(char[] letters, char target) {
+        for (char letter : letters) {
+            if (letter > target) {
+                return letter;
+            }
+        }
+        return letters[0];
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    char nextGreatestLetter(vector<char>& letters, char target) {
+        for (char letter : letters) {
+            if (letter > target) {
+                return letter;
+            }
+        }
+        return letters[0];
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def nextGreatestLetter(self, letters: List[str], target: str) -> str:
+        for letter in letters:
+            if letter > target:
+                return letter
+        return letters[0]
+    </code>
+</pre>
+<h4 id="complexity-analysis">Complexity Analysis</h4>
+<p>Here <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                     aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    is the number of characters in <code>letters</code>.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.
+        </p>
+        <ul>
+            <li>We loop through all of the characters in <code>letters</code> and compare them to <code>target</code>,
+                which takes <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+                time for all <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+                characters.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord">1</span><span
+                class="mclose">)</span></span></span></span></span>.</p>
+        <ul>
+            <li>Except for a variable <code>letter</code> (used in the loop) that takes constant space, we do not
+                consume any other space.
+            </li>
+        </ul>
+    </li>
+</ul>
+<hr>
+<h3 id="approach-2-binary-search">Approach 2: Binary Search</h3>
+<h4 id="intuition-1">Intuition</h4>
+<p>We are given that the array of characters <code>letters</code> is sorted in non-decreasing order. It means that for
+    an index <code>i</code>, if <code>letter[i] &lt;= target</code>, all the indices smaller than or equal to
+    <code>i</code> would also have characters that are lexicographically smaller than <code>target</code>. Our answer
+    lies in some of the indices from <code>i + 1</code> to the last index.</p>
+<p>If <code>letter[i] &gt; target</code>, all the indices greater than or equal to <code>i</code> would also have
+    characters that are lexicographically greater than <code>target</code> because <code>letters</code> is sorted. Our
+    answer is either <code>i</code> or some index smaller than it.</p>
+<p>A scenario like this where our task is to search for an element <code>x</code> (or just greater than it) from a given
+    range <code>(left, right)</code> where all values smaller than <code>x</code> do not satisfy a certain condition and
+    all values greater than or equal to <code>x</code> satisfy it (or vice-versa), can be solved optimally with a binary
+    search algorithm. In binary search, we repeatedly divide the solution space where the answer could be in half until
+    the range contains just one element.</p>
+<p>Following the above discussion, we use binary search to solve this problem. We create an integer <code>left</code>
+    and initialize it to the starting index <code>0</code>. We also create another integer variable <code>right</code>
+    and set it to the last index of <code>letters</code>, i.e., <code>letters.length - 1</code>.</p>
+<p>We get the middle of the range <code>mid = (left + right) / 2</code> and compare it with <code>target</code>. If
+    <code>letters[mid] &lt;= target</code>, we move to the upper half of the range by setting <code>left = mid +
+        1</code>. Otherwise, we move to lower half of range by setting <code>right = mid - 1</code> as all the
+    characters at indices greater or equal to <code>mid</code> would also be greater than <code>target</code>.</p>
+<p>The answer would be within the range <code>(left, right)</code> at any point. All the indices smaller than
+    <code>left</code> would contain characters smaller than <code>target</code> and all characters at indices greater
+    than <code>right</code> would be greater than <code>target</code>. We continue the search until <code>left &lt;=
+        right</code>.</p>
+<p>When <code>left &gt; right</code>, <code>left</code> denotes the index of the smallest character that is
+    lexicographically greater than <code>target</code>. This is because all characters at indices greater than <code>right</code>
+    would be greater than <code>target</code> and character immediately next to index <code>right</code> would be <code>left</code>
+    (or <code>right + 1</code>) after the completion of binary search algorithm.</p>
+<p>Here is a visual representation of an example to illustrate how it works:</p>
+<p><img src="744-1.png" alt="img"></p>
+<h4 id="algorithm-1">Algorithm</h4>
+<ol>
+    <li>Create three integers <code>left = 0</code>, <code>right = letters.length - 1</code> and <code>mid</code> to
+        start the binary search algorithm.
+    </li>
+    <li>While <code>left &lt;= right</code>:
+        <ul>
+            <li>Find the midpoint of the range <code>(left, right)</code> in the variable <code>mid = (left + right) /
+                2</code>.
+            </li>
+            <li>Compare the letter at index <code>mid</code> with <code>target</code>. If <code>letters[mid] &lt;=
+                target</code>, it means all the characters at indices smaller or equal to <code>mid</code> would also be
+                smaller than <code>target</code> because the characters in <code>letters</code> are sorted. As a result,
+                we move to upper half of the range by setting <code>left = mid + 1</code>.
+            </li>
+            <li>Otherwise, it means all the characters at indices greater or equal to <code>mid</code> would also be
+                greater than <code>target</code> because the characters in <code>letters</code> are sorted. As a result,
+                we move to lower half of the range by setting <code>right = mid - 1</code>.
+            </li>
+            <li>At the end of the binary search algorithm, <code>left</code> will store the index of the smallest
+                character that is lexicographically greater than <code>target</code>.
+            </li>
+        </ul>
+    </li>
+    <li>If <code>left == letters.length</code>, it means there is no character in <code>letters</code> that is
+        lexicographically greater than <code>target</code>. We return <code>letters[0]</code>. Otherwise, we return
+        <code>letters[left]</code> as <code>left</code> holds the smallest character greater than <code>target</code>.
+    </li>
+</ol>
+<h4 id="implementation-1">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public char nextGreatestLetter(char[] letters, char target) {
+        int left = 0, right = letters.length - 1, mid;
+        while (left <= right) {
+            mid = (left + right) / 2;
+            if (letters[mid] <= target) {
+                left = mid + 1;
+            } else {
+                right = mid - 1;
+            }
+        }
+
+        return left == letters.length ? letters[0] : letters[left];
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    char nextGreatestLetter(vector<char>& letters, char target) {
+        int left = 0, right = letters.size() - 1, mid;
+        while (left <= right) {
+            mid = (left + right) / 2;
+            if (letters[mid] <= target) {
+                left = mid + 1;
+            } else {
+                right = mid - 1;
+            }
+        }
+
+        return left == letters.size() ? letters[0] : letters[left];
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def nextGreatestLetter(self, letters: List[str], target: str) -> str:
+        left = 0
+        right = len(letters) - 1
+
+        while left <= right:
+            mid = (left + right) // 2
+            if letters[mid] <= target:
+                left = mid + 1
+            else:
+                right = mid - 1
+
+        if left == len(letters):
+            return letters[0]
+        else:
+            return letters[left]
+    </code>
+</pre>
+<h4 id="complexity-analysis-1">Complexity Analysis</h4>
+<p>Here <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                     aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    is the number of characters in <code>letters</code>.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡n)O(\log n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                          style="margin-right: 0.1667em;"></span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.</p>
+        <ul>
+            <li>We perform <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡n)O(\log n)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                              style="margin-right: 0.1667em;"></span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> iterations
+                using the binary search algorithm as the problem set is divided into half in each iteration.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord">1</span><span
+                class="mclose">)</span></span></span></span></span>.</p>
+        <ul>
+            <li>Except for a few variables <code>left</code>, <code>right</code>, and <code>mid</code> which take
+                constant space each, we do not consume any other space.
+            </li>
+        </ul>
+    </li>
+</ul>
+</body>
+</html>
