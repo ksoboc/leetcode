@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Snapshot Array - Solution</title>
+</head>
+<body>
+<h2 id="solution">Snapshot Array - Solution</h2>
+<hr>
+<h3 id="overview">Overview</h3>
+<p>The most straightforward approach to this problem is to keep track of every snapshot taken by saving the values of
+    all the elements in the array at that moment. We can then retrieve the values at any given snapshot by indexing into
+    the snapshot list and fetching the element's value.</p>
+<p>As shown in the picture below, we save a copy of the entire array <code>nums</code> every time we take a snapshot as
+    <code>snap_0</code>, <code>snap_1</code>, and so on. Then <code>get(index=0, snap_id=2)</code> returns the first
+    element of <code>snap_2</code>.</p>
+<p><img src="1.png" alt="img"></p>
+<p>While this approach is conceptually simple, it would be inefficient for large arrays or if snapshots are taken
+    frequently. Suppose the maximum number of calls to each function is <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>, it saves <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> arrays of size
+    <span class="math math-inline"><span class="katex"><span class="katex-mathml">length\text{length}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+            class="mord text"><span class="mord">length</span></span></span></span></span></span>, resulting in high
+    memory usage and time complexity.</p>
+<hr>
+<h3 id="approach-binary-search">Approach: Binary Search</h3>
+<h4 id="intuition">Intuition</h4>
+<p>One alternative is to focus on the historical record of each element, and record the value of the modified element
+    when <code>set</code> is called. This approach will reduce the memory required to store the history of the array's
+    elements and improve query times for specific snapshots since we save an element <code>nums[i]</code> only when it
+    is modified by <code>set</code>.</p>
+<p><img src="2.png" alt="img"></p>
+<p>To implement this approach, we can create a list of records for each index <code>i</code>. A record contains the
+    snapshot id and the value of the element in that snapshot, in the format of <code>(snap_id, nums[i])</code>. We can
+    then store the list of records of each element in a dictionary <code>history_records</code>, where the key is <code>i</code>.
+    Take a look at how we update the historical record of <code>nums[0]</code> in <code>history_records[0]</code>.</p>
+<p><img src="5.png" alt="img"></p>
+<br>
+<p>We have collected every record of <code>nums[0]</code> in <code>history_records[0]</code>.</p>
+<p><img src="3.png" alt="img"></p>
+<p>To retrieve the value of <code>nums[0]</code> with the given snapshot id <code>snap_id = 2</code>, we need to find
+    the insertion position of <code>snap_id</code> in the list of records for <code>nums[0]</code>. It should be noted
+    that <code>snap_id</code> may not be present in the record list. Therefore, we can use binary search to find the
+    record with the highest snapshot ID that is less than or equal to the given <code>snap_id</code>.</p>
+<blockquote>
+    <p>Note that <code>snap_id = 2</code> is not included in the historical record of <code>nums[0]</code>, as
+        <code>set</code> was not called on this element when the snapshot ID was 2. Therefore, the value of <code>nums[0]</code>
+        remains the same as it was when the snapshot ID was 1.</p>
+</blockquote>
+<p><img src="4.png" alt="img"></p>
+<p>Once we have the index of the target ID <code>snap_index</code>, we can retrieve the corresponding value from the
+    record at the position <code>snap_index</code>, which is <code>history_records[0][snap_index][1]</code>.</p>
+<br>
+<h4 id="algorithm">Algorithm</h4>
+<ol>
+    <li>
+        <p>For each element <code>nums[i]</code> in the array, create an empty list to store its historical values, in
+            the format of <code>[snap_id, value]</code>. Initialize each list by adding the first record <code>[0,
+                0]</code>.</p>
+    </li>
+    <li>
+        <p>Implement the <code>set(index, val)</code> method: add the historical record <code>[snap_id, value]</code> to
+            the record list <code>history_records[index]</code>.</p>
+    </li>
+    <li>
+        <p>Implement the <code>snap</code> method: return <code>snap_id</code> and increment it by 1.</p>
+    </li>
+    <li>
+        <p>Implement the <code>get(index, snap_id)</code> method to retrieve the value of <code>nums[index]</code> in
+            the array with snapshot id as <code>snap_id</code>:</p>
+        <ul>
+            <li>Use binary search to find the rightmost insertion index of snapshot ID in the given version <code>snap_index</code>
+                (so the target index is <code>snap_idnex - 1</code>).
+            </li>
+            <li>Return <code>history_records[index][snap_index - 1][1]</code>.</li>
+        </ul>
+    </li>
+</ol>
+<h4 id="implementation">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class SnapshotArray {
+    int snapId = 0;
+    TreeMap<Integer, Integer>[] historyRecords;
+
+    public SnapshotArray(int length) {
+        historyRecords = new TreeMap[length];
+        for (int i = 0; i < length; i++) {
+            historyRecords[i] = new TreeMap<Integer, Integer>();
+            historyRecords[i].put(0, 0);
+        }
+    }
+
+    public void set(int index, int val) {
+        historyRecords[index].put(snapId, val);
+    }
+
+    public int snap() {
+        return snapId++;
+    }
+
+    public int get(int index, int snapId) {
+        return historyRecords[index].floorEntry(snapId).getValue();
+    }
+}
+    </code>
+    C++
+    <code>
+        class SnapshotArray {
+public:
+    int snapId;
+    vector<vector<pair<int, int>>> historyRecords;
+    SnapshotArray(int length) {
+        snapId = 0;
+        historyRecords.resize(length);
+        for (int i = 0; i < length; ++i) {
+            historyRecords[i].push_back(make_pair(0, 0));
+        }
+    }
+
+    void set(int index, int val) {
+        historyRecords[index].push_back(make_pair(snapId, val));
+    }
+
+    int snap() {
+        return snapId++;
+    }
+
+    int get(int index, int snap_id) {
+        auto it = upper_bound(historyRecords[index].begin(), historyRecords[index].end(), make_pair(snap_id, INT_MAX));
+        return prev(it)->second;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class SnapshotArray:
+
+    def __init__(self, length: int):
+        self.id = 0
+        self.history_records = [[[0, 0]] for _ in range(length)]
+
+    def set(self, index: int, val: int) -> None:
+        self.history_records[index].append([self.id, val])
+
+    def snap(self) -> int:
+        self.id += 1
+        return self.id - 1
+
+    def get(self, index: int, snap_id: int) -> int:
+        snap_index = bisect.bisect_right(self.history_records[index], [snap_id, 10 ** 9])
+        return self.history_records[index][snap_index - 1][1]
+    </code>
+</pre>
+<h4 id="complexity-analysis">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    be the maximum number of calls.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(nlog⁡n)O(n \log n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.1667em;"></span><span
+                class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                          style="margin-right: 0.1667em;"></span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>
+                <p>In the worst-case scenario, the number of calls to <code>get</code>, <code>set</code>, and
+                    <code>snap</code> are all <span class="math math-inline"><span class="katex"><span
+                            class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                            class="mopen">(</span><span class="mord mathnormal">n</span><span
+                            class="mclose">)</span></span></span></span></span>.</p>
+            </li>
+            <li>
+                <p>For each call to <code>get(index, snap_id)</code>, we will perform a binary search over the list of
+                    records of <code>nums[index]</code>. Since a list contains at most <span
+                            class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+                            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                            class="mopen">(</span><span class="mord mathnormal">n</span><span
+                            class="mclose">)</span></span></span></span></span> records, a binary search takes <span
+                            class="math math-inline"><span class="katex"><span
+                            class="katex-mathml">O(log⁡n)O(\log n)</span><span class="katex-html"
+                                                                               aria-hidden="true"><span
+                            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                            class="mopen">(</span><span class="mop">lo<span
+                            style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                  style="margin-right: 0.1667em;"></span><span
+                            class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+                    time on average. Thus it requires <span class="math math-inline"><span class="katex"><span
+                            class="katex-mathml">O(nlog⁡n)O(n \log n)</span><span class="katex-html" aria-hidden="true"><span
+                            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                            class="mopen">(</span><span class="mord mathnormal">n</span><span class="mspace"
+                                                                                              style="margin-right: 0.1667em;"></span><span
+                            class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                                      style="margin-right: 0.1667em;"></span><span
+                            class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+                    time.</p>
+            </li>
+            <li>
+                <p>Each call to <code>snap</code> takes <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord">1</span><span
+                        class="mclose">)</span></span></span></span></span> time.</p>
+            </li>
+            <li>
+                <p>Each call to <code>set(index, snap_id)</code> appends a pair to the historical record of <code>nums[index]</code>,
+                    which takes <span class="math math-inline"><span class="katex"><span
+                            class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span
+                            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                            class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span></span>
+                    time.</p>
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <ul>
+            <li>We add one pair <code>(snap_id, val)</code> for each call to <code>set</code>, thus there are at most
+                <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 0.4306em;"></span><span
+                        class="mord mathnormal">n</span></span></span></span></span> pairs saved in
+                <code>history_record</code>.
+            </li>
+        </ul>
+    </li>
+</ul>
+<br>
+</body>
+</html>
