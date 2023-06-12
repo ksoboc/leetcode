@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Summary Ranges - Solution</title>
+</head>
+<body>
+<h2 id="solution">Summary Ranges - Solution</h2>
+<hr>
+<h3 id="overview">Overview</h3>
+<p>We are given a sorted unique integer array <code>nums</code>.</p>
+<p>Our task is to return the smallest sorted list of ranges that cover all the numbers in the array exactly. That is,
+    each element of <code>nums</code> is covered by exactly one of the ranges, and there is no integer <code>x</code>
+    such that <code>x</code> is in one of the ranges but not in <code>nums</code>.</p>
+<hr>
+<h3 id="approach-fix-left-bound">Approach: Fix Left Bound</h3>
+<h4 id="intuition">Intuition</h4>
+<p>We know that a range <code>[a, b]</code> is made up of successive numbers from <code>a</code> to <code>b</code> (both
+    inclusive). Because the <code>nums</code> array is sorted, two consecutive elements in <code>nums</code> with a
+    difference greater than <code>1</code> cannot belong to the same range. Also, if the difference between two
+    consecutive elements in <code>nums</code> is <code>1</code>, they should be put in the same range.</p>
+<p>To solve this problem we create a pointer <code>i = 0</code> to iterate over all the elements of <code>nums</code>.
+    We store the beginning of the current range in <code>start = nums[i]</code>, which will be used to put this range
+    into the list that will be returned as the answer.</p>
+<p>We check the next element in <code>nums</code> at index <code>i + 1</code>. If the next element differs by
+    <code>1</code>, we include the <span class="math math-inline"><span class="katex"><span class="katex-mathml">(i+1)th(i + 1)^{th}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mopen">(</span><span class="mord mathnormal">i</span><span class="mspace"
+                                                                              style="margin-right: 0.2222em;"></span><span
+            class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1.0991em; vertical-align: -0.25em;"></span><span
+            class="mord">1</span><span class="mclose"><span class="mclose">)</span><span class="msupsub"><span
+            class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.8491em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+            class="mord mathnormal mtight">t</span><span
+            class="mord mathnormal mtight">h</span></span></span></span></span></span></span></span></span></span></span></span></span>
+    element in this range and increment <code>i</code> by <code>1</code> to check the next element. We keep adding
+    elements in this range by incrementing <code>i</code> until we find an element that differs by more than
+    <code>1</code>.</p>
+<p>If the next element differs by more than <code>1</code> or we've covered all the elements in <code>nums</code>, we
+    check whether <code>start</code> is equal to <code>nums[i]</code> or not. If <code>start == nums[i]</code>, it
+    signifies that this range has only one element. As instructed by the problem description, in that case, we only add
+    <code>start</code> as a string to <code>ranges</code>. Otherwise, if <code>start != nums[i]</code>, we have more
+    than one element in this range. As a result, we add the string <code>start-&gt;nums[i]</code> to <code>ranges</code>.
+</p>
+<p>After finishing a range, we increment <code>i</code> by <code>1</code> to start a new range and repeat the same
+    process until we cover all the elements.</p>
+<p>Here is a visual representation of how the approach works:</p>
+<p>
+<div class="relative mx-auto mb-6 flex flex-col overflow-hidden rounded-lg border-[1px] border-label-1"
+     style="max-width: 601px;">
+    <div class="rounded-lg" style="max-height: 301px;"><img alt="Current"
+                                                            class="object-fit-contain !mb-0 max-h-full max-w-full"
+                                                            src="blob:https://leetcode.com/dfa9097b-9b6e-4044-b95f-b36c21b7bcbe">
+    </div>
+    <div class="absolute top-[50%] left-[50%] flex h-12 w-12 translate-x-[-50%] translate-y-[-50%] items-center justify-center rounded-full bg-black/30">
+        <div class="flex h-4 w-4 cursor-pointer items-center justify-center text-[35px]">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="h-full w-full text-white">
+                <path fill-rule="evenodd"
+                      d="M18.97 12.871l-12.96 7.29a1 1 0 01-1.49-.87V4.71a1 1 0 011.49-.872l12.96 7.29a1 1 0 010 1.743z"
+                      clip-rule="evenodd"></path>
+            </svg>
+        </div>
+    </div>
+    <div class="relative flex h-8 select-none items-center justify-around bg-black">
+        <div class="flex items-center space-x-7">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M16.091 4.929l-7.057 7.078 7.057 7.064a1 1 0 01-1.414 1.414l-7.764-7.77a1 1 0 010-1.415l7.764-7.785a1 1 0 111.415 1.414z"
+                      clip-rule="evenodd"></path>
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M18.97 12.871l-12.96 7.29a1 1 0 01-1.49-.87V4.71a1 1 0 011.49-.872l12.96 7.29a1 1 0 010 1.743z"
+                      clip-rule="evenodd"></path>
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M7.913 19.071l7.057-7.078-7.057-7.064a1 1 0 011.414-1.414l7.764 7.77a1 1 0 010 1.415l-7.764 7.785a1 1 0 01-1.414-1.414z"
+                      clip-rule="evenodd"></path>
+            </svg>
+        </div>
+        <div class="absolute right-0 mr-5 text-xs font-medium text-white">1 / 9</div>
+    </div>
+</div>
+</p>
+<h4 id="algorithm">Algorithm</h4>
+<ol>
+    <li>Create a list of strings <code>ranges</code> that contain the solution to the problem.</li>
+    <li>Iterate over all the elements in <code>nums</code> with the pointer <code>i = 0</code>:
+        <ul>
+            <li>Each iteration of the outermost loop represents finding one range. To start, save the current range's
+                beginning in <code>start = nums[i]</code>.
+            </li>
+            <li>Check whether the next element in <code>nums</code> at index <code>i + 1</code> differs from <code>nums[i]</code>
+                by <code>1</code> or more. If the next element differs by <code>1</code>, we increase <code>i</code> by
+                <code>1</code> to include the <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">(i+1)th(i + 1)^{th}</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mopen">(</span><span class="mord mathnormal">i</span><span class="mspace"
+                                                                                          style="margin-right: 0.2222em;"></span><span
+                        class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                        class="base"><span class="strut" style="height: 1.0991em; vertical-align: -0.25em;"></span><span
+                        class="mord">1</span><span class="mclose"><span class="mclose">)</span><span
+                        class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                          style="height: 0.8491em;"><span
+                        style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                        class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+                        class="mord mathnormal mtight">t</span><span
+                        class="mord mathnormal mtight">h</span></span></span></span></span></span></span></span></span></span></span></span></span>
+                element in this range and move ahead to check the next element. We keep adding elements in this range
+                until the successive elements differ by <code>1</code>. We can use a while loop to accomplish this
+                logic.
+            </li>
+            <li>Otherwise, if the next element differs by more than <code>1</code> or we have covered all the elements
+                in <code>nums</code>, we check whether <code>start</code> is equal to <code>nums[i]</code> or not. If
+                <code>start == nums[i]</code>, we only add <code>start</code> as a string to <code>ranges</code> as we
+                just have a single element in this range. Otherwise, if <code>start != nums[i]</code>, we add the string
+                <code>start-&gt;nums[i]</code> to <code>ranges</code>.
+            </li>
+            <li>We increment <code>i</code> by <code>1</code> to start a new range.</li>
+        </ul>
+    </li>
+</ol>
+<h4 id="implementation">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public List<String> summaryRanges(int[] nums) {
+        List<String> ranges = new ArrayList<>();
+
+        for (int i = 0; i < nums.length; i++) {
+            int start = nums[i];
+            // Keep iterating until the next element is one more than the current element.
+            while (i + 1 < nums.length && nums[i] + 1 == nums[i + 1]) {
+                i++;
+            }
+
+            if (start != nums[i]) {
+                ranges.add(start + "->" + nums[i]);
+            } else {
+                ranges.add(String.valueOf(start));
+            }
+        }
+
+        return ranges;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    vector<string> summaryRanges(vector<int>& nums) {
+        vector<string> ranges;
+
+        for (int i = 0; i < nums.size(); i++) {
+            int start = nums[i];
+            // Keep iterating until the next element is one more than the current element.
+            while (i + 1 < nums.size() && nums[i] + 1 == nums[i + 1]) {
+                i++;
+            }
+
+            if (start != nums[i]) {
+                ranges.push_back(to_string(start) + "->" + to_string(nums[i]));
+            } else {
+                ranges.push_back(to_string(start));
+            }
+        }
+
+        return ranges;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def summaryRanges(self, nums: List[int]) -> List[str]:
+        ranges = []
+        i = 0
+
+        while i < len(nums):
+            start = nums[i]
+            while i + 1 < len(nums) and nums[i] + 1 == nums[i + 1]:
+                i += 1
+
+            if start != nums[i]:
+                ranges.append(str(start) + "->" + str(nums[i]))
+            else:
+                ranges.append(str(nums[i]))
+
+            i += 1
+
+        return ranges
+    </code>
+</pre>
+<h4 id="complexity-analysis">Complexity Analysis</h4>
+<p>Here <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                     aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    is the number of elements in <code>nums</code>.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.
+        </p>
+        <ul>
+            <li>We iterate over each <code>nums</code> element once, either including it in the current range or
+                creating a new range from it, which takes <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+                time for <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 0.4306em;"></span><span
+                        class="mord mathnormal">n</span></span></span></span></span> elements.
+            </li>
+            <li>We also add all of the ranges to the <code>ranges</code> list. In the worst-case situation, <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.4306em;"></span><span
+                    class="mord mathnormal">n</span></span></span></span></span> elements could be added to the list if
+                each consecutive element in <code>nums</code> differs by more than <code>1</code>, requiring <span
+                        class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+                time to insert all the required ranges.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord">1</span><span
+                class="mclose">)</span></span></span></span></span>.</p>
+        <ul>
+            <li>Except for a few integer variables like <code>i</code> and <code>start</code> that use constant space,
+                we do not consume any space (if we ignore the space consumed by the input and output).
+            </li>
+        </ul>
+    </li>
+</ul>
+</body>
+</html>
