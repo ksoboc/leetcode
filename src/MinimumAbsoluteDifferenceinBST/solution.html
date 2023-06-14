@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Minimum Absolute Difference in BST - Solution</title>
+</head>
+<body>
+<h2 id="solution">Solution</h2>
+<hr>
+<h3 id="overview">Overview</h3>
+<p>Given the <code>root</code> of a Binary Search Tree (BST).</p>
+<p>Our task is to return the minimum absolute difference between the values of any two different nodes in the tree.</p>
+<hr>
+<h3 id="approach-1-depth-first-search">Approach 1: Depth First Search</h3>
+<h4 id="intuition">Intuition</h4>
+<p>Let's try to solve a simpler problem first. Given a sorted array of integers, find the minimum difference between any
+    two integers in the array. To solve this problem, we don't need to check every pair of integers. Instead, checking
+    the difference between every two consecutive integers would work. This is because the array is sorted. We will make
+    use of this to solve our original problem.</p>
+<p>In the original problem, we have some integer values (i.e. node values), and we need to find the minimum difference
+    between any two values. Thus, the original problem is similar to the problem we discussed above if we keep those
+    values in the sorted order.</p>
+<p>To get all the node values we can use a graph traversal algorithm like depth-first search (DFS).</p>
+<p>In DFS, we use a recursive function to explore nodes as far as possible along each branch. Upon reaching the end of a
+    branch, we backtrack to the next branch and continue exploring.</p>
+<p>Once we encounter an unvisited node, we will take one of its neighbor nodes (if exists) as the next node on this
+    branch. Recursively call the function to take the next node as the 'starting node' and solve the subproblem.</p>
+<p>If you are new to Depth First Search, please see our <a
+        href="https://leetcode.com/explore/featured/card/graph/619/depth-first-search-in-graph/3882/" target="_blank">Leetcode
+    Explore Card</a> for more information on it!</p>
+<p>After gathering all of the node values into a list of integers, we sort the list and compare the difference between
+    every two consecutive integers to determine the minimum difference between the values.</p>
+<h4 id="algorithm">Algorithm</h4>
+<ol>
+    <li>Create a list of integers <code>nodeValues</code> to store the node values.</li>
+    <li>Perform the DFS traversal over the given binary search tree. We call <code>dfs(root)</code> where
+        <code>dfs</code> is a recursive method that takes <code>TreeNode node</code> as a parameter. We perform the
+        following in this method:
+        <ul>
+            <li>If <code>node</code> is <code>null</code>, return.</li>
+            <li>Add the current node's value, <code>node.val</code>, in the <code>nodeValues</code> list.</li>
+            <li>Recursively perform DFS from <code>node.left</code>.</li>
+            <li>Recursively perform DFS from <code>node.right</code>.</li>
+        </ul>
+    </li>
+    <li>Sort the <code>nodeValues</code> list.</li>
+    <li>Create an integer variable <code>minDifference</code> and initialize it to infinity.</li>
+    <li>Iterate over <code>inorderNodes</code> starting from index <code>1</code>, and for each element at index
+        <code>i</code>, find the difference with the element at index <code>i - 1</code> and update the variable <code>minDifference</code>
+        accordingly.
+    </li>
+    <li>Return <code>minDifference</code>.</li>
+</ol>
+<h4 id="implementation">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    // List to store the tree nodes in the inorder traversal.
+    List<Integer> inorderNodes = new ArrayList<>();
+
+    void inorderTraversal(TreeNode node) {
+        if (node == null) {
+            return;
+        }
+
+        inorderTraversal(node.left);
+        // Store the nodes in the list.
+        inorderNodes.add(node.val);
+        inorderTraversal(node.right);
+    }
+
+    int getMinimumDifference(TreeNode root) {
+       inorderTraversal(root);
+
+        int minDifference = Integer.MAX_VALUE;
+        // Find the diff between every two consecutive values in the list.
+        for (int i = 1; i < inorderNodes.size(); i++) {
+            minDifference = Math.min(minDifference, inorderNodes.get(i) - inorderNodes.get(i-1));
+        }
+
+        return minDifference;
+    }
+};
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    // List to store the tree nodes in the inorder traversal.
+    vector<int> inorderNodes;
+
+    void inorderTraversal(TreeNode* node) {
+        if (node == NULL) {
+            return;
+        }
+
+        inorderTraversal(node->left);
+        // Store the nodes in the list.
+        inorderNodes.push_back(node->val);
+        inorderTraversal(node->right);
+    }
+
+    int getMinimumDifference(TreeNode* root) {
+        inorderTraversal(root);
+
+        int minDifference = INT_MAX;
+        // Find the diff between every two consecutive values in the list.
+        for (int i = 1; i < inorderNodes.size(); i++) {
+            minDifference = min(minDifference, inorderNodes[i] - inorderNodes[i - 1]);
+        }
+
+        return minDifference;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def getMinimumDifference(self, root: Optional[TreeNode]) -> int:
+        inorderNodes = []
+
+        def inorder(node):
+            if node is None:
+                return
+            inorder(node.left)
+            inorderNodes.append(node.val)
+            inorder(node.right)
+
+        inorder(root)
+        minDifference = 1e9
+        for i in range(1, len(inorderNodes)):
+            minDifference = min(minDifference, inorderNodes[i] - inorderNodes[i-1])
+
+        return minDifference
+    </code>
+</pre>
+<h4 id="complexity-analysis">Complexity Analysis</h4>
+<p>Here, <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    is the number of nodes in the given binary search tree.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅log⁡n)O(n \cdot \log n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                      style="margin-right: 0.1667em;"></span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>We traverse once over each node of the BST using DFS traversal which takes <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> time.
+            </li>
+            <li>We take <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅log⁡n)O(n \cdot \log n)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                              style="margin-right: 0.1667em;"></span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> time to
+                sort a list of <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+                elements.
+            </li>
+            <li>We iterate over the list of size <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                    class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+                elements to find the minimum difference which also takes <span class="math math-inline"><span
+                        class="katex"><span class="katex-mathml">O(n)O(n)</span><span class="katex-html"
+                                                                                      aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+                time.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <ul>
+            <li>The DFS traversal is recursive and would take some space to store the stack calls. The maximum number of
+                active stack calls at a time would be the tree's height, which in the worst case would be <span
+                        class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+                when the tree is a straight line.
+            </li>
+            <li>We also need a list of size <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> to store
+                the values of all the nodes.
+            </li>
+        </ul>
+    </li>
+</ul>
+<hr>
+<h3 id="approach-2-in-order-traversal-using-list">Approach 2: In-order Traversal Using List</h3>
+<h4 id="intuition-1">Intuition</h4>
+<p>In the previous approach, we found all the values and then sorted them. This would work for any binary tree. However,
+    we are given a binary search tree, which we didn't take advantage of. A unique property of a binary search tree is
+    that an <strong>inorder traversal handles the nodes in sorted order.</strong> This allows us to skip the sorting at
+    the end.</p>
+<p>The in-order traversal works by visiting the left subtree of a node first, then handling the node itself and finally
+    visiting the right subtree. Since all the nodes in the left subtree are lesser than the current node's value and all
+    nodes in the right subtree are greater than the current node's value, it generates a sorted list of values.</p>
+<p>Here's a visual representation of how inorder traversal works in a BST:</p>
+<p><img src="530-1.png" alt="img"></p>
+<p>As you can see, we continue to move towards the left node until we no longer can, then handle the current node and
+    repeat the process with the right node as the new starting node.</p>
+<h4 id="algorithm-1">Algorithm</h4>
+<ol>
+    <li>Create a list of integers <code>inorderNodes</code> to store the node values.</li>
+    <li>Perform the inorder traversal of the binary search tree (BST). Call <code>inorderTraversal(root)</code> where
+        <code>inorderTraversal</code> is a recursive method that takes <code>TreeNode node</code> as a parameter. We
+        perform the following in this method:
+        <ul>
+            <li>If <code>node</code> is <code>null</code>, return.</li>
+            <li>Recursively perform the in-order traversal for <code>node.left</code>.</li>
+            <li>Add the current node's value, <code>node.val</code>, in the <code>inorderNodes</code> list.</li>
+            <li>Recursively perform the in-order traversal for <code>node.right</code>.</li>
+        </ul>
+    </li>
+    <li>Create an integer variable <code>minDifference</code> and initialize it to infinity.</li>
+    <li>Iterate over <code>inorderNodes</code> starting from index <code>1</code>, and for each element at index
+        <code>i</code>, find the difference with the element at index <code>i - 1</code> and update the variable <code>minDifference</code>
+        accordingly.
+    </li>
+    <li>Return <code>minDifference</code>.</li>
+</ol>
+<h4 id="implementation-1">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    int minDifference = Integer.MAX_VALUE;
+    // Initially, it will be null.
+    TreeNode prevNode;
+
+    void inorderTraversal(TreeNode node) {
+        if (node == null) {
+            return;
+        }
+
+        inorderTraversal(node.left);
+        // Find the difference with the previous value if it is there.
+        if (prevNode != null) {
+            minDifference = Math.min(minDifference, node.val - prevNode.val);
+        }
+        prevNode = node;
+        inorderTraversal(node.right);
+    }
+
+    int getMinimumDifference(TreeNode root) {
+        inorderTraversal(root);
+        return minDifference;
+    }
+};
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int minDifference = INT_MAX;
+    // Initially, it will be null.
+    TreeNode* prevNode;
+
+    void inorderTraversal(TreeNode* node) {
+        if (node == NULL) {
+            return;
+        }
+
+        inorderTraversal(node->left);
+        // Find the difference with the previous value if it is there.
+        if (prevNode != NULL) {
+            minDifference = min(minDifference, node->val - prevNode->val);
+        }
+        prevNode = node;
+        inorderTraversal(node->right);
+    }
+
+    int getMinimumDifference(TreeNode* root) {
+        inorderTraversal(root);
+        return minDifference;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def getMinimumDifference(self, root: Optional[TreeNode]) -> int:
+        self.minDistance = 1e9
+        # Initially, it will be null.
+        self.prevNode = None
+
+        def inorder(node):
+            if node is None:
+                return
+            inorder(node.left)
+            # Find the difference with the previous value if it is there.
+            if self.prevNode is not None:
+                self.minDistance = min(self.minDistance, node.val - self.prevNode)
+            self.prevNode = node.val
+            inorder(node.right)
+
+        inorder(root)
+        return self.minDistance
+    </code>
+</pre>
+<h4 id="complexity-analysis-1">Complexity Analysis</h4>
+<p>Here, <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    is the number of nodes in the given binary search tree.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <ul>
+            <li>We traverse once over each node of the BST using in-order traversal which takes <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> time.
+            </li>
+            <li>We iterate over the list of size <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                    class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+                elements to find the minimum difference which also takes <span class="math math-inline"><span
+                        class="katex"><span class="katex-mathml">O(n)O(n)</span><span class="katex-html"
+                                                                                      aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+                time.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <ul>
+            <li>The in-order traversal is recursive and would take some space to store the stack calls. The maximum
+                number of active stack calls at a time would be the tree's height, which in the worst case would be
+                <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+                when the tree is a straight line.
+            </li>
+            <li>We also need a list of size <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> to store
+                the values of all the nodes.
+            </li>
+        </ul>
+    </li>
+</ul>
+<hr>
+<h3 id="approach-3-in-order-traversal-without-list">Approach 3: In-order Traversal Without List</h3>
+<h4 id="intuition-2">Intuition</h4>
+<p>As we can notice in the previous approach, we only need the immediate in-order predecessor of any node to calculate
+    the minimum difference. The rest of the nodes will not be needed and are stored unnecessarily in the list.</p>
+<p>Thus, we can avoid storing elements in a list if we can find the difference between consecutive nodes on the fly
+    during in-order traversal. For each node in the tree, we need the previous node we have handled, and then we can
+    find the difference. This can be done using another variable <code>prevNode</code> that will store the value of the
+    node we handled previously in the in-order traversal. This way, we don't have to store the elements in an array and
+    at the same time, don't have to re-iterate over the nodes again.</p>
+<h4 id="algorithm-2">Algorithm</h4>
+<ol>
+    <li>Create an answer variable <code>minDifference</code> and initialize it to infinity.</li>
+    <li>Create a <code>TreeNode</code> variable <code>prevNode</code> to keep track of the previous node we have
+        traversed. Initialize it to <code>null</code>.
+    </li>
+    <li>Perform the inorder traversal of the binary search tree (BST). Call <code>inorderTraversal(root)</code> where
+        <code>inorderTraversal</code> is a recursive method that takes <code>TreeNode node</code> as a parameter. We
+        perform the following in this method:
+        <ul>
+            <li>If <code>node</code> is <code>null</code>, return.</li>
+            <li>Recursively perform the in-order traversal for <code>node.left</code>.</li>
+            <li>We handle <code>node</code> now. We check its difference with the previously visited node
+                <code>prevNode</code>. If <code>prevNode != null</code>, it means we have visited a node previously and
+                hence, we try to update <code>minDifference</code> using <code>minDifference = min(minDifference,
+                    node.val - prevNode.val)</code>.
+            </li>
+            <li>Recursively perform the in-order traversal for <code>node.right</code>.</li>
+        </ul>
+    </li>
+    <li>Return <code>minDifference</code>.</li>
+</ol>
+<h4 id="implementation-2">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    // List to store the node values.
+    List<Integer> nodeValues = new ArrayList<>();
+
+    void dfs(TreeNode node) {
+        if (node == null) {
+            return;
+        }
+
+        nodeValues.add(node.val);
+        dfs(node.left);
+        dfs(node.right);
+    }
+
+    int getMinimumDifference(TreeNode root) {
+        dfs(root);
+
+        Collections.sort(nodeValues);
+        int minDifference = Integer.MAX_VALUE;
+        // Find the diff between every two consecutive values in the list.
+        for (int i = 1; i < nodeValues.size(); i++) {
+            minDifference = Math.min(minDifference, nodeValues.get(i) - nodeValues.get(i - 1));
+        }
+
+        return minDifference;
+    }
+};
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    // List to store the node values.
+    vector<int> nodeValues;
+
+    void dfs(TreeNode* node) {
+        if (node == NULL) {
+            return;
+        }
+
+        nodeValues.push_back(node->val);
+        dfs(node->left);
+        dfs(node->right);
+    }
+
+    int getMinimumDifference(TreeNode* root) {
+        dfs(root);
+
+        sort(nodeValues.begin(), nodeValues.end());
+        int minDifference = INT_MAX;
+        // Find the diff between every two consecutive values in the list.
+        for (int i = 1; i < nodeValues.size(); i++) {
+            minDifference = min(minDifference, nodeValues[i] - nodeValues[i - 1]);
+        }
+
+        return minDifference;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def getMinimumDifference(self, root: Optional[TreeNode]) -> int:
+        nodeValues = []
+
+        def dfs(node):
+            if node is None:
+                return
+            nodeValues.append(node.val)
+            dfs(node.left)
+            dfs(node.right)
+
+        dfs(root)
+
+        nodeValues.sort()
+        minDifference = 1e9
+        for i in range(1, len(nodeValues)):
+            minDifference = min(minDifference, nodeValues[i] - nodeValues[i-1])
+
+        return minDifference
+    </code>
+</pre>
+<h4 id="complexity-analysis-2">Complexity Analysis</h4>
+<p>Here, <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    is the number of nodes in the given binary search tree.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <ul>
+            <li>We traverse once over each node of the BST using in-order traversal which takes <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> time.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <ul>
+            <li>The in-order traversal is recursive and would take some space to store the stack calls. The maximum
+                number of active stack calls at a time would be the tree's height, which in the worst case would be
+                <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+                when the tree is a straight line.
+            </li>
+            <li>Note that this space complexity is only for the worst-case scenario, and in the average case we have
+                greatly improved our space complexity since we don't need to create a list to store all the nodes.
+            </li>
+        </ul>
+    </li>
+</ul>
+</body>
+</html>
