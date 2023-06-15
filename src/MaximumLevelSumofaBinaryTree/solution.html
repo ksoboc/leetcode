@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Maximum Level Sum of a Binary Tree - Solution</title>
+</head>
+<body>
+<h2 id="solution">Maximum Level Sum of a Binary Tree - Solution</h2>
+<hr>
+<h3 id="overview">Overview</h3>
+<p>We are given the <code>root</code> of a binary tree.</p>
+<p>Our task is to return the smallest level <code>x</code> such that the sum of all the values of nodes at level
+    <code>x</code> is maximal.</p>
+<hr>
+<h3 id="approach-1-breadth-first-search">Approach 1: Breadth First Search</h3>
+<h4 id="intuition">Intuition</h4>
+<p>The task is to compute the sum of all node values at each level to get the highest level with the maximum sum.</p>
+<p>We can simply use a standard breadth-first search traversal because we need to analyze nodes by level.</p>
+<p>BFS is an algorithm for traversing or searching a graph. It traverses in a level-wise manner, i.e., all the nodes at
+    the present level (say <code>l</code>) are explored before moving on to the nodes at the next level (<code>l +
+        1</code>). BFS is implemented with a queue.</p>
+<p>Here is an example with the steps:</p>
+<p><img src="1161-bfs1.png" alt="img"></p>
+<p>If you are not familiar with BFS traversal, we suggest you read our <a
+        href="https://leetcode.com/explore/featured/card/graph/620/breadth-first-search-in-graph/" target="_blank">LeetCode
+    Explore Card</a>.</p>
+<p>We initialize a queue of integers and an integer <code>level = 0</code> to track the current level. In the queue, we
+    push the <code>root</code> node.</p>
+<p>We perform a level-wise traversal, incrementing <code>level</code> by <code>1</code> each time when we move to a new
+    level. At each iteration, we remove all nodes at <code>level</code>, compute the sum of all node values at this
+    level, and insert all their neighbouring nodes at <code>level + 1</code>.</p>
+<p>Because we are popping all of the nodes at <code>level</code> and inserting all of the nodes at <code>level +
+    1</code>, the size of the queue will represent the number of nodes at the next level at the end of this iteration.
+</p>
+<p>So we have two loops: the outer loop runs until the queue is empty, and the inner loop runs the number of times equal
+    to the size of the queue to just cover the nodes at the current level. We will pop all the nodes at
+    <code>level</code>, compute the sum of all the values, and insert all the nodes at <code>level + 1</code> into the
+    queue.</p>
+<p>Here is a visual represenation of how we will iterate using the loops:</p>
+<p><img src="1161-bfs2.png" alt="img"></p>
+<p>To get the answer, we compare the sum of all node values at the current level to the maximum sum of values we've
+    already seen. If the current sum of node values is greater than what we've seen before, we update our answer to
+    <code>level</code>, and the current sum becomes our largest sum of values seen thus far. Since we are traversing the
+    higher levels first, by only updating the answer when the level sum is <strong>greater</strong> than what we've seen
+    before, we handle the tiebreakers automatically.</p>
+<h4 id="algorithm">Algorithm</h4>
+<ol>
+    <li>Create an integer variable <code>maxSum</code> to keep track of the maximum sum of node values at any level. We
+        start with a large negative value.
+    </li>
+    <li>Create another variable <code>ans</code> to store the answer to the problem.</li>
+    <li>Create another integer variable <code>level</code> to store the current level through which we are iterating. We
+        initialize it with <code>0</code>.
+    </li>
+    <li>Intialize a queue <code>q</code> of <code>TreeNode</code> and push <code>root</code> into it.</li>
+    <li>Perform a BFS traversal until the queue is empty:
+        <ul>
+            <li>Increment <code>level</code> by <code>1</code> and initialize <code>sumAtCurrentLevel = 0</code> to
+                compute the sum of all values of nodes at this level.
+            </li>
+            <li>Iterate through all the nodes at <code>level</code> using only the <code>q.size()</code> number of
+                nodes. Within this inner loop, pop out all the nodes at the current level one by one, adding their
+                values to <code>sumAtCurrentLevel</code> and pushing the left and right children (if they exist) into
+                the queue.
+            </li>
+            <li>Realize that after traversing all of the nodes at <code>level</code>, the queue only has nodes at <code>level
+                + 1</code>.
+            </li>
+            <li>After traversing through all the nodes at <code>level</code>, we check if <code>sumAtCurrentLevel</code>
+                is greater than <code>maxSum</code>. If <code>maxSum &lt; sumAtCurrentLevel</code>, update our answer
+                variable to <code>ans = level</code> and set <code>maxSum = sumAtCurrentLevel</code>.
+            </li>
+        </ul>
+    </li>
+    <li>Return <code>ans</code>.</li>
+</ol>
+<h4 id="implementation">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int maxLevelSum(TreeNode root) {
+        int maxSum = Integer.MIN_VALUE;
+        int ans = 0, level = 0;
+
+        Queue<TreeNode> q = new LinkedList<>();
+        q.offer(root);
+
+        while (!q.isEmpty()) {
+            level++;
+            int sumAtCurrentLevel = 0;
+            // Iterate over all the nodes in the current level.
+            for (int sz = q.size(); sz > 0; --sz) {
+                TreeNode node = q.poll();
+                sumAtCurrentLevel += node.val;
+
+                if (node.left != null) {
+                    q.offer(node.left);
+                }
+                if (node.right != null) {
+                    q.offer(node.right);
+                }
+            }
+
+            if (maxSum < sumAtCurrentLevel) {
+                maxSum = sumAtCurrentLevel;
+                ans = level;
+            }
+        }
+
+        return ans;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int maxLevelSum(TreeNode* root) {
+        int maxSum = INT_MIN;
+        int ans = 0, level = 0;
+
+        queue<TreeNode*> q;
+        q.push(root);
+
+        while (!q.empty()) {
+            level++;
+            int sumAtCurrentLevel = 0;
+            // Iterate over all the nodes in the current level.
+            for (int sz = q.size(); sz > 0; --sz) {
+                TreeNode* node = q.front();
+                q.pop();
+                sumAtCurrentLevel += node->val;
+
+                if (node->left != nullptr) {
+                    q.push(node->left);
+                }
+                if (node->right != nullptr) {
+                    q.push(node->right);
+                }
+            }
+
+            if (maxSum < sumAtCurrentLevel) {
+                maxSum = sumAtCurrentLevel;
+                ans = level;
+            }
+        }
+
+        return ans;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def maxLevelSum(self, root: Optional[TreeNode]) -> int:
+        max_sum, ans, level = float('-inf'), 0, 0
+
+        q = collections.deque()
+        q.append(root)
+
+        while q:
+            level += 1
+            sum_at_current_level = 0
+            # Iterate over all the nodes in the current level.
+            for _ in range(len(q)):
+                node = q.popleft()
+                sum_at_current_level += node.val
+
+                if node.left:
+                    q.append(node.left)
+                if node.right:
+                    q.append(node.right)
+
+            if max_sum < sum_at_current_level:
+                max_sum, ans = sum_at_current_level, level
+
+        return ans
+    </code>
+</pre>
+<h4 id="complexity-analysis">Complexity Analysis</h4>
+<p>Here <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                     aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    is the number of nodes in the given binary tree.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.
+        </p>
+        <ul>
+            <li>Each queue operation in the BFS algorithm takes <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord">1</span><span class="mclose">)</span></span></span></span></span> time, and a single
+                node can only be pushed once, leading to <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+                operations for <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+                nodes.
+            </li>
+            <li>The computation of sum of all the values of nodes at a level also takes <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> time as
+                each node's value is used once.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.
+        </p>
+        <ul>
+            <li>As the BFS queue stores the nodes in level-wise manner, the maximum number of nodes in the BFS queue
+                would equal to the most number of nodes at any level. So, the best case would be <span
+                        class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord">1</span><span
+                        class="mclose">)</span></span></span></span></span> where all the levels have just one node.
+            </li>
+            <li>The worst case would be a complete binary tree. In a complete binary tree, the last or second last level
+                would have the most nodes (the last level can have multiple null nodes). Because we are iterating by
+                level, the BFS queue will be most crowded when all of the nodes from the last level (or second last
+                level) are in the queue. Assume we have a complete binary tree with height <span
+                        class="math math-inline"><span class="katex"><span class="katex-mathml">hh</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 0.6944em;"></span><span
+                        class="mord mathnormal">h</span></span></span></span></span> and a fully filled last level
+                having <span class="math math-inline"><span class="katex"><span class="katex-mathml">2h2^h</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 0.8491em;"></span><span
+                        class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span
+                        class="vlist-r"><span class="vlist" style="height: 0.8491em;"><span
+                        style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                        class="sizing reset-size6 size3 mtight"><span
+                        class="mord mathnormal mtight">h</span></span></span></span></span></span></span></span></span></span></span></span>
+                nodes. All the nodes at each level add up to <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">1+2+4+8+...+2h=n1 + 2 + 4 + 8 +... + 2^h = n</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+                        class="base"><span class="strut"
+                                           style="height: 0.7278em; vertical-align: -0.0833em;"></span><span
+                        class="mord">1</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                        class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                        class="base"><span class="strut"
+                                           style="height: 0.7278em; vertical-align: -0.0833em;"></span><span
+                        class="mord">2</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                        class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                        class="base"><span class="strut"
+                                           style="height: 0.7278em; vertical-align: -0.0833em;"></span><span
+                        class="mord">4</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                        class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                        class="base"><span class="strut"
+                                           style="height: 0.7278em; vertical-align: -0.0833em;"></span><span
+                        class="mord">8</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                        class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                        class="base"><span class="strut"
+                                           style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+                        class="mord">...</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                        class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                        class="base"><span class="strut" style="height: 0.8491em;"></span><span class="mord"><span
+                        class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span
+                        class="vlist" style="height: 0.8491em;"><span style="top: -3.063em; margin-right: 0.05em;"><span
+                        class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span
+                        class="mord mathnormal mtight">h</span></span></span></span></span></span></span></span><span
+                        class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span
+                        class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span
+                        class="strut" style="height: 0.4306em;"></span><span
+                        class="mord mathnormal">n</span></span></span></span></span>. This implies that <span
+                        class="math math-inline"><span class="katex"><span class="katex-mathml">2h+1−1=n2^{h + 1} - 1 = n</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 0.9324em; vertical-align: -0.0833em;"></span><span
+                        class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span
+                        class="vlist-r"><span class="vlist" style="height: 0.8491em;"><span
+                        style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                        class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+                        class="mord mathnormal mtight">h</span><span class="mbin mtight">+</span><span
+                        class="mord mtight">1</span></span></span></span></span></span></span></span></span><span
+                        class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">−</span><span
+                        class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+                        class="strut" style="height: 0.6444em;"></span><span class="mord">1</span><span class="mspace"
+                                                                                                        style="margin-right: 0.2778em;"></span><span
+                        class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+                        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>,
+                and thus <span class="math math-inline"><span class="katex"><span class="katex-mathml">2h=(n+1)/22^h = (n + 1) / 2</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 0.8491em;"></span><span
+                        class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span
+                        class="vlist-r"><span class="vlist" style="height: 0.8491em;"><span
+                        style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                        class="sizing reset-size6 size3 mtight"><span
+                        class="mord mathnormal mtight">h</span></span></span></span></span></span></span></span><span
+                        class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span
+                        class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span
+                        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mspace"
+                                                                                          style="margin-right: 0.2222em;"></span><span
+                        class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord">1</span><span class="mclose">)</span><span
+                        class="mord">/2</span></span></span></span></span>. Because the last level <span
+                        class="math math-inline"><span class="katex"><span class="katex-mathml">hh</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 0.6944em;"></span><span
+                        class="mord mathnormal">h</span></span></span></span></span> has <span class="math math-inline"><span
+                        class="katex"><span class="katex-mathml">2h2^h</span><span class="katex-html"
+                                                                                   aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 0.8491em;"></span><span class="mord"><span
+                        class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span
+                        class="vlist" style="height: 0.8491em;"><span style="top: -3.063em; margin-right: 0.05em;"><span
+                        class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span
+                        class="mord mathnormal mtight">h</span></span></span></span></span></span></span></span></span></span></span></span>
+                nodes, the BFS queue will have <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">(n+1)/2=O(n)(n + 1) / 2 = O(n)</span><span class="katex-html"
+                                                                                        aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mspace"
+                                                                                          style="margin-right: 0.2222em;"></span><span
+                        class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord">1</span><span class="mclose">)</span><span class="mord">/2</span><span
+                        class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span
+                        class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span
+                        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                                 style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+                elements in the worst-case scenario.
+            </li>
+        </ul>
+    </li>
+</ul>
+<hr>
+<h3 id="approach-2-depth-first-search">Approach 2: Depth First Search</h3>
+<h4 id="intuition-1">Intuition</h4>
+<p>We can also use another traversal method, depth-first search (DFS).</p>
+<p>In DFS, we use a recursive function to explore nodes as far as possible along each branch. Upon reaching the end of a
+    branch, we backtrack to the next branch and continue exploring.</p>
+<p>Once we encounter an unvisited node, we will take one of its neighbor nodes (if exists) as the next node on this
+    branch. Recursively call the function to take the next node as the 'starting node' and solve the subproblem.</p>
+<p><img src="1161-dfs.png" alt="img"></p>
+<p>If you are new to Depth First Search, please see our <a
+        href="https://leetcode.com/explore/featured/card/graph/619/depth-first-search-in-graph/3882/" target="_blank">LeetCode
+    Explore Card</a> for more information on it!</p>
+<p>Because our task is to compute the sum of all the values of nodes at each level, we can perform a DFS traversal and
+    pass the level of each node as an extra parameter.</p>
+<p>We can initialize a list of integers <code>sumOfNodesAtLevel</code>, where <code>sumOfNodesAtLevel[i]</code> stores
+    the sum of all the values of nodes at level <code>i</code>. Whenever we visit a node at a level, say <code>l</code>,
+    we increment the index <code>l</code> in the list by the value of the current node. According to the problem
+    definition, the levels should begin with <code>1</code>, but to keep the list as <code>0-indexed</code>, we will
+    begin with level <code>0</code> (the root's level) and increment our answer by <code>1</code> at the end.</p>
+<p>The question that may arise is how long this list should be.</p>
+<p>We know that in a DFS traversal, we either move down the tree (until we can) to a node at the next level or we
+    backtrack to a node at a lower level. As we descend the tree, if we come across a level <code>l</code> we haven't
+    seen before, we add the node's value to <code>sumOfNodesAtLevel</code>, which places the entry at index
+    <code>l</code> itself. This is due to the fact that all levels from <code>0</code> to <code>l - 1</code> must have
+    already been seen and have corresponding values in <code>sumOfNodesAtLevel</code>.</p>
+<p>So, if the size of <code>sumOfNodesAtLevel</code> equals <code>l</code>, it means we've seen nodes from levels <code>0</code>
+    to <code>l - 1</code> but not any nodes at level <code>l</code> yet. At level <code>l</code>, this is the first node
+    we see.</p>
+<p>If the level <code>l</code> is smaller than the size of <code>sumOfNodesAtLevel</code>, it means we've seen some
+    nodes at this level before, and we simply increment <code>sumOfNodesAtLevel[l]</code> by the value of the current
+    node.</p>
+<h4 id="algorithm-1">Algorithm</h4>
+<ol>
+    <li>Create a list of integers <code>sumOfNodesAtLevel</code> to store the sum of all the values of nodes at a level.
+        The value <code>sumOfNodesAtLevel[i]</code> stores the sum of all the values of nodes at level <code>i</code>
+        (0-indexed). We would start our levels from <code>0</code> to keep the array <code>0-indexed</code> and finally
+        increment our answer by <code>1</code> to align with the problem definition of the level (levels begin with
+        <code>1</code> as stated in the problem).
+    </li>
+    <li>Perform the DFS traversal over the given binary tree. We call <code>dfs(root, 0, sumOfNodesAtLevel)</code> where
+        <code>dfs</code> is a recursive method that takes three parameters: <code>TreeNode node</code> from which the
+        traversal begins, the level of <code>node</code>, and <code>sumOfNodesAtLevel</code>. We perform the following
+        in this method:
+        <ul>
+            <li>If <code>node</code> is <code>null</code>, return.</li>
+            <li>If the size of <code>sumOfNodesAtLevel</code> equals <code>level</code>, we haven't encountered any
+                nodes at this level. Hence, we insert <code>node.val</code> in <code>sumOfNodesAtLevel</code>.
+                Otherwise, if we've seen this level before, we simply perform <code>sumOfNodesAtLevel[level] +=
+                    node.val</code> to add <code>node.val</code> to the corresponding <code>level</code>.
+            </li>
+            <li>Recursively perform DFS from <code>node.left</code>.</li>
+            <li>Recursively perform DFS from <code>node.right</code>.</li>
+        </ul>
+    </li>
+    <li>Create a variable <code>maxSum</code> to keep track of the maximum sum of node values at any level. We start
+        with a large negative value.
+    </li>
+    <li>Create another variable <code>ans</code> to store the answer to the problem.</li>
+    <li>Iterate over the sum of nodes of all the levels, i.e., iterate over <code>sumOfNodesAtLevel</code> and perform
+        the following:
+        <ul>
+            <li>If <code>maxSum &lt; sumOfNodesAtLevel[i]</code>, we set <code>maxSum = sumOfNodesAtLevel[i]</code> and
+                update <code>ans</code> to the level <code>i + 1</code> (<code>+1</code> is added to align with the
+                definition of level).
+            </li>
+        </ul>
+    </li>
+    <li>Return <code>ans</code>.</li>
+</ol>
+<h4 id="implementation-1">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public void dfs(TreeNode node, int level, List<Integer> sumOfNodesAtLevel) {
+        if (node == null) {
+            return;
+        }
+
+        if (sumOfNodesAtLevel.size() == level) {
+            sumOfNodesAtLevel.add(node.val);
+        } else {
+            sumOfNodesAtLevel.set(level, sumOfNodesAtLevel.get(level) + node.val);
+        }
+
+        dfs(node.left, level + 1, sumOfNodesAtLevel);
+        dfs(node.right, level + 1, sumOfNodesAtLevel);
+    }
+
+    public int maxLevelSum(TreeNode root) {
+        List<Integer> sumOfNodesAtLevel = new ArrayList<>();
+        dfs(root, 0, sumOfNodesAtLevel);
+
+        int maxSum = Integer.MIN_VALUE;
+        int ans = 0;
+
+        for (int i = 0; i < sumOfNodesAtLevel.size(); i++) {
+            if (maxSum < sumOfNodesAtLevel.get(i)) {
+                maxSum = sumOfNodesAtLevel.get(i);
+                ans = i + 1;
+            }
+        }
+
+        return ans;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    void dfs(TreeNode* node, int level, vector<int>& sumOfNodesAtLevel) {
+        if (node == nullptr) {
+            return;
+        }
+
+        if (sumOfNodesAtLevel.size() == level) {
+            sumOfNodesAtLevel.push_back(node->val);
+        } else {
+            sumOfNodesAtLevel[level] += node->val;
+        }
+
+        dfs(node->left, level + 1, sumOfNodesAtLevel);
+        dfs(node->right, level + 1, sumOfNodesAtLevel);
+    }
+
+    int maxLevelSum(TreeNode* root) {
+        vector<int> sumOfNodesAtLevel;
+        dfs(root, 0, sumOfNodesAtLevel);
+
+        int maxSum = INT_MIN;
+        int ans = 0;
+
+        for (int i = 0; i < sumOfNodesAtLevel.size(); i++) {
+            if (maxSum < sumOfNodesAtLevel[i]) {
+                maxSum = sumOfNodesAtLevel[i];
+                ans = i + 1;
+            }
+        }
+
+        return ans;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def maxLevelSum(self, root: Optional[TreeNode]) -> int:
+        def dfs(node: TreeNode, level: int, sum_at_current_level: List) -> None:
+            if not node:
+                return
+
+            if len(sum_at_current_level) == level:
+                sum_at_current_level.append(node.val)
+            else:
+                sum_at_current_level[level] += node.val
+
+            dfs(node.left, level + 1, sum_at_current_level)
+            dfs(node.right, level + 1, sum_at_current_level)
+
+        sum_at_current_level = []
+        dfs(root, 0, sum_at_current_level)
+
+        return 1 + sum_at_current_level.index(max(sum_at_current_level))
+    </code>
+</pre>
+<h4 id="complexity-analysis-1">Complexity Analysis</h4>
+<p>Here <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                     aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    is the number of nodes in the given binary tree.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.
+        </p>
+        <ul>
+            <li>We traverse once over each node of the tree using DFS traversal which takes <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> time. We
+                also take <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord">1</span><span
+                        class="mclose">)</span></span></span></span></span> time to add a node's value into <code>sumOfNodesAtLevel</code>
+                for each node, which takes <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+                time for <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 0.4306em;"></span><span
+                        class="mord mathnormal">n</span></span></span></span></span> nodes.
+            </li>
+            <li>The size of <code>sumOfNodesAtLevel</code> is equal to the height of tree. We iterate over all the
+                values in <code>sumOfNodesAtLevel</code> to get the level with maximum sum of node values. In the
+                worst-case scenario, when the tree is a straight line, the height would be <span
+                        class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>,
+                requiring <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+                time to iterate over <code>sumOfNodesAtLevel</code>.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.
+        </p>
+        <ul>
+            <li>The DFS traversal is recursive and would take some space to store the stack calls. The maximum number of
+                active stack calls at a time would be the tree's height, which in the worst case would be <span
+                        class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+                when the tree is a straight line.
+            </li>
+            <li>The <code>sumOfNodesAtLevel</code> would also take linear space in the worst case.</li>
+        </ul>
+    </li>
+</ul>
+</body>
+</html>
