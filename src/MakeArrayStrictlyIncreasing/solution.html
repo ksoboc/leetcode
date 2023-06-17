@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Make Array Strictly Increasing - Solution</title>
+</head>
+<body>
+<h2 id="solution">Make Array Strictly Increasing - Solution</h2>
+<hr>
+<h3 id="overview">Overview</h3>
+<p>We will iterate over <code>arr1</code> and at each index <code>i</code>, we aim to make the prefix <code>arr1[0 ~
+    i]</code> sorted. In case <code>arr1[i]</code> requires replacement with a value from <code>arr2</code>, the
+    smallest element in <code>arr2</code> that will maintain increasing order is always preferred. Hence, by sorting
+    <code>arr2</code>, we can efficiently identify the smallest element that meets this criterion using binary search,
+    which takes logarithmic time. If <code>arr2</code> is not sorted, we would have to search the entire array to find
+    the smallest element that meets this requirement, leading to a linear time complexity for each operation.</p>
+<p><img src="1.png" alt="img"></p>
+<p>Therefore, all subsequent solutions are based on the sorted <code>arr2</code>.</p>
+<hr>
+<h3 id="approach-1-top-down-dynamic-programming">Approach 1: Top-down Dynamic Programming</h3>
+<h4 id="intuition">Intuition</h4>
+<blockquote>
+    <p>If you are not familiar with dynamic programming, please refer to our explore cards <a
+            href="https://leetcode.com/explore/featured/card/dynamic-programming/" target="_blank">Dynamic Programming
+        Explore Card</a>. We will focus on the usage in this article and not the underlying principles or implementation
+        details.</p>
+</blockquote>
+<p>As we update <code>arr1</code> from left to right, each element <code>arr1[i]</code> can be subjected to several
+    potential operations:</p>
+<ul>
+    <li>If <code>arr1[i]</code> is less than or equal to <code>arr1[i - 1]</code>, we <strong>must</strong> replace
+        <code>arr1[i]</code> with the smallest value in <code>arr2</code>that is greater than <code>arr1[i - 1]</code>,
+        which we can identify using binary search. Otherwise, we can't make <code>arr1</code> sorted.
+    </li>
+</ul>
+<p><img src="1187/2.png" alt="img"></p>
+<ul>
+    <li>
+        <p>If <code>arr1[i]</code> is greater than <code>arr1[i - 1]</code>, we have two possible options:</p>
+        <ul>
+            <li>Leave it unchanged and continue with the next index. No changes need to be made as <code>arr1[i]</code>
+                is already greater than <code>arr1[i - 1]</code>.
+            </li>
+            <li>Replace it with a smaller value (as doing so may make it easier to ensure that subsequent numbers are
+                greater than <code>arr1[i]</code>). We will use binary search to locate the smallest value greater than
+                <code>arr1[i - 1]</code> in <code>arr2</code>.
+            </li>
+        </ul>
+    </li>
+</ul>
+<p><img src="3.png" alt="img"></p>
+<p>In summary:</p>
+<p><img src="4.png" alt="img"></p>
+<br>
+<p>We utilize a recursive approach named <code>dfs(i)</code> to determine the minimum number of operations needed to
+    make the subarray <code>arr1[i:]</code> sorted. Given that we modify <code>arr1[i]</code> based on the value of
+    <code>arr[i - 1]</code>, <code>dfs</code> requires an additional parameter called <code>prev</code>, which
+    represents the value of <code>arr1[i - 1]</code>. Hence, the complete function is defined as <code>dfs(i,
+        prev)</code>.</p>
+<p>Since there is no preceding element for the first element of <code>arr1</code>, we can assign an imaginary value of
+    <code>-1</code> before <code>arr1[0]</code>. This allows <code>dfs</code> to operate on the first element with
+    <code>prev = -1</code>.</p>
+<p>Consider the following figure, which illustrates the recursive steps of <code>dfs(i = 0, prev = -1)</code>:</p>
+<p><img src="5.png" alt="img"></p>
+<p>Starting from the first element of <code>arr1</code>, we compare <code>arr1[0]</code> to <code>prev = -1</code>.
+    Since <code>arr1[0]</code> is greater than <code>prev</code>, we do not need to make any changes and call
+    <code>dfs</code> recursively on the next index by passing the current value <code>1</code> as <code>prev</code>,
+    which is <code>dfs(0, -1)</code> = <code>dfs(1, 1)</code>.</p>
+<p><img src="6.png" alt="img"></p>
+<p>Moving on to the next element <code>arr1[1]</code>, we compare it to <code>prev = 1</code> (which is the value of the
+    previous element <code>arr1[0]</code>).</p>
+<p><img src="7.png" alt="img"></p>
+<p>As <code>arr1[1] = 5</code> is larger than <code>prev = 1</code>, there are two options in <code>dfs(1, 1)</code>:
+</p>
+<ul>
+    <li>Leave <code>arr1[1]</code> unchanged and continue with the next index, requiring no operation: <code>dfs(1, 1) =
+        dfs(2, 5)</code>.
+    </li>
+    <li>Find the smallest value in <code>arr2</code> that is greater than <code>prev</code> by binary search (which is
+        <code>2</code>), since <code>2</code> is smaller than <code>arr[1]</code>, we can replace <code>arr1[1]</code>
+        with <code>2</code>, and recursively call <code>dfs</code> on the next index, which is <code>dfs(1, 1) = 1 +
+            dfs(2, 2)</code>.
+    </li>
+</ul>
+<p><img src="8.png" alt="img"></p>
+<p>Therefore, <code>dfs(1, 1)</code> can be obtained by taking the minimum value between <code>dfs(1, 1) = min(dfs(2,
+    5), 1 + dfs(2, 2))</code>.</p>
+<br>
+<p>If <code>arr1[i]</code> cannot be replaced with any valid value in <code>arr2</code> when it needs to be changed,
+    <code>dfs</code> returns a large number such as <code>inf</code> to indicate that it is impossible to make <code>arr1</code>
+    sorted.</p>
+<p>We use memoization to store the minimum number of operations to reach each state <code>(i, prev)</code>, which
+    improves the efficiency of the algorithm. This helps us avoid re-solving the same subproblems multiple times and
+    significantly reduces the time complexity.</p>
+<p>Finally, we call <code>dfs(0, -1)</code> and examine the value it returns. If the value is reasonable and smaller
+    than the large one we assigned to impossible moves, we return the result of <code>dfs(0, -1)</code>. Otherwise, we
+    return <code>-1</code>.</p>
+<br>
+<h4 id="algorithm">Algorithm</h4>
+<ol>
+    <li>
+        <p>Sort <code>arr2</code>.</p>
+    </li>
+    <li>
+        <p>Initialize a hash map <code>dp</code> as memory.</p>
+    </li>
+    <li>
+        <p>Define a function <code>dfs(i, prev)</code> as the minimum number of operations to make <code>arr[i:]</code>
+            sorted when <code>arr[i - 1] = prev</code>.</p>
+        <ul>
+            <li>
+                <p>Check if <code>(i, prev)</code> exists in <code>dp</code>, and if so, return <code>dp[(i,
+                    prev)]</code></p>
+            </li>
+            <li>
+                <p>Initialize <code>cost</code> to <code>float('inf')</code></p>
+            </li>
+            <li>
+                <p>If <code>arr1[i] &gt; prev</code>, set <code>cost</code> to <code>dfs(i+1, arr1[i])</code></p>
+            </li>
+            <li>
+                <p>Find the index <code>idx</code> of the smallest value in <code>arr2</code> that is greater than
+                    <code>prev</code> using binary search. If <code>idx &lt; len(arr2)</code>, set <code>cost</code> to
+                    <code>min(cost, 1 + dfs(i+1, arr2[idx]))</code></p>
+            </li>
+            <li>
+                <p>Update <code>dp[(i, prev)]</code> as <code>cost</code></p>
+            </li>
+            <li>
+                <p>Return <code>cost</code></p>
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Return the value of <code>dfs(0, -1)</code> if it is not equal to <code>float('inf')</code>, otherwise,
+            return <code>-1</code>.</p>
+    </li>
+</ol>
+<h4 id="implementation">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int makeArrayIncreasing(int[] arr1, int[] arr2) {
+        Arrays.sort(arr2);
+
+        int answer = dfs(0, -1, arr1, arr2);
+
+        return answer < 2_001 ? answer : -1;
+    }
+
+    Map<Pair<Integer, Integer>, Integer> dp = new HashMap<>();
+    private int dfs(int i, int prev, int[] arr1, int[] arr2) {
+        if (i == arr1.length) {
+            return 0;
+        }
+        if (dp.containsKey(new Pair<>(i, prev))) {
+            return dp.get(new Pair<>(i, prev));
+        }
+
+        int cost = 2_001;
+
+        // If arr1[i] is already greater than prev, we can leave it be.
+        if (arr1[i] > prev) {
+            cost = dfs(i + 1, arr1[i], arr1, arr2);
+        }
+
+        // Find a replacement with the smallest value in arr2.
+        int idx = bisectRight(arr2, prev);
+
+        // Replace arr1[i], with a cost of 1 operation.
+        if (idx < arr2.length) {
+            cost = Math.min(cost, 1 + dfs(i + 1, arr2[idx], arr1, arr2));
+        }
+
+        dp.put(new Pair<>(i, prev), cost);
+        return cost;
+    }
+
+    private static int bisectRight(int[] arr, int value) {
+        int left = 0, right = arr.length;
+        while (left < right) {
+            int mid = (left + right) / 2;
+            if (arr[mid] <= value) {
+                left = mid + 1;
+            } else {
+                right = mid;
+            }
+        }
+        return left;
+    }
+}
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def makeArrayIncreasing(self, arr1: List[int], arr2: List[int]) -> int:
+        dp = {}
+        arr2.sort()
+
+        def dfs(i, prev):
+            if i == len(arr1):
+                return 0
+            if (i, prev) in dp:
+                return dp[(i, prev)]
+
+            cost = float('inf')
+
+            # If arr1[i] is already greater than prev, we can leave it be.
+            if arr1[i] > prev:
+                cost = dfs(i + 1, arr1[i])
+
+            # Find a replacement with the smallest value in arr2.
+            idx = bisect.bisect_right(arr2, prev)
+
+            # Replace arr1[i], with a cost of 1 operation.
+            if idx < len(arr2):
+                cost = min(cost, 1 + dfs(i + 1, arr2[idx]))
+
+            dp[(i, prev)] = cost
+            return cost
+
+        res = dfs(0, -1)
+
+        return res if res < float('inf') else -1
+    </code>
+</pre>
+<h4 id="complexity-analysis">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">m,nm, n</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.625em; vertical-align: -0.1944em;"></span><span
+        class="mord mathnormal">m</span><span class="mpunct">,</span><span class="mspace"
+                                                                           style="margin-right: 0.1667em;"></span><span
+        class="mord mathnormal">n</span></span></span></span></span> be the length of <code>arr1</code> and
+    <code>arr2</code>.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(m⋅n⋅log⁡n)O(m \cdot n \cdot\log n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.4445em;"></span><span class="mord mathnormal">n</span><span
+                class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                      style="margin-right: 0.1667em;"></span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>Sorting <code>arr2</code> takes <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(nlog⁡n)O(n \log n)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.1667em;"></span><span
+                    class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                              style="margin-right: 0.1667em;"></span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> time.
+            </li>
+            <li>To improve the efficiency of the algorithm, we use memoization and store the minimum number of
+                operations to reach each state <code>(i, prev)</code> in a hash map <code>dp</code>. There are <span
+                        class="math math-inline"><span class="katex"><span class="katex-mathml">mm</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 0.4306em;"></span><span
+                        class="mord mathnormal">m</span></span></span></span></span> indices and at most <span
+                        class="math math-inline"><span class="katex"><span class="katex-mathml">n+1n + 1</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+                        class="mord mathnormal">n</span><span class="mspace"
+                                                              style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span
+                        class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+                        class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span>
+                possible <code>prev</code> as we might replace <code>arr[i]</code> with any value in <code>arr2</code>.
+                Each state is computed with a binary search over <code>arr2</code>, which takes <span
+                        class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡n)O(\log n)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span
+                        class="mspace" style="margin-right: 0.1667em;"></span><span
+                        class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(m⋅n)O(m \cdot n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>The maximum number of distinct states in <code>dp</code> is <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">m⋅nm \cdot n</span><span class="katex-html"
+                                                                                      aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 0.4445em;"></span><span
+                    class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 0.4306em;"></span><span
+                    class="mord mathnormal">n</span></span></span></span></span>.
+            </li>
+        </ul>
+    </li>
+</ul>
+<br>
+<hr>
+<h3 id="approach-2-bottom-up-dynamic-programming">Approach 2: Bottom-up Dynamic Programming</h3>
+<h4 id="intuition-1">Intuition</h4>
+<p>Instead of using recursion, we can also solve this problem iteratively. We start by initializing a hash map
+    <code>dp</code> that stores each state we can reach for index <code>i</code>. Each state is represented as <code>{prev:
+        count}</code>, where <code>prev</code> is the previous value and <code>count</code> is the minimum number of
+    operations needed to reach this state.</p>
+<p>Similar to the recursive solution, we set an imaginary value <code>-1</code> before <code>arr1[0]</code> and add an
+    initial key-value pair of <code>{-1: 0}</code> to <code>dp</code>, indicating that reaching <code>prev = -1</code>
+    takes no operations.</p>
+<p><img src="9.png" alt="img"></p>
+<p>We then iterate over <code>arr1</code> and for each index <code>i</code>, we initialize an empty dictionary <code>new_dp</code>
+    to store the states we can reach for index <code>i</code>.</p>
+<p>Loop through all the states in <code>dp</code> and for each state <code>{prev: count}</code>:</p>
+<ul>
+    <li>
+        <p>If <code>arr1[i]</code> is less than or equal to <code>prev</code>, we <strong>must</strong> replace <code>arr1[i]</code>
+            with the smallest value <code>arr2[index]</code> in <code>arr2</code> that is greater than <code>prev</code>,
+            which we can identify using binary search.</p>
+        <ul>
+            <li>Create a new state <code>{arr2[index]: count + 1}</code>.</li>
+            <li>Otherwise, we can't update this state at <code>i</code>.</li>
+        </ul>
+    </li>
+    <li>
+        <p>If <code>arr1[i]</code> is greater than <code>prev</code>, there are two possible options:</p>
+        <ul>
+            <li>Leave it unchanged by creating state <code>{arr1[i]: count}</code> in <code>new_dp</code>.</li>
+            <li>Replace <code>arr[i]</code> with a smaller value in <code>arr2</code> that is larger than
+                <code>prev</code>. Once again, we will use binary search to locate the smallest value
+                <code>arr2[index]</code> that is greater than <code>arr1[i - 1]</code> in <code>arr2</code>, create a
+                state <code>{arr2[index]: count + 1}</code>.
+            </li>
+        </ul>
+    </li>
+</ul>
+<p><img src="13.png" alt="img"></p>
+<p>After looping through all the keys in <code>dp</code>, we set <code>dp</code> to <code>new_dp</code> so it represents
+    all reachable states at index <code>i</code>.</p>
+<br>
+<p>Please refer to the following example:</p>
+<p>For <code>i = 0</code>, <code>dp</code> has one state: <code>{-1: 0}</code>, since <code>arr[0] &gt; prev</code>, we
+    can leave <code>arr[0]</code> unchanged, thus we can reach a new state of <code>{1: 0}</code>, store it in <code>new_dp</code>.
+</p>
+<p><img src="10.png" alt="img"></p>
+<p>Continue with <code>i = 1</code> by setting <code>dp</code> as <code>new_dp</code> and resetting <code>new_dp</code>.
+    <code>dp</code> has one state <code>{1: 0}</code>, since <code>arr[1] &gt; prev</code>, we can either:</p>
+<ul>
+    <li>Leave <code>arr[1]</code> unchanged and reach a new state <code>{5: 0}</code>.</li>
+    <li>Replace it with <code>arr2[1] = 2</code> with 1 operation, and reach another new state <code>{2: 1}</code>.</li>
+</ul>
+<p>Therefore, we have created two states <code>new_dp = {2: 1, 5: 0}</code> for index <code>1</code>.</p>
+<p><img src="11.png" alt="img"></p>
+<p>During each iteration, <code>new_dp</code> stores the <strong>minimum</strong> number of operations needed to reach
+    each state from the previous index. We can achieve this by initializing the value of each key in <code>new_dp</code>
+    to a large number like <code>inf</code> and updating it as the minimum value we encounter.</p>
+<p>After iterating over <code>arr1</code>, we return the smallest value in <code>dp</code> as the minimum number of
+    operations required to reach the last index and make the entire <code>arr1</code> sorted. If the value is
+    <code>inf</code>, it indicates that there is no way to reach any states at the last index, and we return
+    <code>-1</code>.</p>
+<br>
+<h4 id="algorithm-1">Algorithm</h4>
+<ol>
+    <li>
+        <p>Sort <code>arr2</code>.</p>
+    </li>
+    <li>
+        <p>Create a hash map <code>dp</code> with an initial key-value pair of <code>{-1: 0}</code>.</p>
+    </li>
+    <li>
+        <p>Iterate over <code>arr1</code>, for each index <code>i</code>, create a new hash map <code>new_dp</code> with
+            default value of <code>float('inf')</code> and do the following:</p>
+    </li>
+    <li>
+        <p>Iterate over each key <code>prev</code> in <code>dp</code>:</p>
+        <ul>
+            <li>If <code>arr1[i]</code> is greater than <code>prev</code>, update <code>new_dp[arr1[i]]</code> as <code>min(new_dp[arr1[i]],
+                dp[arr1[i]])</code>.
+            </li>
+            <li>Otherwise, find the index <code>idx</code> of the smallest value in <code>arr2</code> that is greater
+                than <code>prev</code>. If such a value exists, update <code>new_dp[arr2[idx]]</code> as <code>min(new_dp[arr2[idx]],
+                    1 + dp[prev])</code>.
+            </li>
+        </ul>
+    </li>
+</ol>
+<p>Let <code>dp = new_dp</code>, and repeat from step 3.</p>
+<ol start="5">
+    <li>When the iteration is complete, return the minimum value in <code>dp</code> if it is less than <code>float('inf')</code>,
+        otherwise return <code>-1</code>.
+    </li>
+</ol>
+<h4 id="implementation-1">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int makeArrayIncreasing(int[] arr1, int[] arr2) {
+        Map<Integer, Integer> dp = new HashMap<>();
+        Arrays.sort(arr2);
+        int n = arr2.length;
+        dp.put(-1, 0);
+
+        for (int i = 0; i < arr1.length; i++) {
+            Map<Integer, Integer> newDp = new HashMap<>();
+            for (int prev : dp.keySet()) {
+                if (arr1[i] > prev) {
+                    newDp.put(arr1[i], Math.min(newDp.getOrDefault(arr1[i], Integer.MAX_VALUE), dp.get(prev)));
+                }
+                int idx = bisectRight(arr2, prev);
+                if (idx < n) {
+                    newDp.put(arr2[idx], Math.min(newDp.getOrDefault(arr2[idx], Integer.MAX_VALUE), 1 + dp.get(prev)));
+                }
+            }
+            dp = newDp;
+        }
+
+        int answer = Integer.MAX_VALUE;
+        for (int value : dp.values()) {
+            answer = Math.min(answer, value);
+        }
+
+        return answer == Integer.MAX_VALUE ? -1 : answer;
+    }
+
+    private static int bisectRight(int[] arr, int value) {
+        int left = 0, right = arr.length;
+        while (left < right) {
+            int mid = (left + right) / 2;
+            if (arr[mid] <= value) {
+                left = mid + 1;
+            } else {
+                right = mid;
+            }
+        }
+        return left;
+    }
+}
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def makeArrayIncreasing(self, arr1: List[int], arr2: List[int]) -> int:
+        dp = {-1: 0}
+        arr2.sort()
+        n = len(arr2)
+
+        for i in range(len(arr1)):
+            new_dp = collections.defaultdict(lambda: float('inf'))
+            for prev in dp:
+                if arr1[i] > prev:
+                    new_dp[arr1[i]] = min(new_dp[arr1[i]], dp[prev])
+                idx = bisect.bisect_right(arr2, prev)
+                if idx < n:
+                    new_dp[arr2[idx]] = min(new_dp[arr2[idx]], 1 + dp[prev])
+            dp = new_dp
+
+        return min(dp.values()) if dp else -1
+    </code>
+</pre>
+<h4 id="complexity-analysis-1">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">m,nm, n</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.625em; vertical-align: -0.1944em;"></span><span
+        class="mord mathnormal">m</span><span class="mpunct">,</span><span class="mspace"
+                                                                           style="margin-right: 0.1667em;"></span><span
+        class="mord mathnormal">n</span></span></span></span></span> be the length of <code>arr1</code> and
+    <code>arr2</code>.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(m⋅n⋅log⁡n)O(m \cdot n \cdot\log n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.4445em;"></span><span class="mord mathnormal">n</span><span
+                class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                      style="margin-right: 0.1667em;"></span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>Sorting <code>arr2</code> takes <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(nlog⁡n)O(n \log n)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.1667em;"></span><span
+                    class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                              style="margin-right: 0.1667em;"></span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> time.
+            </li>
+            <li>We update <code>dp</code> by <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">mm</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                    class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">m</span></span></span></span></span>
+                rounds. In each round at index <code>i</code>, there are at most <span class="math math-inline"><span
+                        class="katex"><span class="katex-mathml">n+1n + 1</span><span class="katex-html"
+                                                                                      aria-hidden="true"><span
+                        class="base"><span class="strut"
+                                           style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+                        class="mord mathnormal">n</span><span class="mspace"
+                                                              style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span
+                        class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+                        class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span>
+                possible <code>prev</code> as we might replace <code>arr[i]</code> with any of the <span
+                        class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 0.4306em;"></span><span
+                        class="mord mathnormal">n</span></span></span></span></span> values in <code>arr2</code> or
+                leave it unchanged. Each state is computed with a binary search over all start times, which takes <span
+                        class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡n)O(\log n)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span
+                        class="mspace" style="margin-right: 0.1667em;"></span><span
+                        class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <ul>
+            <li>We keep track of all states <code>(i, prev)</code> of two latest indices in <code>dp</code> and <code>new_dp</code>,
+                respectively. At each index, the number of possible distinct states is at most <span
+                        class="math math-inline"><span class="katex"><span class="katex-mathml">n+1n + 1</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+                        class="mord mathnormal">n</span><span class="mspace"
+                                                              style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span
+                        class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+                        class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span>.
+            </li>
+        </ul>
+    </li>
+</ul>
+<br>
+</body>
+</html>
