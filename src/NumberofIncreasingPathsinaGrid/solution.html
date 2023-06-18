@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Number of Increasing Paths in a Grid - Solution</title>
+</head>
+<body>
+<h2 id="solution">Number of Increasing Paths in a Grid - Solution</h2>
+<hr>
+<h3 id="overview">Overview</h3>
+<p>As shown in the picture below, we have found 8 valid paths. Note that:</p>
+<ul>
+    <li>A cell itself is also a valid path, so each cell in the grid stands for a unique path.</li>
+    <li>The path must be <strong>strictly</strong> increasing, so the paths colored in red are invalid.</li>
+</ul>
+<p><img src="1.png" alt="img"></p>
+<hr>
+<h3 id="approach-1-sorting--dp">Approach 1: Sorting + DP.</h3>
+<h4 id="intuition">Intuition</h4>
+<p>Let's build an auxiliary array <code>dp</code> of the same size as <code>grid</code> to represent the number of paths
+    that end at each cell. Initially, the value of each <code>dp[i][j]</code> cell is <code>1</code>, which stands for
+    the path made by <code>grid[i][j]</code> cell itself.</p>
+<p><img src="2.png" alt="img"></p>
+<p>Then, for each cell <code>grid[i][j]</code>, we need to look for its neighbor cells in 4 directions, if there exists
+    a neighbor cell (let's say <code>grid[i + 1][j]</code>) that is larger than <code>grid[i][j]</code>, it means every
+    path that ends at <code>grid[i][j]</code> can be extended to <code>grid[i + 1][j]</code>. Therefore, the number of
+    paths ending at <code>grid[i + 1][j]</code> should be incremented by <code>grid[i][j]</code>.</p>
+<p>However, if we traverse all cells by arbitrary order, we might need many repeated updates, as described below.</p>
+<p><img src="wrong.png" alt="img"></p>
+<p>It implies that we should iterate over all cells by value. If we sort these cells by value, then traverse over them
+    from the smallest. This ensures that the number of paths ending at each cell in <code>dp</code> is updated only
+    once.</p>
+<p>Please refer to the following slide for an example.</p>
+<p>
+<div class="relative mx-auto mb-6 flex flex-col overflow-hidden rounded-lg border-[1px] border-label-1"
+     style="max-width: 601px;">
+    <div class="rounded-lg" style="max-height: 301px;"><img alt="Current"
+                                                            class="object-fit-contain !mb-0 max-h-full max-w-full"
+                                                            src="blob:https://leetcode.com/c441de15-4ef9-4d8a-bac1-81ae69cf1478">
+    </div>
+    <div class="absolute top-[50%] left-[50%] flex h-12 w-12 translate-x-[-50%] translate-y-[-50%] items-center justify-center rounded-full bg-black/30">
+        <div class="flex h-4 w-4 cursor-pointer items-center justify-center text-[35px]">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="h-full w-full text-white">
+                <path fill-rule="evenodd"
+                      d="M18.97 12.871l-12.96 7.29a1 1 0 01-1.49-.87V4.71a1 1 0 011.49-.872l12.96 7.29a1 1 0 010 1.743z"
+                      clip-rule="evenodd"></path>
+            </svg>
+        </div>
+    </div>
+    <div class="relative flex h-8 select-none items-center justify-around bg-black">
+        <div class="flex items-center space-x-7">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M16.091 4.929l-7.057 7.078 7.057 7.064a1 1 0 01-1.414 1.414l-7.764-7.77a1 1 0 010-1.415l7.764-7.785a1 1 0 111.415 1.414z"
+                      clip-rule="evenodd"></path>
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M18.97 12.871l-12.96 7.29a1 1 0 01-1.49-.87V4.71a1 1 0 011.49-.872l12.96 7.29a1 1 0 010 1.743z"
+                      clip-rule="evenodd"></path>
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M7.913 19.071l7.057-7.078-7.057-7.064a1 1 0 011.414-1.414l7.764 7.77a1 1 0 010 1.415l-7.764 7.785a1 1 0 01-1.414-1.414z"
+                      clip-rule="evenodd"></path>
+            </svg>
+        </div>
+        <div class="absolute right-0 mr-5 text-xs font-medium text-white">1 / 6</div>
+    </div>
+</div>
+</p>
+<br>
+<h4 id="algorithm">Algorithm</h4>
+<ol>
+    <li>Initialize <code>dp</code>, a 2-d array of the same size as <code>grid</code>, and set every value as
+        <code>1</code>.
+    </li>
+    <li>Sort all cells by value and iterate over the sorted cells.</li>
+    <li>For each cell <code>grid[i][j]</code>, check its 4-direction neighbor cells, if a neighbor cell <code>grid[curr_i][curr_j]</code>
+        has a larger value, then increment <code>dp[curr_i][curr_j]</code> by <code>dp[i][j]</code>.
+    </li>
+    <li>Return the sum of all cells of <code>dp</code> when the iteration ends.</li>
+</ol>
+<h4 id="implementation">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int countPaths(int[][] grid) {
+        int[][] directions = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+        int m = grid.length, n = grid[0].length;
+        int mod = 1_000_000_007;
+
+        // Initialize dp, 1 stands for the path made by a cell itself.
+        int[][] dp = new int[m][n];
+        Arrays.stream(dp).forEach(row -> Arrays.fill(row, 1));
+
+        // Sort all cells by value.
+        int[][] cellList = new int[m * n][2];
+        for (int i = 0; i < m; ++i) {
+            for (int j = 0; j < n; ++j) {
+                int index = i * n + j;
+                cellList[index][0] = i;
+                cellList[index][1] = j;
+            }
+        }
+        Arrays.sort(cellList, (a, b) -> grid[a[0]][a[1]] - grid[b[0]][b[1]]);
+
+        // Iterate over the sorted cells, for each cell grid[i][j]:
+        for (int[] cell : cellList) {
+            int i = cell[0], j = cell[1];
+
+            // Check its four neighbor cells, if a neighbor cell grid[currI][currJ] has a
+            // larger value, increment dp[currI][currJ] by dp[i][j]
+            for (int[] d : directions) {
+                int currI = i + d[0], currJ = j + d[1];
+                if (0 <= currI && currI < m && 0 <= currJ && currJ < n
+                   && grid[currI][currJ] > grid[i][j]) {
+                    dp[currI][currJ] += dp[i][j];
+                    dp[currI][currJ] %= mod;
+                }
+            }
+        }
+
+        // Sum over dp[i][j].
+        int answer = 0;
+        for (int i = 0; i < m; ++i) {
+            for (int j = 0; j < n; ++j) {
+                answer += dp[i][j];
+                answer %= mod;
+            }
+        }
+        return answer;
+    }
+}
+    </code>
+    Python
+    <code>
+        class Solution:
+    def countPaths(self, grid: List[List[int]]) -> int:
+        m, n = len(grid), len(grid[0])
+        mod = 10 ** 9 + 7
+        directions = [[0, 1], [0, -1], [1, 0], [-1, 0]]
+
+        # Initialize dp, 1 stands for the path made by a cell itself.
+        dp = [[1] * n for _ in range(m)]
+
+        # Sort all cells by value.
+        cell_list = [[i, j] for i in range(m) for j in range(n)]
+        cell_list.sort(key = lambda x: grid[x[0]][x[1]])
+
+        # Iterate over the sorted cells, for each cell grid[i][j]:
+        for i, j in cell_list:
+            # Check its four neighbor cells, if a neighbor cell grid[curr_i][curr_j] has a
+            # larger value, increment dp[curr_i][curr_j] by dp[i][j]
+            for di, dj in directions:
+                curr_i, curr_j = i + di, j + dj
+                if 0 <= curr_i < m and 0 <= curr_j < n and grid[curr_i][curr_j] > grid[i][j]:
+                    dp[curr_i][curr_j] += dp[i][j]
+                    dp[curr_i][curr_j] %= mod
+
+        # Sum over dp[i][j].
+        return sum(sum(row) % mod for row in dp) % mod
+    </code>
+</pre>
+<h4 id="complexity-analysis">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">m×nm \times n</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+        class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+        class="mbin">×</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+        class="strut" style="height: 0.4306em;"></span><span
+        class="mord mathnormal">n</span></span></span></span></span> be the size of the input array <code>grid</code>.
+</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(m⋅n⋅log⁡(m⋅n))O(m\cdot n \cdot\log(m\cdot n))</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.4445em;"></span><span class="mord mathnormal">n</span><span
+                class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                style="margin-right: 0.01389em;">g</span></span><span class="mopen">(</span><span
+                class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal">n</span><span class="mclose">))</span></span></span></span></span></p>
+        <ul>
+            <li>We sort all cells by value, it takes <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(klog⁡k)O(k\log k)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span class="mspace"
+                                                                                           style="margin-right: 0.1667em;"></span><span
+                    class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                              style="margin-right: 0.1667em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                    class="mclose">)</span></span></span></span></span> to sort an array of size <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(k)O(k)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                    class="mclose">)</span></span></span></span></span>, so it takes <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(m⋅n⋅log⁡(m⋅n))O(m\cdot n \cdot\log(m\cdot n))</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 0.4445em;"></span><span
+                    class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span
+                    class="mopen">(</span><span class="mord mathnormal">m</span><span class="mspace"
+                                                                                      style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal">n</span><span class="mclose">))</span></span></span></span></span> time.
+            </li>
+            <li>The iteration over sorted cells has <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(m⋅n)O(m \cdot n)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> steps,
+                each step consists of checking at most four neighbor cells, thus it takes <span
+                        class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(m⋅n)O(m \cdot n)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">m</span><span class="mspace"
+                                                                                          style="margin-right: 0.2222em;"></span><span
+                        class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> time.
+            </li>
+            <li>For initialization of <code>dp</code> and the calculation of <code>answer</code> we iterate over all the
+                cells of the <code>dp</code> array, which also takes <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(m⋅n)O(m \cdot n)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">m</span><span class="mspace"
+                                                                                          style="margin-right: 0.2222em;"></span><span
+                        class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> time.
+            </li>
+            <li>To sum up, the overall time complexity is <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(m⋅n⋅log⁡(m⋅n))O(m\cdot n \cdot\log(m\cdot n))</span><span class="katex-html"
+                                                                                                     aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 0.4445em;"></span><span
+                    class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span
+                    class="mopen">(</span><span class="mord mathnormal">m</span><span class="mspace"
+                                                                                      style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal">n</span><span class="mclose">))</span></span></span></span></span>.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(m⋅n)O(m\cdot n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>We used two arrays, <code>cellList</code> and <code>dp</code>, they both contain <span
+                    class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(m⋅n)O(m \cdot n)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> elements.
+            </li>
+        </ul>
+    </li>
+</ul>
+<br>
+<hr>
+<h3 id="approach-2-dfs-with-memoization">Approach 2: DFS with Memoization</h3>
+<h4 id="intuition-1">Intuition</h4>
+<p>In the previous approach, we have to sort all cells first to avoid repeated computation. Here, we introduce a better
+    method that doesn't need traversing by order.</p>
+<p>We define a function <code>dfs(i, j)</code> to calculate the number of increasing paths ending at
+    <code>grid[i][j]</code>. <code>dfs(i, j)</code> consists of <strong>at most</strong> 5 parts:</p>
+<ul>
+    <li>1, the path consisting of <code>grid[i][j]</code> itself.</li>
+    <li><code>dfs(i - 1, j)</code>, if <code>grid[i - 1][j]</code> exists and is smaller than <code>grid[i][j]</code>.
+    </li>
+    <li><code>dfs(i, j - 1)</code>, if <code>grid[i][j - 1]</code> exists and is smaller than <code>grid[i][j]</code>.
+    </li>
+    <li><code>dfs(i + 1, j)</code>, if <code>grid[i + 1][j]</code> exists and is smaller than <code>grid[i][j]</code>.
+    </li>
+    <li><code>dfs(i, j + 1)</code>, if <code>grid[i][j + 1]</code> exists and is smaller than <code>grid[i][j]</code>.
+    </li>
+</ul>
+<p>If a neighbor cell with a smaller value (For example, <code>grid[i + 1][j] &lt; grid[i][j]</code>) exists, we can get
+    the number of paths ending at this cell as <code>dfs(i + 1, j)</code>, and for all those paths we can extend the
+    path with the current element, so we increment <code>dfs(i, j)</code> by <code>dfs(i + 1, j)</code>.</p>
+<p><img src="3.png" alt="img"></p>
+<p>Remember to use the memoization method to avoid repeated computation. Similarly, we create an array <code>dp</code>
+    of the same size as <code>grid</code>. Initially, each cell <code>dp[i][j]</code> is set to <code>0</code>, which
+    means <strong>unvisited</strong>.</p>
+<p><img src="4.png" alt="img"></p>
+<p>Once we get the number of paths ending at cell <code>grid[i][j]</code> and update <code>dp[i][j]</code>, it means the
+    cell <code>grid[i][j]</code> is <strong>visited</strong> and the value of <code>dfs(i, j)</code> calculated for the
+    first time. If we need <code>dfs(i, j)</code> in the further iteration, we don't bother repeating the DFS process to
+    calculate <code>dfs(i, j)</code>, but return <code>dp[i][j]</code> since <code>dp[i][j] = dfs(i, j)</code>.</p>
+<br>
+<p>As shown in the picture below, suppose we have visited <code>grid[0][0]</code> and updated <code>dp[0][0]</code>. Now
+    we are visiting <code>grid[1][0]</code>, <code>grid[0][0]</code> is smaller than <code>grid[1][0]</code>, according
+    to the previous definition, we need a step <code>dfs(1, 0) += dfs(0, 0)</code>. However, there is no need to
+    recalculate <code>dfs(0, 0)</code>, we can just return <code>dp[0][0]</code> which will take constant time!</p>
+<p><img src="5.png" alt="img"></p>
+<p>We can tell that each cell in <code>dp[i][j]</code> is only calculated by once.</p>
+<br>
+<h4 id="algorithm-1">Algorithm</h4>
+<ol>
+    <li>Initialize <code>dp</code>, an auxiliary 2-d array of the same size as <code>grid</code>, and set every value as
+        <code>0</code>.
+    </li>
+    <li>Iterate over every cell <code>grid[i][j]</code> and get <code>dfs(i, j)</code>, the number of paths end at it:
+        <ul>
+            <li>If <code>dp[i][j]</code> is non-zero, it means we have visited this cell, just return
+                <code>dp[i][j]</code> and repeat step 2.
+            </li>
+            <li>Otherwise, set <code>dfs(i, j) = 1</code>, the path consisting of the cell itself.</li>
+            <li>Check its 4-direction neighbor cells, if a neighbor cell <code>(prev_i, prev_j)</code> has a smaller
+                value, increment <code>dfs(i, j)</code> by <code>dfs(prev_i, prev_j)</code></li>
+            <li>Update <code>dp[i][j]</code> as <code>dfs(i, j)</code>.</li>
+        </ul>
+    </li>
+    <li>Once the iteration ends, return the sum of <code>dp</code>.</li>
+</ol>
+<h4 id="implementation-1">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    int[][] dp;
+    int[][] directions = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+    int mod = 1_000_000_007;
+
+    int dfs(int[][] grid, int i, int j) {
+        // If dp[i][j] is non-zero, it means we have got the value of dfs(i, j),
+        // so just return dp[i][j].
+        if (dp[i][j] != 0)
+            return dp[i][j];
+
+        // Otherwise, set answer = 1, the path made of grid[i][j] itself.
+        int answer = 1;
+
+        // Check its four neighbor cells, if a neighbor cell grid[prevI][prevJ] has a
+        // smaller value, we move to this cell and solve the subproblem: dfs(prevI, prevJ).
+        for (int[] d : directions) {
+            int prevI = i + d[0], prevJ = j + d[1];
+            if (0 <= prevI && prevI < grid.length && 0 <= prevJ &&
+                prevJ < grid[0].length && grid[prevI][prevJ] < grid[i][j]) {
+                answer += dfs(grid, prevI, prevJ);
+                answer %= mod;
+            }
+        }
+
+        // Update dp[i][j], so that we don't recalculate its value later.
+        dp[i][j] = answer;
+        return answer;
+    }
+
+    public int countPaths(int[][] grid) {
+        int m = grid.length, n = grid[0].length;
+        dp = new int[m][n];
+
+        // Iterate over all cells grid[i][j] and sum over dfs(i, j).
+        int answer = 0;
+        for (int i = 0; i < m; ++i) {
+            for (int j = 0; j < n; ++j) {
+                answer = (answer + dfs(grid, i, j)) % mod;
+            }
+        }
+
+        return answer;
+    }
+}
+    </code>
+    Python
+    <code>
+        class Solution:
+    def countPaths(self, grid: List[List[int]]) -> int:
+        m, n = len(grid), len(grid[0])
+        mod = 10 ** 9 + 7
+        directions = [[0, 1], [0, -1], [1, 0], [-1, 0]]
+
+        dp = [[0] * n for _ in range(m)]
+
+        def dfs(i, j):
+            # If dp[i][j] is non-zero, it means we have got the value of dfs(i, j),
+            # so just return dp[i][j].
+            if dp[i][j]:
+                return dp[i][j]
+
+            # Otherwise, set answer = 1, the path made of grid[i][j] itself.
+            answer = 1
+
+            # Check its four neighbor cells, if a neighbor cell grid[prevI][prevJ] has a
+            # smaller value, we move to this cell and solve the subproblem: dfs(prevI, prevJ).
+            for di, dj in directions:
+                prev_i, prev_j = i + di, j + dj
+                if 0 <= prev_i < m and 0 <= prev_j < n and grid[prev_i][prev_j] < grid[i][j]:
+                    answer += dfs(prev_i, prev_j) % mod
+
+            # Update dp[i][j], so that we don't recalculate its value later.
+            dp[i][j] = answer
+            return answer
+
+        # Iterate over all cells grid[i][j] and sum over dfs(i, j).
+        return sum(dfs(i, j) for i in range(m) for j in range(n)) % mod
+    </code>
+</pre>
+<h4 id="complexity-analysis-1">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">m×nm \times n</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+        class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+        class="mbin">×</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+        class="strut" style="height: 0.4306em;"></span><span
+        class="mord mathnormal">n</span></span></span></span></span> be the size of the input array <code>grid</code>.
+</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(m⋅n)O(m\cdot n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>We used <code>dp</code> as memory to avoid repeated computation, so each cell is only visited and
+                calculated once.
+            </li>
+            <li>Initialization of the <code>dp</code> array also takes <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">O(m⋅n)O(m \cdot n)</span><span class="katex-html"
+                                                                                            aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> time.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(m⋅n)O(m\cdot n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>We build the auxiliary array <code>dp</code> of the same size as <code>grid</code>.</li>
+            <li>The space complexity of recursive algorithm is proportional to the maximum depth of the recursion tree
+                generated. There are at most <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">m⋅nm\cdot n</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 0.4445em;"></span><span class="mord mathnormal">m</span><span
+                        class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span
+                        class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+                        class="strut" style="height: 0.4306em;"></span><span
+                        class="mord mathnormal">n</span></span></span></span></span> recursive call of <code>dfs</code>
+                in the stack simulaneously, thus the stack takes <span class="math math-inline"><span
+                        class="katex"><span class="katex-mathml">O(m⋅n)O(m\cdot n)</span><span class="katex-html"
+                                                                                               aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">m</span><span class="mspace"
+                                                                                          style="margin-right: 0.2222em;"></span><span
+                        class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> space.
+            </li>
+            <li>To sum up, the space complexity is <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(m⋅n)O(m\cdot n)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.
+            </li>
+        </ul>
+    </li>
+</ul>
+<br>
+</body>
+</html>
