@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Find the Highest Altitude - Solution</title>
+</head>
+<body>
+<h2 id="solution">Find the Highest Altitude - Solution</h2>
+<hr>
+<h4 id="approach-prefix-sum">Approach: Prefix Sum</h4>
+<p><strong>Intuition</strong></p>
+<p>We start from the altitude <code>0</code> and we have a list of <span class="math math-inline"><span
+        class="katex"><span class="katex-mathml">NN</span><span class="katex-html" aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                style="margin-right: 0.10903em;">N</span></span></span></span></span>
+    integers, where each integer represents the gain in altitude at each step (it could be negative as well, which
+    implies a fall in altitude) a biker takes. We need to return the highest altitude of the biker in the complete
+    journey, including the starting point at <code>0</code>.</p>
+<p>This can be solved by taking the maximum altitudes at each step in the journey. The altitude at a step can be
+    determined as the altitude at the previous step plus the gain at the current step. Hence, we will start from
+    <code>0</code> and keep adding the gain in altitude to it at each step, and after each addition, we will update the
+    maximum altitude we have seen so far.</p>
+<p><img src="1732A.png" alt="fig"></p>
+<p>If we observe closely, the altitude at a point is the sum of gains on the left of it, which is nothing but the prefix
+    sum at this index. Therefore, we can find the prefix sum and return the maximum as the highest reached altitude.</p>
+<p><strong>Algorithm</strong></p>
+<ol>
+    <li>Initialize the variable <code>currentAltitude</code> to <code>0</code>; this is the current altitude of the
+        biker.
+    </li>
+    <li>Initialize the variable <code>highestPoint</code> to <code>currentAltitude</code>, as the highest altitude we
+        have seen is <code>0</code>.
+    </li>
+    <li>Iterate over the gain in altitude in the list <code>gain</code> and add the current gain
+        <code>altitudeGain</code> to the variable <code>currentAltitude</code>.
+    </li>
+    <li>Update the variable <code>highestPoint</code> as necessary.</li>
+    <li>Return <code>highestPoint</code>.</li>
+</ol>
+<p><strong>Implementation</strong></p>
+<pre>
+    Java
+    <code>
+        class Solution {
+  public int largestAltitude(int[] gain) {
+    int currentAltitude = 0;
+    // Highest altitude currently is 0.
+    int highestPoint = currentAltitude;
+
+    for (int altitudeGain : gain) {
+      // Adding the gain in altitude to the current altitude.
+      currentAltitude += altitudeGain;
+      // Update the highest altitude.
+      highestPoint = Math.max(highestPoint, currentAltitude);
+    }
+
+    return highestPoint;
+  }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int largestAltitude(vector<int>& gain) {
+        int currentAltitude = 0;
+        // Highest altitude currently is 0.
+        int highestPoint = currentAltitude;
+
+        for (int altitudeGain : gain) {
+            // Adding the gain in altitude to the current altitude.
+            currentAltitude += altitudeGain;
+            // Update the highest altitude.
+            highestPoint = max(highestPoint, currentAltitude);
+        }
+
+        return highestPoint;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def largestAltitude(self, gain: List[int]) -> int:
+        current_altitude = 0
+        # Highest altitude currently is 0.
+        highest_point = current_altitude
+
+        for altitude_gain in gain:
+            # Adding the gain in altitude to the current altitude.
+            current_altitude += altitude_gain
+            # Update the highest altitude.
+            highest_point = max(highest_point, current_altitude)
+
+        return highest_point
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<p>Here, <span class="math math-inline"><span class="katex"><span class="katex-mathml">NN</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                style="margin-right: 0.10903em;">N</span></span></span></span></span>
+    is the number of integers in the list <code>gain</code>.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(N)O(N)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                class="mclose">)</span></span></span></span></span>.</p>
+        <p>We iterate over every integer in the list <code>gain</code> only once, and hence the total time complexity is
+            equal to <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(N)O(N)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                    class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord">1</span><span
+                class="mclose">)</span></span></span></span></span>.</p>
+        <p>We only need two variables, <code>currentAltitude</code> and<code>highestPoint</code>; hence the space
+            complexity is constant.<br>
+            <br></p>
+    </li>
+</ul>
+<hr>
+</body>
+</html>
