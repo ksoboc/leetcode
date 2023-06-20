@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>K Radius Subarray Averages - Solution</title>
+</head>
+<body>
+<h2 id="solution">K Radius Subarray Averages - Solution</h2>
+<hr>
+<h3 id="overview">Overview</h3>
+<p>In this problem, we have to return the k-radius average for each given element of the <code>nums</code> array.<br>
+    If any element doesn't have k-elements in its left and right, then its average is considered to be <code>-1</code>,
+    otherwise, the average will be the sum of all these <code>(2 * k + 1)</code> elements divided by the number of
+    elements.</p>
+<p><img src="../Figures/2090/Slide1a.PNG" alt="example"></p>
+<hr>
+<h3 id="approach-1-prefix-sum">Approach 1: Prefix Sum</h3>
+<h4 id="intuition">Intuition</h4>
+<p>We can iterate on each element of the <code>nums</code> array and based on its index <code>i</code> we can check if
+    it has <code>k</code> elements in its left and right, if it doesn't have then we know the average for the current
+    element is <code>-1</code>, but if it has then we need to sum all the elements from index <code>i - k</code> to
+    index <code>i + k</code> and divide this sum by <code>2 * k + 1</code>.</p>
+<p><img src="Slide1b.PNG" alt="img1"></p>
+<p>Now an easy way will be to iterate over all elements from index <code>i - k</code> to <code>i + k</code>, sum all the
+    elements, and divide this sum by <code>2 * k + 1</code>. But repeating this step (i.e., iterating over the
+    sub-array) for each index will result in Time Limit Exceeded.</p>
+<p>Instead, we can use the help of a prefix sum array to get the sum of elements of any sub-array in constant time
+    instead of linear time.</p>
+<blockquote>
+    <p><strong>If you are wondering how does prefix sum array work?</strong></p>
+    <p>Given an array <code>nums</code> of <code>n</code> elements, the prefix sum array <code>prefix</code> is another
+        array of <code>n + 1</code> elements such that <code>prefix[i + 1]</code> is the sum of the first <code>i</code>
+        elements of the array <code>nums</code>. In other words, <code>prefix[i + 1] = nums[0] + nums[1] + ... + nums[i
+            - 1] + nums[i]</code>.</p>
+    <p>The prefix sum array can be used to answer range sum queries (i.e., queries that ask for the sum of a contiguous
+        sub-array) in constant time, as the sum of the elements from indices <code>x</code> to <code>y</code> can be
+        calculated as <code>prefix[y + 1] - prefix[x]</code>.</p>
+</blockquote>
+<p><img src="Slide1c.PNG" alt="prefix_calculation"></p>
+<p><strong>Note:</strong> If you aren't aware of this concept we recommend you first solve this problem <a
+        href="https://leetcode.com/problems/running-sum-of-1d-array/" target="_blank">1480. Running Sum of 1d Array</a>.
+</p>
+<h4 id="algorithm">Algorithm</h4>
+<ol>
+    <li>Initialize variables:
+        <ul>
+            <li><code>n</code>, to store the number of elements in the <code>nums</code> array.</li>
+            <li><code>averages</code>, an array of size <code>n</code> initially initialized with <code>-1</code> to
+                store the k-radius average of each index of the <code>nums</code> array.
+            </li>
+            <li><code>prefix</code>, an array of size <code>n + 1</code> to store the prefix sum of the
+                <code>nums</code> array.
+            </li>
+        </ul>
+    </li>
+    <li>If <code>k</code> is <code>0</code>, which means we have to find the average of only one number at each index,
+        so we return the <code>nums</code> array, or if <code>2 * k + 1</code> is greater than <code>n</code>, which
+        means we have to find the average of more than <code>n</code> numbers which is not possible, thus we return the
+        <code>averages</code> array.
+    </li>
+    <li>We iterate on the <code>nums</code> array and generate its <code>prefix</code> array, where <code>prefix[i +
+        1]</code> is <code>prefix[i] + nums[i]</code>.
+    </li>
+    <li>We iterate on those indices which will have at least <code>k</code> elements on their left and right sides,
+        calculate the sum of the required sub-array using prefix array <code>prefix[rightBound + 1] -
+            prefix[leftBound]</code>, and store the average by dividing the sum by <code>2 * k + 1</code> in <code>averages</code>
+        array.
+    </li>
+    <li>In the end we return <code>averages</code> array.</li>
+</ol>
+<h4 id="implementation">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int[] getAverages(int[] nums, int k) {
+        // When a single element is considered then its averafge will be the number itself only.
+        if (k == 0) {
+            return nums;
+        }
+
+        int n = nums.length;
+        int[] averages = new int[n];
+        Arrays.fill(averages, -1);
+
+        // Any index will not have 'k' elements in it's left and right.
+        if (2 * k + 1 > n) {
+            return averages;
+        }
+
+        // Generate 'prefix' array for 'nums'.
+        // 'prefix[i + 1]' will be sum of all elements of 'nums' from index '0' to 'i'.
+        long[] prefix = new long[n + 1];
+        for (int i = 0; i < n; ++i) {
+            prefix[i + 1] = prefix[i] + nums[i];
+        }
+
+        // We iterate only on those indices which have atleast 'k' elements in their left and right.
+        // i.e. indices from 'k' to 'n - k'
+        for (int i = k; i < (n - k); ++i) {
+            int leftBound = i - k, rightBound = i + k;
+            long subArraySum = prefix[rightBound + 1] - prefix[leftBound];
+            int average = (int) (subArraySum / (2 * k + 1));
+            averages[i] = average;
+        }
+
+        return averages;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    vector<int> getAverages(vector<int>& nums, int k) {
+        // When a single element is considered then its averafge will be the number itself only.
+        if (k == 0) {
+            return nums;
+        }
+
+        int n = nums.size();
+        vector<int> averages(n, -1);
+
+        // Any index will not have 'k' elements in it's left and right.
+        if (2 * k + 1 > n) {
+            return averages;
+        }
+
+        // Generate 'prefix' array for 'nums'.
+        // 'prefix[i + 1]' will be sum of all elements of 'nums' from index '0' to 'i'.
+        vector<long long> prefix(n + 1);
+        for (int i = 0; i < n; ++i) {
+            prefix[i + 1] = prefix[i] + nums[i];
+        }
+
+        // We iterate only on those indices which have atleast 'k' elements in their left and right.
+        // i.e. indices from 'k' to 'n - k'
+        for (int i = k; i < (n - k); ++i) {
+            int leftBound = i - k, rightBound = i + k;
+            long long subArraySum = prefix[rightBound + 1] - prefix[leftBound];
+            int average = subArraySum / (2 * k + 1);
+            averages[i] = average;
+        }
+
+        return averages;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def getAverages(self, nums: List[int], k: int) -> List[int]:
+        # When a single element is considered then its averafge will be the number itself only.
+        if k == 0:
+            return nums
+
+        n = len(nums)
+        averages = [-1] * n
+
+        # Any index will not have 'k' elements in it's left and right.
+        if 2 * k + 1 > n:
+            return averages
+
+        # Generate 'prefix' array for 'nums'.
+        # 'prefix[i + 1]' will be sum of all elements of 'nums' from index '0' to 'i'.
+        prefix = [0] * (n + 1)
+        for i in range(n):
+            prefix[i + 1] = prefix[i] + nums[i]
+
+        # We iterate only on those indices which have atleast 'k' elements in their left and right.
+        # i.e. indices from 'k' to 'n - k'
+        for i in range(k, n - k):
+            leftBound, rightBound = i - k, i + k
+            subArraySum = prefix[rightBound + 1] - prefix[leftBound]
+            average = subArraySum // (2 * k + 1)
+            averages[i] = average
+
+        return averages
+    </code>
+    JavaScript
+    <code>
+        var getAverages = function(nums, k) {
+    // When a single element is considered then its average will be the number itself only.
+    if (k === 0) {
+        return nums;
+    }
+
+    const n = nums.length;
+    const averages = new Array(n).fill(-1);
+
+    // Any index will not have 'k' elements in its left and right.
+    if (2 * k + 1 > n) {
+        return averages;
+    }
+
+    // Generate 'prefix' array for 'nums'.
+    // 'prefix[i + 1]' will be sum of all elements of 'nums' from index '0' to 'i'.
+    const prefix = new Array(n + 1).fill(0);
+    for (let i = 0; i < n; ++i) {
+        prefix[i + 1] = prefix[i] + nums[i];
+    }
+
+    // We iterate only on those indices which have at least 'k' elements in their left and right.
+    // i.e. indices from 'k' to 'n - k'
+    for (let i = k; i < (n - k); ++i) {
+        const leftBound = i - k, rightBound = i + k;
+        const subArraySum = prefix[rightBound + 1] - prefix[leftBound];
+        const average = Math.floor(subArraySum / (2 * k + 1));
+        averages[i] = average;
+    }
+
+    return averages;
+};
+    </code>
+</pre>
+<h4 id="complexity-analysis">Complexity Analysis</h4>
+<p>Here, <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    is the number of elements in the <code>nums</code> array.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <ul>
+            <li>We generate the <code>prefix</code> array by iterating on the <code>nums</code> array once, thus it will
+                take <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+                time.
+            </li>
+            <li>Then, we fill the <code>averages</code> array by again iterating on the <code>nums</code> array, where
+                finding the average of each index is a constant time operation, thus, it will take us <span
+                        class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+                time.
+            </li>
+            <li>So, overall we take <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> time.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <ul>
+            <li>The output array <code>averages</code> is not considered as additional space usage.</li>
+            <li>But, we have used another additional array <code>prefix</code> of size <code>n + 1</code>, thus, we use
+                <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+                additional space in this approach.
+            </li>
+        </ul>
+    </li>
+</ul>
+<hr>
+<br>
+<h3 id="approach-2-sliding-window">Approach 2: Sliding Window</h3>
+<h4 id="intuition-1">Intuition</h4>
+<p>We know that we always have to keep a window of size <code>2 * k + 1</code> (centered around index <code>x</code>) to
+    find its k-radius average.</p>
+<p>Let's assume we already know the sum of the <code>2 * k + 1</code> elements centered at index <code>x</code>, let
+    this sum be <span class="math math-inline"><span class="katex"><span class="katex-mathml">SxS_x</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.8333em; vertical-align: -0.15em;"></span><span
+            class="mord"><span class="mord mathnormal" style="margin-right: 0.05764em;">S</span><span
+            class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist"
+                                                                                       style="height: 0.1514em;"><span
+            style="top: -2.55em; margin-left: -0.0576em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                      style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span
+            class="mord mathnormal mtight">x</span></span></span></span><span class="vlist-s">​</span></span><span
+            class="vlist-r"><span class="vlist" style="height: 0.15em;"><span></span></span></span></span></span></span></span></span></span></span>.
+    When we move to the next index <code>x + 1</code> we shift our window to the right by one element, thus from the sum
+    of elements of the previous window range (<span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">SxS_x</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.8333em; vertical-align: -0.15em;"></span><span class="mord"><span
+            class="mord mathnormal" style="margin-right: 0.05764em;">S</span><span class="msupsub"><span
+            class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.1514em;"><span
+            style="top: -2.55em; margin-left: -0.0576em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                      style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span
+            class="mord mathnormal mtight">x</span></span></span></span><span class="vlist-s">​</span></span><span
+            class="vlist-r"><span class="vlist" style="height: 0.15em;"><span></span></span></span></span></span></span></span></span></span></span>)
+    we subtract the left-most element of the previous window and add the next element on the right to get the new window
+    sum in constant time.</p>
+<p><span class="math math-inline"><span class="katex"><span class="katex-mathml">Sx+1=Sx+(next&nbsp;element&nbsp;on&nbsp;the&nbsp;right)−(left&nbsp;most&nbsp;window&nbsp;element)S_{x + 1} = S_x + \text{(next element on the right)} - \text{(left most window element)}</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.8917em; vertical-align: -0.2083em;"></span><span
+        class="mord"><span class="mord mathnormal" style="margin-right: 0.05764em;">S</span><span class="msupsub"><span
+        class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.3011em;"><span
+        style="top: -2.55em; margin-left: -0.0576em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                  style="height: 2.7em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+        class="mord mathnormal mtight">x</span><span class="mbin mtight">+</span><span
+        class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span
+        class="vlist-r"><span class="vlist"
+                              style="height: 0.2083em;"><span></span></span></span></span></span></span><span
+        class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace"
+                                                                                               style="margin-right: 0.2778em;"></span></span><span
+        class="base"><span class="strut" style="height: 0.8333em; vertical-align: -0.15em;"></span><span
+        class="mord"><span class="mord mathnormal" style="margin-right: 0.05764em;">S</span><span class="msupsub"><span
+        class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.1514em;"><span
+        style="top: -2.55em; margin-left: -0.0576em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                  style="height: 2.7em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">x</span></span></span></span><span
+        class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                   style="height: 0.15em;"><span></span></span></span></span></span></span><span
+        class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace"
+                                                                                               style="margin-right: 0.2222em;"></span></span><span
+        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord text"><span class="mord">(next&nbsp;element&nbsp;on&nbsp;the&nbsp;right)</span></span><span
+        class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">−</span><span class="mspace"
+                                                                                               style="margin-right: 0.2222em;"></span></span><span
+        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord text"><span
+        class="mord">(left&nbsp;most&nbsp;window&nbsp;element)</span></span></span></span></span></span></p>
+<p><img src="Slide2a.PNG" alt="img1"></p>
+<p>Thus we can eliminate the use of the <code>prefix</code> array to generate the sum of all elements of all windows of
+    size <code>2 * k + 1</code>.</p>
+<p><strong>Note:</strong> If you aren't familiar with the sliding window concept we recommend you first solve this
+    problem <a href="https://leetcode.com/problems/maximum-number-of-vowels-in-a-substring-of-given-length/description/"
+               target="_blank">1456. Maximum Number of Vowels in a Substring of Given Length</a>.</p>
+<h4 id="algorithm-1">Algorithm</h4>
+<ol>
+    <li>Initialize variables:
+        <ul>
+            <li><code>n</code>, to store the number of elements in the <code>nums</code> array.</li>
+            <li><code>averages</code>, an array of size <code>n</code> initially initialized with <code>-1</code> to
+                store the k-radius average of each index of the <code>nums</code> array.
+            </li>
+            <li><code>windowSum</code>, to store the sum of the current window.</li>
+        </ul>
+    </li>
+    <li>If <code>k</code> is <code>0</code>, which means we have to find the average of only one number at each index,
+        so we return the <code>nums</code> array, or if <code>2 * k + 1</code> is greater than <code>n</code>, which
+        means we have to find the average of more than <code>n</code> numbers which is not possible, thus we return the
+        <code>averages</code> array.
+    </li>
+    <li>We iterate on the first <code>2 * k + 1</code> elements to get the sum of the first window, calculate the first
+        <code>windowSum</code>, and store the average in the <code>averages</code> array.
+    </li>
+    <li>Now we will shift the window by one element at each iteration to find the averages of all remaining windows.
+        <ul>
+            <li>For each window, variable <code>i</code> will point to the rightmost, <code>i - (2 * k + 1) + 1</code>
+                will point to the leftmost, and <code>i - k</code> will point to the center element.
+            </li>
+            <li>We calculate the sum of the current window using the previous window's sum as discussed, <code>windowSum
+                - nums[i - (2 * k + 1)] + num[i]</code>, and store the average in the <code>averages</code> array.
+            </li>
+        </ul>
+    </li>
+    <li>In the end we return the <code>averages</code> array.</li>
+</ol>
+<h4 id="implementation-1">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int[] getAverages(int[] nums, int k) {
+        // When a single element is considered then its averafge will be the number itself only.
+        if (k == 0) {
+            return nums;
+        }
+
+        int n = nums.length;
+        int[] averages = new int[n];
+        Arrays.fill(averages, -1);
+
+        // Any index will not have 'k' elements in it's left and right.
+        if (2 * k + 1 > n) {
+            return averages;
+        }
+
+        // Generate 'prefix' array for 'nums'.
+        // 'prefix[i + 1]' will be sum of all elements of 'nums' from index '0' to 'i'.
+        long[] prefix = new long[n + 1];
+        for (int i = 0; i < n; ++i) {
+            prefix[i + 1] = prefix[i] + nums[i];
+        }
+
+        // We iterate only on those indices which have atleast 'k' elements in their left and right.
+        // i.e. indices from 'k' to 'n - k'
+        for (int i = k; i < (n - k); ++i) {
+            int leftBound = i - k, rightBound = i + k;
+            long subArraySum = prefix[rightBound + 1] - prefix[leftBound];
+            int average = (int) (subArraySum / (2 * k + 1));
+            averages[i] = average;
+        }
+
+        return averages;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    vector<int> getAverages(vector<int>& nums, int k) {
+        // When a single element is considered then its averafge will be the number itself only.
+        if (k == 0) {
+            return nums;
+        }
+
+        int n = nums.size();
+        vector<int> averages(n, -1);
+
+        // Any index will not have 'k' elements in it's left and right.
+        if (2 * k + 1 > n) {
+            return averages;
+        }
+
+        // Generate 'prefix' array for 'nums'.
+        // 'prefix[i + 1]' will be sum of all elements of 'nums' from index '0' to 'i'.
+        vector<long long> prefix(n + 1);
+        for (int i = 0; i < n; ++i) {
+            prefix[i + 1] = prefix[i] + nums[i];
+        }
+
+        // We iterate only on those indices which have atleast 'k' elements in their left and right.
+        // i.e. indices from 'k' to 'n - k'
+        for (int i = k; i < (n - k); ++i) {
+            int leftBound = i - k, rightBound = i + k;
+            long long subArraySum = prefix[rightBound + 1] - prefix[leftBound];
+            int average = subArraySum / (2 * k + 1);
+            averages[i] = average;
+        }
+
+        return averages;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def getAverages(self, nums: List[int], k: int) -> List[int]:
+        # When a single element is considered then its averafge will be the number itself only.
+        if k == 0:
+            return nums
+
+        n = len(nums)
+        averages = [-1] * n
+
+        # Any index will not have 'k' elements in it's left and right.
+        if 2 * k + 1 > n:
+            return averages
+
+        # Generate 'prefix' array for 'nums'.
+        # 'prefix[i + 1]' will be sum of all elements of 'nums' from index '0' to 'i'.
+        prefix = [0] * (n + 1)
+        for i in range(n):
+            prefix[i + 1] = prefix[i] + nums[i]
+
+        # We iterate only on those indices which have atleast 'k' elements in their left and right.
+        # i.e. indices from 'k' to 'n - k'
+        for i in range(k, n - k):
+            leftBound, rightBound = i - k, i + k
+            subArraySum = prefix[rightBound + 1] - prefix[leftBound]
+            average = subArraySum // (2 * k + 1)
+            averages[i] = average
+
+        return averages
+    </code>
+    JavaScript
+    <code>
+        var getAverages = function(nums, k) {
+    // When a single element is considered then its average will be the number itself only.
+    if (k === 0) {
+        return nums;
+    }
+
+    const n = nums.length;
+    const averages = new Array(n).fill(-1);
+
+    // Any index will not have 'k' elements in its left and right.
+    if (2 * k + 1 > n) {
+        return averages;
+    }
+
+    // Generate 'prefix' array for 'nums'.
+    // 'prefix[i + 1]' will be sum of all elements of 'nums' from index '0' to 'i'.
+    const prefix = new Array(n + 1).fill(0);
+    for (let i = 0; i < n; ++i) {
+        prefix[i + 1] = prefix[i] + nums[i];
+    }
+
+    // We iterate only on those indices which have at least 'k' elements in their left and right.
+    // i.e. indices from 'k' to 'n - k'
+    for (let i = k; i < (n - k); ++i) {
+        const leftBound = i - k, rightBound = i + k;
+        const subArraySum = prefix[rightBound + 1] - prefix[leftBound];
+        const average = Math.floor(subArraySum / (2 * k + 1));
+        averages[i] = average;
+    }
+
+    return averages;
+};
+    </code>
+</pre>
+<h4 id="complexity-analysis-1">Complexity Analysis</h4>
+<p>Here, <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    is the number of elements in the <code>nums</code> array.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <ul>
+            <li>Initializing the <code>averages</code> array with <code>-1</code> will take <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> time.
+            </li>
+            <li>Then we iterate over the <code>nums</code> array linearly to find the k-radius average of each index,
+                which will also take <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+                time.<br>
+                Thus, overall we use <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+                time.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord">1</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>The output array <code>averages</code> is not considered as additional space usage.</li>
+        </ul>
+    </li>
+</ul>
+</body>
+</html>
