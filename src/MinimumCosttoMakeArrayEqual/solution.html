@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Minimum Cost to Make Array Equal</title>
+</head>
+<body>
+<h2 id="solution">Solution</h2>
+<hr>
+<h3 id="overview">Overview</h3>
+<p>As shown in the picture below, we choose <code>3</code> as the <strong>base</strong>, i.e., make every element equal
+    to <code>3</code>, resulting in a cost of <code>20</code>. For convenience, we will refer to the total cost (with a
+    base of <code>x</code>) as <code>F(x)</code>.</p>
+<p><img src="intro.png" alt="img"></p>
+<hr>
+<h3 id="approach-1-prefix-sum">Approach 1: Prefix Sum</h3>
+<h4 id="intuition">Intuition</h4>
+<p>Let's say that we take <code>x</code> as the base and we do not yet know the relation between <code>x</code> and the
+    total cost <code>F(x)</code>. Naturally, we want to try all possible bases to find the one that brings the minimum
+    cost, however, there are infinite bases. Fortunately, we don't need to try every <code>x</code> which is
+    impractical. <strong>We just need to try every <code>nums[i]</code> as the base</strong>. The proof will be given
+    later!</p>
+<p>If we take <code>nums[i]</code> as the base, we need to increase those numbers that are smaller than
+    <code>nums[i]</code> and decrease those numbers that are larger than <code>nums[i]</code>. Let's first roughly
+    estimate the time complexity of this approach:</p>
+<p>Assume there are <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.4306em;"></span><span
+        class="mord mathnormal">n</span></span></span></span></span> integers in <code>nums</code>, for each base <code>nums[i]</code>,
+    we want to get the cost of making every element equal <code>nums[i]</code>, this step needs an iteration over <code>nums</code>
+    to add up each individual cost. Therefore, this approach needs <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.4306em;"></span><span
+            class="mord mathnormal">n</span></span></span></span></span> iterations for each element in the input and
+    takes <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n2)O(n ^ 2)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+            class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span
+            class="mord mtight">2</span></span></span></span></span></span></span></span><span
+            class="mclose">)</span></span></span></span></span> time at least. It might not pass the time limit.</p>
+<p>We could refine it by sorting <code>nums</code> first, don't forget to match <code>cost[i]</code> with its original
+    <code>nums[i]</code>.</p>
+<p><img src="1.png" alt="img"></p>
+<p>This way, instead of iterating through <code>nums</code> every time, we only need to get the
+    <strong>difference</strong> between the cost made by the current base <code>nums[i]</code> and that made by the
+    previous case <code>nums[i - 1]</code>. How does that happen? Let's look at the following picture, the cost consists
+    of two parts:</p>
+<ul>
+    <li>The cost of increasing those numbers smaller than <code>nums[i]</code> (we call it 'prefix' part).</li>
+    <li>The cost of decreasing those numbers larger than <code>nums[i]</code> (we call it 'suffix' part).</li>
+</ul>
+<p><img src="3.png" alt="img"></p>
+<p>Take a closer look at the 'prefix' part. Assume the current base <code>x</code> is a value between
+    <code>nums[2]</code> and <code>nums[3]</code>, if we increase it by <code>Δx</code>, the 'prefix' cost is increased
+    by <code>Δx * (cost[0] + cost[1] + cost[2])</code>, in other words, the increment of the cost is proportional to the
+    prefix sum of <code>cost</code>. Similarly, the decrement of the cost is proportional to the suffix sum of <code>cost</code>.
+    It implies that we shall build the prefix sum array of the costs, then these prefix and suffix terms, as well as the
+    change of the total cost, can be calculated in constant time.</p>
+<p><img src="2.png" alt="img"></p>
+<p>Recall that we have left an unproven conclusion: we only need to try every <code>nums[i]</code> as the base. The
+    reason is that the total cost <code>F(x)</code> is <strong>monotonic</strong> when the <code>x</code> is in the
+    range of two adjacent elements(<code>nums[i]</code> and <code>nums[i + 1]</code>).</p>
+<p>As shown in the picture below, the current base <code>x</code> is within <code>nums[2]</code> and
+    <code>nums[3]</code>, if we increase <code>x</code> by <code>Δx</code>, the change of the total cost is <code>Δx *
+        (prefix - suffix)</code>, which is monotonic. Therefore, either <code>nums[2]</code> or <code>nums[3]</code> is
+    the base that brings the minimum cost (within the range <code>[nums[2], nums[3]]</code>).</p>
+<p><img src="5.png" alt="img"></p>
+<p>Therefore, we only need to try each <code>nums[i]</code> as the base, starting with <code>nums[0]</code>. Then we
+    will iterate over the rest of the sorted <code>nums</code>, for <code>nums[i]</code>, we don't bother iterating over
+    <code>nums</code> again, but use the prefix sum array to get the cost difference between <code>F(nums[i])</code> and
+    <code>F(nums[i - 1])</code>.</p>
+<p>Take the following slides as a detailed example:</p>
+<p>
+<div class="relative mx-auto mb-6 flex flex-col overflow-hidden rounded-lg border-[1px] border-label-1"
+     style="max-width: 601px;">
+    <div class="rounded-lg" style="max-height: 301px;"><img alt="Current"
+                                                            class="object-fit-contain !mb-0 max-h-full max-w-full"
+                                                            src="blob:https://leetcode.com/315cf118-fc22-4a91-9c32-81334ff762e8">
+    </div>
+    <div class="absolute top-[50%] left-[50%] flex h-12 w-12 translate-x-[-50%] translate-y-[-50%] items-center justify-center rounded-full bg-black/30">
+        <div class="flex h-4 w-4 cursor-pointer items-center justify-center text-[35px]">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="h-full w-full text-white">
+                <path fill-rule="evenodd"
+                      d="M18.97 12.871l-12.96 7.29a1 1 0 01-1.49-.87V4.71a1 1 0 011.49-.872l12.96 7.29a1 1 0 010 1.743z"
+                      clip-rule="evenodd"></path>
+            </svg>
+        </div>
+    </div>
+    <div class="relative flex h-8 select-none items-center justify-around bg-black">
+        <div class="flex items-center space-x-7">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M16.091 4.929l-7.057 7.078 7.057 7.064a1 1 0 01-1.414 1.414l-7.764-7.77a1 1 0 010-1.415l7.764-7.785a1 1 0 111.415 1.414z"
+                      clip-rule="evenodd"></path>
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M18.97 12.871l-12.96 7.29a1 1 0 01-1.49-.87V4.71a1 1 0 011.49-.872l12.96 7.29a1 1 0 010 1.743z"
+                      clip-rule="evenodd"></path>
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M7.913 19.071l7.057-7.078-7.057-7.064a1 1 0 011.414-1.414l7.764 7.77a1 1 0 010 1.415l-7.764 7.785a1 1 0 01-1.414-1.414z"
+                      clip-rule="evenodd"></path>
+            </svg>
+        </div>
+        <div class="absolute right-0 mr-5 text-xs font-medium text-white">1 / 6</div>
+    </div>
+</div>
+</p>
+<br>
+<h4 id="algorithm">Algorithm</h4>
+<ol>
+    <li>
+        <p>Collect every pair of <code>nums[i]</code> and <code>cost[i]</code> in the array <code>numsAndCost</code> and
+            sort it according to <code>nums[i]</code>.</p>
+    </li>
+    <li>
+        <p>Build a prefix sum array <code>prefixCost</code> to record the prefix sum of the cost in the sorted <code>numsAndCost</code>.
+        </p>
+    </li>
+    <li>
+        <p>Start with <code>nums[0]</code>, calculate the cost of making every element equal <code>nums[0]</code> as
+            <code>totalCost</code>.</p>
+    </li>
+    <li>
+        <p>Iterate over <code>nums</code> starting from <code>nums[1]</code>, for every base <code>nums[i]</code>:</p>
+        <ul>
+            <li>
+                <p>Calculate the different between the current base and the previous base as <code>gap = nums[i] -
+                    nums[i - 1]</code>.</p>
+            </li>
+            <li>
+                <p>The current <code>totalCost</code> made by <code>nums[i]</code>, compared with the previous cost made
+                    by <code>nums[i - 1]</code>, is increased by <code>gap</code> times the prefix sum of costs <code>prefixCost[i
+                        - 1]</code> and decreased by <code>gap</code> times the suffix sum of costs <code>prefixCost[n -
+                        1] - prefixCost[i - 1]</code>.</p>
+            </li>
+            <li>
+                <p>Record and update the smallest <code>totalCost</code> we have met so far as <code>answer</code>.</p>
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Once the iteration ends, return <code>answer</code>.</p>
+    </li>
+</ol>
+<h4 id="implementation">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public long minCost(int[] nums, int[] cost) {
+        // Sort integers by values.
+        int n = nums.length;
+        int[][] numsAndCost = new int[n][2];
+        for (int i = 0; i < n; ++i) {
+            numsAndCost[i][0] = nums[i];
+            numsAndCost[i][1] = cost[i];
+        }
+        Arrays.sort(numsAndCost, (a, b) -> a[0] - b[0]);
+
+        // Get the prefix sum array of the costs.
+        long[] prefixCost = new long[n];
+        prefixCost[0] = numsAndCost[0][1];
+        for (int i = 1; i < n; ++i)
+            prefixCost[i] = numsAndCost[i][1] + prefixCost[i - 1];
+
+        // Then we try every integer nums[i] and make every element equals nums[i],
+        // Start with nums[0]
+        long totalCost = 0l;
+        for (int i = 1; i < n; ++i)
+            totalCost += 1l * numsAndCost[i][1] * (numsAndCost[i][0] - numsAndCost[0][0]);
+        long answer = totalCost;
+
+        // Then we try nums[1], nums[2] and so on. The cost difference is made by the change of
+        // two parts: 1. prefix sum of costs. 2. suffix sum of costs.
+        // During the iteration, record the minimum cost we have met.
+        for (int i = 1; i < n; ++i) {
+            int gap = numsAndCost[i][0] - numsAndCost[i - 1][0];
+            totalCost += 1l * prefixCost[i - 1] * gap;
+            totalCost -= 1l * (prefixCost[n - 1] - prefixCost[i - 1]) * gap;
+            answer = Math.min(answer, totalCost);
+        }
+
+        return answer;
+    }
+}
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def minCost(self, nums: List[int], cost: List[int]) -> int:
+        # Sort integers by values.
+        num_and_cost = sorted([num, c] for num, c in zip(nums, cost))
+        n = len(cost)
+
+        # Get the prefix sum array of the costs.
+        prefix_cost = [0] * n
+        prefix_cost[0] = num_and_cost[0][1]
+        for i in range(1, n):
+            prefix_cost[i] = num_and_cost[i][1] + prefix_cost[i - 1]
+
+        # Then we try every integer nums[i] and make every element equals nums[i],
+        # Start with nums[0]
+        total_cost = 0
+        for i in range(1, n):
+            total_cost += num_and_cost[i][1] * (num_and_cost[i][0] - num_and_cost[0][0])
+        answer = total_cost
+
+        # Then we try nums[1], nums[2] and so on. The cost difference is made by the change of
+        # two parts: 1. prefix sum of costs. 2. suffix sum of costs.
+        # During the iteration, record the minimum cost we have met.
+        for i in range(1, n):
+            gap = num_and_cost[i][0] - num_and_cost[i - 1][0]
+            total_cost += prefix_cost[i - 1] * gap
+            total_cost -= gap * (prefix_cost[n - 1] - prefix_cost[i - 1])
+            answer = min(answer, total_cost)
+
+        return answer
+    </code>
+</pre>
+<h4 id="complexity-analysis">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    be the length of the input array <code>nums</code>.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅log⁡n)O(n \cdot \log n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                      style="margin-right: 0.1667em;"></span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>
+                <p>We need to sort the all integers <code>numAndCost</code>, it takes <span
+                        class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅log⁡n)O(n \cdot \log n)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mspace"
+                                                                                          style="margin-right: 0.2222em;"></span><span
+                        class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                                  style="margin-right: 0.1667em;"></span><span
+                        class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> time.
+                </p>
+            </li>
+            <li>
+                <p>Then we iterate over the sorted <code>numAndCost</code> and calculate the change of
+                    <code>totalCost</code> at each step, it takes <span class="math math-inline"><span
+                            class="katex"><span class="katex-mathml">O(n)O(n)</span><span class="katex-html"
+                                                                                          aria-hidden="true"><span
+                            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                            class="mopen">(</span><span class="mord mathnormal">n</span><span
+                            class="mclose">)</span></span></span></span></span> time.</p>
+            </li>
+            <li>
+                <p>In summary, the time complexity is <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(n⋅log⁡n)O(n \cdot \log n)</span><span class="katex-html"
+                                                                                     aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mspace"
+                                                                                          style="margin-right: 0.2222em;"></span><span
+                        class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                                  style="margin-right: 0.1667em;"></span><span
+                        class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.</p>
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <ul>
+            <li>We build an auxiliary array <code>prefixCost</code> of size <code>n</code>, it takes <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> space.
+            </li>
+        </ul>
+    </li>
+</ul>
+<br>
+<hr>
+<h3 id="approach-2-binary-search">Approach 2: Binary Search</h3>
+<h4 id="intuition-1">Intuition</h4>
+<p>This approach is based on one theorem: a linear combination (with non-negative coefficients) of convex functions is
+    convex.</p>
+<blockquote>
+    <p>You might find more information of convex function <a href="https://en.wikipedia.org/wiki/Convex_function"
+                                                             target="_blank">here</a></p>
+</blockquote>
+<p>Here, we define <span class="math math-inline"><span class="katex"><span class="katex-mathml">fi(x)f_i(x)</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord"><span class="mord mathnormal" style="margin-right: 0.10764em;">f</span><span class="msupsub"><span
+        class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.3117em;"><span
+        style="top: -2.55em; margin-left: -0.1076em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                  style="height: 2.7em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span
+        class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                   style="height: 0.15em;"><span></span></span></span></span></span></span><span
+        class="mopen">(</span><span class="mord mathnormal">x</span><span
+        class="mclose">)</span></span></span></span></span> as the cost function if <code>nums</code> only contains one
+    element <code>nums[i]</code>.</p>
+<p>If <code>nums</code> only contains <code>nums[i]</code>, the cost function <span class="math math-inline"><span
+        class="katex"><span class="katex-mathml">fi(x)f_i(x)</span><span class="katex-html" aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord"><span
+        class="mord mathnormal" style="margin-right: 0.10764em;">f</span><span class="msupsub"><span
+        class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.3117em;"><span
+        style="top: -2.55em; margin-left: -0.1076em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                  style="height: 2.7em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span
+        class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                   style="height: 0.15em;"><span></span></span></span></span></span></span><span
+        class="mopen">(</span><span class="mord mathnormal">x</span><span
+        class="mclose">)</span></span></span></span></span> is convex, as shown in the picture below.</p>
+<p>If <code>nums</code> consists of multiple elements, the cost <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">F(x)F(x)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                 style="margin-right: 0.13889em;">F</span><span
+        class="mopen">(</span><span class="mord mathnormal">x</span><span
+        class="mclose">)</span></span></span></span></span> is the combination of every <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">fi(x)f_i(x)</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord"><span class="mord mathnormal" style="margin-right: 0.10764em;">f</span><span class="msupsub"><span
+        class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.3117em;"><span
+        style="top: -2.55em; margin-left: -0.1076em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                  style="height: 2.7em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span
+        class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                   style="height: 0.15em;"><span></span></span></span></span></span></span><span
+        class="mopen">(</span><span class="mord mathnormal">x</span><span
+        class="mclose">)</span></span></span></span></span>, that is <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">F(x)=f1(x)+f2(x)+...F(x) = f_1(x) + f_2(x) + ... </span><span class="katex-html"
+                                                                                           aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.13889em;">F</span><span class="mopen">(</span><span
+        class="mord mathnormal">x</span><span class="mclose">)</span><span class="mspace"
+                                                                           style="margin-right: 0.2778em;"></span><span
+        class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span
+        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord"><span
+        class="mord mathnormal" style="margin-right: 0.10764em;">f</span><span class="msupsub"><span
+        class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.3011em;"><span
+        style="top: -2.55em; margin-left: -0.1076em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                  style="height: 2.7em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span
+        class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                   style="height: 0.15em;"><span></span></span></span></span></span></span><span
+        class="mopen">(</span><span class="mord mathnormal">x</span><span class="mclose">)</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span><span
+        class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord"><span
+        class="mord mathnormal" style="margin-right: 0.10764em;">f</span><span class="msupsub"><span
+        class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.3011em;"><span
+        style="top: -2.55em; margin-left: -0.1076em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                  style="height: 2.7em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span
+        class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                   style="height: 0.15em;"><span></span></span></span></span></span></span><span
+        class="mopen">(</span><span class="mord mathnormal">x</span><span class="mclose">)</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span><span
+        class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+        class="strut" style="height: 0.1056em;"></span><span class="mord">...</span></span></span></span></span> where
+    each <span class="math math-inline"><span class="katex"><span class="katex-mathml">fi(x)f_i(x)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord"><span class="mord mathnormal" style="margin-right: 0.10764em;">f</span><span
+            class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist"
+                                                                                       style="height: 0.3117em;"><span
+            style="top: -2.55em; margin-left: -0.1076em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                      style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span
+            class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span
+            class="vlist-r"><span class="vlist" style="height: 0.15em;"><span></span></span></span></span></span></span><span
+            class="mopen">(</span><span class="mord mathnormal">x</span><span
+            class="mclose">)</span></span></span></span></span> is convex.</p>
+<p><img src="c1.png" alt="img"></p>
+<p>Therefore, the total cost function <span class="math math-inline"><span class="katex"><span class="katex-mathml">F(x)F(x)</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.13889em;">F</span><span class="mopen">(</span><span
+        class="mord mathnormal">x</span><span class="mclose">)</span></span></span></span></span> is convex and has the
+    minimum <code>mi</code> in the range <code>[min(nums), max(nums)]</code>.</p>
+<p>Therefore, we can use binary search to locate the minimum of this convex function. Start with setting the boundaries
+    of the search space as <code>left = min(nums)</code> and <code>right = max(nums)</code>, we cut the search space
+    into two halves by <code>mid = (left + right) / 2</code>. Then we shall determine which part contains the minimum
+    cost. This can be done by comparing the cost of two adjacent bases:</p>
+<ul>
+    <li>If <span class="math math-inline"><span class="katex"><span class="katex-mathml">F(x)&lt;F(x+1)F(x) &lt; F(x + 1)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.13889em;">F</span><span class="mopen">(</span><span
+            class="mord mathnormal">x</span><span class="mclose">)</span><span class="mspace"
+                                                                               style="margin-right: 0.2778em;"></span><span
+            class="mrel">&lt;</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.13889em;">F</span><span class="mopen">(</span><span
+            class="mord mathnormal">x</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord">1</span><span class="mclose">)</span></span></span></span></span>, it means the base that
+        brings the minimum cost is on <span class="math math-inline"><span class="katex"><span class="katex-mathml">F(x)F(x)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.13889em;">F</span><span class="mopen">(</span><span
+                class="mord mathnormal">x</span><span class="mclose">)</span></span></span></span></span>'s left, thus
+        we should cut the right half.
+    </li>
+    <li>If <span class="math math-inline"><span class="katex"><span class="katex-mathml">F(x)&gt;=F(x+1)F(x) &gt;= F(x + 1)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.13889em;">F</span><span class="mopen">(</span><span
+            class="mord mathnormal">x</span><span class="mclose">)</span><span class="mspace"
+                                                                               style="margin-right: 0.2778em;"></span><span
+            class="mrel">&gt;=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.13889em;">F</span><span class="mopen">(</span><span
+            class="mord mathnormal">x</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord">1</span><span class="mclose">)</span></span></span></span></span>, it means the base that
+        brings the minimum cost is on <span class="math math-inline"><span class="katex"><span class="katex-mathml">F(x)F(x)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.13889em;">F</span><span class="mopen">(</span><span
+                class="mord mathnormal">x</span><span class="mclose">)</span></span></span></span></span>'s right, thus
+        we should cut the left half.
+    </li>
+</ul>
+<p><img src="c2.png" alt="img"></p>
+<p>We continue the binary search until we reach the base that brings the minimum cost.</p>
+<br>
+<h4 id="algorithm-1">Algorithm</h4>
+<ol>
+    <li>Initialize the searching space by setting its boundaries <code>left = min(nums)</code> and <code>right =
+        max(nums)</code>.
+    </li>
+</ol>
+<p>2）While <code>left &lt; right</code>:</p>
+<ul>
+    <li>Get the middle value <code>mid</code> using integer division <code>mid = (left + right) / 2</code>.</li>
+    <li>Calculate the cost of two adjacent bases, <code>F(mid)</code> and <code>F(mid + 1)</code>.</li>
+    <li>If <code>F(mid) &gt; F(mid + 1)</code>, cut the left half by setting <code>left = mid + 1</code>. Otherwise, cut
+        the right half by setting <code>right = mid</code>. Then repeat step 2.
+    </li>
+</ul>
+<ol start="3">
+    <li>Return <code>left</code> once the search ends.</li>
+</ol>
+<h4 id="implementation-1">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    // Get the cost of making every element equals base.
+    private long getCost(int[] nums, int[] cost, int base) {
+        long result = 0L;
+        for (int i = 0; i < nums.length; ++i)
+            result += 1L * Math.abs(nums[i] - base) * cost[i];
+        return result;
+    }
+    public long minCost(int[] nums, int[] cost) {
+        // Initialize the left and the right boundary of the binary search.
+        int left = 1000001, right = 0;
+        for (int num : nums) {
+            left = Math.min(left, num);
+            right = Math.max(right, num);
+        }
+        long answer = getCost(nums, cost, nums[0]);
+
+        // As shown in the previous picture, if F(mid) > F(mid + 1), then the minimum
+        // is to the right of mid, otherwise, the minimum is to the left of mid.
+        while (left < right) {
+            int mid = (right + left) / 2;
+            long cost1 = getCost(nums, cost, mid);
+            long cost2 = getCost(nums, cost, mid + 1);
+            answer = Math.min(cost1, cost2);
+
+            if (cost1 > cost2)
+                left = mid + 1;
+            else
+                right = mid;
+        }
+        return answer;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    // Get the cost of making every element equals base.
+    long long getCost(vector<int>& nums, vector<int>& cost, int base) {
+        long long result = 0;
+        for (int i = 0; i < nums.size(); ++i)
+            result += 1L * abs(nums[i] - base) * cost[i];
+        return result;
+    }
+
+    long long minCost(vector<int>& nums, vector<int>& cost) {
+        // Initialize the left and the right boundary of the binary search.
+        long long answer = getCost(nums, cost, nums[0]);
+        int left = *min_element(nums.begin(), nums.end());
+        int right = *max_element(nums.begin(), nums.end());
+
+        // As shown in the previous picture, if F(mid) > F(mid + 1), then the minimum
+        // is to the right of mid, otherwise, the minimum is to the left of mid.
+        while (left < right) {
+            int mid = (left + right) / 2;
+            long long cost1 = getCost(nums, cost, mid);
+            long long cost2 = getCost(nums, cost, mid + 1);
+            answer = min(cost1, cost2);
+            if (cost1 > cost2)
+                left = mid + 1;
+            else
+                right = mid;
+        }
+        return answer;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def minCost(self, nums: List[int], cost: List[int]) -> int:
+        # Get the cost of making every element equals base.
+        def get_cost(base):
+            return sum(abs(base - num) * c for num, c in zip(nums, cost))
+
+        # Initialize the left and the right boundary of the binary search.
+        left, right = min(nums), max(nums)
+        answer = get_cost(nums[0])
+
+        # As shown in the previous picture, if F(mid) > F(mid + 1), then the minimum
+        # is to the right of mid, otherwise, the minimum is to the left of mid.
+        while left < right:
+            mid = (left + right) // 2
+            cost_1 = get_cost(mid)
+            cost_2 = get_cost(mid + 1)
+            answer = min(cost_1, cost_2)
+
+            if cost_1 > cost_2:
+                left = mid + 1
+            else:
+                right = mid
+
+        return answer
+    </code>
+</pre>
+<h4 id="complexity-analysis-1">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    be the length of the input array <code>nums</code> and <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">kk</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.6944em;"></span><span class="mord mathnormal"
+                                                                 style="margin-right: 0.03148em;">k</span></span></span></span></span>
+    be the difference between the maximum and minimum value of <code>nums[i]</code>.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅log⁡k)O(n\cdot\log k)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                      style="margin-right: 0.1667em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>
+                <p>In the binary search, we cut the searching space by half at each step, in the worst-case scenario, it
+                    takes <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡k)O(\log k)</span><span
+                            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+                            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                            class="mopen">(</span><span class="mop">lo<span
+                            style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                  style="margin-right: 0.1667em;"></span><span
+                            class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                            class="mclose">)</span></span></span></span></span> steps.</p>
+            </li>
+            <li>
+                <p>At each step, we calculate the cost by iterating over <code>nums</code>, it takes <span
+                        class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+                    time.</p>
+            </li>
+            <li>
+                <p>To sum up, the overall time complexity is <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(n⋅log⁡k)O(n\cdot\log k)</span><span class="katex-html"
+                                                                                   aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mspace"
+                                                                                          style="margin-right: 0.2222em;"></span><span
+                        class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                                  style="margin-right: 0.1667em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                        class="mclose">)</span></span></span></span></span>.</p>
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord">1</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>During the binary search, we only need to update several variables <code>left</code>, <code>right</code>,
+                and <code>mid</code> which take <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord">1</span><span
+                        class="mclose">)</span></span></span></span></span> space.
+            </li>
+            <li>Calculating the cost <code>F(x)</code> requires an iteration over <code>nums</code> which takes <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord">1</span><span class="mclose">)</span></span></span></span></span> space.
+            </li>
+        </ul>
+    </li>
+</ul>
+</body>
+</html>
