@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Best Time to Buy and Sell Stock with Transaction Fee - Solution</title>
+</head>
+<body>
+<h2 id="solution">Best Time to Buy and Sell Stock with Transaction Fee - Solution</h2>
+<hr>
+<h3 id="overview">Overview</h3>
+<p>As shown in the picture below, if we do the following operations:</p>
+<ul>
+    <li>Buy the stock on day <code>0</code>.</li>
+    <li>Sell the stock on day <code>3</code>.</li>
+    <li>Buy the stock on day <code>4</code>.</li>
+    <li>Sell the stock on day <code>5</code>.</li>
+</ul>
+<p>Considering the two transaction fees, we can make a total profit of <code>8</code>.</p>
+<p><img src="intro.png" alt="img"></p>
+<p>However, we have to be aware of some restrictions:</p>
+<ul>
+    <li>We can hold at most 1 stock at a time, we can't buy this stock twice.</li>
+    <li>We can't sell the stock before we hold it.</li>
+</ul>
+<hr>
+<h3 id="approach-1-dynamic-programming">Approach 1: Dynamic Programming</h3>
+<h4 id="intuition">Intuition</h4>
+<p>If you are not familiar with dynamic programming, please refer to our <a
+        href="https://leetcode.com/explore/featured/card/dynamic-programming/630/an-introduction-to-dynamic-programming/"
+        target="_blank">Dynamic Programming Explore Card</a>!</p>
+<br>
+<p>Given the length of <code>prices</code> is <code>n</code>, which means that we want to get the maximum profit after
+    <code>n</code> days. Assume that we are on day <code>i</code>, the profit we can make today is determined by today's
+    operation plus the maximum profit we have made before. The question is, how do we get the maximum profit that can be
+    obtained from the previous <code>i</code> days?</p>
+<p>We can perform one of the three operations on day <code>i</code>:</p>
+<ul>
+    <li>Buy the stock.</li>
+    <li>Sell the stock.</li>
+    <li>Do nothing.</li>
+</ul>
+<p>The profit depends on our operations and the maximum profit obtained from the previous <code>i - 1</code> days. To
+    solve the problem on day <code>i</code>, we need to use the sub-problem of day <code>i - 1</code>. This state
+    transition equation implies that we can solve it with dynamic programming.</p>
+<p><img src="1.png" alt="img"></p>
+<p>Let's first try the most basic dynamic programming approach. We create an array called <code>dp</code> of length
+    <code>n</code> where <code>dp[i]</code> records the maximum profit we can obtain from the first <code>i</code> days.
+</p>
+<p><img src="2.png" alt="img"></p>
+<p>Next, we need to find the state transition equation. Recall that we have three operations on day <code>i</code>:</p>
+<ul>
+    <li>Buy the stock, spend <code>prices[i]</code>.</li>
+    <li>Sell the stock, gain <code>prices[i]</code>.</li>
+    <li>Do nothing.</li>
+</ul>
+<p><img src="3.png" alt="img"></p>
+<p>But this solution above is <strong>incorrect</strong> because of the constraints given in the problem. Let's analyze
+    where the problem lies. On the day <code>i</code>, if we want to sell the stock, the prerequisite is that we must
+    hold the stock. However, we might have two different status on day <code>i</code>:</p>
+<ul>
+    <li>
+        <p>Currently holding the stock.</p>
+    </li>
+    <li>
+        <p>Not currently holding the stock.</p>
+    </li>
+</ul>
+<p>The state transition equation in our previous method did not distinguish between these two states.</p>
+<p><img src="4.png" alt="img"></p>
+<br>
+<p>Therefore, our dynamic programming array <code>dp[i]</code> should also have two states:</p>
+<ul>
+    <li>The maximum profit when free of stock.</li>
+    <li>The maximum profit when holding the stock.</li>
+</ul>
+<p>So, we would need to create two arrays, which we call <code>free</code> and <code>hold</code>, corresponding to the
+    maximum profit that can be obtained without holding the stock or holding the stock in the first <code>i</code> days.
+</p>
+<p>Back to the previous analysis, if we buy the stock on the day <code>i</code>, the profit obtained is the maximum
+    profit without holding the stock on the previous day i - 1 <code>free[i - 1]</code> plus the profit from buying the
+    stock <code>-prices[i]</code>.</p>
+<p><img src="5.png" alt="img"></p>
+<p>If we sell the stock on the day <code>i</code>, our state changes from holding the stock to not holding the stock, so
+    our current profit is the maximum profit of holding the stock on the previous day i - 1 <code>hold[i - 1]</code>
+    plus the profit from selling the stock <code>prices[i] - fee</code>.</p>
+<p><img src="6.png" alt="img"></p>
+<p>Of course, we can also choose to do nothing, in which case our profit on day <code>i</code> is equal to the maximum
+    profit of the previous day.</p>
+<ul>
+    <li><code>free[i] = free[i - 1]</code></li>
+    <li><code>hold[i] = hold[i - 1]</code></li>
+</ul>
+<p><img src="7.png" alt="img"></p>
+<p>Therefore, we can get the state transition equation for the maximum profit with different states on day
+    <code>i</code> as:</p>
+<ul>
+    <li>
+        <p><code>free[i] = max(free[i - 1], hold[i - 1] + prices[i] - fee)</code></p>
+    </li>
+    <li>
+        <p><code>hold[i] = max(hold[i - 1], free[i - 1] - prices[i])</code></p>
+    </li>
+</ul>
+<p>Once we create these two arrays, we will set <code>free[0] = 0</code> since we will make no profit with an empty hand
+    on the first day, and set <code>hold[0] = -prices[0]</code> as we need to buy the stock on day <code>0</code> to
+    maintain the holding state.</p>
+<p>Then we iterate from day <code>1</code> to day <code>n - 1</code>, update <code>free</code> and <code>hold</code> and
+    get the maximum profit from the last day <code>free[n - 1]</code>. (There is no point in ending the problem while
+    still holding stock, we might as well sell it on the last day)</p>
+<br>
+<h4 id="algorithm">Algorithm</h4>
+<ol>
+    <li>
+        <p>Create two arrays of length <code>n</code>, <code>free</code> and <code>hold</code>. Set <code>hold[0] =
+            -prices[0]</code> and <code>free[0] = 0</code>.</p>
+    </li>
+    <li>
+        <p>Iterate from day <code>1</code> to day <code>n - 1</code>, on each day <code>i</code>:</p>
+        <ul>
+            <li>Update <code>hold[i]</code> to the larger of <code>hold[i - 1]</code> and <code>free[i - 1] -
+                prices[i]</code>.
+            </li>
+            <li>Update <code>free[i]</code> to the larger of <code>free[i - 1]</code> and <code>hold[i - 1] + prices[i]
+                - fee</code>.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Return <code>free[i - 1]</code> once the iteration ends.</p>
+    </li>
+</ol>
+<h4 id="implementation">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int maxProfit(int[] prices, int fee) {
+        int n = prices.length;
+        int[] free = new int[n], hold = new int[n];
+
+        // In order to hold a stock on day 0, we have no other choice but to buy it for prices[0].
+        hold[0] = -prices[0];
+
+        for (int i = 1; i < n; i++) {
+            hold[i] = Math.max(hold[i - 1], free[i - 1] - prices[i]);
+            free[i] = Math.max(free[i - 1], hold[i - 1] + prices[i] - fee);
+        }
+
+        return free[n - 1];
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int maxProfit(vector<int>& prices, int fee) {
+        int n = prices.size();
+        vector<int> free(n, 0), hold(n, 0);
+
+        // In order to hold a stock on day 0, we have no other choice but to buy it for prices[0].
+        hold[0] = -prices[0];
+
+        for (int i = 1; i < n; i++) {
+            free[i] = max(free[i - 1], hold[i - 1] + prices[i] - fee);
+            hold[i] = max(hold[i - 1], free[i - 1] - prices[i]);
+        }
+
+        return free[n - 1];
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def maxProfit(self, prices: List[int], fee: int) -> int:
+        n = len(prices)
+        hold, free = [0] * n, [0] * n
+
+        # In order to hold a stock on day 0, we have no other choice but to buy it for prices[0].
+        hold[0] = -prices[0]
+
+        for i in range(1, n):
+            hold[i] = max(hold[i - 1], free[i - 1] - prices[i])
+            free[i] = max(free[i - 1], hold[i - 1] + prices[i] - fee)
+
+        return free[-1]
+    </code>
+</pre>
+<h4 id="complexity-analysis">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    be the length of the input array <code>prices</code>.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <ul>
+            <li>We iterate from day <code>1</code> to day <code>n - 1</code>, which contains <code>n - 1</code> steps.
+            </li>
+            <li>At each step, we update <code>free[i]</code> and <code>hold[i]</code> which takes <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord">1</span><span class="mclose">)</span></span></span></span></span>.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <ul>
+            <li>We create two arrays of length <code>n</code> to record the maximum profit with two status on each day.
+            </li>
+        </ul>
+    </li>
+</ul>
+<br>
+<hr>
+<h3 id="approach-2-space-optimized-dynamic-programming">Approach 2: Space-Optimized Dynamic Programming</h3>
+<h4 id="intuition-1">Intuition</h4>
+<p>In the previous solution, we created two arrays of length <code>n</code> to record the maximum profits up to each
+    day.</p>
+<p>However, if we look at the state transition equation:</p>
+<ul>
+    <li><code>hold[i] = max(hold[i - 1], free[i - 1] - prices[i])</code></li>
+    <li><code>free[i] = max(free[i - 1], hold[i - 1] + prices[i] - fee)</code></li>
+</ul>
+<p>We can see that the maximum profit up to day <code>i</code> (<code>hold[i]</code> or <code>free[i]</code>) only
+    depends on the maximum profit up to day <code>i - 1</code> (<code>hold[i - 1]</code> and <code>free[i - 1]</code>),
+    and we don't need to keep track of the profits from earlier days.</p>
+<p>Therefore, we can use only two variables <code>hold</code> and <code>free</code> to represent the maximum profits in
+    the two states on the current day. When we move to the next day (day <code>i</code>), we can simply update these two
+    variables.</p>
+<ul>
+    <li><code>hold = max(hold, free - prices[i])</code></li>
+    <li><code>free = max(free, hold + prices[i] - fee)</code></li>
+</ul>
+<p>To avoid modifying <code>hold</code> before updating <code>free</code>, we can do the following:</p>
+<ul>
+    <li><code>tmp = hold</code></li>
+    <li><code>hold = max(hold, free - prices[i])</code></li>
+    <li><code>free = max(free, tmp + prices[i] - fee)</code></li>
+</ul>
+<br>
+<h4 id="algorithm-1">Algorithm</h4>
+<ol>
+    <li>
+        <p>Set <code>free = 0</code> and <code>hold = -prices[0]</code> as the maximum profit for two status on day
+            <code>0</code>.</p>
+    </li>
+    <li>
+        <p>Iterate from day <code>1</code> to day <code>n - 1</code>, on each day <code>i</code>:</p>
+        <ul>
+            <li>Set <code>tmp = hold</code> so that we record the maximum profit for holding a stock on day <code>i -
+                1</code>.
+            </li>
+            <li>Update <code>hold</code> to the larger of <code>hold</code> and <code>free - prices[i]</code>.</li>
+            <li>Update <code>free</code> to the larger of <code>free</code> and <code>tmp + prices[i] - fee</code>.</li>
+        </ul>
+    </li>
+    <li>
+        <p>Return <code>free</code> once the iteration ends.</p>
+    </li>
+</ol>
+<h4 id="implementation-1">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int maxProfit(int[] prices, int fee) {
+        int n = prices.length;
+        int free = 0, hold = -prices[0];
+
+        for (int i = 1; i < n; i++) {
+            int tmp = hold;
+            hold = Math.max(hold, free - prices[i]);
+            free = Math.max(free, tmp + prices[i] - fee);
+        }
+
+        return free;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int maxProfit(vector<int>& prices, int fee) {
+        int n = prices.size();
+        int free = 0, hold = -prices[0];
+
+        for (int i = 1; i < n; i++) {
+            int tmp = hold;
+            hold = max(hold, free - prices[i]);
+            free = max(free, tmp + prices[i] - fee);
+        }
+
+        return free;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def maxProfit(self, prices: List[int], fee: int) -> int:
+        n = len(prices)
+        hold, free = -prices[0], 0
+
+        for i in range(1, n):
+            tmp = hold
+            hold = max(hold, free - prices[i])
+            free = max(free, tmp + prices[i] - fee)
+
+        return free
+    </code>
+</pre>
+<h4 id="complexity-analysis-1">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    be the length of the input array <code>prices</code>.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <ul>
+            <li>
+                <p>We iterate from day <code>1</code> to day <code>n - 1</code>, which contains <code>n - 1</code>
+                    steps.</p>
+            </li>
+            <li>
+                <p>At each step, we update <code>free</code> and <code>hold</code> which takes <span
+                        class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord">1</span><span
+                        class="mclose">)</span></span></span></span></span>.</p>
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord">1</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>We only need to update three parameters <code>tmp</code>, <code>free</code> and <code>hold</code>.</li>
+        </ul>
+    </li>
+</ul>
+<br>
+</body>
+</html>
