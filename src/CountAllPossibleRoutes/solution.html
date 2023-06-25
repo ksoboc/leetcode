@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Count All Possible Routes - Solution</title>
+</head>
+<body>
+<h2 id="solution">Count All Possible Routes - Solution</h2>
+<hr>
+<h3 id="overview">Overview</h3>
+<p>We are given an array of distinct positive integer locations where <code>locations[i]</code> represents the position
+    of city <code>i</code>. We are also given integers <code>start</code>, <code>finish</code>, and <code>fuel</code>
+    representing the starting city, ending city, and the initial amount of fuel you have, respectively.</p>
+<p>At each step, if you are at city <code>i</code>, you can pick any city <code>j</code> such that <code>j != i</code>
+    and move to city <code>j</code>. Moving from city <code>i</code> to city <code>j</code> consumes <code>|locations[i]
+        - locations[j]|</code> fuel.</p>
+<p>Our task is to count the number of possible routes from start to finish without the fuel dropping below
+    <code>0</code>. Since the answer may be too large, we have to modulo it by <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">109+710^9 + 7</span><span class="katex-html"
+                                                                               aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.8974em; vertical-align: -0.0833em;"></span><span
+            class="mord">1</span><span class="mord"><span class="mord">0</span><span class="msupsub"><span
+            class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span
+            class="mord mtight">9</span></span></span></span></span></span></span></span><span class="mspace"
+                                                                                               style="margin-right: 0.2222em;"></span><span
+            class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">7</span></span></span></span></span>.
+</p>
+<hr>
+<h3 id="approach-1-recursive-dynamic-programming">Approach 1: Recursive Dynamic Programming</h3>
+<h4 id="intuition">Intuition</h4>
+<p>If you are new to Dynamic Programming, please see our <a
+        href="https://leetcode.com/explore/featured/card/dynamic-programming/" target="_blank">Leetcode Explore Card</a>
+    for more information on it!</p>
+<p>Intuitively, we can consider moving to any city that we have enough fuel to reach. We repeat the process from the
+    city we arrive in with the remaining fuel and travel to all cities we can with the remaining fuel. We keep repeating
+    this process until we run out of fuel increment the answer by <code>1</code> each time we arrive at the
+    <code>finish</code> city.</p>
+<p>Note that we don't necessarily stop at the <code>finish</code> city, since we might be able to leave the city and
+    return if we have enough fuel, creating more routes.</p>
+<p>We can implement this approach using a recursion to keep moving from the current city to all the other cities with
+    the remaining fuel.</p>
+<p>Let the current city be <code>currCity</code> and the remaining fuel be <code>remainingFuel</code>. We initialize an
+    <code>answer</code> variable to store the number of routes to reach <code>finish</code> from <code>currCity</code>.
+    If <code>currCity == finish</code>, we have one way to reach <code>finish</code>, so we initialize <code>answer =
+        1</code>. Otherwise, <code>answer = 0</code> is initialized.</p>
+<p>We recursively move from <code>currCity</code> to all the other cities. For each <code>nextCity</code> (not equal to
+    <code>currCity</code>), we again call the recursive function with <code>nextCity</code> as <code>currCity</code> and
+    the <code>remainingFuel</code> as <code>remainingFuel - |locations[currCity] - locations[nextCity]|</code>. If
+    <code>remainingFuel</code> drops below <code>0</code>, we simply return <code>0</code> and don't do anything in the
+    recursive function. The recursive relation can be written as:</p>
+<blockquote>
+    <p>answer = currCity == finish ? 1 : 0<br>
+        answer = (answer + solve(locations, nextCity, finish, remainingFuel - |locations[currCity] -
+        locations[nextCity]|)) % 1000000007<br>
+        Considering all values of <code>nextCity</code>, where <code>nextCity != currCity</code>.</p>
+</blockquote>
+<p>Our answer would be <code>solve(locations, start, finish, fuel)</code>.</p>
+<p>The recursion tree of the above relation would look something like this:</p>
+<p><img src="1575-1.png" alt="img"></p>
+<p>The number in the node represents the city, the numbers in red alongside each node represent the remaining fuel, and
+    the calculation on each edge represents the amount of fuel required to move from one city to another. We can see
+    that there are subproblems as indicated in the image that are solved multiple times in the partial recursion tree
+    shown above. If we draw the entire recursion tree, we can see that there are many subproblems that are solved
+    repeatedly.</p>
+<p>To avoid this issue, we store the solution of each sub-problem and when we encounter the same subproblem again, we
+    simply refer to the stored result. This is called <strong>memoization</strong>.</p>
+<p>As we know the current state of a sub-problem depends on the current city and the remaining fuel, we can use a 2D
+    array here.</p>
+<h4 id="algorithm">Algorithm</h4>
+<ol>
+    <li>Create an integer variable <code>n</code> and initialize it to the size of <code>locations</code>.</li>
+    <li>Create a 2D-array called <code>memo</code> having <code>n</code> rows and <code>fuel + 1</code> columns where
+        <code>memo[i][j]</code> contains the number of possible routes starting from the city <code>i</code> with <code>j</code>
+        fuel. We initialize the array to <code>-1</code>.
+    </li>
+    <li>Return <code>solve(locations, start, finish, fuel, memo)</code> where <code>solve</code> is a recursive method
+        with five parameters: <code>locations</code>, the curent city <code>currCity</code> we are at,
+        <code>finish</code>, <code>remainingFuel</code>, and <code>memo</code>. It returns the number of possible routes
+        starting from the <code>currCity</code> city with <code>remainingFuel</code> fuel. We perform the following in
+        this method:
+        <ul>
+            <li>If <code>remainingFuel &lt; 0</code>, it indicates we cannot enter this city as the fuel is negative, so
+                we return <code>0</code>.
+            </li>
+            <li>If <code>memo[m][n] != -1</code>, it indicates that we have already solved this subproblem, so we return
+                <code>memo[m][n]</code>.
+            </li>
+            <li>Create an integer variable <code>ans</code>. We initialize it to <code>1</code> if <code>currCity ==
+                finish</code>, else to <code>0</code>.
+            </li>
+            <li>We iterate over all the cities and for each city, <code>nextCity != currCity</code>, we recursively
+                compute the number of possible routes that lead to <code>finish</code> with <code>remainingFuel -
+                    |locations[currCity] - locations[nextCity]|</code> fuel. We perform <code>ans = ans +
+                    solve(locations, nextCity, finish, remainingFuel - |locations[currCity] - locations[nextCity]|,
+                    memo)</code> for all the cities. We also take its modulo with <span class="math math-inline"><span
+                        class="katex"><span class="katex-mathml">109+710^9 + 7</span><span class="katex-html"
+                                                                                           aria-hidden="true"><span
+                        class="base"><span class="strut"
+                                           style="height: 0.8974em; vertical-align: -0.0833em;"></span><span
+                        class="mord">1</span><span class="mord"><span class="mord">0</span><span class="msupsub"><span
+                        class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                        style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                        class="sizing reset-size6 size3 mtight"><span class="mord mtight">9</span></span></span></span></span></span></span></span><span
+                        class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span
+                        class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+                        class="strut" style="height: 0.6444em;"></span><span class="mord">7</span></span></span></span></span>
+                at each step.
+            </li>
+            <li>Note that we don't need <code>long long</code> variables in languages like <code>C++</code> and <code>Java</code>
+                because our computations never exceed <code>Integer</code> limit. At the most, <code>ans</code> and
+                <code>solve</code> can be <span class="math math-inline"><span class="katex"><span class="katex-mathml">109+610^9 + 6</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 0.8974em; vertical-align: -0.0833em;"></span><span
+                        class="mord">1</span><span class="mord"><span class="mord">0</span><span class="msupsub"><span
+                        class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                        style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                        class="sizing reset-size6 size3 mtight"><span class="mord mtight">9</span></span></span></span></span></span></span></span><span
+                        class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span
+                        class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+                        class="strut" style="height: 0.6444em;"></span><span class="mord">6</span></span></span></span></span>
+                each (one less than <span class="math math-inline"><span class="katex"><span class="katex-mathml">109+710^9 + 7</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 0.8974em; vertical-align: -0.0833em;"></span><span
+                        class="mord">1</span><span class="mord"><span class="mord">0</span><span class="msupsub"><span
+                        class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                        style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                        class="sizing reset-size6 size3 mtight"><span class="mord mtight">9</span></span></span></span></span></span></span></span><span
+                        class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span
+                        class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+                        class="strut" style="height: 0.6444em;"></span><span class="mord">7</span></span></span></span></span>).
+                Adding both of these values in the above step ((<span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">109+6)+(109+6)=2⋅109+1210^9 + 6) + (10^9 + 6) = 2 \cdot 10 ^9 + 12</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 0.8974em; vertical-align: -0.0833em;"></span><span
+                        class="mord">1</span><span class="mord"><span class="mord">0</span><span class="msupsub"><span
+                        class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                        style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                        class="sizing reset-size6 size3 mtight"><span class="mord mtight">9</span></span></span></span></span></span></span></span><span
+                        class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span
+                        class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+                        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord">6</span><span class="mclose">)</span><span class="mspace"
+                                                                                style="margin-right: 0.2222em;"></span><span
+                        class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                        class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                        class="mopen">(</span><span class="mord">1</span><span class="mord"><span
+                        class="mord">0</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span
+                        class="vlist" style="height: 0.8141em;"><span style="top: -3.063em; margin-right: 0.05em;"><span
+                        class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span
+                        class="mord mtight">9</span></span></span></span></span></span></span></span><span
+                        class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span
+                        class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+                        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord">6</span><span class="mclose">)</span><span class="mspace"
+                                                                                style="margin-right: 0.2778em;"></span><span
+                        class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+                        class="base"><span class="strut" style="height: 0.6444em;"></span><span
+                        class="mord">2</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                        class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                        class="base"><span class="strut"
+                                           style="height: 0.8974em; vertical-align: -0.0833em;"></span><span
+                        class="mord">1</span><span class="mord"><span class="mord">0</span><span class="msupsub"><span
+                        class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                        style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                        class="sizing reset-size6 size3 mtight"><span class="mord mtight">9</span></span></span></span></span></span></span></span><span
+                        class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span
+                        class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+                        class="strut" style="height: 0.6444em;"></span><span class="mord">12</span></span></span></span></span>)
+                would still not exceed the <code>Integer</code> limits, after which we modulo them with <span
+                        class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">109+710^9 + 7</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut"
+                                           style="height: 0.8974em; vertical-align: -0.0833em;"></span><span
+                        class="mord">1</span><span class="mord"><span class="mord">0</span><span class="msupsub"><span
+                        class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                        style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                        class="sizing reset-size6 size3 mtight"><span class="mord mtight">9</span></span></span></span></span></span></span></span><span
+                        class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span
+                        class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+                        class="strut" style="height: 0.6444em;"></span><span class="mord">7</span></span></span></span></span>
+                anyways.
+            </li>
+            <li>We store the answer of this sub-problem in <code>memo[currCity][remainingFuel]</code> and return it.
+            </li>
+        </ul>
+    </li>
+</ol>
+<h4 id="implementation">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int solve(int[] locations, int currCity, int finish, int remainingFuel, int memo[][]) {
+        if (remainingFuel < 0) {
+            return 0;
+        }
+        if (memo[currCity][remainingFuel] != -1) {
+            return memo[currCity][remainingFuel];
+        }
+
+        int ans = currCity == finish ? 1 : 0;
+        for (int nextCity = 0; nextCity < locations.length; nextCity++) {
+            if (nextCity != currCity) {
+                ans = (ans + solve(locations, nextCity, finish,
+                remainingFuel - Math.abs(locations[currCity] - locations[nextCity]),
+                                   memo)) % 1000000007;
+            }
+        }
+
+        return memo[currCity][remainingFuel] = ans;
+    }
+
+    public int countRoutes(int[] locations, int start, int finish, int fuel) {
+        int n = locations.length;
+        int memo[][] = new int[n][fuel + 1];
+        for (int i = 0; i < n; ++i) {
+            Arrays.fill(memo[i], -1);
+        }
+
+        return solve(locations, start, finish, fuel, memo);
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int solve(vector<int>& locations, int currCity, int finish, int remainingFuel,
+              vector<vector<int>>& memo) {
+        if (remainingFuel < 0) {
+            return 0;
+        }
+        if (memo[currCity][remainingFuel] != -1) {
+            return memo[currCity][remainingFuel];
+        }
+
+        int ans = currCity == finish ? 1 : 0;
+        for (int nextCity = 0; nextCity < locations.size(); nextCity++) {
+            if (nextCity != currCity) {
+                ans = (ans + solve(locations, nextCity, finish,
+                                   remainingFuel - abs(locations[currCity] - locations[nextCity]),
+                                   memo)) % 1000000007;
+            }
+        }
+
+        return memo[currCity][remainingFuel] = ans;
+    }
+
+    int countRoutes(vector<int>& locations, int start, int finish, int fuel) {
+        int n = locations.size();
+        vector<vector<int>> memo(n, vector<int>(fuel + 1, -1));
+
+        return solve(locations, start, finish, fuel, memo);
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def countRoutes(self, locations: List[int], start: int, finish: int, fuel: int) -> int:
+        n = len(locations)
+
+        memo = {}
+        def solve(currCity, remainingFuel):
+            if remainingFuel < 0:
+                return 0
+            if (currCity, remainingFuel) in memo:
+                return memo[(currCity, remainingFuel)]
+
+            ans = 0
+            if currCity == finish:
+                ans = 1
+            for nextCity in range(n):
+                if nextCity != currCity:
+                    ans = (ans + solve(nextCity, remainingFuel - abs(
+                        locations[currCity] - locations[nextCity]))) % 1000000007
+
+            memo[(currCity, remainingFuel)] = ans
+            return ans
+
+        return solve(start, fuel)
+    </code>
+</pre>
+<h4 id="complexity-analysis">Complexity Analysis</h4>
+<p>Here, <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    is the length of <code>locations</code>.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n2⋅fuel)O(n^2 \cdot \text{fuel})</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+                class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mspace"
+                                                                                                   style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord text"><span class="mord">fuel</span></span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>Initializing the <code>memo</code> array takes <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(n⋅fuel)O(n \cdot \text{fuel})</span><span class="katex-html"
+                                                                                     aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord text"><span class="mord">fuel</span></span><span
+                    class="mclose">)</span></span></span></span></span> time.
+            </li>
+            <li>We iterate over all cities for each <code>currCity, remainingFuel</code> state. Because there are <span
+                    class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">n⋅fueln \cdot \text{fuel}</span><span class="katex-html"
+                                                                               aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 0.4445em;"></span><span
+                    class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord text"><span
+                    class="mord">fuel</span></span></span></span></span></span> states and computing each state requires
+                iterating over all the <code>n</code> cities (except the current one), it would take <span
+                        class="math math-inline"><span class="katex"><span class="katex-mathml">O(n2⋅fuel)O(n^2 \cdot \text{fuel})</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord"><span class="mord mathnormal">n</span><span
+                        class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                          style="height: 0.8141em;"><span
+                        style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                        class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                        class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span
+                        class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+                        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord text"><span
+                        class="mord">fuel</span></span><span class="mclose">)</span></span></span></span></span> time.
+            </li>
+            <li>The recursive function might be called more than once as we saw in the recursion tree. However, due to
+                memoization each state will be computed only once.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅fuel)O(n \cdot \text{fuel})</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord text"><span class="mord">fuel</span></span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>The <code>memo</code> array consumes <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(n⋅fuel)O(n \cdot \text{fuel})</span><span class="katex-html"
+                                                                                     aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord text"><span class="mord">fuel</span></span><span
+                    class="mclose">)</span></span></span></span></span> space.
+            </li>
+            <li>The recursion stack used in the solution can grow to a maximum size of <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(fuel)O(\text{fuel})</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord text"><span class="mord">fuel</span></span><span
+                    class="mclose">)</span></span></span></span></span>. When we try to form the recursion tree, we see
+                that after each node <code>n - 1</code> branches are formed (visiting all cities except the current
+                city). The recursion stack would only have one call out of the <code>n - 1</code> branches. The height
+                of such a tree will be <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(fuel)O(\text{fuel})</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord text"><span class="mord">fuel</span></span><span
+                        class="mclose">)</span></span></span></span></span> in the worst case if we consider
+                decrementing the remaining fuel by <code>1</code> when going from a city to another. As a result, the
+                recursion tree that will be formed will have <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(fuel)O(\text{fuel})</span><span class="katex-html"
+                                                                               aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord text"><span class="mord">fuel</span></span><span
+                        class="mclose">)</span></span></span></span></span> height. Hence, the recursion stack will have
+                a maximum of <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(fuel)O(\text{fuel})</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord text"><span class="mord">fuel</span></span><span
+                        class="mclose">)</span></span></span></span></span> elements.
+            </li>
+        </ul>
+    </li>
+</ul>
+<hr>
+<h3 id="approach-2-iterative-dynamic-programming">Approach 2: Iterative Dynamic Programming</h3>
+<h4 id="intuition-1">Intuition</h4>
+<p>We used memoization in the preceding approach to store the answers to subproblems in order to solve a larger problem.
+    We can also use a bottom-up approach to solve such problems without using recursion. We build answers to subproblems
+    iteratively first, then use them to build answers to larger problems.</p>
+<p>In the approach also we create a 2D-array <code>dp</code>, where <code>dp[i][j]</code> contains the number of
+    possible routes starting from the city <code>i</code> with <code>j</code> fuel. Our answer would be <code>dp[start][fuel]</code>.
+    The value of <code>dp[i][j]</code> would be initialized with <code>1</code> if <code>i == finish</code> (staying at
+    <code>i</code> is one way to reach <code>finish)</code>, otherwise <code>0</code> as we did in the previous
+    approach. We then move to all other cities except <code>i</code>. For each city <code>k</code>, we reduce the fuel
+    by <code>|locations[i] - locations[k]|</code> and add the ways to reach <code>finish</code> from <code>k</code>
+    using <code>j - |locations[i] - locations[k]|</code> to <code>dp[i][j]</code>. The state transition would be as
+    follows:</p>
+<blockquote>
+    <p>dp[i][j] = (dp[i][j] + dp[k][j - |locations[i] - locations[k]|]) % 1000000007</p>
+</blockquote>
+<p>The transition indicates that three nested loops are required to fill the <code>dp</code> array. The first loop
+    controls the fuel and will go from <code>j = 0</code> to <code>fuel</code>, the second loop controls the start city
+    and runs from <code>i = 0</code> to <code>n - 1</code>, and the third loops from <code>k = 0</code> to <code>n -
+        1</code> to cover all the cities we move to from the city <code>i</code>. To compute <code>dp[i][j]</code>, we
+    must know the values for fuel less than <code>j</code> because we are decrementing the fuel in its computation while
+    moving to other cities. As a result, the outer loop must control the fuel as we progress from a lower amount of fuel
+    to a higher amount of fuel in a bottom-up manner.</p>
+<h4 id="algorithm-1">Algorithm</h4>
+<ol>
+    <li>Create an integer variable <code>n</code> and initialize it to the size of <code>locations</code>.</li>
+    <li>Create a 2D-array called <code>dp</code> having <code>n</code> rows and <code>fuel + 1</code> columns where
+        <code>memo[i][j]</code> contains the number of possible routes starting from the city <code>i</code> with <code>j</code>
+        fuel. We initialize the values in the row <code>finish</code> to <code>1</code> because just standing at the
+        city is one way to reach <code>finish</code>. It forms the base case for our approach.
+    </li>
+    <li>We iterate using three loops. The first loop controls the fuel and will go from <code>j = 0</code> to
+        <code>fuel</code>, the second loop controls the start city and runs from <code>i = 0</code> to <code>n -
+            1</code>, and the third loops from <code>k = 0</code> to <code>n - 1</code> to cover all the cities we move
+        to from the city <code>i</code>. We perform the following:
+        <ul>
+            <li>If <code>k == i</code>, we ignore this case and just continue as we cannot move to the same city in the
+                next step.
+            </li>
+            <li>If we've enough fuel to move from the city <code>i</code> to <code>k</code>, i.e., <code>|locations[i] -
+                locations[k]| &lt;= j</code>, we add <code>dp[k][j - |locations[i] - locations[k]|]</code> to <code>dp[i][j]</code>
+                and take it modulo with <span class="math math-inline"><span class="katex"><span class="katex-mathml">109+710^9 + 7</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 0.8974em; vertical-align: -0.0833em;"></span><span
+                        class="mord">1</span><span class="mord"><span class="mord">0</span><span class="msupsub"><span
+                        class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                        style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                        class="sizing reset-size6 size3 mtight"><span class="mord mtight">9</span></span></span></span></span></span></span></span><span
+                        class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span
+                        class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+                        class="strut" style="height: 0.6444em;"></span><span class="mord">7</span></span></span></span></span>.
+            </li>
+        </ul>
+    </li>
+    <li>Return <code>dp[start][fuel]</code>.</li>
+</ol>
+<h4 id="implementation-1">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public  int countRoutes(int[] locations, int start, int finish, int fuel) {
+        int n = locations.length;
+        int dp[][] = new int[n][fuel + 1];
+        Arrays.fill(dp[finish], 1);
+
+        int ans = 0;
+        for (int j = 0; j <= fuel; j++) {
+            for (int i = 0; i < n; i++) {
+                for (int k = 0; k < n; k++) {
+                    if (k == i) {
+                        continue;
+                    }
+                    if (Math.abs(locations[i] - locations[k]) <= j) {
+                        dp[i][j] = (dp[i][j] + dp[k][j - Math.abs(locations[i] - locations[k])]) %
+                                   1000000007;
+                    }
+                }
+            }
+        }
+
+        return dp[start][fuel];
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int countRoutes(vector<int>& locations, int start, int finish, int fuel) {
+        int n = locations.size();
+        vector<vector<int>> dp(n, vector<int>(fuel + 1));
+        for(int i = 0; i<=fuel; i++) {
+            dp[finish][i] = 1;
+        }
+
+        int ans = 0;
+        for (int j = 0; j <= fuel; j++) {
+            for (int i = 0; i < n; i++) {
+                for (int k = 0; k < n; k++) {
+                    if (k == i) {
+                        continue;
+                    }
+                    if (abs(locations[i] - locations[k]) <= j) {
+                        dp[i][j] = (dp[i][j] + dp[k][j - abs(locations[i] - locations[k])]) %
+                                   1000000007;
+                    }
+                }
+            }
+        }
+
+        return dp[start][fuel];
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def countRoutes(self, locations: List[int], start: int, finish: int, fuel: int) -> int:
+        n = len(locations)
+        dp = [[0] * (fuel + 1) for _ in range(n)]
+
+        for i in range(fuel + 1):
+            dp[finish][i] = 1
+
+        for j in range(fuel + 1):
+            for i in range(n):
+                for k in range(n):
+                    if k == i:
+                        continue
+                    if abs(locations[i] - locations[k]) <= j:
+                        dp[i][j] = (dp[i][j] + dp[k][j - abs(
+                            locations[i] - locations[k])]) % 1000000007
+
+        return dp[start][fuel]
+    </code>
+</pre>
+<h4 id="complexity-analysis-1">Complexity Analysis</h4>
+<p>Here, <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    is the length of <code>locations</code>.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n2⋅fuel)O(n^2 \cdot \text{fuel})</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+                class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mspace"
+                                                                                                   style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord text"><span class="mord">fuel</span></span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>Initializing the <code>dp</code> array takes <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(n⋅fuel)O(n \cdot \text{fuel})</span><span class="katex-html"
+                                                                                     aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord text"><span class="mord">fuel</span></span><span
+                    class="mclose">)</span></span></span></span></span> time.
+            </li>
+            <li>We fill the <code>dp</code> array which takes <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(n2⋅fuel)O(n^2 \cdot \text{fuel})</span><span class="katex-html"
+                                                                                        aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+                    class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                    style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                       style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span
+                    class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord text"><span class="mord">fuel</span></span><span
+                    class="mclose">)</span></span></span></span></span> as we run three nested loops.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅fuel)O(n \cdot \text{fuel})</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord text"><span class="mord">fuel</span></span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>The <code>dp</code> array consumes <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(n⋅fuel)O(n \cdot \text{fuel})</span><span class="katex-html"
+                                                                                     aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord text"><span class="mord">fuel</span></span><span
+                    class="mclose">)</span></span></span></span></span> space.
+            </li>
+        </ul>
+    </li>
+</ul>
+</body>
+</html>
