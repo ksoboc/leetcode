@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Find K Pairs with Smallest Sums - Solution</title>
+</head>
+<body>
+<h2 id="solution">Find K Pairs with Smallest Sums - Solution</h2>
+<hr>
+<h3 id="overview">Overview</h3>
+<p>We are given two integer arrays <code>nums1</code> and <code>nums2</code> sorted in ascending order and an integer
+    <code>k</code>.</p>
+<p>Our task is to return the <code>k</code> pairs (<span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">u1u_1</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+        class="strut" style="height: 0.5806em; vertical-align: -0.15em;"></span><span class="mord"><span
+        class="mord mathnormal">u</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span
+        class="vlist" style="height: 0.3011em;"><span
+        style="top: -2.55em; margin-left: 0em; margin-right: 0.05em;"><span class="pstrut"
+                                                                            style="height: 2.7em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span
+        class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                   style="height: 0.15em;"><span></span></span></span></span></span></span></span></span></span></span>,
+    <span class="math math-inline"><span class="katex"><span class="katex-mathml">v1v_1</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.5806em; vertical-align: -0.15em;"></span><span
+            class="mord"><span class="mord mathnormal" style="margin-right: 0.03588em;">v</span><span
+            class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist"
+                                                                                       style="height: 0.3011em;"><span
+            style="top: -2.55em; margin-left: -0.0359em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                      style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span
+            class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                       style="height: 0.15em;"><span></span></span></span></span></span></span></span></span></span></span>),
+    (<span class="math math-inline"><span class="katex"><span class="katex-mathml">u2u_2</span><span class="katex-html"
+                                                                                                     aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.5806em; vertical-align: -0.15em;"></span><span
+            class="mord"><span class="mord mathnormal">u</span><span class="msupsub"><span
+            class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.3011em;"><span
+            style="top: -2.55em; margin-left: 0em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span
+            class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                       style="height: 0.15em;"><span></span></span></span></span></span></span></span></span></span></span>,
+    <span class="math math-inline"><span class="katex"><span class="katex-mathml">v2v_2</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.5806em; vertical-align: -0.15em;"></span><span
+            class="mord"><span class="mord mathnormal" style="margin-right: 0.03588em;">v</span><span
+            class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist"
+                                                                                       style="height: 0.3011em;"><span
+            style="top: -2.55em; margin-left: -0.0359em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                      style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span
+            class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                       style="height: 0.15em;"><span></span></span></span></span></span></span></span></span></span></span>),
+    ..., (<span class="math math-inline"><span class="katex"><span class="katex-mathml">uku_k</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.5806em; vertical-align: -0.15em;"></span><span
+            class="mord"><span class="mord mathnormal">u</span><span class="msupsub"><span
+            class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.3361em;"><span
+            style="top: -2.55em; margin-left: 0em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight"
+                                                          style="margin-right: 0.03148em;">k</span></span></span></span><span
+            class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                       style="height: 0.15em;"><span></span></span></span></span></span></span></span></span></span></span>,
+    <span class="math math-inline"><span class="katex"><span class="katex-mathml">vkv_k</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.5806em; vertical-align: -0.15em;"></span><span
+            class="mord"><span class="mord mathnormal" style="margin-right: 0.03588em;">v</span><span
+            class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist"
+                                                                                       style="height: 0.3361em;"><span
+            style="top: -2.55em; margin-left: -0.0359em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                      style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight"
+                                                          style="margin-right: 0.03148em;">k</span></span></span></span><span
+            class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                       style="height: 0.15em;"><span></span></span></span></span></span></span></span></span></span></span>)
+    with the smallest sums where the first element in the pair is from <code>nums1</code> and second elements is from
+    <code>nums2</code>.</p>
+<hr>
+<h3 id="approach-using-heap">Approach: Using Heap</h3>
+<h4 id="intuition">Intuition</h4>
+<p>The brute force approach to solving this problem is to compute the sum of all the pairs, sort the list of sums, and
+    select the first 'k' elements from it. If the size of <code>nums1</code> is <code>m</code> and size of
+    <code>nums2</code> is <code>n</code>, there will be <code>m * n</code> pairs in total that will be formed. As a
+    result, it will take <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(m⋅n)O(m \cdot n)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> time to calculate
+    the sum of all the pairs and <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(m⋅n⋅log⁡(m⋅n))O(m \cdot n \cdot \log(m \cdot n))</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.4445em;"></span><span
+            class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mopen">(</span><span
+            class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal">n</span><span class="mclose">))</span></span></span></span></span> time to sort the
+    list of sums. This will result in the time limit being exceeded (TLE).</p>
+<p>We can see from the problem description that both arrays are sorted. Let us try to make use of it.</p>
+<p>Because the arrays are sorted, the pair with the smallest sum is undoubtedly the one formed by selecting the first
+    element from both arrays, i.e., pair with indices <code>(0, 0)</code> where the first element is index of <code>nums1</code>
+    and second is index of <code>nums2</code>. As a result, we add <code>(nums1[0], nums2[0])</code> to our answer list.
+</p>
+<p>What about the next pair whose sum is just greater than (or equal to) the sum of the previous pair?</p>
+<p>The next pair with a sum that is just greater than (or equal to) the sum of the previous pair would be formed by
+    selecting either the first element of <code>nums1</code> and the second element of <code>nums2</code>, <code>(0,
+        1)</code>, or the second element of <code>nums1</code> and the first element of <code>nums2</code>, <code>(1,
+        0)</code>, whichever has smaller sum. We only need to look at these two pairs because the sum of all the other
+    pairs will be greater than this pair.</p>
+<p>Assume we chose <code>(0, 1)</code> as our second pair. The next smallest pair whose sum is greater than (or equal
+    to) the sum of the second pair is either the previous iteration's leftover pair <code>(1, 0)</code>, or one of the
+    pairs formed by taking the current pair <code>(0, 1)</code> and taking a new element from either array, so either
+    <code>(1, 1)</code> or <code>(0, 2)</code> (notice that this is the same option we had after taking the first pair
+    <code>(0, 0)</code>).</p>
+<blockquote>
+    <p>At each step, we chose the minimum sum pair from the remaining leftover pairs and the next two new pairs. The
+        answer will not be present outside of these pairs being considered only because the arrays are sorted. We repeat
+        this process until we get <code>k</code> pairs.</p>
+</blockquote>
+<p>A <strong>heap</strong> is a useful data structure when it is necessary to repeatedly remove the object with the
+    lowest (or highest) priority, or when insertions need to be interspersed with removals of the objects.</p>
+<p>We will use a min heap to solve the problem because we need to iterate from the lowest sum of a pair to pairs with
+    higher sums. The sums of pairs will be stored in the heap, and the data structure will keep the sums in sorted
+    order. We must store the information of the indices of <code>nums1</code> and <code>nums2</code> that lead to the
+    formation of a particular sum in the heap in order to return the pair of integers.</p>
+<p>In the heap, we would store a triplet of integers: the pair's sum, the first element's index in <code>nums1</code>,
+    and the second element's index in <code>nums2</code>. We start with an empty list <code>ans</code> and push all of
+    the <code>k</code> pairs that make up the answer one-by-one.</p>
+<p>We begin by inserting <code>nums1[0] + nums2[0], 0, 0</code> into the heap because the sum of the first element of
+    both arrays is guaranteed to be the smallest.</p>
+<p>To obtain the minimum sum of a pair among all the pairs under consideration, the top of the heap is popped out. We
+    save the triplet in <code>val</code>, <code>i</code> and <code>j</code>. We put the pair <code>(nums1[i],
+        nums2[j])</code> in <code>ans</code>.</p>
+<p>We then push the two new pairs as discussed in the heap. We push <code>nums1[i + 1] + nums2[j], i + 1, j</code> and
+    <code>nums1[i] + nums2[j + 1], i, j + 1</code>.</p>
+<p>We do this until we get <code>k</code> pairs or heap becomes empty which would happen if we have covered all the
+    <code>m * n</code> pairs and <code>k &gt; m * n</code>, where <code>m</code> is size of <code>nums1</code> and
+    <code>n</code> is size of <code>nums2</code>.</p>
+<p>The only thing to keep in mind here is that when we push the new pairs, there may be repeating states. For <code>i =
+    1</code> and <code>j = 0</code>, for example, we will push <code>i = 2, j = 1</code> and <code>i = 1, j = 1</code>.
+    If <code>i = 1, j = 1</code> is popped again, we will push <code>i = 2, j = 1</code> and <code>i = 1, j = 2</code>.
+    The pair <code>i = 2, j = 1</code> is pushed twice, as can be seen.</p>
+<p>To avoid this, we can create a hash set called <code>visited</code> and store the pairs that have already been pushed
+    into the heap in order to avoid pushing them again.</p>
+<p>Here is a visual representation of how this approach works for the first example given in the problem
+    description:</p>
+<p>
+<div class="relative mx-auto mb-6 flex flex-col overflow-hidden rounded-lg border-[1px] border-label-1"
+     style="max-width: 601px;">
+    <div class="rounded-lg" style="max-height: 301px;"><img alt="Current"
+                                                            class="object-fit-contain !mb-0 max-h-full max-w-full"
+                                                            src="blob:https://leetcode.com/2140f364-5c7c-46b5-ab02-6852f6bb203a">
+    </div>
+    <div class="absolute top-[50%] left-[50%] flex h-12 w-12 translate-x-[-50%] translate-y-[-50%] items-center justify-center rounded-full bg-black/30">
+        <div class="flex h-4 w-4 cursor-pointer items-center justify-center text-[35px]">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="h-full w-full text-white">
+                <path fill-rule="evenodd"
+                      d="M18.97 12.871l-12.96 7.29a1 1 0 01-1.49-.87V4.71a1 1 0 011.49-.872l12.96 7.29a1 1 0 010 1.743z"
+                      clip-rule="evenodd"></path>
+            </svg>
+        </div>
+    </div>
+    <div class="relative flex h-8 select-none items-center justify-around bg-black">
+        <div class="flex items-center space-x-7">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M16.091 4.929l-7.057 7.078 7.057 7.064a1 1 0 01-1.414 1.414l-7.764-7.77a1 1 0 010-1.415l7.764-7.785a1 1 0 111.415 1.414z"
+                      clip-rule="evenodd"></path>
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M18.97 12.871l-12.96 7.29a1 1 0 01-1.49-.87V4.71a1 1 0 011.49-.872l12.96 7.29a1 1 0 010 1.743z"
+                      clip-rule="evenodd"></path>
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M7.913 19.071l7.057-7.078-7.057-7.064a1 1 0 011.414-1.414l7.764 7.77a1 1 0 010 1.415l-7.764 7.785a1 1 0 01-1.414-1.414z"
+                      clip-rule="evenodd"></path>
+            </svg>
+        </div>
+        <div class="absolute right-0 mr-5 text-xs font-medium text-white">1 / 5</div>
+    </div>
+</div>
+</p>
+<p>This method is very similar to the Dijkstra algorithm in that we find the shortest distance between any two nodes. To
+    find the edge with the smallest weight, we heap all of the edge weights. Then we move on to the next node (using
+    minimum weight edge selected). We add all of the edge weights for the edges connected with the node back to the heap
+    from the current node and choose the edge with the lowest weight from the available edges. We use the edge to move
+    to another unvisited node and continue popping nodes and adding edge weights to the heap until all of the nodes are
+    covered.</p>
+<h4 id="algorithm">Algorithm</h4>
+<ol>
+    <li>Create two integer variables <code>m</code> and <code>n</code>. Initialize them to size of <code>nums1</code>
+        and <code>nums2</code> respectively.
+    </li>
+    <li>Create a list <code>ans</code> to store the pairs with smallest sums that are to be returned as the answer.</li>
+    <li>Create a hash set <code>visited</code> to keep track of pairs that are seen. Please note that we used <code>ordered_set</code>
+        in <code>C++</code> in place of <code>unordered_set</code> because the <code>unordered_set</code> uses <code>hash</code>
+        template to compute hashes for its entries and there is no <code>hash</code> specialization for pairs. Either we
+        define the <code>hash</code> function of pairs or use <code>ordered_set</code> which is a little expensive as it
+        adds <code>log</code> factor. We are using <code>ordered_set</code> here.
+    </li>
+    <li>Initialize a min heap <code>minHeap</code> that takes a triplet of integers: the sum of the pair, the index in
+        <code>nums1</code> of the first element of the pair, and the index in <code>nums2</code> of the second element
+        of the pair.
+    </li>
+    <li>Push the first element from the both the arrays in <code>minHeap</code>, i.e., we push <code>nums1[0] +
+        nums2[0], 0, 0</code>. We also insert pair <code>(0, 0)</code> in <code>visited</code>.
+    </li>
+    <li>Iterate till we get <code>k</code> pairs and <code>minHeap</code> is not empty:
+        <ul>
+            <li>Pop the top of <code>minHeap</code> and set <code>i = top[1]</code> and <code>j = top[2]</code>.</li>
+            <li>Push pair <code>(nums1[i], nums2[j])</code> in <code>ans</code>.</li>
+            <li>If <code>i + 1 &lt; m</code> and pair <code>(i + 1, j)</code> is not in <code>visited</code>, we push a
+                new pair <code>nums1[i + 1] + nums2[j], i + 1, j</code> into the heap.
+            </li>
+            <li>If <code>j + 1 &lt; n</code> and pair <code>(i, j + 1)</code> is not in <code>visited</code>, we push a
+                new pair <code>nums1[i] + nums2[j + 1], i, j + 1</code> into the heap.
+            </li>
+        </ul>
+    </li>
+    <li>Return <code>ans</code>.</li>
+</ol>
+<h4 id="implementation">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public List<List<Integer>> kSmallestPairs(int[] nums1, int[] nums2, int k) {
+        int m = nums1.length;
+        int n = nums2.length;
+
+        List<List<Integer>> ans = new ArrayList<>();
+        Set<Pair<Integer, Integer>> visited = new HashSet<>();
+
+        PriorityQueue<int[]> minHeap = new PriorityQueue<>((a, b)->(a[0] - b[0]));
+        minHeap.offer(new int[]{nums1[0] + nums2[0], 0, 0});
+        visited.add(new Pair<Integer, Integer>(0, 0));
+
+        while (k-- > 0 && !minHeap.isEmpty()) {
+            int[] top = minHeap.poll();
+            int i = top[1];
+            int j = top[2];
+
+            ans.add(List.of(nums1[i], nums2[j]));
+
+            if (i + 1 < m && !visited.contains(new Pair<Integer, Integer>(i + 1, j))) {
+                minHeap.offer(new int[]{nums1[i + 1] + nums2[j], i + 1, j});
+                visited.add(new Pair<Integer, Integer>(i + 1, j));
+            }
+
+            if (j + 1 < n && !visited.contains(new Pair<Integer, Integer>(i, j + 1))) {
+                minHeap.offer(new int[]{nums1[i] + nums2[j + 1], i, j + 1});
+                visited.add(new Pair<Integer, Integer>(i, j + 1));
+            }
+        }
+
+        return ans;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    vector<vector<int>> kSmallestPairs(vector<int>& nums1, vector<int>& nums2, int k) {
+        int m = nums1.size();
+        int n = nums2.size();
+
+        vector<vector<int>> ans;
+        set<pair<int, int>> visited;
+
+        priority_queue<pair<int, pair<int, int>>, vector<pair<int, pair<int, int>>>,
+                       greater<pair<int, pair<int, int>>>> minHeap;
+        minHeap.push({nums1[0] + nums2[0], {0, 0}});
+        visited.insert({0, 0});
+
+        while (k-- && !minHeap.empty()) {
+            auto top = minHeap.top();
+            minHeap.pop();
+            int i = top.second.first;
+            int j = top.second.second;
+
+            ans.push_back({nums1[i], nums2[j]});
+
+            if (i + 1 < m && visited.find({i + 1, j}) == visited.end()) {
+                minHeap.push({nums1[i + 1] + nums2[j], {i + 1, j}});
+                visited.insert({i + 1, j});
+            }
+
+            if (j + 1 < n && visited.find({i, j + 1}) == visited.end()) {
+                minHeap.push({nums1[i] + nums2[j + 1], {i, j + 1}});
+                visited.insert({i, j + 1});
+            }
+        }
+
+        return ans;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def kSmallestPairs(self, nums1: List[int], nums2: List[int], k: int) -> List[List[int]]:
+        from heapq import heappush, heappop
+        m = len(nums1)
+        n = len(nums2)
+
+        ans = []
+        visited = set()
+
+        minHeap = [(nums1[0] + nums2[0], (0, 0))]
+        visited.add((0, 0))
+        count = 0
+
+        while k > 0 and minHeap:
+            val, (i, j) = heappop(minHeap)
+            ans.append([nums1[i], nums2[j]])
+
+            if i + 1 < m and (i + 1, j) not in visited:
+                heappush(minHeap, (nums1[i + 1] + nums2[j], (i + 1, j)))
+                visited.add((i + 1, j))
+
+            if j + 1 < n and (i, j + 1) not in visited:
+                heappush(minHeap, (nums1[i] + nums2[j + 1], (i, j + 1)))
+                visited.add((i, j + 1))
+            k = k - 1
+
+        return ans
+    </code>
+</pre>
+<h4 id="complexity-analysis">Complexity Analysis</h4>
+<p>Here, <span class="math math-inline"><span class="katex"><span class="katex-mathml">mm</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">m</span></span></span></span></span>
+    is the size of <code>nums1</code> and <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.4306em;"></span><span
+            class="mord mathnormal">n</span></span></span></span></span> is the size of <code>nums2</code>.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(min⁡(k⋅log⁡k,m⋅n⋅log⁡(m⋅n)))O(\min(k \cdot \log k, m \cdot n \cdot \log (m \cdot n)))</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mop">min</span><span class="mopen">(</span><span class="mord mathnormal"
+                                                                        style="margin-right: 0.03148em;">k</span><span
+                class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+                class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                          style="margin-right: 0.1667em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span class="mpunct">,</span><span
+                class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal">m</span><span
+                class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.4445em;"></span><span class="mord mathnormal">n</span><span
+                class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                style="margin-right: 0.01389em;">g</span></span><span class="mopen">(</span><span
+                class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal">n</span><span class="mclose">)))</span></span></span></span></span></p>
+        <ul>
+            <li>We iterate <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(min⁡(k,m⋅n))O(\min(k, m \cdot n))</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mop">min</span><span class="mopen">(</span><span class="mord mathnormal"
+                                                                            style="margin-right: 0.03148em;">k</span><span
+                    class="mpunct">,</span><span class="mspace" style="margin-right: 0.1667em;"></span><span
+                    class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal">n</span><span class="mclose">))</span></span></span></span></span> times to
+                get the required number of pairs.
+            </li>
+            <li>The <code>visited</code> set and <code>heap</code> both can grow up to a size of <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(min⁡(k,m⋅n))O(\min(k, m \cdot n))</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mop">min</span><span class="mopen">(</span><span class="mord mathnormal"
+                                                                            style="margin-right: 0.03148em;">k</span><span
+                    class="mpunct">,</span><span class="mspace" style="margin-right: 0.1667em;"></span><span
+                    class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal">n</span><span class="mclose">))</span></span></span></span></span> because
+                at each iteration we are inserting at most two pairs and popping one pair. Insertions into a min-heap
+                take an additional <span class="math math-inline"><span class="katex"><span class="katex-mathml">log⁡\log</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+                        class="mop">lo<span style="margin-right: 0.01389em;">g</span></span></span></span></span></span>
+                factor. So, to insert <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(min⁡(k,m⋅n))O(\min(k, m \cdot n))</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mop">min</span><span class="mopen">(</span><span
+                        class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                        class="mpunct">,</span><span class="mspace" style="margin-right: 0.1667em;"></span><span
+                        class="mord mathnormal">m</span><span class="mspace"
+                                                              style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span
+                        class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+                        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal">n</span><span class="mclose">))</span></span></span></span></span>
+                elements into <code>minHeap</code>, we need <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(min⁡(k⋅log⁡k,m⋅n⋅log⁡(m⋅n))O(\min(k \cdot \log k, m \cdot n \cdot \log (m \cdot n))</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mop">min</span><span class="mopen">(</span><span
+                        class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span class="mspace"
+                                                                                               style="margin-right: 0.2222em;"></span><span
+                        class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                        class="base"><span class="strut"
+                                           style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+                        class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                                  style="margin-right: 0.1667em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                        class="mpunct">,</span><span class="mspace" style="margin-right: 0.1667em;"></span><span
+                        class="mord mathnormal">m</span><span class="mspace"
+                                                              style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span
+                        class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+                        class="strut" style="height: 0.4445em;"></span><span class="mord mathnormal">n</span><span
+                        class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span
+                        class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+                        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                        style="margin-right: 0.01389em;">g</span></span><span class="mopen">(</span><span
+                        class="mord mathnormal">m</span><span class="mspace"
+                                                              style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span
+                        class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+                        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal">n</span><span class="mclose">))</span></span></span></span></span> time.
+            </li>
+            <li>The <code>visited</code> set takes on an average constant time and hence will take <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(min⁡(k,m⋅n))O(\min(k, m \cdot n))</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mop">min</span><span class="mopen">(</span><span class="mord mathnormal"
+                                                                            style="margin-right: 0.03148em;">k</span><span
+                    class="mpunct">,</span><span class="mspace" style="margin-right: 0.1667em;"></span><span
+                    class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal">n</span><span class="mclose">))</span></span></span></span></span> time in
+                major languages like Java and Python except in C++ where it would also take <span
+                        class="math math-inline"><span class="katex"><span class="katex-mathml">O(min⁡(k⋅log⁡k,m⋅n⋅log⁡(m⋅n)))O(\min(k \cdot \log k, m \cdot n \cdot \log (m \cdot n)))</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mop">min</span><span class="mopen">(</span><span
+                        class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span class="mspace"
+                                                                                               style="margin-right: 0.2222em;"></span><span
+                        class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                        class="base"><span class="strut"
+                                           style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+                        class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                                  style="margin-right: 0.1667em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                        class="mpunct">,</span><span class="mspace" style="margin-right: 0.1667em;"></span><span
+                        class="mord mathnormal">m</span><span class="mspace"
+                                                              style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span
+                        class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+                        class="strut" style="height: 0.4445em;"></span><span class="mord mathnormal">n</span><span
+                        class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span
+                        class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+                        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                        style="margin-right: 0.01389em;">g</span></span><span class="mopen">(</span><span
+                        class="mord mathnormal">m</span><span class="mspace"
+                                                              style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span
+                        class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+                        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal">n</span><span class="mclose">)))</span></span></span></span></span>
+                because we used <code>ordered_set</code> that keeps the values in sorted order.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(min⁡(k,m⋅n))O(\min(k, m \cdot n))</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mop">min</span><span class="mopen">(</span><span class="mord mathnormal"
+                                                                        style="margin-right: 0.03148em;">k</span><span
+                class="mpunct">,</span><span class="mspace" style="margin-right: 0.1667em;"></span><span
+                class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal">n</span><span class="mclose">))</span></span></span></span></span></p>
+        <ul>
+            <li>The <code>visited</code> set and <code>heap</code> can both grow up to a size of <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(min⁡(k,m⋅n))O(\min(k, m \cdot n))</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mop">min</span><span class="mopen">(</span><span class="mord mathnormal"
+                                                                            style="margin-right: 0.03148em;">k</span><span
+                    class="mpunct">,</span><span class="mspace" style="margin-right: 0.1667em;"></span><span
+                    class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal">n</span><span class="mclose">))</span></span></span></span></span> because
+                at each iteration we are inserting at most two pairs and popping one pair.
+            </li>
+        </ul>
+    </li>
+</ul>
+</body>
+</html>
