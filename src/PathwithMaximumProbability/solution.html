@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Path with Maximum Probability - Solution</title>
+</head>
+<body>
+<h2 id="solution">Path with Maximum Probability - Solution</h2>
+<hr>
+<h3 id="approach-1-bellman-ford-algorithm">Approach 1: Bellman-Ford Algorithm</h3>
+<h4 id="intuition">Intuition</h4>
+<blockquote>
+    <p>If you are not familiar with the Bellman-Ford algorithm, please refer to our <a
+            href="https://leetcode.com/explore/learn/card/graph/622/single-source-shortest-path-algorithm/3864/"
+            target="_blank">Bellman-Ford Algorithm Explore Card</a>. For the sake of brevity, we will focus only on the
+        usage of Bellman-Ford and not the implementation details.</p>
+</blockquote>
+<p>The algorithm works by relaxing edges in the graph, meaning that it tries to improve the shortest path estimate for
+    each node in the graph until the solution is found.</p>
+<p>Bellman-Ford is typically used to find the shortest path in a weighted graph. In this problem, instead of the
+    shortest distance, we are looking for the <strong>maximum probability</strong>. The length of a path is the sum of
+    the weights of its edges. Here, the probability of a path equals the product of the probabilities of its edges.</p>
+<p>Initially, we set the probability to reach the starting node <code>start</code> as <code>1</code> and all other
+    probabilities as <code>0</code>. Then we iteratively relax the edges of the graph by updating the probability to
+    each node if a higher probability is found.</p>
+<p>Considering that a path in the graph without a cycle contains at most <code>n - 1</code> edges, the process is
+    repeated <code>n - 1</code> times, which is enough to relax every edge of every possible path.</p>
+<ul>
+    <li>In the first round, we update the maximum probability of reaching each node <code>u</code> from the starting
+        node along the path that contains only one edge <code>(u, v)</code>.
+    </li>
+    <li>In the second round, we update the maximum probability of reaching each node <code>u</code> from the starting
+        node along the path that contains two edges (including <code>(u, v)</code>).
+    </li>
+    <li>and so on.</li>
+</ul>
+<p>After <code>n - 1</code> rounds, we have updated <code>max_prob[end]</code> to be the maximum probability of reaching
+    <code>end</code> from the staring node along every possible path.</p>
+<br>
+<h4 id="algorithm">Algorithm</h4>
+<ol>
+    <li>
+        <p>Initialize an array <code>maxProb</code> as the maximum probability to reach each node from the staring node,
+            set <code>maxProb[start]</code> as <code>1</code>.</p>
+    </li>
+    <li>
+        <p>Relax all edges: for each edge <code>(u, v)</code>, if a higher probability of reaching <code>u</code>
+            through this edge is found, update the <code>max_prob[u]</code> as <code>max_prob[u] = max_prob[v] *
+                path_prob</code>, if a higher probability to reach <code>v</code> through this edge is found, update the
+            <code>max_prob[v]</code>.</p>
+    </li>
+    <li>
+        <p>If we are unable to update any node with a higher probability, we can stop the iteration by proceeding to
+            step 4. Otherwise, repeat step 2 until all edges are relaxed <code>n - 1</code> times.</p>
+    </li>
+    <li>
+        <p>Return <code>max_prob[end]</code>.</p>
+    </li>
+</ol>
+<h4 id="implementation">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public double maxProbability(int n, int[][] edges, double[] succProb, int start, int end) {
+        double[] maxProb = new double[n];
+        maxProb[start] = 1.0;
+
+        for (int i = 0; i < n - 1; i++) {
+            boolean hasUpdate = false;
+            for (int j = 0; j < edges.length; j++) {
+                int u = edges[j][0];
+                int v = edges[j][1];
+                double pathProb = succProb[j];
+                if (maxProb[u] * pathProb > maxProb[v]) {
+                    maxProb[v] = maxProb[u] * pathProb;
+                    hasUpdate = true;
+                }
+                if (maxProb[v] * pathProb > maxProb[u]) {
+                    maxProb[u] = maxProb[v] * pathProb;
+                    hasUpdate = true;
+                }
+            }
+            if (!hasUpdate) {
+                break;
+            }
+        }
+
+        return maxProb[end];
+    }
+}
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def maxProbability(self, n: int, edges: List[List[int]], succProb: List[float], start: int, end: int) -> float:
+        max_prob = [0] * n
+        max_prob[start] = 1
+
+        for i in range(n - 1):
+            # If there is no larger probability found during an entire round of updates,
+            # stop the update process.
+            has_update = 0
+            for j in range(len(edges)):
+                u, v = edges[j]
+                path_prob = succProb[j]
+                if max_prob[u] * path_prob > max_prob[v]:
+                    max_prob[v] = max_prob[u] * path_prob
+                    has_update = 1
+                if max_prob[v] * path_prob > max_prob[u]:
+                    max_prob[u] = max_prob[v] * path_prob
+                    has_update = 1
+            if not has_update:
+                break
+
+        return max_prob[end]
+    </code>
+</pre>
+<h4 id="complexity-analysis">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    be the number of nodes and <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">mm</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.4306em;"></span><span
+            class="mord mathnormal">m</span></span></span></span></span> be the number of edges.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅m)O(n \cdot m)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal">m</span><span class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>The algorithm relaxes all edges in the graph <code>n - 1</code> times, each round contains an iteration
+                over all <code>m</code> edges.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <ul>
+            <li>We only need an array of size <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                    class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+                to update the maximum probability to reach each node from the starting node.
+            </li>
+        </ul>
+    </li>
+</ul>
+<br>
+<hr>
+<h3 id="approach-2-shortest-path-faster-algorithm">Approach 2: Shortest Path Faster Algorithm</h3>
+<h4 id="intuition-1">Intuition</h4>
+<p>The Shortest Path Faster Algorithm (SPFA) is an improvement of the Bellman–Ford algorithm which computes
+    single-source shortest paths in a weighted directed graph.</p>
+<p>We start at node <code>start</code> and traverse all its neighbors, calculating the probability of moving from <code>start</code>
+    to each neighbor. We then add these neighbors to a queue, and continue the process for all nodes in the queue until
+    we empty the queue.</p>
+<p>The key is maintaining a running maximum probability for each node, and using this maximum to calculate the
+    probabilities for its neighbors. If the probability of traveling from the starting node to a neighbor node through a
+    specific edge is greater than the current maximum probability for that neighbor, we update the maximum probability
+    of this neighbor node, and add this neighbor node to the queue.</p>
+<p>Another key point to note is how we calculate the probability of traveling from <code>start</code> to a neighbor
+    node. We are given a set of edge weights that represent the probabilities of moving from one node to another. To
+    calculate the probability of traveling from the starting node to a neighbor node through a specific edge, we simply
+    multiply the edge weight (i.e., the probability of traveling through that edge) by the maximum probability of
+    reaching the current node from the starting node. This gives us the probability of reaching the neighbor node
+    through the current edge.</p>
+<p>Take the slides below as an example:</p>
+<p>
+<div class="relative mx-auto mb-6 flex flex-col overflow-hidden rounded-lg border-[1px] border-label-1"
+     style="max-width: 601px;">
+    <div class="rounded-lg" style="max-height: 301px;"><img alt="Current"
+                                                            class="object-fit-contain !mb-0 max-h-full max-w-full"
+                                                            src="blob:https://leetcode.com/a065f941-e2a3-4986-a1f7-d0ea1375a205">
+    </div>
+    <div class="absolute top-[50%] left-[50%] flex h-12 w-12 translate-x-[-50%] translate-y-[-50%] items-center justify-center rounded-full bg-black/30">
+        <div class="flex h-4 w-4 cursor-pointer items-center justify-center text-[35px]">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="h-full w-full text-white">
+                <path fill-rule="evenodd"
+                      d="M18.97 12.871l-12.96 7.29a1 1 0 01-1.49-.87V4.71a1 1 0 011.49-.872l12.96 7.29a1 1 0 010 1.743z"
+                      clip-rule="evenodd"></path>
+            </svg>
+        </div>
+    </div>
+    <div class="relative flex h-8 select-none items-center justify-around bg-black">
+        <div class="flex items-center space-x-7">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M16.091 4.929l-7.057 7.078 7.057 7.064a1 1 0 01-1.414 1.414l-7.764-7.77a1 1 0 010-1.415l7.764-7.785a1 1 0 111.415 1.414z"
+                      clip-rule="evenodd"></path>
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M18.97 12.871l-12.96 7.29a1 1 0 01-1.49-.87V4.71a1 1 0 011.49-.872l12.96 7.29a1 1 0 010 1.743z"
+                      clip-rule="evenodd"></path>
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M7.913 19.071l7.057-7.078-7.057-7.064a1 1 0 011.414-1.414l7.764 7.77a1 1 0 010 1.415l-7.764 7.785a1 1 0 01-1.414-1.414z"
+                      clip-rule="evenodd"></path>
+            </svg>
+        </div>
+        <div class="absolute right-0 mr-5 text-xs font-medium text-white">1 / 12</div>
+    </div>
+</div>
+</p>
+<blockquote>
+    <p>You might wonder, will repeatedly adding the same node back to the queue cause an infinite loop and result in a
+        timeout?</p>
+</blockquote>
+<p>The answer is NO, because we only update the probability of reaching a neighbor node, say <code>nxt_node</code> and
+    add it back to <code>queue</code> if the current path <strong>increases</strong> the probability of reaching <code>nxt_node</code>
+    from the starting node. Moreover, the weight (probability) of each path is less than or equal to 1. Therefore, even
+    if the graph contains a cycle, the product of the probabilities of all edges in the cycle is still less than or
+    equal to 1. Since loops do not increase the probability of reaching a node, paths that contain loops will be
+    excluded from consideration and not added to the queue.</p>
+<p><img src="c.png" alt="img"></p>
+<br>
+<h4 id="algorithm-1">Algorithm</h4>
+<ol>
+    <li>
+        <p>Initialize an empty queue <code>queue</code> to store nodes that need to be visited.</p>
+    </li>
+    <li>
+        <p>Initialize an array <code>max_prob</code> to store the maximum probability of reaching each node from the
+            starting node. Set the probability of the starting node <code>max_prob[start]</code> as 1, and the
+            probability of all other nodes as 0.</p>
+    </li>
+    <li>
+        <p>Add the starting node <code>start</code> to the <code>queue</code>.</p>
+    </li>
+    <li>
+        <p>While <code>queue</code> is not empty, we remove the first node <code>cur_node</code> from the queue.</p>
+    </li>
+    <li>
+        <p>For each neighbor of <code>nxt_node</code>, calculate the probability of traveling from the starting node to
+            the <code>nxt_node</code> through the current edge (<code>cur_node --- nxt_node</code>), and update the
+            maximum probability for this neighbor <code>max_prob[nxt_node]</code> if necessary.</p>
+    </li>
+    <li>
+        <p>If the probability to this neighbor node is increased, add <code>nxt_node</code> to <code>queue</code>.</p>
+    </li>
+    <li>
+        <p>Repeat steps 4-6 until <code>queue</code> is empty.</p>
+    </li>
+    <li>
+        <p>Return <code>max_prob[end]</code>, the maximum probability of reaching the end node <code>end</code> from the
+            starting node.</p>
+    </li>
+</ol>
+<h4 id="implementation-1">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public double maxProbability(int n, int[][] edges, double[] succProb, int start, int end) {
+        Map<Integer, List<Pair<Integer, Double>>> graph = new HashMap<>();
+        for (int i = 0; i < edges.length; i++) {
+            int u = edges[i][0], v = edges[i][1];
+            double pathProb = succProb[i];
+            graph.computeIfAbsent(u, k -> new ArrayList<>()).add(new Pair<>(v, pathProb));
+            graph.computeIfAbsent(v, k -> new ArrayList<>()).add(new Pair<>(u, pathProb));
+        }
+
+        double[] maxProb = new double[n];
+        maxProb[start] = 1d;
+
+        Queue<Integer> queue = new LinkedList<>();
+        queue.offer(start);
+        while (!queue.isEmpty()) {
+            int curNode = queue.poll();
+            for (Pair<Integer, Double> neighbor : graph.getOrDefault(curNode, new ArrayList<>())) {
+                int nxtNode = neighbor.getKey();
+                double pathProb = neighbor.getValue();
+
+                // Only update maxProb[nxtNode] if the current path increases
+                // the probability of reach nxtNode.
+                if (maxProb[curNode] * pathProb > maxProb[nxtNode]) {
+                    maxProb[nxtNode] = maxProb[curNode] * pathProb;
+                    queue.offer(nxtNode);
+                }
+            }
+        }
+
+        return maxProb[end];
+    }
+}
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def maxProbability(self, n: int, edges: List[List[int]], succProb: List[float], start: int, end: int) -> float:
+        graph = defaultdict(list)
+        for i, (a, b) in enumerate(edges):
+            graph[a].append([b, succProb[i]])
+            graph[b].append([a, succProb[i]])
+
+        max_prob = [0.0] * n
+        max_prob[start] = 1.0
+
+        queue = deque([start])
+        while queue:
+            cur_node = queue.popleft()
+            for nxt_node, path_prob in graph[cur_node]:
+
+                # Only update max_prob[nxt_node] if the current path increases
+                # the probability of reach nxt_node.
+                if max_prob[cur_node] * path_prob > max_prob[nxt_node]:
+                    max_prob[nxt_node] = max_prob[cur_node] * path_prob
+                    queue.append(nxt_node)
+
+        return max_prob[end]
+    </code>
+</pre>
+<h4 id="complexity-analysis-1">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    be the number of nodes and <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">mm</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.4306em;"></span><span
+            class="mord mathnormal">m</span></span></span></span></span> be the number of edges.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅m)O(n \cdot m)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal">m</span><span class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>The worst-case running of SPFA is <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(∣V∣⋅∣E∣)O(|V|\cdot|E|)</span><span class="katex-html"
+                                                                              aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord">∣</span><span class="mord mathnormal" style="margin-right: 0.22222em;">V</span><span
+                    class="mord">∣</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span
+                    class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut"
+                                                                                                          style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord">∣</span><span class="mord mathnormal" style="margin-right: 0.05764em;">E</span><span
+                    class="mord">∣</span><span class="mclose">)</span></span></span></span></span>. However, this is
+                only the worst-case scenario, and the average runtime of SPFA is better than in Bellman-Ford.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n+m)O(n + m)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal">m</span><span class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>We build a hash map <code>graph</code> based on all edges, which takes <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(m)O(m)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">m</span><span class="mclose">)</span></span></span></span></span> space.
+            </li>
+            <li>The algorithm stores the probability array <code>max_prob</code> of size <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> and a
+                queue of vertices <code>queue</code>. In the worst-case scenario, there are <span
+                        class="math math-inline"><span class="katex"><span class="katex-mathml">O(m)O(m)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">m</span><span class="mclose">)</span></span></span></span></span>
+                nodes in <code>queue</code> at the same time.
+            </li>
+        </ul>
+    </li>
+</ul>
+<br>
+<hr>
+<h3 id="approach-3-dijkstras-algorithm">Approach 3: Dijkstra's Algorithm</h3>
+<h4 id="intuition-2">Intuition</h4>
+<blockquote>
+    <p>If you are not familiar with the Dijkstra's algorithm, please refer to our <a
+            href="https://leetcode.com/explore/learn/card/graph/622/single-source-shortest-path-algorithm/3862/"
+            target="_blank">Dijkstra's Algorithm Explore Card</a>. For the sake of brevity, we will focus on the usage
+        of the algorithm and not implementation details.</p>
+</blockquote>
+<p>In BFS, we are exploring the graph in a breadth-first manner, which may not always lead to the shortest path. This is
+    because BFS does not take into account the weights of the edges and only considers the number of hops. As shown in
+    the picture below, even though the two paths to <code>end</code></p>
+<ul>
+    <li><code>0</code> -- <code>2</code></li>
+    <li><code>0</code> -- <code>1</code> -- <code>2</code><br>
+        don't have the maximum probability, we still need to update all the nodes along these paths.
+    </li>
+</ul>
+<p><img src="d1.png" alt="img"></p>
+<p>In contrast, Dijkstra's algorithm takes into account the weights of the edges and always guarantees to find the
+    highest probability from the source node to any other node in the graph. This is where Dijkstra's algorithm becomes
+    more suitable than BFS, as it takes into account the weights (probabilities) of the edges and can find the path with
+    the highest probability of reaching the end node.</p>
+<p><img src="d2.png" alt="img"></p>
+<p>We start from the starting node <code>start</code>, and consider its neighbors one by one, updating the probability
+    to each neighboring node <code>nxt_node</code> if the probability of reaching <code>nxt_node</code> through the
+    current node <code>cur_node</code> is higher than the previous stored probability of reaching <code>nxt_node</code>
+    (by other paths). In order to always select the node with the highest reaching probability, we use a priority queue
+    <code>pq</code> to store the nodes to visit, where the node with the highest probability of being reached from the
+    starting node has the highest priority.</p>
+<br>
+<h4 id="algorithm-2">Algorithm</h4>
+<ol>
+    <li>
+        <p>Initialize a priority queue <code>pq</code> to store nodes that need to be visited, and an array <code>max_prob</code>
+            to store the maximum probability to reach each node from the starting node. Set the probability of the
+            starting node as <code>1</code>, and the probability of all other nodes as <code>0</code>.</p>
+    </li>
+    <li>
+        <p>Add the starting node <code>start</code> and its probability to the priority queue.</p>
+    </li>
+    <li>
+        <p>While <code>pq</code> is not empty, remove <code>cur_node</code>, the node with the highest priority from it.
+        </p>
+    </li>
+    <li>
+        <p>For each neighbor <code>nxt_node</code> of the current node <code>cur_node</code>, calculate the probability
+            of traveling from the starting node to the <code>nxt_node</code> through the current edge <code>cur_node ---
+                nxt_node</code>, and update the maximum probability of <code>nxt_node</code> if necessary. To update the
+            maximum probability, compare the product of the probability with the current node and the probability of the
+            edge <code>cur_node --- nxt_node</code>, with the current maximum probability to the neighbor node. If the
+            product is larger than the maximum probability stored in <code>max_prob[nxt_node]</code>, we update the
+            maximum probability <code>max_prob[nxt_node]</code> as their product.</p>
+    </li>
+    <li>
+        <p>If the neighbor node <code>nxt_node</code> has not been visited, we add it and its probability to the <code>pq</code>.
+        </p>
+    </li>
+    <li>
+        <p>Repeat steps 3-5 until the priority queue is empty or the ending node <code>end</code> has been reached.</p>
+    </li>
+    <li>
+        <p>Return <code>max_prob[end]</code>.</p>
+    </li>
+</ol>
+<h4 id="implementation-2">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public double maxProbability(int n, int[][] edges, double[] succProb, int start, int end) {
+        Map<Integer, List<Pair<Integer, Double>>> graph = new HashMap<>();
+        for (int i = 0; i < edges.length; i++) {
+            int u = edges[i][0], v = edges[i][1];
+            double pathProb = succProb[i];
+            graph.computeIfAbsent(u, k -> new ArrayList<>()).add(new Pair<>(v, pathProb));
+            graph.computeIfAbsent(v, k -> new ArrayList<>()).add(new Pair<>(u, pathProb));
+        }
+
+        double[] maxProb = new double[n];
+        maxProb[start] = 1d;
+
+        PriorityQueue<Pair<Double, Integer>> pq = new PriorityQueue<>((a, b) -> -Double.compare(a.getKey(), b.getKey()));
+        pq.add(new Pair<>(1.0, start));
+        while (!pq.isEmpty()) {
+            Pair<Double, Integer> cur = pq.poll();
+            double curProb = cur.getKey();
+            int curNode = cur.getValue();
+            if (curNode == end) {
+                return curProb;
+            }
+            for (Pair<Integer, Double> nxt : graph.getOrDefault(curNode, new ArrayList<>())) {
+                int nxtNode = nxt.getKey();
+                double pathProb = nxt.getValue();
+                if (curProb * pathProb > maxProb[nxtNode]) {
+                    maxProb[nxtNode] = curProb * pathProb;
+                    pq.add(new Pair<>(maxProb[nxtNode], nxtNode));
+                }
+            }
+        }
+
+        return 0d;
+    }
+}
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def maxProbability(self, n: int, edges: List[List[int]], succProb: List[float], start: int, end: int) -> float:
+        graph = defaultdict(list)
+        for i, (u, v) in enumerate(edges):
+            graph[u].append((v, succProb[i]))
+            graph[v].append((u, succProb[i]))
+
+        max_prob = [0.0] * n
+        max_prob[start] = 1.0
+
+        pq = [(-1.0, start)]
+        while pq:
+            cur_prob, cur_node = heapq.heappop(pq)
+            if cur_node == end:
+                return -cur_prob
+            for nxt_node, path_prob in graph[cur_node]:
+
+                if -cur_prob * path_prob > max_prob[nxt_node]:
+                    max_prob[nxt_node] = -cur_prob * path_prob
+                    heapq.heappush(pq, (-max_prob[nxt_node], nxt_node))
+        return 0.0
+    </code>
+</pre>
+<blockquote>
+    <p>Note that Python's heapq module only implements min heaps. Since we want higher probabilities to be popped first,
+        we need a max heap. To fix this, we multiply the probabilities by <code>-1</code>.</p>
+</blockquote>
+<h4 id="complexity-analysis-2">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    be the number of nodes and <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">mm</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.4306em;"></span><span
+            class="mord mathnormal">m</span></span></span></span></span> be the number of edges.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(m+n⋅log⁡n)O(m + n\cdot\log n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.4445em;"></span><span class="mord mathnormal">n</span><span
+                class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                      style="margin-right: 0.1667em;"></span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> when a
+            Fibonacci heap is used, or <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n+m⋅log⁡n)O(n + m\cdot\log n)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 0.4445em;"></span><span
+                    class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                              style="margin-right: 0.1667em;"></span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> for a
+            Binary heap.</p>
+        <ul>
+            <li>
+                <p>We build a hash map <code>graph</code> based on all edges, which takes <span
+                        class="math math-inline"><span class="katex"><span class="katex-mathml">O(m)O(m)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">m</span><span class="mclose">)</span></span></span></span></span>
+                    time.</p>
+            </li>
+            <li>
+                <p>If we use a Fibonacci heap to implement the max-heap, extracting the minimum element takes <span
+                        class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡n)O(\log n)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span
+                        class="mspace" style="margin-right: 0.1667em;"></span><span
+                        class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> time
+                    while key decreasing operation takes amortized <span class="math math-inline"><span
+                            class="katex"><span class="katex-mathml">O(1)O(1)</span><span class="katex-html"
+                                                                                          aria-hidden="true"><span
+                            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                            class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span></span>
+                    time, so the total time complexity of all the operations on <code>pq</code> would be <span
+                            class="math math-inline"><span class="katex"><span class="katex-mathml">O(m+n⋅log⁡n)O(m + n\cdot\log n)</span><span
+                            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+                            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                            class="mopen">(</span><span class="mord mathnormal">m</span><span class="mspace"
+                                                                                              style="margin-right: 0.2222em;"></span><span
+                            class="mbin">+</span><span class="mspace"
+                                                       style="margin-right: 0.2222em;"></span></span><span class="base"><span
+                            class="strut" style="height: 0.4445em;"></span><span class="mord mathnormal">n</span><span
+                            class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span
+                            class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+                            class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                            style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                  style="margin-right: 0.1667em;"></span><span
+                            class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.
+                </p>
+            </li>
+            <li>
+                <p>If we use a Binary heap, the time complexity of all the operations on <code>pq</code> would be <span
+                        class="math math-inline"><span class="katex"><span class="katex-mathml">O(n+m⋅log⁡n)O(n + m\cdot\log n)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mspace"
+                                                                                          style="margin-right: 0.2222em;"></span><span
+                        class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                        class="base"><span class="strut" style="height: 0.4445em;"></span><span class="mord mathnormal">m</span><span
+                        class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span
+                        class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+                        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                        style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                              style="margin-right: 0.1667em;"></span><span
+                        class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>,</p>
+            </li>
+        </ul>
+    </li>
+</ul>
+<blockquote>
+    <p>You can also refer to our <a
+            href="https://leetcode.com/explore/learn/card/graph/622/single-source-shortest-path-algorithm/3862/"
+            target="_blank">Dijkstra's Algorithm Explore Card</a> for details on the complexity analysis.</p>
+</blockquote>
+<ul>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n+m)O(n + m)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal">m</span><span class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>
+                <p>We build a hash map <code>graph</code> based on all edges, which takes <span
+                        class="math math-inline"><span class="katex"><span class="katex-mathml">O(m)O(m)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">m</span><span class="mclose">)</span></span></span></span></span>
+                    space.</p>
+            </li>
+            <li>
+                <p>The algorithm stores the probability array <code>max_prob</code> of size <span
+                        class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.
+                </p>
+            </li>
+            <li>
+                <p>We use a priority queue to keep track of all nodes to be visited, there are at most <span
+                        class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 0.4306em;"></span><span
+                        class="mord mathnormal">n</span></span></span></span></span> nodes in <code>pq</code>.</p>
+            </li>
+            <li>
+                <p>To sum up, the overall space complexity is <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(n+m)O(n + m)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mspace"
+                                                                                          style="margin-right: 0.2222em;"></span><span
+                        class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal">m</span><span class="mclose">)</span></span></span></span></span>.</p>
+            </li>
+        </ul>
+    </li>
+</ul>
+<br>
+</body>
+</html>
