@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Shortest Path to Get All Keys - Solution</title>
+</head>
+<body>
+<h2 id="solution">Shortest Path to Get All Keys - Solution</h2>
+<hr>
+<h3 id="overview">Overview</h3>
+<blockquote>
+    <p>If you are not familiar with Breadth-First Search (BFS) algorithms, please refer to our explore cards: <a
+            href="https://leetcode.com/explore/featured/card/graph/620/breadth-first-search-in-graph/" target="_blank">Breadth-First
+        Search Explore Card</a>. We will focus on the usage in this article and not the implementation details.</p>
+</blockquote>
+<p>BFS is a graph traversal algorithm that visits all the vertices of a graph in breadth-first order. It is a suitable
+    choice for finding the shortest path between two vertices of a graph, which is applicable to this problem. However,
+    a regular BFS cannot solve this problem. Let's examine the issue using the example shown above.</p>
+<p><img src="1.png" alt="img"></p>
+<hr>
+<h3 id="approach-breadth-first-search">Approach: Breadth-First Search</h3>
+<h4 id="intuition">Intuition</h4>
+<p>We can easily identify the shortest path, but when we apply a regular BFS, we encounter a problem. When we reach
+    <code>grid[0][4]</code> and collect key <code>a</code>, we discover that there is no way back since revisiting a
+    cell is not allowed in BFS.</p>
+<p><img src="2.png" alt="img"></p>
+<p>Hence, our BFS must differentiate between different <strong>key-holding states</strong>. Within the same state, we
+    cannot revisit a cell. However, two searchings between different key-holding states are entirely independent. For
+    instance, we start with having no keys, and the current states are denoted as <code>(have key a, have key b) = (0,
+        0)</code>.</p>
+<p><img src="3.png" alt="img"></p>
+<p>We pick up key <code>a</code>, and our state changes to <code>(1, 0)</code>. Consequently, the following BFS is based
+    on the new state, implying that the cells visited in the previous state <code>(0, 0)</code> can be visited again.
+</p>
+<p><img src="4.png" alt="img"></p>
+<p>In summary, we will perform BFS on multiple identical grids, each representing a distinct key-holding state. When we
+    pick up a new key, we will switch to the grid corresponding to the new state and perform BFS on that grid.</p>
+<p><img src="5.png" alt="img"></p>
+<br>
+<p>Here are some additional details to consider:</p>
+<blockquote>
+    <p>How do we update each BFS?</p>
+</blockquote>
+<p>Similar to a regular BFS where we use <code>(row, col, distance)</code> to represent the distance of each cell. In
+    this case, we also need to include the key-holding states as an additional parameter, so the states in the queue are
+    in the format of <code>(row, col, key-holding state, distance)</code>. In order to save all states with their
+    key-holding states, we can initialize a hash map of sets <code>seen</code>, which tracks the visited cells in each
+    state. Specifically, <code>seen[key-holding states]</code> represents all the visited cells with this key-holding
+    state.</p>
+<br>
+<blockquote>
+    <p>How can we represent each key-holding state?</p>
+</blockquote>
+<p>Instead of using mutable and iterable objects like lists or sets to collect keys, we can use a bit mask to represent
+    all the collected keys, which can greatly save time and space. Since there are <code>26</code> letters in the
+    English alphabet, we can use an integer variable (let's call it <code>keys</code>) to represent the current
+    key-holding states. Each bit of this variable can represent one key, such that if the <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">ithi^{th}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.8491em;"></span><span
+            class="mord"><span class="mord mathnormal">i</span><span class="msupsub"><span class="vlist-t"><span
+            class="vlist-r"><span class="vlist" style="height: 0.8491em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+            class="mord mathnormal mtight">t</span><span
+            class="mord mathnormal mtight">h</span></span></span></span></span></span></span></span></span></span></span></span></span>
+    bit is <code>1</code>, it implies that we have collected the key for the letter corresponding to the <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">ithi^{th}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.8491em;"></span><span
+            class="mord"><span class="mord mathnormal">i</span><span class="msupsub"><span class="vlist-t"><span
+            class="vlist-r"><span class="vlist" style="height: 0.8491em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+            class="mord mathnormal mtight">t</span><span
+            class="mord mathnormal mtight">h</span></span></span></span></span></span></span></span></span></span></span></span></span>
+    letter. For example, <span class="math math-inline"><span class="katex"><span class="katex-mathml">keys=6=1102\text{keys} = 6 = {110}_2</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+            class="mord text"><span class="mord">keys</span></span><span class="mspace"
+                                                                         style="margin-right: 0.2778em;"></span><span
+            class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">6</span><span
+            class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace"
+                                                                                                   style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.7944em; vertical-align: -0.15em;"></span><span
+            class="mord"><span class="mord"><span class="mord">110</span></span><span class="msupsub"><span
+            class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.3011em;"><span
+            style="top: -2.55em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span
+            class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                       style="height: 0.15em;"><span></span></span></span></span></span></span></span></span></span></span>
+    indicates that we have collected the second key <code>b</code> and the third key <code>c</code>.</p>
+<p>When we collect a new key, we can update <code>keys</code> by setting the corresponding bit to <code>1</code>. For
+    example, if we pick up the key <code>b</code>, we can update <code>keys</code> as follows: <code>keys = keys | (1
+        &lt;&lt; (ord('b') - ord('a')))</code> Here <code>ord</code> represents the integer representation of the
+    character, we subtract with <code>ord('a')</code> to make it 0-indexed.</p>
+<p>For instance, suppose that our previous key-holding state is <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">keys=6=1102\text{keys} = 6 = {110}_2</span><span class="katex-html"
+                                                                              aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+        class="mord text"><span class="mord">keys</span></span><span class="mspace"
+                                                                     style="margin-right: 0.2778em;"></span><span
+        class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span
+        class="strut" style="height: 0.6444em;"></span><span class="mord">6</span><span class="mspace"
+                                                                                        style="margin-right: 0.2778em;"></span><span
+        class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span
+        class="strut" style="height: 0.7944em; vertical-align: -0.15em;"></span><span class="mord"><span
+        class="mord"><span class="mord">110</span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span
+        class="vlist-r"><span class="vlist" style="height: 0.3011em;"><span style="top: -2.55em; margin-right: 0.05em;"><span
+        class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span
+        class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span
+        class="vlist-r"><span class="vlist"
+                              style="height: 0.15em;"><span></span></span></span></span></span></span></span></span></span></span>.
+    By picking up the key <code>a</code>, we can update <code>keys</code> as <span class="math math-inline"><span
+            class="katex"><span
+            class="katex-mathml">keys=1102∣12=1112=7\text{keys} = {110}_2 | 1_2 = 111_2 = 7</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+            class="mord text"><span class="mord">keys</span></span><span class="mspace"
+                                                                         style="margin-right: 0.2778em;"></span><span
+            class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord"><span class="mord"><span class="mord">110</span></span><span class="msupsub"><span
+            class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.3011em;"><span
+            style="top: -2.55em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span
+            class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                       style="height: 0.15em;"><span></span></span></span></span></span></span><span
+            class="mord">∣</span><span class="mord"><span class="mord">1</span><span class="msupsub"><span
+            class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.3011em;"><span
+            style="top: -2.55em; margin-left: 0em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span
+            class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                       style="height: 0.15em;"><span></span></span></span></span></span></span><span
+            class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace"
+                                                                                                   style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.7944em; vertical-align: -0.15em;"></span><span
+            class="mord">11</span><span class="mord"><span class="mord">1</span><span class="msupsub"><span
+            class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.3011em;"><span
+            style="top: -2.55em; margin-left: 0em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span
+            class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                       style="height: 0.15em;"><span></span></span></span></span></span></span><span
+            class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace"
+                                                                                                   style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">7</span></span></span></span></span>.
+    This operation sets the <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">0th0^{th}</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.8491em;"></span><span class="mord"><span class="mord">0</span><span
+            class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                              style="height: 0.8491em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+            class="mord mathnormal mtight">t</span><span
+            class="mord mathnormal mtight">h</span></span></span></span></span></span></span></span></span></span></span></span></span>
+    bit to <code>1</code>, which represents the key for the letter <code>a</code>.</p>
+<br>
+<blockquote>
+    <p>How can we determine if we can visit a locked cell?</p>
+</blockquote>
+<p>Similar to updating key-holding state when we pick up a new key, we need to check if we have collected the
+    corresponding key when encountering a lock. To achieve this, we check if the <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">ithi^{th}</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.8491em;"></span><span class="mord"><span
+            class="mord mathnormal">i</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span
+            class="vlist" style="height: 0.8491em;"><span style="top: -3.063em; margin-right: 0.05em;"><span
+            class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span
+            class="mord mtight"><span class="mord mathnormal mtight">t</span><span
+            class="mord mathnormal mtight">h</span></span></span></span></span></span></span></span></span></span></span></span></span>
+    bit of <code>keys</code> is set to <code>1</code>. For example, suppose that we encounter the lock <code>C</code>
+    with the state as <code>key = 7</code>, we can verify that we have collected the key <code>c</code> by checking the
+    value of <code>key &amp; (1 &lt;&lt; (ord('C') - ord('A')))</code>. The result is <code>1</code>, which denotes that
+    we have collected the key <code>c</code> and can visit this cell.</p>
+<br>
+<h4 id="algorithm">Algorithm</h4>
+<ol>
+    <li>
+        <p>Traverse over <code>grid</code> and do the following:</p>
+        <ul>
+            <li>
+                <p>collect all keys and locks in <code>key_set</code> and <code>lock_set</code> so we can check if a
+                    square is a key or lock easily.</p>
+            </li>
+            <li>
+                <p>build the state that represents all keys.</p>
+            </li>
+            <li>
+                <p>find the starting position.</p>
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Initialize a queue <code>queue</code> and a hash map <code>seen</code> for BFS under different states. Start
+            with the starting position.</p>
+    </li>
+    <li>
+        <p>While <code>queue</code> is not empty, dequeue a state <code>(cur_row, cur_col, keys, distance)</code>.</p>
+    </li>
+    <li>
+        <p>Generate all possible moves from the current cell (up, down, left, and right), and for each move, check if it
+            leads to a valid cell:</p>
+        <ul>
+            <li>
+                <p>If the move leads to an unseen key, we can update the key-holding state by picking up this key. If we
+                    have collected all the keys, return <code>distance + 1</code>, otherwise, add this new state to
+                    <code>queue</code> and <code>seen</code>.</p>
+            </li>
+            <li>
+                <p>If the move leads to a lock and we don't have the corresponding key, skip this move.</p>
+            </li>
+            <li>
+                <p>If the move leads to a new state, add it to <code>queue</code> and <code>seen</code>.</p>
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Repeat steps 3 and 4 until either all cells under all states have been visited or there is no path to collect
+            all the keys. If there is no path to collect all the keys, return <code>-1</code>.</p>
+    </li>
+</ol>
+<h4 id="implementation">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int shortestPathAllKeys(String[] grid) {
+        int m = grid.length, n = grid[0].length();
+        Queue<int[]> queue = new LinkedList<>();
+        int[][] moves = new int[][] {{0, 1}, {1, 0}, {-1, 0}, {0, -1}};
+
+        // seen['key'] is only for BFS with key state equals 'keys'
+        Map<Integer, Set<Pair<Integer, Integer>>> seen = new HashMap<>();
+
+        Set<Character> keySet = new HashSet<>();
+        Set<Character> lockSet = new HashSet<>();
+        int allKeys = 0;
+        int startR = -1, startC = -1;
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                char cell = grid[i].charAt(j);
+                if (cell >= 'a' && cell <= 'f') {
+                    allKeys += (1 << (cell - 'a'));
+                    keySet.add(cell);
+                }
+                if (cell >= 'A' && cell <= 'F') {
+                    lockSet.add(cell);
+                }
+                if (cell == '@') {
+                    startR = i;
+                    startC = j;
+                }
+            }
+        }
+
+        // [row, column, key state, distance]
+        queue.offer(new int[] {startR, startC, 0, 0});
+        seen.put(0, new HashSet<>());
+        seen.get(0).add(new Pair<>(startR, startC));
+
+        while (!queue.isEmpty()) {
+            int[] cur = queue.poll();
+            int curR = cur[0], curC = cur[1], keys = cur[2], dist = cur[3];
+            for (int[] move : moves) {
+                int newR = curR + move[0], newC = curC + move[1];
+
+                // If this cell (newR, newC) is reachable.
+                if (newR >= 0 && newR < m && newC >= 0 && newC < n && grid[newR].charAt(newC) != '#') {
+                    char cell = grid[newR].charAt(newC);
+
+                    // If it is a key:
+                    if (keySet.contains(cell)) {
+                        // If we have collected it before, no need to revisit this cell.
+                        if (((1 << (cell - 'a')) & keys) != 0) {
+                            continue;
+                        }
+
+                        // Otherwise, we can walk to this cell and pick it up.
+                        int newKeys = (keys | (1 << (cell - 'a')));
+
+                        // If we collect all keys, return dist + 1.
+                        // Otherwise, just add this state to seen and queue.
+                        if (newKeys == allKeys) {
+                            return dist + 1;
+                        }
+                        seen.putIfAbsent(newKeys, new HashSet<>());
+                        seen.get(newKeys).add(new Pair<>(newR, newC));
+                        queue.offer(new int[] {newR, newC, newKeys, dist + 1});
+                    }
+
+                    // If it is a lock and we don't have its key, continue.
+                    if (lockSet.contains(cell) && ((keys & (1 << (cell - 'A'))) == 0)) {
+                        continue;
+                    }
+
+                    // We can walk to this cell if we haven't been here before with the same key state.
+                    else if (!seen.get(keys).contains(new Pair<>(newR, newC))) {
+                        seen.get(keys).add(new Pair<>(newR, newC));
+                        queue.offer(new int[] {newR, newC, keys, dist + 1});
+                    }
+                }
+            }
+        }
+
+        return -1;
+    }
+}
+    </code>
+    Python
+    <code>
+        class Solution:
+    def shortestPathAllKeys(self, grid: List[str]) -> int:
+        m, n = len(grid), len(grid[0])
+        queue = collections.deque()
+
+        # seen['key'] is only for BFS with key state equals 'keys'
+        seen = collections.defaultdict(set)
+
+        key_set, lock_set = set(), set()
+        all_keys = 0
+        start_r, start_c = -1, -1
+        for i in range(m):
+            for j in range(n):
+                cell = grid[i][j]
+                if cell in 'abcdef':
+                    all_keys += (1 << (ord(cell) - ord('a')))
+                    key_set.add(cell)
+                if cell in 'ABCDEF':
+                    lock_set.add(cell)
+                if cell == "@":
+                    start_r, start_c = i, j
+
+        # [row, column, key_state, distance]
+        queue.append((start_r, start_c, 0, 0))
+        seen[0].add((start_r, start_c))
+
+        while queue:
+            cur_r, cur_c, keys, dist = queue.popleft()
+            for dr, dc in ((0, 1), (1, 0), (-1, 0), (0, -1)):
+                new_r, new_c = cur_r + dr, cur_c + dc
+
+                # If this cell (new_r, new_c) is reachable.
+                if 0 <= new_r < m and 0 <= new_c < n and grid[new_r][new_c] != '#':
+                    cell = grid[new_r][new_c]
+
+                    # If it is a key we haven't picked up yet
+                    if cell in key_set and not ((1 << (ord(cell) - ord('a'))) & keys):
+                        new_keys = (keys | (1 << (ord(cell) - ord('a'))))
+
+                        # If we collect all keys, return dist + 1.
+                        # Otherwise, just add this state to seen and queue.
+                        if new_keys == all_keys:
+                            return dist + 1
+                        seen[new_keys].add((new_r, new_c))
+                        queue.append((new_r, new_c, new_keys, dist + 1))
+
+                    # If it is a lock and we don't have its key, continue.
+                    elif cell in lock_set and not (keys & (1 << (ord(cell) - ord('A')))):
+                        continue
+
+                    # We can walk to this cell if we haven't been here before with the same key state.
+                    elif (new_r, new_c) not in seen[keys]:
+                        seen[keys].add((new_r, new_c))
+                        queue.append((new_r, new_c, keys, dist + 1))
+
+        return -1
+    </code>
+</pre>
+<h4 id="complexity-analysis">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">m×nm \times n</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+        class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+        class="mbin">×</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+        class="strut" style="height: 0.4306em;"></span><span
+        class="mord mathnormal">n</span></span></span></span></span> be the size of <code>grid</code> and <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">kk</span><span class="katex-html"
+                                                                                               aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord mathnormal"
+                                                                                style="margin-right: 0.03148em;">k</span></span></span></span></span>
+    be the number of keys.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(m⋅n⋅2k)O(m \cdot n \cdot 2^k)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.4445em;"></span><span class="mord mathnormal">n</span><span
+                class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1.0991em; vertical-align: -0.25em;"></span><span
+                class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span
+                class="vlist-r"><span class="vlist" style="height: 0.8491em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight"
+                                                              style="margin-right: 0.03148em;">k</span></span></span></span></span></span></span></span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>The BFS algorithm visits each cell in the grid once for each key-holding state. Therefore, the
+                worst-case time complexity is proportional to the product of the number of cells and the number of
+                key-holding states. There are <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">2k2^k</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                        class="strut" style="height: 0.8491em;"></span><span class="mord"><span
+                        class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span
+                        class="vlist" style="height: 0.8491em;"><span style="top: -3.063em; margin-right: 0.05em;"><span
+                        class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span
+                        class="mord mathnormal mtight"
+                        style="margin-right: 0.03148em;">k</span></span></span></span></span></span></span></span></span></span></span></span>
+                possible key-holding states and we need to consider each one separately.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(m⋅n⋅2k)O(m \cdot n \cdot 2^k)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.4445em;"></span><span class="mord mathnormal">n</span><span
+                class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1.0991em; vertical-align: -0.25em;"></span><span
+                class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span
+                class="vlist-r"><span class="vlist" style="height: 0.8491em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight"
+                                                              style="margin-right: 0.03148em;">k</span></span></span></span></span></span></span></span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>To keep track of the visited cells and their key-holding states, we need to store them in
+                <code>seen</code>. There are at most <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">m×nm \times n</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut"
+                                           style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+                        class="mord mathnormal">m</span><span class="mspace"
+                                                              style="margin-right: 0.2222em;"></span><span class="mbin">×</span><span
+                        class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+                        class="strut" style="height: 0.4306em;"></span><span
+                        class="mord mathnormal">n</span></span></span></span></span> cells, and each cell can have <span
+                        class="math math-inline"><span class="katex"><span class="katex-mathml">2k2^k</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 0.8491em;"></span><span
+                        class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span
+                        class="vlist-r"><span class="vlist" style="height: 0.8491em;"><span
+                        style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                        class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight"
+                                                                      style="margin-right: 0.03148em;">k</span></span></span></span></span></span></span></span></span></span></span></span>
+                possible key-holding states, so the maximum amount of space required is proportional to the product of
+                the number of cells and the number of key-holding states.
+            </li>
+        </ul>
+    </li>
+</ul>
+<br>
+</body>
+</html>
