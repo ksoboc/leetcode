@@ -1,0 +1,1205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Last Day Where You Can Still Cross - Solution</title>
+</head>
+<body>
+<h2 id="solution">Last Day Where You Can Still Cross - Solution</h2>
+<hr>
+<h3 id="overview">Overview</h3>
+<p>As shown in the picture below, we could find a path that connects the <code>start</code> (the top row) and the <code>end</code>
+    (the bottom row) in the left grid. However, if the land cell colored in dark blue is covered by water, we won't be
+    able to reach <code>end</code> from <code>start</code> by only walking on land cells.</p>
+<p><img src="intro.png" alt="img"></p>
+<hr>
+<h3 id="approach-1-binary-search--breadth-first-search">Approach 1: Binary Search + Breadth-First Search</h3>
+<h4 id="intuition">Intuition</h4>
+<blockquote>
+    <p>If you are not familiar with breadth-first search (BFS), you can refer to our <a
+            href="https://leetcode.com/explore/featured/card/graph/620/breadth-first-search-in-graph/" target="_blank">Breadth-First
+        Search Explore Card</a></p>
+</blockquote>
+<p>Breadth-First Search (BFS) is a graph traversal algorithm that explores all the nodes in a graph that can be reached
+    from a given starting node. It starts by visiting the starting node, and then visits all the nodes at a distance of
+    one from the starting node, then all the nodes at a distance of two, and so on. This method is usually implemented
+    using a queue data structure, where the starting node is inserted into the queue and then removed, and its neighbors
+    are inserted into the queue, and so on.</p>
+<p>Now back to our problem, we split it into two parts:</p>
+<ul>
+    <li>
+        <p>Given a graph, how do we determine if there is a pathway.</p>
+    </li>
+    <li>
+        <p>As the water covers one more cell each day, how do we determine which day is the last day that a pathway
+            exists?</p>
+    </li>
+</ul>
+<br>
+<p>To check if there is a path, we can start a BFS traversal from all land cells in the top row of the graph, and check
+    if any of the land cell in the bottom is visited. We will mark all the land cells in the top row as visited, then we
+    move on to the neighbor cells in the four directions of these land cells.</p>
+<p>We can use a queue data structure to keep track of the cells to be visited. Start by inserting all the land cells in
+    the tow rop of the grid into the queue. Then, we repeat the following steps until the queue is empty:</p>
+<ol>
+    <li>Dequeue the next cell from the queue.</li>
+    <li>Check if the cell is in the bottom row the grid. If it is, then the grid is connected, and we can still cross
+        it.
+    </li>
+    <li>If the cell is not in the bottom row of the grid, we will mark the it as visited, and enqueue its land neighbors
+        which have not been visited yet.
+    </li>
+</ol>
+<p><img src="b1.png" alt="img"></p>
+<ol start="4">
+    <li>If we complete the BFS without reaching any of the land cells at the bottom, it means that there is no
+        pathway.
+    </li>
+</ol>
+<br>
+<p>Now move to the second subproblem: how to locate the last day that we can still cross?</p>
+<p>One approach is to evaluate each day one by one, beginning from the first day, and verify if we can cross on day
+    <code>i</code> after the water covers cell <code>cells[i]</code>. However, this approach is inefficient because it
+    requires at most <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(col×row)O(col\times row)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord mathnormal">co</span><span class="mord mathnormal"
+                                                   style="margin-right: 0.01968em;">l</span><span class="mspace"
+                                                                                                  style="margin-right: 0.2222em;"></span><span
+            class="mbin">×</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal">ro</span><span class="mord mathnormal"
+                                                   style="margin-right: 0.02691em;">w</span><span
+            class="mclose">)</span></span></span></span></span> BFS searches in the worst-case scenario.</p>
+<p><img src="b2.png" alt="img"></p>
+<p>Alternatively, we can use binary search to identify the last day on which we can still cross by observing the
+    following property of the problem:</p>
+<ul>
+    <li>If we can cross on day <code>i</code>, we can definitely cross on any day before <code>i</code>.</li>
+    <li>If we can't cross on day <code>i</code>, we definitely cannot cross on any day after <code>i</code>.</li>
+</ul>
+<p>Let <code>n</code> be the total number of days, and we know that the last day is between <code>1</code> and
+    <code>n</code>, which is the maximum number of water cells that can be added to the map. Hence, our search space is
+    <code>[left, right] = [1, n]</code>.</p>
+<p>At each step, we compute the mid-day of our search space as <code>mid = right - (right - left) / 2</code>, and add
+    all water cells from <code>cells[0 ~ mid]</code> to the grid, we then perform a BFS over the modified grid to
+    determine if a pathway exists. If a path is present on day <code>mid</code>, we will move on to the half with larger
+    values, <code>[mid, right]</code>, otherwise, we move on to the half with smaller values, <code>[left, mid -
+        1]</code>.</p>
+<br>
+<h4 id="algorithm">Algorithm</h4>
+<ol>
+    <li>
+        <p>Initialize the search space by setting the left boundary to <code>left = 1</code> and the right boundary to
+            <code>right = n</code>.</p>
+    </li>
+    <li>
+        <p>Define <code>canCross(row, col, cells, day)</code> to check if we can still cross after <code>day</code>
+            days.</p>
+        <ul>
+            <li>Create an all-zero grid of size <code>row * col</code>.</li>
+            <li>Set all cells in <code>cells[:day]</code> to 1.</li>
+            <li>Add all land cells in the first row to an queue <code>queue</code>.</li>
+            <li>While <code>queue</code> is not empty, deque the first cell <code>(cur_row, cur_col)</code>.
+                <ul>
+                    <li>If <code>cur_row == row - 1</code>, it means we have reached the bottom row, return
+                        <code>True</code>.
+                    </li>
+                    <li>Otherwise, we will check if it has unvisited land neighbors, then set their value to
+                        <code>-1</code>, and add them into <code>queue</code>.
+                    </li>
+                </ul>
+            </li>
+            <li>If we finish the BFS without reaching the bottom row, return <code>False</code>.</li>
+        </ul>
+    </li>
+    <li>
+        <p>While <code>left &lt; right</code>:</p>
+        <ul>
+            <li>Find the middle day <code>mid = right - (right - left) / 2</code>.</li>
+            <li>Use <code>canCross(row, col, cells, mid)</code> to check if there is a pathway.</li>
+            <li>If there is a pathway, set <code>left = mid</code>, otherwise, set <code>right = mid - 1</code>.</li>
+        </ul>
+    </li>
+    <li>
+        <p>Return <code>left</code> as the last day when we can still cross.</p>
+    </li>
+</ol>
+<h4 id="implementation">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    private int[][] directions = new int[][]{{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+    public boolean canCross(int row, int col, int[][] cells, int day) {
+        int[][] grid = new int[row][col];
+        Queue<int[]> queue = new LinkedList<>();
+
+        for (int i = 0; i < day; i++) {
+            grid[cells[i][0] - 1][cells[i][1] - 1] = 1;
+        }
+
+        for (int i = 0; i < col; i++) {
+            if (grid[0][i] == 0) {
+                queue.offer(new int[]{0, i});
+                grid[0][i] = -1;
+            }
+        }
+
+        while (!queue.isEmpty()) {
+            int[] cur = queue.poll();
+            int r = cur[0], c = cur[1];
+            if (r == row - 1) {
+                return true;
+            }
+
+            for (int[] dir : directions) {
+                int newRow = r + dir[0];
+                int newCol = c + dir[1];
+                if (newRow >= 0 && newRow < row && newCol >= 0 && newCol < col && grid[newRow][newCol] == 0) {
+                    grid[newRow][newCol] = -1;
+                    queue.offer(new int[]{newRow, newCol});
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public int latestDayToCross(int row, int col, int[][] cells) {
+        int left = 1;
+        int right = row * col;
+
+        while (left < right) {
+            int mid = right - (right - left) / 2;
+            if (canCross(row, col, cells, mid)) {
+                left = mid;
+            } else {
+                right = mid - 1;
+            }
+        }
+
+        return left;
+    }
+}
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def canCross(self, row, col, cells, day):
+        grid = [[0] * col for _ in range(row)]
+        queue = collections.deque()
+
+        for r, c in cells[:day]:
+            grid[r - 1][c - 1] = 1
+
+        for i in range(col):
+            if not grid[0][i]:
+                queue.append((0, i))
+                grid[0][i] = -1
+
+        while queue:
+            r, c = queue.popleft()
+            if r == row - 1:
+                return True
+            for dr, dc in [(1, 0), (-1, 0), (0, 1), (0, -1)]:
+                new_row, new_col = r + dr, c + dc
+                if 0 <= new_row < row and 0 <= new_col < col and grid[new_row][new_col] == 0:
+                    grid[new_row][new_col] = -1
+                    queue.append((new_row, new_col))
+
+        return False
+
+
+    def latestDayToCross(self, row: int, col: int, cells: List[List[int]]) -> int:
+        left, right = 1, row * col
+
+        while left < right:
+            mid = right - (right - left) // 2
+            if self.canCross(row, col, cells, mid):
+                left = mid
+            else:
+                right = mid - 1
+
+        return left
+    </code>
+</pre>
+<h4 id="complexity-analysis">Complexity Analysis</h4>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(row⋅col⋅log⁡(row⋅col))O(\text{row} \cdot \text{col} \cdot\log (\text{row} \cdot \text{col}))</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord text"><span class="mord">row</span></span><span class="mspace"
+                                                                            style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord text"><span
+                class="mord">col</span></span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                style="margin-right: 0.01389em;">g</span></span><span class="mopen">(</span><span
+                class="mord text"><span class="mord">row</span></span><span class="mspace"
+                                                                            style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord text"><span class="mord">col</span></span><span
+                class="mclose">))</span></span></span></span></span></p>
+        <ul>
+            <li>
+                <p>The binary search over a search space of size <span class="math math-inline"><span
+                        class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+                    takes <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡n)O(\log n)</span><span
+                            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+                            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                            class="mopen">(</span><span class="mop">lo<span
+                            style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                  style="margin-right: 0.1667em;"></span><span
+                            class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+                    steps to find the last day that we can still cross. The size of our search space is <span
+                            class="math math-inline"><span class="katex"><span class="katex-mathml">row⋅col\text{row} \cdot \text{col}</span><span
+                            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                           style="height: 0.4445em;"></span><span
+                            class="mord text"><span class="mord">row</span></span><span class="mspace"
+                                                                                        style="margin-right: 0.2222em;"></span><span
+                            class="mbin">⋅</span><span class="mspace"
+                                                       style="margin-right: 0.2222em;"></span></span><span class="base"><span
+                            class="strut" style="height: 0.6944em;"></span><span class="mord text"><span class="mord">col</span></span></span></span></span></span>.
+                </p>
+            </li>
+            <li>
+                <p>At each step, we need to BFS over the modified grid, which takes <span class="math math-inline"><span
+                        class="katex"><span class="katex-mathml">O(row⋅col)O(\text{row} \cdot \text{col})</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord text"><span class="mord">row</span></span><span
+                        class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span
+                        class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+                        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord text"><span
+                        class="mord">col</span></span><span class="mclose">)</span></span></span></span></span>.</p>
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(row⋅col)O(\text{row} \cdot \text{col})</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord text"><span class="mord">row</span></span><span class="mspace"
+                                                                            style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord text"><span class="mord">col</span></span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <ul>
+            <li>We need to build an 2-D array of size <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">row×col\text{row} \times \text{col}</span><span class="katex-html"
+                                                                                         aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+                    class="mord text"><span class="mord">row</span></span><span class="mspace"
+                                                                                style="margin-right: 0.2222em;"></span><span
+                    class="mbin">×</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord text"><span
+                    class="mord">col</span></span></span></span></span></span>.
+            </li>
+            <li>During the BFS, we might have at most <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(row⋅col)O(\text{row} \cdot \text{col})</span><span class="katex-html"
+                                                                                              aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord text"><span class="mord">row</span></span><span class="mspace"
+                                                                                style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord text"><span class="mord">col</span></span><span
+                    class="mclose">)</span></span></span></span></span> in <code>queue</code>.
+            </li>
+        </ul>
+    </li>
+</ul>
+<br>
+<hr>
+<h3 id="approach-2-binary-search--depth-first-search">Approach 2: Binary Search + Depth-First Search</h3>
+<h4 id="intuition-1">Intuition</h4>
+<blockquote>
+    <p>If you are not familiar with depth-first search (DFS), you can refer to our <a
+            href="https://leetcode.com/explore/featured/card/graph/620/depth-first-search-in-graph/" target="_blank">Depth-First
+        Search Explore Card</a></p>
+</blockquote>
+<p>In the previous apprrach, we BFS over the grid to find if there is a pathway, this process can also be implemented
+    with DFS, which is another graph traversal algorithm used to explore or search all the cells of a grid. We will
+    start at a land cell in the top row and explore as far as possible along each path before backtracking.</p>
+<p>We will visit an unvisited land cell, and then recursively visit all its adjacent land neighbors. This process
+    continues until all reachable land cells in the grid have been visited or until we reach the bottom row.</p>
+<p><img src="d1.png" alt="img"></p>
+<p>To try all pathways, we must start DFS on each land cell in the top row of the grid. We can change the value of
+    already visited cells to <code>-1</code> to avoid repeated visits to the same cell.</p>
+<br>
+<h4 id="algorithm-1">Algorithm</h4>
+<ol>
+    <li>
+        <p>Initialize the search space by setting the left boundary to <code>left = 1</code> and the right boundary to
+            <code>right = n</code>.</p>
+    </li>
+    <li>
+        <p>Define <code>canCross(row, col, cells, day)</code> to check if we can still cross after <code>day</code>
+            days.</p>
+        <ul>
+            <li>Create an all-zero grid of size <code>row * col</code>.</li>
+            <li>Set all cells in <code>cells[:day]</code> to 1.</li>
+            <li>Iterate over the first row, for any land cell <code>(0, c)</code>, start DFS from this cell to explore
+                its unvisited land neighbors recursively. If we reach any cell in the last row, then return
+                <code>true</code>.
+            </li>
+            <li>If we can't reach the last row, return <code>false</code>.</li>
+        </ul>
+    </li>
+    <li>
+        <p>While the <code>left &lt; right</code>:</p>
+        <ul>
+            <li>Find the middle day <code>mid = right - (right - left) / 2</code>.</li>
+            <li>Check if there is a pathway after <code>mid</code> days.</li>
+            <li>If there is a pathway, set <code>left = mid</code>, otherwise, set <code>right = mid - 1</code>.</li>
+        </ul>
+    </li>
+    <li>
+        <p>Return <code>left</code> as the last day when we can still cross.</p>
+    </li>
+</ol>
+<h4 id="implementation-1">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    private int[][] directions = new int[][]{{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+    public boolean canCross(int row, int col, int[][] cells, int day) {
+        int[][] grid = new int[row][col];
+        for (int i = 0; i < day; ++i) {
+            int r = cells[i][0] - 1, c = cells[i][1] - 1;
+            grid[r][c] = 1;
+        }
+
+        for (int i = 0; i < day; ++i) {
+            grid[cells[i][0] - 1][cells[i][1] - 1] = 1;
+        }
+
+        for (int i = 0; i < col; ++i) {
+            if (grid[0][i] == 0 && dfs(grid, 0, i, row, col)) {
+                return true;
+            }
+        }
+        return false;
+
+    }
+
+    private boolean dfs(int[][] grid, int r, int c, int row, int col) {
+        if (r < 0 || r >= row || c < 0 || c >= col || grid[r][c] != 0) {
+            return false;
+        }
+        if (r == row - 1) {
+            return true;
+        }
+        grid[r][c] = -1;
+        for (int[] dir : directions) {
+            int newR = r + dir[0], newC = c + dir[1];
+            if (dfs(grid, newR, newC, row, col)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public int latestDayToCross(int row, int col, int[][] cells) {
+        int left = 1, right = row * col;
+        while (left < right) {
+            int mid = right - (right - left) / 2;
+            if (canCross(row, col, cells, mid)) {
+                left = mid;
+            } else {
+                right = mid - 1;
+            }
+        }
+        return left;
+    }
+}
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def canCross(self, row, col, cells, day):
+        grid = [[0] * col for _ in range(row)]
+
+        for r, c in cells[:day]:
+            grid[r - 1][c - 1] = 1
+
+        def dfs(r, c):
+            if r < 0 or r >= row or c < 0 or c >= col or grid[r][c] != 0:
+                return False
+            if r == row - 1:
+                return True
+            grid[r][c] = -1
+            for dr, dc in [(1, 0), (-1, 0), (0, 1), (0, -1)]:
+                if dfs(r + dr, c + dc):
+                    return True
+            return False
+
+        for i in range(col):
+            if grid[0][i] == 0 and dfs(0, i):
+                return True
+
+        return False
+
+
+    def latestDayToCross(self, row: int, col: int, cells: List[List[int]]) -> int:
+        left, right = 1, row * col
+
+        while left < right:
+            mid = right - (right - left) // 2
+            if self.canCross(row, col, cells, mid):
+                left = mid
+            else:
+                right = mid - 1
+
+        return left
+    </code>
+</pre>
+<h4 id="complexity-analysis-1">Complexity Analysis</h4>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(row⋅col⋅log⁡row⋅col)O(\text{row} \cdot \text{col} \cdot\log \text{row} \cdot \text{col})</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord text"><span class="mord">row</span></span><span class="mspace"
+                                                                            style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord text"><span
+                class="mord">col</span></span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+                class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                          style="margin-right: 0.1667em;"></span><span
+                class="mord text"><span class="mord">row</span></span><span class="mspace"
+                                                                            style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord text"><span class="mord">col</span></span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <ul>
+            <li>
+                <p>The binary search over a search space of size <span class="math math-inline"><span
+                        class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+                    takes <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡n)O(\log n)</span><span
+                            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+                            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                            class="mopen">(</span><span class="mop">lo<span
+                            style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                  style="margin-right: 0.1667em;"></span><span
+                            class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+                    steps to find the last day that we can still cross. The size of our search space is <span
+                            class="math math-inline"><span class="katex"><span class="katex-mathml">row⋅col\text{row} \cdot \text{col}</span><span
+                            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                           style="height: 0.4445em;"></span><span
+                            class="mord text"><span class="mord">row</span></span><span class="mspace"
+                                                                                        style="margin-right: 0.2222em;"></span><span
+                            class="mbin">⋅</span><span class="mspace"
+                                                       style="margin-right: 0.2222em;"></span></span><span class="base"><span
+                            class="strut" style="height: 0.6944em;"></span><span class="mord text"><span class="mord">col</span></span></span></span></span></span>.
+                </p>
+            </li>
+            <li>
+                <p>The DFS method visits each cell at most once, which takes <span class="math math-inline"><span
+                        class="katex"><span class="katex-mathml">O(row⋅col)O(\text{row} \cdot \text{col})</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord text"><span class="mord">row</span></span><span
+                        class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span
+                        class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+                        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord text"><span
+                        class="mord">col</span></span><span class="mclose">)</span></span></span></span></span> time.
+                </p>
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(row⋅col)O(\text{row} \cdot \text{col})</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord text"><span class="mord">row</span></span><span class="mspace"
+                                                                            style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord text"><span class="mord">col</span></span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <ul>
+            <li>We need to build an 2-D array of size <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">row×col\text{row} \times \text{col}</span><span class="katex-html"
+                                                                                         aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+                    class="mord text"><span class="mord">row</span></span><span class="mspace"
+                                                                                style="margin-right: 0.2222em;"></span><span
+                    class="mbin">×</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord text"><span
+                    class="mord">col</span></span></span></span></span></span>.
+            </li>
+            <li>The recursion call stack from the DFS could use up to <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">O(row⋅col)O(\text{row} \cdot \text{col})</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord text"><span class="mord">row</span></span><span class="mspace"
+                                                                                style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord text"><span class="mord">col</span></span><span
+                    class="mclose">)</span></span></span></span></span> space.
+            </li>
+        </ul>
+    </li>
+</ul>
+<br>
+<hr>
+<h3 id="approach-3-disjoint-set-union-on-land-cells">Approach 3: Disjoint Set Union (on land cells)</h3>
+<h4 id="intuition-2">Intuition</h4>
+<blockquote>
+    <p>If you are not familiar with disjoint set union (DSU), you can refer to our <a
+            href="https://leetcode.com/explore/learn/card/graph/618/disjoint-set/3881/" target="_blank">Disjoint Set
+        Explore Card</a>. We will not talk about implementation details in this article, but only about the interface to
+        the data structure.</p>
+</blockquote>
+<p>A disjoint-set data structure, also called a union–find data structure or merge–find set, is a data structure that
+    stores a collection of disjoint (non-overlapping) sets. Equivalently, it stores a partition of a set into disjoint
+    subsets. It provides operations for adding new sets, merging sets (replacing them by their union), and finding a
+    representative member of a set. It implements two useful operations:</p>
+<ul>
+    <li><code>Find</code>: Determine which subset a particular element is in. This can be used to determine if two
+        elements are in the same subset.
+    </li>
+    <li><code>Union</code>: Join two subsets into a single subset.</li>
+</ul>
+<br>
+<p>We need to reverse the days <code>cells</code>, which equals replacing water cells with land cells. This is necessary
+    because we are searching for the last day when there is a path, which is the same as the first day in reversed
+    order. During the union-find process, will we traverse through <code>cells</code> in reverse and replace the
+    corresponding water cell <code>cells[i]</code> by land cell. For each newly added land cell, we connect it with all
+    of its neighboring land cells. We repeat this process until either the first row and the last row are connected or
+    the traversal is complete.</p>
+<p><img src="uf1.png" alt="img"></p>
+<blockquote>
+    <p>Considering that the top row may contain multiple disconnected cells (As shown on the left picture below, the
+        group <code>1</code>, <code>2</code> and <code>3</code> contain cells in the top row, but they are not
+        connected), how can we efficiently check whether a cell in the top row is connected to a cell in the bottom row?
+        Do we need to check them one by one?</p>
+</blockquote>
+<p>The answer is no, we just need two additional nodes in <code>dsu</code> (say <code>top</code> and <code>bottom</code>)
+    that represent all land cells in the top row and all land cells in the bottom row, respectively.</p>
+<p><img src="uf2.png" alt="img"></p>
+<p>During the iteration, for each water cell <code>cells[i]</code> that will be replaced by land, in addition to
+    connecting it with its land neighbors, we will also:</p>
+<ul>
+    <li>connect it with <code>top</code> if it is in the first row.</li>
+    <li>connect it with <code>bottom</code> if it is in the last row.</li>
+</ul>
+<p>Therefore, we can simply check if the first row is connected with the bottom row after this day, by checking if
+    <code>top</code> and <code>bottom</code> are connected.</p>
+<p>You can refer to the following figure:</p>
+<p><img src="uf3_1.png" alt="img"></p>
+<br>
+<h4 id="algorithm-2">Algorithm</h4>
+<ol>
+    <li>
+        <p>Create a disjoint set data structure <code>dsu</code> with a size of <code>row * col + 2</code>.</p>
+    </li>
+    <li>
+        <p>Create an all-one <code>grid</code> of size <code>row * col</code> representing the water cells after the
+            last day.</p>
+    </li>
+    <li>
+        <p>Iterate over reversed <code>cells</code>, for each cell <code>cells[i] = (r, c)</code>:</p>
+        <ul>
+            <li>
+                <p>Check its neighbors in all four directions, and if there is a land cell <code>(new_r, new_c)</code>,
+                    we connect the root of <code>cells[i]</code> to the root of this neighbor in <code>dsu</code>.</p>
+            </li>
+            <li>
+                <p>If <code>r = 0</code>, connect it with <code>top</code>.</p>
+            </li>
+            <li>
+                <p>If <code>r = row - 1</code>, connect it with <code>bottom</code>.</p>
+            </li>
+            <li>
+                <p>Check if <code>top</code> and <code>bottom</code> are connected, and return <code>i</code> if they
+                    are.</p>
+            </li>
+        </ul>
+    </li>
+</ol>
+<h4 id="implementation-2">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class DSU {
+    int[] root, size;
+
+    public DSU(int n) {
+        root = new int[n];
+        for (int i = 0; i < n; i++) {
+            root[i] = i;
+        }
+        size = new int[n];
+        Arrays.fill(size, 1);
+    }
+
+    public int find(int x) {
+        if (root[x] != x) {
+            root[x] = find(root[x]);
+        }
+        return root[x];
+    }
+
+    public void union(int x, int y) {
+        int rootX = find(x);
+        int rootY = find(y);
+        if (rootX == rootY) {
+            return;
+        }
+
+        if (size[rootX] > size[rootY]) {
+            int tmp = rootX;
+            rootX = rootY;
+            rootY = tmp;
+        }
+        root[rootX] = rootY;
+        size[rootY] += size[rootX];
+    }
+}
+
+class Solution {
+    public int latestDayToCross(int row, int col, int[][] cells) {
+        DSU dsu = new DSU(row * col + 2);
+        int[][] grid = new int[row][col];
+        int[][] directions = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+
+        for (int i = cells.length - 1; i >= 0; i--) {
+            int r = cells[i][0] - 1, c = cells[i][1] - 1;
+            grid[r][c] = 1;
+            int index1 = r * col + c + 1;
+            for (int[] d : directions) {
+                int newR = r + d[0], newC = c + d[1];
+                int index2 = newR * col + newC + 1;
+                if (newR >= 0 && newR < row && newC >= 0 && newC < col && grid[newR][newC] == 1) {
+                    dsu.union(index1, index2);
+                }
+            }
+            if (r == 0) {
+                dsu.union(0, index1);
+            }
+            if (r == row - 1) {
+                dsu.union(row * col + 1, index1);
+            }
+            if (dsu.find(0) == dsu.find(row * col + 1)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+}
+    </code>
+    Python3
+    <code>
+        class DSU:
+    def __init__(self, n):
+        self.root = list(range(n))
+        self.size = [1] * n
+
+    def find(self, x):
+        if self.root[x] != x:
+            self.root[x] = self.find(self.root[x])
+        return self.root[x]
+
+    def union(self, x, y):
+        root_x = self.find(x)
+        root_y = self.find(y)
+        if root_x == root_y:
+            return
+
+        if self.size[root_x] > self.size[root_y]:
+            root_x, root_y = root_y, root_x
+        self.root[root_x] = root_y
+        self.size[root_y] += self.size[root_x]
+
+class Solution:
+    def latestDayToCross(self, row: int, col: int, cells: List[List[int]]) -> int:
+        dsu = DSU(row * col + 2)
+        grid = [[1] * col for _ in range(row)]
+        directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
+
+        for i in range(len(cells) - 1, -1, -1):
+            r, c = cells[i][0] - 1, cells[i][1] - 1
+            grid[r][c] = 0
+            index_1 = r * col + c + 1
+            for dr, dc in directions:
+                new_r, new_c = r + dr, c + dc
+                index_2 = new_r * col + new_c + 1
+                if 0 <= new_r < row and 0 <= new_c < col and grid[new_r][new_c] == 0:
+                    dsu.union(index_1, index_2)
+
+            if r == 0:
+                dsu.union(0, index_1)
+            if r == row - 1:
+                dsu.union(row * col + 1, index_1)
+            if dsu.find(0) == dsu.find(row * col + 1):
+                return i
+    </code>
+</pre>
+<h4 id="complexity-analysis-2">Complexity Analysis</h4>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(row⋅col)O(\text{row} \cdot \text{col})</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord text"><span class="mord">row</span></span><span class="mspace"
+                                                                            style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord text"><span class="mord">col</span></span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <ul>
+            <li>
+                <p>For <span class="math math-inline"><span class="katex"><span class="katex-mathml">TT</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 0.6833em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.13889em;">T</span></span></span></span></span>
+                    operations, the amortized time complexity of the union-find algorithm (using path compression with
+                    union by rank) is <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(alpha(T))O(alpha(T))</span><span
+                            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+                            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                            class="mopen">(</span><span class="mord mathnormal">a</span><span
+                            class="mord mathnormal">lp</span><span class="mord mathnormal">ha</span><span class="mopen">(</span><span
+                            class="mord mathnormal" style="margin-right: 0.13889em;">T</span><span
+                            class="mclose">))</span></span></span></span></span>. Here, <span
+                            class="math math-inline"><span class="katex"><span class="katex-mathml">α(T)\alpha(T)</span><span
+                            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+                            class="mord mathnormal" style="margin-right: 0.0037em;">α</span><span class="mopen">(</span><span
+                            class="mord mathnormal" style="margin-right: 0.13889em;">T</span><span
+                            class="mclose">)</span></span></span></span></span> is the inverse Ackermann function that
+                    grows so slowly, that it doesn't exceed <span class="math math-inline"><span class="katex"><span
+                            class="katex-mathml">44</span><span class="katex-html" aria-hidden="true"><span
+                            class="base"><span class="strut" style="height: 0.6444em;"></span><span
+                            class="mord">4</span></span></span></span></span> for all reasonable <span
+                            class="math math-inline"><span class="katex"><span class="katex-mathml">TT</span><span
+                            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                           style="height: 0.6833em;"></span><span
+                            class="mord mathnormal"
+                            style="margin-right: 0.13889em;">T</span></span></span></span></span> (approximately <span
+                            class="math math-inline"><span class="katex"><span class="katex-mathml">T&lt;10600 T &lt; 10^{600}</span><span
+                            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                           style="height: 0.7224em; vertical-align: -0.0391em;"></span><span
+                            class="mord mathnormal" style="margin-right: 0.13889em;">T</span><span class="mspace"
+                                                                                                   style="margin-right: 0.2778em;"></span><span
+                            class="mrel">&lt;</span><span class="mspace"
+                                                          style="margin-right: 0.2778em;"></span></span><span
+                            class="base"><span class="strut" style="height: 0.8141em;"></span><span
+                            class="mord">1</span><span class="mord"><span class="mord">0</span><span
+                            class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                              style="height: 0.8141em;"><span
+                            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                               style="height: 2.7em;"></span><span
+                            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">600</span></span></span></span></span></span></span></span></span></span></span></span></span>).
+                    You can read more about the complexity of union-find <a
+                            href="https://en.wikipedia.org/wiki/Disjoint-set_data_structure#Time_complexity"
+                            target="_blank">here</a>. Because the function grows so slowly, we consider it to be <span
+                            class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+                            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+                            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                            class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span></span>.
+                </p>
+            </li>
+            <li>
+                <p>We iterate over the reversed <code>cells</code> and perform <code>union</code> and <code>find</code>
+                    operations on cells of number <span class="math math-inline"><span class="katex"><span
+                            class="katex-mathml">(row⋅col)(\text{row} \cdot \text{col})</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+                            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                            class="mopen">(</span><span class="mord text"><span class="mord">row</span></span><span
+                            class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span
+                            class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+                            class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                            class="mord text"><span class="mord">col</span></span><span
+                            class="mclose">)</span></span></span></span></span>, we consider the time complexity to be
+                    <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(row⋅col)O(\text{row} \cdot \text{col})</span><span
+                            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+                            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                            class="mopen">(</span><span class="mord text"><span class="mord">row</span></span><span
+                            class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span
+                            class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+                            class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                            class="mord text"><span class="mord">col</span></span><span
+                            class="mclose">)</span></span></span></span></span>.</p>
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(row⋅col)O(\text{row} \cdot \text{col})</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord text"><span class="mord">row</span></span><span class="mspace"
+                                                                            style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord text"><span class="mord">col</span></span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <ul>
+            <li>
+                <p>We use two arrays of size <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">row⋅col+2\text{row} \cdot \text{col} + 2</span><span class="katex-html"
+                                                                                                  aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 0.4445em;"></span><span class="mord text"><span
+                        class="mord">row</span></span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                        class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                        class="base"><span class="strut"
+                                           style="height: 0.7778em; vertical-align: -0.0833em;"></span><span
+                        class="mord text"><span class="mord">col</span></span><span class="mspace"
+                                                                                    style="margin-right: 0.2222em;"></span><span
+                        class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                        class="base"><span class="strut" style="height: 0.6444em;"></span><span
+                        class="mord">2</span></span></span></span></span> to save the root and rank of each cell in the
+                    disjoint set data structure.</p>
+            </li>
+            <li>
+                <p>We also create an array of size <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">row×col\text{row} \times \text{col}</span><span class="katex-html"
+                                                                                             aria-hidden="true"><span
+                        class="base"><span class="strut"
+                                           style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+                        class="mord text"><span class="mord">row</span></span><span class="mspace"
+                                                                                    style="margin-right: 0.2222em;"></span><span
+                        class="mbin">×</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                        class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord text"><span
+                        class="mord">col</span></span></span></span></span></span> to represent each cell.</p>
+            </li>
+        </ul>
+    </li>
+</ul>
+<br>
+<hr>
+<h3 id="approach-4-disjoint-set-union-on-water-cells">Approach 4: Disjoint Set Union (on water cells)</h3>
+<h4 id="intuition-3">Intuition</h4>
+<p>In contrast to the previous method of connecting the land cells in a reversed time, we now aim to connect water cells
+    instead.</p>
+<p>If we find a water pathway that connects the leftmost and rightmost columns on a particular day <code>i</code>, it
+    implies that there is no land pathway that connects the top and bottom rows, which is the day we are looking for.
+</p>
+<p>In short: <strong>the last day when a land pathway exists is right before the first day when a water pathway
+    exists</strong>.</p>
+<p><img src="uf4.png" alt="img"></p>
+<p>To achieve this, we use the disjoint set union method similar to before, with a few minor differences:</p>
+<ul>
+    <li>Our connection condition is no longer four directions, but all eight directions. If there is an eight-way
+        connected water pathway, it is sufficient to block all land pathways from the top row to the bottom row.
+    </li>
+    <li>We are looking for the waterway that connects <code>left</code> and <code>right</code>, so we need two
+        additional nodes in <code>dsu</code> (say <code>left</code> and <code>right</code>) that represent all water
+        cells in the leftmost column and all water cells in the rightmost column, respectively. By checking if <code>left</code>
+        and <code>right</code> are connected, we can verify the existence of a valid waterway.
+    </li>
+</ul>
+<br>
+<h4 id="algorithm-3">Algorithm</h4>
+<ol>
+    <li>
+        <p>Create a disjoint set union data structure <code>dsu</code> with a size of <code>row * col + 2</code>.</p>
+    </li>
+    <li>
+        <p>Create an all-zero <code>grid</code> of size <code>row * col</code> representing the land cells on the first
+            day.</p>
+    </li>
+    <li>
+        <p>Iterate over <code>cells</code>, for each water cell <code>cells[i]</code> on day <code>i</code>:</p>
+        <ul>
+            <li>Check its neighbors in all eight directions, and if there is a water cell neighbor <code>(new_r,
+                new_c)</code>, we connect the root of <code>cells[i]</code> to the root of this neighbor in
+                <code>dsu</code>.
+            </li>
+            <li>If <code>c = 0</code>, connect it with <code>left</code>.</li>
+            <li>If <code>c = col - 1</code>, connect it with <code>right</code>.</li>
+            <li>Check if <code>left</code> and <code>right</code> are connected, and return <code>i</code> if they are.
+            </li>
+        </ul>
+    </li>
+</ol>
+<h4 id="implementation-3">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class DSU {
+    int[] root, size;
+
+    public DSU(int n) {
+        root = new int[n];
+        for (int i = 0; i < n; i++) {
+            root[i] = i;
+        }
+        size = new int[n];
+        Arrays.fill(size, 1);
+    }
+
+    public int find(int x) {
+        if (root[x] != x) {
+            root[x] = find(root[x]);
+        }
+        return root[x];
+    }
+
+    public void union(int x, int y) {
+        int rootX = find(x);
+        int rootY = find(y);
+        if (rootX == rootY) {
+            return;
+        }
+
+        if (size[rootX] > size[rootY]) {
+            int tmp = rootX;
+            rootX = rootY;
+            rootY = tmp;
+        }
+        root[rootX] = rootY;
+        size[rootY] += size[rootX];
+    }
+}
+
+class Solution {
+    public int latestDayToCross(int row, int col, int[][] cells) {
+        DSU dsu = new DSU(row * col + 2);
+        int[][] grid = new int[row][col];
+        int[][] directions = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}, {1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
+
+        for (int i = 0; i < row * col; ++i) {
+            int r = cells[i][0] - 1, c = cells[i][1] - 1;
+            grid[r][c] = 1;
+            int index1 = r * col + c + 1;
+            for (int[] d : directions) {
+                int newR = r + d[0], newC = c + d[1];
+                int index2 = newR * col + newC + 1;
+                if (newR >= 0 && newR < row && newC >= 0 && newC < col && grid[newR][newC] == 1) {
+                    dsu.union(index1, index2);
+                }
+            }
+            if (c == 0) {
+                dsu.union(0, index1);
+            }
+            if (c == col - 1) {
+                dsu.union(row * col + 1, index1);
+            }
+            if (dsu.find(0) == dsu.find(row * col + 1)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+}
+    </code>
+    Python3
+    <code>
+        class DSU:
+    def __init__(self, n):
+        self.root = list(range(n))
+        self.size = [1] * n
+
+    def find(self, x):
+        if self.root[x] != x:
+            self.root[x] = self.find(self.root[x])
+        return self.root[x]
+
+    def union(self, x, y):
+        root_x = self.find(x)
+        root_y = self.find(y)
+        if root_x == root_y:
+            return
+
+        if self.size[root_x] > self.size[root_y]:
+            root_x, root_y = root_y, root_x
+        self.root[root_x] = root_y
+        self.size[root_y] += self.size[root_x]
+
+class Solution:
+    def latestDayToCross(self, row: int, col: int, cells: List[List[int]]) -> int:
+        dsu = DSU(row * col + 2)
+        grid = [[0] * col for _ in range(row)]
+        directions = [(0, 1), (0, -1), (1, 0), (-1, 0), (1, 1), (1, -1), (-1, 1), (-1, -1)]
+
+        for i in range(row * col):
+            r, c = cells[i][0] - 1, cells[i][1] - 1
+            grid[r][c] = 1
+            index_1 = r * col + c + 1
+            for dr, dc in directions:
+                new_r, new_c = r + dr, c + dc
+                index_2 = new_r * col + new_c + 1
+                if 0 <= new_r < row and 0 <= new_c < col and grid[new_r][new_c] == 1:
+                    dsu.union(index_1, index_2)
+
+            if c == 0:
+                dsu.union(0, index_1)
+            if c == col - 1:
+                dsu.union(row * col + 1, index_1)
+            if dsu.find(0) == dsu.find(row * col + 1):
+                return i
+    </code>
+</pre>
+<h4 id="complexity-analysis-3">Complexity Analysis</h4>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(row⋅col⋅α(row⋅col))O(\text{row} \cdot \text{col} \cdot \alpha(\text{row} \cdot \text{col}))</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord text"><span class="mord">row</span></span><span class="mspace"
+                                                                            style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord text"><span
+                class="mord">col</span></span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.0037em;">α</span><span class="mopen">(</span><span
+                class="mord text"><span class="mord">row</span></span><span class="mspace"
+                                                                            style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord text"><span class="mord">col</span></span><span
+                class="mclose">))</span></span></span></span></span></p>
+        <ul>
+            <li>For <span class="math math-inline"><span class="katex"><span class="katex-mathml">TT</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.6833em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.13889em;">T</span></span></span></span></span>
+                operations, the amortized time complexity of the union-find algorithm (using path compression with union
+                by rank) is <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(alpha(T))O(alpha(T))</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">a</span><span
+                        class="mord mathnormal">lp</span><span class="mord mathnormal">ha</span><span
+                        class="mopen">(</span><span class="mord mathnormal"
+                                                    style="margin-right: 0.13889em;">T</span><span
+                        class="mclose">))</span></span></span></span></span>. Here, <span class="math math-inline"><span
+                        class="katex"><span class="katex-mathml">α(T)\alpha(T)</span><span class="katex-html"
+                                                                                           aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.0037em;">α</span><span
+                        class="mopen">(</span><span class="mord mathnormal"
+                                                    style="margin-right: 0.13889em;">T</span><span
+                        class="mclose">)</span></span></span></span></span> is the inverse Ackermann function that grows
+                so slowly, that it doesn't exceed <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">44</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 0.6444em;"></span><span
+                        class="mord">4</span></span></span></span></span> for all reasonable <span
+                        class="math math-inline"><span class="katex"><span class="katex-mathml">TT</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 0.6833em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.13889em;">T</span></span></span></span></span>
+                (approximately <span class="math math-inline"><span class="katex"><span class="katex-mathml">T&lt;10600 T &lt; 10^{600}</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 0.7224em; vertical-align: -0.0391em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.13889em;">T</span><span class="mspace"
+                                                                                               style="margin-right: 0.2778em;"></span><span
+                        class="mrel">&lt;</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+                        class="base"><span class="strut" style="height: 0.8141em;"></span><span
+                        class="mord">1</span><span class="mord"><span class="mord">0</span><span class="msupsub"><span
+                        class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                        style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                        class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+                        class="mord mtight">600</span></span></span></span></span></span></span></span></span></span></span></span></span>).
+                You can read more about the complexity of union-find <a
+                        href="https://en.wikipedia.org/wiki/Disjoint-set_data_structure#Time_complexity"
+                        target="_blank">here</a>. Because the function grows so slowly, we consider it to be <span
+                        class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord">1</span><span
+                        class="mclose">)</span></span></span></span></span>.
+            </li>
+            <li>We iterate over <code>cells</code> and perform <code>union</code> and <code>find</code> operations on
+                cells of number <span class="math math-inline"><span class="katex"><span class="katex-mathml">(row⋅col)(\text{row} \cdot \text{col})</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mopen">(</span><span class="mord text"><span class="mord">row</span></span><span
+                        class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span
+                        class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+                        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord text"><span
+                        class="mord">col</span></span><span class="mclose">)</span></span></span></span></span>, we
+                consider the time complexity to be <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(row⋅col)O(\text{row} \cdot \text{col})</span><span class="katex-html"
+                                                                                                  aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord text"><span class="mord">row</span></span><span
+                        class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span
+                        class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+                        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord text"><span
+                        class="mord">col</span></span><span class="mclose">)</span></span></span></span></span>.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(row⋅col)O(\text{row} \cdot \text{col})</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord text"><span class="mord">row</span></span><span class="mspace"
+                                                                            style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord text"><span class="mord">col</span></span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <ul>
+            <li>
+                <p>We use two arrays of size <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">row⋅col+2\text{row} \cdot \text{col} + 2</span><span class="katex-html"
+                                                                                                  aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 0.4445em;"></span><span class="mord text"><span
+                        class="mord">row</span></span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                        class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                        class="base"><span class="strut"
+                                           style="height: 0.7778em; vertical-align: -0.0833em;"></span><span
+                        class="mord text"><span class="mord">col</span></span><span class="mspace"
+                                                                                    style="margin-right: 0.2222em;"></span><span
+                        class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                        class="base"><span class="strut" style="height: 0.6444em;"></span><span
+                        class="mord">2</span></span></span></span></span> to save the root and rank of each cell in the
+                    disjoint set union data structure.</p>
+            </li>
+            <li>
+                <p>We also create an array of size <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">row×col\text{row} \times \text{col}</span><span class="katex-html"
+                                                                                             aria-hidden="true"><span
+                        class="base"><span class="strut"
+                                           style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+                        class="mord text"><span class="mord">row</span></span><span class="mspace"
+                                                                                    style="margin-right: 0.2222em;"></span><span
+                        class="mbin">×</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                        class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord text"><span
+                        class="mord">col</span></span></span></span></span></span> to represent each cell.</p>
+            </li>
+        </ul>
+    </li>
+</ul>
+<br>
+</body>
+</html>
