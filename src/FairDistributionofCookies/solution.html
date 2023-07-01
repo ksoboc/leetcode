@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Fair Distribution of Cookies - Solution</title>
+</head>
+<body>
+<h2 id="solution">Fair Distribution of Cookies - Solution</h2>
+<hr>
+<h3 id="approach-backtracking">Approach: Backtracking</h3>
+<h4 id="intuition">Intuition</h4>
+<blockquote>
+    <p>If you are not familiar with recursion, please refer to our explore cards <a
+            href="https://leetcode.com/explore/featured/card/recursion-i/" target="_blank">Recursion Explore Card</a>.
+        We will focus on the usage in this article and not the underlying principles or implementation details.</p>
+</blockquote>
+<p>The concept of backtracking involves attempting all possible distributions of cookies. We distribute the current
+    cookie to each child and recursively repeat the process with the next cookie until all the cookies are distributed.
+    Once all the cookies have been distributed, we compute the unfairness of the current distribution and update the
+    minimum unfairness encountered.</p>
+<p>Let’s take a look at a scenario with 3 cookies and 3 children that serves as a great example of this.</p>
+<p>Initially, we move along the path in yellow by distributing all 3 cookies to child 0, but it is not a valid
+    distribution as child 1 and child 2 receive no cookies.</p>
+<p><img src="3.png" alt="img"></p>
+<p>As a result, we backtrack to the next possible distribution (by distributing the last cookie to child 1) and repeat
+    this process.</p>
+<p><img src="4.png" alt="img"></p>
+<p>After distributing all cookies, we will determine if the current distribution is valid, and if so, we will calculate
+    the unfairness of this distribution.</p>
+<p>To optimize the backtracking approach, we can use an early stop technique. Consider the same example in the image
+    below: suppose that we have already distributed the first 2 cookies to child 0. When we come to the last cookie,
+    should we continue the recursion process by distributing it to any child?</p>
+<p>The answer is NO, because child 1 and child 2 require at least two cookies, and at this point, we only have one
+    cookie remaining. Consequently, no matter how we distribute this last cookie, it will inevitably lead to an invalid
+    distribution. Therefore, we can discard this path and not proceed further with it.</p>
+<p><img src="5.png" alt="img"></p>
+<p>To implement the early stop technique, we will introduce a parameter named <code>zero_count</code> that represents
+    <strong>the number of children without a cookie</strong>. During the backtracking process, if we have fewer
+    undistributed cookies than <code>zero_count</code>, it means that some children will always end up with no cookie.
+    At this point, we can terminate the recursion because it becomes impossible to obtain a valid distribution. The
+    image below illustrates this concept, where the red states are not computed thanks to the early stop, significantly
+    reducing unnecessary recursion steps.</p>
+<p><img src="6.png" alt="img"></p>
+<p>Therefore, the algorithm only tracks the paths that lead to valid distributions and updates the global minimum by the
+    maximum unfairness of each valid distribution.</p>
+<br>
+<h4 id="algorithm">Algorithm</h4>
+<ol>
+    <li>
+        <p>Create an array <code>distribute</code> of length <code>k</code> initialized with all zeros, which represents
+            the unfairness of each child.</p>
+    </li>
+    <li>
+        <p>Define the recursive function <code>dfs(i, zero_count)</code> to distribute the <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">ithi^{th}</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.8491em;"></span><span
+                class="mord"><span class="mord mathnormal">i</span><span class="msupsub"><span class="vlist-t"><span
+                class="vlist-r"><span class="vlist" style="height: 0.8491em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+                class="mord mathnormal mtight">t</span><span
+                class="mord mathnormal mtight">h</span></span></span></span></span></span></span></span></span></span></span></span></span>
+            cookie:</p>
+        <ul>
+            <li>If the number of undistributed cookies is less than <code>zero_count</code>, which is <code>n - i &lt;
+                zero_count</code>, return a large integer like <code>float('inf')</code>, implying that the current
+                distribution is invalid.
+            </li>
+            <li>If <code>i = n</code>, return the maximum value of <code>distribute</code> which is the unfairness of
+                this distribution.
+            </li>
+            <li>Otherwise, set <code>answer</code> as <code>float('inf')</code> and continue with step 3.</li>
+        </ul>
+    </li>
+    <li>
+        <p>Iterate through <code>distribute</code> and for each child <code>j</code>:</p>
+        <ul>
+            <li>Increment <code>distribute[j]</code> by <code>cookie[i]</code>, if <code>distribute[i]</code> is 0
+                before the distribution, decrement <code>zero_count</code> by 1.
+            </li>
+            <li>Recursively call <code>dfs(i + 1, zero_count)</code> and update <code>answer</code> as the minimum
+                unfairness encountered, <code>answer = min(answer, dfs(i + 1, zero_count))</code>.
+            </li>
+            <li>Decrement <code>distribute[j]</code> by <code>cookie[i]</code>, if <code>distribute[i]</code> is 0 after
+                the process, increment <code>zero_count</code> by 1. (This is the backtrack step)
+            </li>
+        </ul>
+        <p>Return <code>answer</code> after the iteration is complete.</p>
+    </li>
+    <li>
+        <p>Return <code>dfs(0, distribute)</code>.</p>
+    </li>
+</ol>
+<h4 id="implementation">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    private int dfs(int i, int[] distribute, int[] cookies, int k, int zeroCount) {
+        // If there are not enough cookies remaining, return Integer.MAX_VALUE
+        // as it leads to an invalid distribution.
+        if (cookies.length - i < zeroCount) {
+            return Integer.MAX_VALUE;
+        }
+
+        // After distributing all cookies, return the unfairness of this
+        // distribution.
+        if (i == cookies.length) {
+            int unfairness = Integer.MIN_VALUE;
+            for (int value : distribute) {
+                unfairness = Math.max(unfairness, value);
+            }
+            return unfairness;
+        }
+
+        // Try to distribute the i-th cookie to each child, and update answer
+        // as the minimum unfairness in these distributions.
+        int answer = Integer.MAX_VALUE;
+        for (int j = 0; j < k; ++j) {
+            zeroCount -= distribute[j] == 0 ? 1 : 0;
+            distribute[j] += cookies[i];
+
+            // Recursively distribute the next cookie.
+            answer = Math.min(answer, dfs(i + 1, distribute, cookies, k, zeroCount));
+
+            distribute[j] -= cookies[i];
+            zeroCount += distribute[j] == 0 ? 1 : 0;
+        }
+
+        return answer;
+    }
+
+    public int distributeCookies(int[] cookies, int k) {
+        int[] distribute = new int[k];
+
+        return dfs(0, distribute, cookies, k, k);
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int dfs(int i, vector<int>& distribute, vector<int>& cookies, int k, int zeroCount) {
+        // If there are not enough cookies remaining, return INT_MAX
+        // as it leads to an invalid distribution.
+        if (cookies.size() - i < zeroCount) {
+            return INT_MAX;
+        }
+
+        // After distributing all cookies, return the unfairness of this
+        // distribution.
+        if (i == cookies.size()) {
+            return *max_element(distribute.begin(), distribute.end());
+        }
+
+        // Try to distribute the i-th cookie to each child, and update answer
+        // as the minimum unfairness in these distributions.
+        int answer = INT_MAX;
+        for (int j = 0; j < k; ++j) {
+            zeroCount -= distribute[j] == 0 ? 1 : 0;
+            distribute[j] += cookies[i];
+
+            // Recursively distribute the next cookie.
+            answer = min(answer, dfs(i + 1, distribute, cookies, k, zeroCount));
+
+            distribute[j] -= cookies[i];
+            zeroCount += distribute[j] == 0 ? 1 : 0;
+        }
+
+        return answer;
+    }
+
+    int distributeCookies(vector<int>& cookies, int k) {
+        vector<int> distribute(k, 0);
+
+        return dfs(0, distribute, cookies, k, k);
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def distributeCookies(self, cookies: List[int], k: int) -> int:
+        cur = [0] * k
+        n = len(cookies)
+
+        def dfs(i, zero_count):
+            # If there are not enough cookies remaining, return `float('inf')`
+            # as it leads to an invalid distribution.
+            if n - i < zero_count:
+                return float('inf')
+
+            # After distributing all cookies, return the unfairness of this
+            # distribution.
+            if i == n:
+                return max(cur)
+
+            # Try to distribute the i-th cookie to each child, and update answer
+            # as the minimum unfairness in these distributions.
+            answer = float('inf')
+            for j in range(k):
+                zero_count -= int(cur[j] == 0)
+                cur[j] += cookies[i]
+
+                # Recursively distribute the next cookie.
+                answer = min(answer, dfs(i + 1, zero_count))
+
+                cur[j] -= cookies[i]
+                zero_count += int(cur[j] == 0)
+
+            return answer
+
+        return dfs(0, k)
+    </code>
+</pre>
+<h4 id="complexity-analysis">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    be the length of <code>cookies</code>.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(kn)O(k^n)</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord"><span class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                  style="height: 0.6644em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span
+                class="mord mathnormal mtight">n</span></span></span></span></span></span></span></span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>The algorithm attempts to distribute each of the <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 0.4306em;"></span><span
+                    class="mord mathnormal">n</span></span></span></span></span> cookies to each of the <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">kk</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.6944em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.03148em;">k</span></span></span></span></span>
+                children, resulting in at most <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(kn)O(k^n)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord"><span class="mord mathnormal"
+                                                                       style="margin-right: 0.03148em;">k</span><span
+                        class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                          style="height: 0.6644em;"><span
+                        style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                        class="sizing reset-size6 size3 mtight"><span
+                        class="mord mathnormal mtight">n</span></span></span></span></span></span></span></span><span
+                        class="mclose">)</span></span></span></span></span> disinct distributions.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(k+n)O(k + n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span class="mspace"
+                                                                                       style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>The array <code>distribute</code> represents the status of <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">kk</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord mathnormal"
+                                                                                            style="margin-right: 0.03148em;">k</span></span></span></span></span>
+                children, thus taking up <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(k)O(k)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal"
+                                                    style="margin-right: 0.03148em;">k</span><span
+                        class="mclose">)</span></span></span></span></span> space.
+            </li>
+            <li>The space complexity of a recursive call depends on the maximum depth of the recursive call stack, which
+                is at most <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 0.4306em;"></span><span
+                        class="mord mathnormal">n</span></span></span></span></span>. As each recursive call increments
+                <code>i</code> by 1. Therefore, at most <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+                levels of recursion will be created, and each level consumes a constant amount of space.
+            </li>
+        </ul>
+    </li>
+</ul>
+<br>
+</body>
+</html>
