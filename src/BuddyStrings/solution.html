@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Buddy Strings - Solution</title>
+</head>
+<body>
+<h2 id="solution">Buddy Strings - Solution</h2>
+<hr>
+<h3 id="overview">Overview</h3>
+<p>We are given two strings <code>s</code> and <code>goal</code>, and we have to check if we can swap characters at two
+    indices in the string <code>s</code>, such that string <code>s</code> will become equal to <code>goal</code>.</p>
+<hr>
+<h3 id="approach">Approach</h3>
+<h4 id="intuition">Intuition</h4>
+<p>First of all, <code>s</code> and <code>goal</code> should have the same length, otherwise, they can never become
+    equal after one swap.</p>
+<p>Now, let's assume we can change the string <code>s</code> into <code>goal</code> after swapping index <code>x</code>
+    and <code>y</code>.<br>
+    Thus, it means initially before the swap all the characters except at indices <code>x</code> and <code>y</code> were
+    equal in strings <code>s</code> and <code>goal</code>.</p>
+<p><img src="Slide1.PNG" alt="slide1"></p>
+<p>We can iterate over all indices to check if characters at only two indices are different in strings <code>s</code>
+    and <code>goal</code>. If we have one or more than two indices having different characters, then it will never be
+    possible to make both strings equal with exactly one swap.</p>
+<p>After the swap operation, the elements at index <code>x</code> and <code>y</code> should also become equal in both
+    strings, which means:</p>
+<ul>
+    <li>in the string <code>s</code> the character at index <code>x</code> was present at index <code>y</code> in string
+        <code>goal</code>, and
+    </li>
+    <li>in the string <code>s</code> the character at index <code>y</code> was present at index <code>x</code> in string
+        <code>goal</code></li>
+</ul>
+<p><img src="Slide2.PNG" alt="slid2"></p>
+<p><strong>Now, what if the strings <code>s</code> and <code>goal</code> were initially already the same?</strong></p>
+<p>Say if string <code>s = 'aabcda'</code> and <code>goal = 'aabcda'</code>.<br>
+    We have to swap two characters in the string <code>s</code> such that it will remain the same, which can be achieved
+    by performing the swap on two characters that are the same.</p>
+<p>So, if <code>s = goal</code> and string <code>s</code> has at least one character appearing multiple times, then it
+    is possible to swap two characters in <code>s</code> without changing it and keep <code>s = goal</code>.</p>
+<p>If string <code>s = 'abcde'</code> and <code>goal = 'abcde'</code>, there is no way we can keep string <code>s</code>
+    the same after performing one swap operation on it because there is no character appearing multiple times.</p>
+<h4 id="algorithm">Algorithm</h4>
+<ol>
+    <li>If the number of characters in string <code>s</code> and <code>goal</code> is different then they can never
+        become equal, thus we return <code>false</code>.
+    </li>
+    <li>If <code>s == goal</code>:
+        <ul>
+            <li>We can use a hash map or create an array of size <code>26</code> <code>frequency</code> to store the
+                frequency of each character of string <code>s</code>.
+            </li>
+            <li>If any character has a frequency of more than <code>1</code> then we can swap those two same characters,
+                thus we will return <code>true</code>. Otherwise, we return <code>false</code>.
+            </li>
+        </ul>
+    </li>
+    <li>Otherwise <code>s != goal</code>. We keep two variables <code>firstIndex</code> and <code>secondIndex</code>
+        both initialized to <code>-1</code>, to store the indices of string <code>s</code> having different characters
+        than string <code>goal</code> at the same index.
+    </li>
+    <li>We iterate over each index <code>i</code> in string <code>s</code>:
+        <ul>
+            <li>If characters at <code>s[i]</code> and <code>goal[i]</code> are not the same, then we store the current
+                index:
+            </li>
+            <li>If <code>firstIndex == -1</code>, it means this is the first index with a different character, thus we
+                update <code>firstIndex = i</code>. If <code>firstIndex != -1</code>, but <code>secondIndex == -1</code>,
+                it means this is the second index with a different character, thus we update <code>secondIndex =
+                    i</code>.
+            </li>
+            <li>But if both <code>firstIndex</code> and <code>secondIndex</code> are not <code>-1</code>, then it means
+                this is the third index with a different character and it is not possible to make both strings equal
+                using only one swap, thus we can return <code>false</code> in this case.
+            </li>
+        </ul>
+    </li>
+    <li>Check if only <code>firstIndex</code> was updated and <code>secondIndex == -1</code>, i.e. we have only one
+        index with a different character, then we also can't make both strings equal and we return <code>false</code>.
+    </li>
+    <li>Now, all characters of both strings are the same except at two indices. So, <code>s[firstIndex]</code> must be
+        equal to <code>goal[secondIndex]</code> and <code>s[secondIndex]</code> must be equal to
+        <code>goal[firstIndex]</code>, to make both strings equal after swapping.
+    </li>
+</ol>
+<h4 id="implementation">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public boolean buddyStrings(String s, String goal) {
+        if (s.length() != goal.length()) {
+            return false;
+        }
+
+        if (s.equals(goal)) {
+            // If we have 2 same characters in string 's',
+            // we can swap them and still the strings will remain equal.
+            int[] frequency = new int[26];
+            for (char ch : s.toCharArray()) {
+                frequency[ch - 'a'] += 1;
+                if (frequency[ch - 'a'] == 2) {
+                    return true;
+                }
+            }
+            // Otherwise, if we swap any two characters, it will make the strings unequal.
+            return false;
+        }
+
+        int firstIndex = -1;
+        int secondIndex = -1;
+
+        for (int i = 0; i < s.length(); ++i) {
+            if (s.charAt(i) != goal.charAt(i)) {
+                if (firstIndex == -1) {
+                    firstIndex = i;
+                } else if (secondIndex == -1) {
+                    secondIndex = i;
+                } else {
+                    // We have at least 3 indices with different characters,
+                    // thus, we can never make the strings equal with only one swap.
+                    return false;
+                }
+            }
+        }
+
+        if (secondIndex == -1) {
+            // We can't swap if the character at only one index is different.
+            return false;
+        }
+
+        // All characters of both strings are the same except two indices.
+        return s.charAt(firstIndex) == goal.charAt(secondIndex) &&
+               s.charAt(secondIndex) == goal.charAt(firstIndex);
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    bool buddyStrings(string s, string goal) {
+        if (s.size() != goal.size()) {
+            return false;
+        }
+
+        if (s == goal) {
+            // If we have 2 same characters in string 's',
+            // we can swap them and still strings will remain equal.
+            vector<int> frequency(26, 0);
+            for (auto& ch : s) {
+                frequency[ch - 'a'] += 1;
+                if (frequency[ch - 'a'] == 2) {
+                    return true;
+                }
+            }
+            // Otherwise, if we swap any two chanacters it will make strings unequal.
+            return false;
+        }
+
+        int firstIndex = -1;
+        int secondIndex = -1;
+
+        for (int i = 0; i < s.size(); ++i) {
+            if (s[i] != goal[i]) {
+                if (firstIndex == -1) {
+                    firstIndex = i;
+                } else if (secondIndex == -1) {
+                    secondIndex = i;
+                } else {
+                    // We have atleast 3 indices with differnet characters,
+                    // thus, we can never make strings equal with only one swap.
+                    return false;
+                }
+            }
+        }
+
+        if (secondIndex == -1) {
+            // We can't swap if character at only one index is different.
+            return false;
+        }
+
+        // All characters of both the string are same except two indices.
+        return s[firstIndex] == goal[secondIndex] &&
+               s[secondIndex] == goal[firstIndex];
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def buddyStrings(self, s: str, goal: str) -> bool:
+        if len(s) != len(goal):
+            return False
+
+        if s == goal:
+            # If we have 2 same characters in string 's',
+            # we can swap them and still the strings will remain equal.
+            frequency = [0] * 26
+            for ch in s:
+                frequency[ord(ch) - ord('a')] += 1
+                if frequency[ord(ch) - ord('a')] == 2:
+                    return True
+            # Otherwise, if we swap any two characters, it will make the strings unequal.
+            return False
+
+        firstIndex = -1
+        secondIndex = -1
+
+        for i in range(len(s)):
+            if s[i] != goal[i]:
+                if firstIndex == -1:
+                    firstIndex = i
+                elif secondIndex == -1:
+                    secondIndex = i
+                else:
+                    # We have at least 3 indices with different characters,
+                    # thus, we can never make the strings equal with only one swap.
+                    return False
+
+        if secondIndex == -1:
+            # We can't swap if the character at only one index is different.
+            return False
+
+        # All characters of both strings are the same except two indices.
+        return s[firstIndex] == goal[secondIndex] and s[secondIndex] == goal[firstIndex]
+    </code>
+    JavaScript
+    <code>
+        var buddyStrings = function(s, goal) {
+    if (s.length !== goal.length) {
+        return false;
+    }
+
+    if (s === goal) {
+        // If we have 2 same characters in string 's',
+        // we can swap them and still the strings will remain equal.
+        const frequency = Array(26).fill(0);
+        for (const ch of s) {
+            frequency[ch.charCodeAt() - 'a'.charCodeAt()] += 1;
+            if (frequency[ch.charCodeAt() - 'a'.charCodeAt()] === 2) {
+                return true;
+            }
+        }
+        // Otherwise, if we swap any two characters, it will make the strings unequal.
+        return false;
+    }
+
+    let firstIndex = -1;
+    let secondIndex = -1;
+
+    for (let i = 0; i < s.length; ++i) {
+        if (s[i] !== goal[i]) {
+            if (firstIndex === -1) {
+                firstIndex = i;
+            } else if (secondIndex === -1) {
+                secondIndex = i;
+            } else {
+                // We have at least 3 indices with different characters,
+                // thus, we can never make the strings equal with only one swap.
+                return false;
+            }
+        }
+    }
+
+    if (secondIndex === -1) {
+        // We can't swap if the character at only one index is different.
+        return false;
+    }
+
+    // All characters of both strings are the same except two indices.
+    return (s[firstIndex] === goal[secondIndex] &&
+            s[secondIndex] === goal[firstIndex]);
+};
+    </code>
+</pre>
+<h4 id="complexity-analysis">Complexity Analysis</h4>
+<p>Here, <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    is the number of characters in the string <code>s</code>.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <ul>
+            <li>We only iterate over each index of string <code>s</code> once. Thus, we will take <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> time.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord">1</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>In the worst case, we might use an array of size <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">2626</span><span class="katex-html"
+                                                                              aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 0.6444em;"></span><span
+                    class="mord">26</span></span></span></span></span> to store the frequency of each character of
+                string <code>s</code>, which is considered as constant space usage.
+            </li>
+        </ul>
+    </li>
+</ul>
+</body>
+</html>

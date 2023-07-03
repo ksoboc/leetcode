@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Buddy Strings</title>
+</head>
+<body>
+<div class="w-full px-5 pt-5">
+    <div class="w-full">
+        <div class="flex space-x-4">
+            <div class="flex-1">
+                <div class="flex h-full items-center"><span
+                        class="mr-2 text-label-1 dark:text-dark-label-1 text-lg font-medium">859. Buddy Strings</span>
+                    <div class="inline-flex min-h-[20px] items-center space-x-2 align-top mt-1">
+                        <div class="inline-flex items-center space-x-2"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="mt-3 flex space-x-4">
+            <div class="bg-olive dark:bg-dark-olive text-olive dark:text-dark-olive inline-block rounded-[21px] bg-opacity-[.15] px-2.5 py-1 text-xs font-medium capitalize dark:bg-opacity-[.15]">
+                Easy
+            </div>
+        </div>
+    </div>
+</div>
+<div class="px-5 pt-3">
+    <div class="relative">
+        <div class="inline-block">
+            <div class="transition-colors flex cursor-pointer items-center space-x-1.5 rounded-[21px] px-2 py-1 text-xs hover:bg-opacity-20 bg-fill-3 dark:bg-dark-fill-3 text-label-2 dark:text-dark-label-2 hover:bg-fill-2 dark:hover:bg-dark-fill-2">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                     class="text-brand-orange dark:text-dark-brand-orange">
+                    <path fill-rule="evenodd"
+                          d="M7 8v2H6a3 3 0 00-3 3v6a3 3 0 003 3h12a3 3 0 003-3v-6a3 3 0 00-3-3h-1V8A5 5 0 007 8zm8 0v2H9V8a3 3 0 116 0zm-3 6a2 2 0 100 4 2 2 0 000-4z"
+                          clip-rule="evenodd"></path>
+                </svg>
+                <span>Companies</span></div>
+        </div>
+    </div>
+</div>
+<div class="px-5 pt-4">
+    <div class="_1l1MA" data-track-load="description_content"><p>Given two strings <code>s</code> and <code>goal</code>,
+        return <code>true</code><em> if you can swap two letters in </em><code>s</code><em> so the result is equal
+            to </em><code>goal</code><em>, otherwise, return </em><code>false</code><em>.</em></p>
+
+        <p>Swapping letters is defined as taking two indices <code>i</code> and <code>j</code> (0-indexed) such that
+            <code>i != j</code> and swapping the characters at <code>s[i]</code> and <code>s[j]</code>.</p>
+
+        <ul>
+            <li>For example, swapping at indices <code>0</code> and <code>2</code> in <code>"abcd"</code> results in
+                <code>"cbad"</code>.
+            </li>
+        </ul>
+
+        <p>&nbsp;</p>
+        <p><strong class="example">Example 1:</strong></p>
+
+        <pre><strong>Input:</strong> s = "ab", goal = "ba"
+<strong>Output:</strong> true
+<strong>Explanation:</strong> You can swap s[0] = 'a' and s[1] = 'b' to get "ba", which is equal to goal.
+</pre>
+
+        <p><strong class="example">Example 2:</strong></p>
+
+        <pre><strong>Input:</strong> s = "ab", goal = "ab"
+<strong>Output:</strong> false
+<strong>Explanation:</strong> The only letters you can swap are s[0] = 'a' and s[1] = 'b', which results in "ba" != goal.
+</pre>
+
+        <p><strong class="example">Example 3:</strong></p>
+
+        <pre><strong>Input:</strong> s = "aa", goal = "aa"
+<strong>Output:</strong> true
+<strong>Explanation:</strong> You can swap s[0] = 'a' and s[1] = 'a' to get "aa", which is equal to goal.
+</pre>
+
+        <p>&nbsp;</p>
+        <p><strong>Constraints:</strong></p>
+
+        <ul>
+            <li><code>1 &lt;= s.length, goal.length &lt;= 2 * 10<sup>4</sup></code></li>
+            <li><code>s</code> and <code>goal</code> consist of lowercase letters.</li>
+        </ul>
+    </div>
+</div>
+</body>
+</html>
