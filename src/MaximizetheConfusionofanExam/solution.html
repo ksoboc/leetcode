@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Maximize the Confusion of an Exam - Solution</title>
+</head>
+<body>
+<h2 id="solution">Maximize the Confusion of an Exam - Solution</h2>
+<hr>
+<h3 id="overview">Overview</h3>
+<p>Take the following picture as an example, if we are allowed to make at most <code>k = 1</code> change.</p>
+<p><img src="intro.png" alt="img"></p>
+<p>Flip the third answer and we have a confusion (let's call it <code>max_size</code>) of 6.</p>
+<p>Flip the fourth answer and we have a confusion of 2.</p>
+<hr>
+<h3 id="approach-1-binary-search--fixed-size-sliding-window">Approach 1: Binary Search + Fixed Size Sliding Window</h3>
+<h4 id="intuition">Intuition</h4>
+<p>Since we are asked to find the longest sequence of identical answers. We could first set up a target length <code>max_size</code>,
+    then we shall iterate over <code>answerKey</code> to look for each substring of length <code>max_size</code>. If we
+    could flip at most <code>k</code> answers in a substring to make all answers identical, then this substring is valid
+    and we can make a confusion of at least <code>max_size</code>.</p>
+<p>In order to make a string valid, we can either:</p>
+<ul>
+    <li>Flip every <code>T</code> to <code>F</code> in the string so that it is all <code>F</code>.</li>
+    <li>Flip every <code>F</code> to <code>T</code> in the string so that it is all <code>T</code>.</li>
+</ul>
+<p>However, if both <code>F</code> and <code>T</code> in the substring are more than <code>k</code>, we can never make
+    it valid by <code>k</code> flips. Therefore, we can determine if a substring is valid by comparing <code>k</code>
+    with the smaller value between the count of <code>F</code> and the count of <code>T</code> in it.</p>
+<ul>
+    <li>If <code>min(count(T), count(F)) &lt;= k</code>, this substring is valid.</li>
+    <li>If <code>min(count(T), count(F)) &gt; k</code>, this substring is invalid.</li>
+</ul>
+<p>The method described in this solution is also known as the sliding window algorithm. During the process from left to
+    right, we ensure that the length of the subsequence remains unchanged as <code>max_size</code>, just like moving a
+    window of fixed length. As shown in the pictures below, if we set the window length to <code>m = 3</code>, we can
+    find some valid windows.</p>
+<p><img src="1.png" alt="img"></p>
+<p>However, if we set the length to <code>m = 7</code>, we will not find any valid windows, since the only two windows
+    of size <code>7</code> contain more than one <code>T</code> and more than one <code>F</code>.</p>
+<p><img src="2.png" alt="img"></p>
+<br>
+<p>During the iteration, when we move the right boundary of the window from <code>right - 1</code> to <code>right</code>,
+    we don't need to recalculate the count of each answer over again, note that two adjacent windows only differ by two
+    answers (<code>answerKey[right]</code>, <code>answerKey[right - m]</code>). We only need to increment the count of
+    <code>answerKey[right]</code> by 1 and decrement the count of <code>answerKey[right - m]</code> by <code>1</code>,
+    based on the result of the previous window.</p>
+<br>
+<p>To quickly find the maximum valid window length, we can use binary search. To begin, we need to define a search space
+    that ensures the maximum window length we are looking for is within this range. We can set the left boundary of the
+    search space to <code>left = 1</code>, which represents the smallest window length, and the right boundary to <code>right
+        = n</code>, which is the maximum possible window length.</p>
+<p>Next, we perform a binary search within the interval <code>[left, right]</code>. At each iteration, we find the
+    midpoint of the interval, denoted as <code>mid</code>, and slide a window of length <code>mid</code> using the
+    previous approach to check whether there exists at least one valid window. If such a window exists, we continue to
+    search for a larger window length in <code>[mid, right]</code>, the right half of the interval. Otherwise, if <code>mid</code>
+    is still too large, we continue our search in <code>[left, mid - 1]</code>, the left half of the search space.</p>
+<br>
+<h4 id="algorithm">Algorithm</h4>
+<ol>
+    <li>
+        <p>Initialize the search space as <code>left = 1</code>, <code>right = n</code>.</p>
+    </li>
+    <li>
+        <p>Define a function <code>isValid</code> to help verify if a window of size <code>size</code> is valid:</p>
+        <ul>
+            <li>
+                <p>Count the number of <code>T</code> and <code>F</code> in <code>answerKey[:size]</code> in a counter
+                    <code>count</code>, return true if <code>min(counter[T], counter[F]) &lt;= k</code></p>
+            </li>
+            <li>
+                <p>Iterate the index of the right boundary of the window from <code>size - 1</code> to <code>n</code>.
+                    At each step <code>i</code>, increment <code>counter[answerKey[i]]</code> by 1 and decrement <code>counter[answerKey[i
+                        - size]]</code> by 1, return true if <code>min(counter[T], counter[F]) &lt;= k</code> at any
+                    point in this iteration</p>
+            </li>
+            <li>
+                <p>Return false if we finish iterating without finding a valid window.</p>
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>While <code>left &lt; right</code>:</p>
+        <ul>
+            <li>Find the middle value as <code>mid = right - (right - left) / 2</code>.</li>
+            <li>Check if the window of size <code>mid</code> is valid.</li>
+            <li>If <code>isValid(mid)</code> is true, let <code>left = mid</code> and repeat step 3.</li>
+            <li>If <code>isValid(mid)</code> is false, let <code>right = mid - 1</code> and repeat step 3.</li>
+        </ul>
+    </li>
+    <li>
+        <p>Return <code>left</code> once the search ends.</p>
+    </li>
+</ol>
+<h4 id="implementation">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int maxConsecutiveAnswers(String answerKey, int k) {
+        int n = answerKey.length();
+        int left = k, right = n;
+
+        while (left < right) {
+            int mid = (left + right + 1) / 2;
+
+            if (isValid(answerKey, mid, k)) {
+                left = mid;
+            } else {
+                right = mid - 1;
+            }
+        }
+
+        return left;
+    }
+
+    private boolean isValid(String answerKey, int size, int k) {
+        int n = answerKey.length();
+        Map<Character, Integer> counter = new HashMap<>();
+
+        for (int i = 0; i < size; i++) {
+            char c = answerKey.charAt(i);
+            counter.put(c, counter.getOrDefault(c, 0) + 1);
+        }
+
+        if (Math.min(counter.getOrDefault('T', 0), counter.getOrDefault('F', 0)) <= k) {
+            return true;
+        }
+
+        for (int i = size; i < n; i++) {
+            char c1 = answerKey.charAt(i);
+            counter.put(c1, counter.getOrDefault(c1, 0) + 1);
+            char c2 = answerKey.charAt(i - size);
+            counter.put(c2, counter.getOrDefault(c2, 0) - 1);
+
+            if (Math.min(counter.getOrDefault('T', 0), counter.getOrDefault('F', 0)) <= k) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+}
+
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int maxConsecutiveAnswers(string answerKey, int k) {
+        int n = answerKey.length();
+        int left = k, right = n;
+
+        while (left < right) {
+            int mid = (left + right + 1) / 2;
+
+            if (isValid(answerKey, mid, k)) {
+                left = mid;
+            } else {
+                right = mid - 1;
+            }
+        }
+
+        return left;
+    }
+
+    bool isValid(string answerKey, int size, int k) {
+        int n = answerKey.length();
+        unordered_map<char, int> counter;
+
+        for (int i = 0; i < size; i++) {
+            char c = answerKey[i];
+            counter[c]++;
+        }
+
+        if (min(counter['T'], counter['F']) <= k) {
+            return true;
+        }
+
+        for (int i = size; i < n; i++) {
+            char c1 = answerKey[i];
+            counter[c1]++;
+            char c2 = answerKey[i - size];
+            counter[c2]--;
+
+            if (min(counter['T'], counter['F']) <= k) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def maxConsecutiveAnswers(self, answerKey: str, k: int) -> int:
+        n = len(answerKey)
+        left, right = k, n
+
+        def isValid(size):
+            counter = collections.Counter(answerKey[:size])
+            if min(counter['T'], counter['F']) <= k:
+                return True
+            for i in range(size, n):
+                counter[answerKey[i]] += 1
+                counter[answerKey[i - size]] -= 1
+                if min(counter['T'], counter['F']) <= k:
+                    return True
+            return False
+
+        while left < right:
+            mid = (left + right + 1) // 2
+
+            if isValid(mid):
+                left = mid
+            else:
+                right = mid - 1
+
+        return left
+    </code>
+</pre>
+<h4 id="complexity-analysis">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    be the length of the input string <code>answerKey</code>.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅log⁡n)O(n\cdot\log n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                      style="margin-right: 0.1667em;"></span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>We set the search space to <code>[1, n]</code>, it takes at most <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">O(log⁡n)O(\log n)</span><span class="katex-html"
+                                                                                           aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                              style="margin-right: 0.1667em;"></span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> search
+                steps.
+            </li>
+            <li>At each step, we iterate over <code>answerKey</code> which takes <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> time.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord">1</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>We only need to update some parameters <code>left</code>, <code>right</code>. During the iteration, we
+                need to count the number of <code>T</code> and <code>F</code>, which also takes <span
+                        class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord">1</span><span
+                        class="mclose">)</span></span></span></span></span> space.
+            </li>
+        </ul>
+    </li>
+</ul>
+<br>
+<hr>
+<h3 id="approach-2-sliding-window">Approach 2: Sliding Window</h3>
+<h4 id="intuition-1">Intuition</h4>
+<p>We can also find the longest valid window with fewer traversals. Unlike the previous fixed-length sliding window
+    solution, this time we can adjust the window length based on the situation. We will still use the counter <code>count</code>
+    to record the count of each type of answer within the window.</p>
+<p>Specifically, if the current window is valid, we can try to expand the window by moving the right boundary one
+    position to the right, <code>right = right + 1</code>. On the other hand, if the current window is invalid, we keep
+    moving the left boundary to the right (equivalent to removing the leftmost answer from the window) until the window
+    becomes valid, that is <code>left = left + 1</code>. During this process, we constantly record the longest valid
+    window seen so far.</p>
+<p>As shown in the following figure, we keep adjusting the size of the window and recording the maximum size of the
+    valid window.</p>
+<p><img src="3.png" alt="img"></p>
+<br>
+<h4 id="algorithm-1">Algorithm</h4>
+<ol>
+    <li>Use a hash map <code>count</code> to record the count of <code>T</code> and <code>F</code> in the current
+        window.
+    </li>
+    <li>Set <code>left = 0</code> and <code>max_size = 0</code>, iterate <code>right</code> from <code>0</code> to
+        <code>n - 1</code>, at each step <code>right</code>, increment <code>answerKey[right]</code> by 1:
+        <ul>
+            <li>
+                <p>Increment <code>count[answerKey[right]]</code> by 1.</p>
+            </li>
+            <li>
+                <p>While <code>min(count['T'], count['F']) &gt; k</code>, decrement <code>count[answerKey[left]]</code>
+                    by 1 and increment <code>left</code> by 1.</p>
+            </li>
+            <li>
+                <p>Now the window is valid, update the maximum size of valid window as <code>max_size = max(max_size,
+                    right - left + 1)</code>.</p>
+            </li>
+        </ul>
+    </li>
+    <li>Return <code>max_size</code> when the iteration ends.</li>
+</ol>
+<h4 id="implementation-1">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int maxConsecutiveAnswers(String answerKey, int k) {
+        int n = answerKey.length();
+        int left = k, right = n;
+
+        while (left < right) {
+            int mid = (left + right + 1) / 2;
+
+            if (isValid(answerKey, mid, k)) {
+                left = mid;
+            } else {
+                right = mid - 1;
+            }
+        }
+
+        return left;
+    }
+
+    private boolean isValid(String answerKey, int size, int k) {
+        int n = answerKey.length();
+        Map<Character, Integer> counter = new HashMap<>();
+
+        for (int i = 0; i < size; i++) {
+            char c = answerKey.charAt(i);
+            counter.put(c, counter.getOrDefault(c, 0) + 1);
+        }
+
+        if (Math.min(counter.getOrDefault('T', 0), counter.getOrDefault('F', 0)) <= k) {
+            return true;
+        }
+
+        for (int i = size; i < n; i++) {
+            char c1 = answerKey.charAt(i);
+            counter.put(c1, counter.getOrDefault(c1, 0) + 1);
+            char c2 = answerKey.charAt(i - size);
+            counter.put(c2, counter.getOrDefault(c2, 0) - 1);
+
+            if (Math.min(counter.getOrDefault('T', 0), counter.getOrDefault('F', 0)) <= k) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+}
+
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int maxConsecutiveAnswers(string answerKey, int k) {
+        int n = answerKey.length();
+        int left = k, right = n;
+
+        while (left < right) {
+            int mid = (left + right + 1) / 2;
+
+            if (isValid(answerKey, mid, k)) {
+                left = mid;
+            } else {
+                right = mid - 1;
+            }
+        }
+
+        return left;
+    }
+
+    bool isValid(string answerKey, int size, int k) {
+        int n = answerKey.length();
+        unordered_map<char, int> counter;
+
+        for (int i = 0; i < size; i++) {
+            char c = answerKey[i];
+            counter[c]++;
+        }
+
+        if (min(counter['T'], counter['F']) <= k) {
+            return true;
+        }
+
+        for (int i = size; i < n; i++) {
+            char c1 = answerKey[i];
+            counter[c1]++;
+            char c2 = answerKey[i - size];
+            counter[c2]--;
+
+            if (min(counter['T'], counter['F']) <= k) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def maxConsecutiveAnswers(self, answerKey: str, k: int) -> int:
+        n = len(answerKey)
+        left, right = k, n
+
+        def isValid(size):
+            counter = collections.Counter(answerKey[:size])
+            if min(counter['T'], counter['F']) <= k:
+                return True
+            for i in range(size, n):
+                counter[answerKey[i]] += 1
+                counter[answerKey[i - size]] -= 1
+                if min(counter['T'], counter['F']) <= k:
+                    return True
+            return False
+
+        while left < right:
+            mid = (left + right + 1) // 2
+
+            if isValid(mid):
+                left = mid
+            else:
+                right = mid - 1
+
+        return left
+    </code>
+</pre>
+<h4 id="complexity-analysis-1">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    be the length of the input string <code>answerKey</code>.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <ul>
+            <li>In the iteration of the right boundary <code>right</code>, we shift it from <code>0</code> to <code>n -
+                1</code>. Although we may move the left boundary <code>left</code> in each step, <code>left</code>
+                always stays to the left of <code>right</code>, which means <code>left</code> moves at most <code>n -
+                    1</code> times.
+            </li>
+            <li>At each step, we update the value of an element in the hash map <code>count</code>, which takes constant
+                time.
+            </li>
+            <li>To sum up, the overall time complexity is <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord">1</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>We only need to update two indices <code>left</code> and <code>right</code>. During the iteration, we
+                need to count the number of <code>T</code> and <code>F</code>, which also takes <span
+                        class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord">1</span><span
+                        class="mclose">)</span></span></span></span></span> space.
+            </li>
+        </ul>
+    </li>
+</ul>
+<br>
+<hr>
+<h3 id="approach-3-advanced-sliding-window">Approach 3: Advanced Sliding Window</h3>
+<h4 id="intuition-2">Intuition</h4>
+<p>In the previous solution, we need to ensure that the current window is always valid. If the window contains more than
+    <code>k</code> occurrences of <code>T</code> and <code>F</code>, we need to continuously remove the leftmost answer
+    in the window. During this process, the size of the window may decrease, even smaller than the previous valid
+    window. Taking the figure below as an example, the <code>window</code> on the left is valid, but the
+    <code>window'</code> on the right is not valid, and we need to remove the left two answers from it to make it valid.
+</p>
+<p><img src="4.png" alt="img"></p>
+<br>
+<p>However, we don't need to decrease the size of the window.</p>
+<p>If we have already found a window of length <code>max_size</code>, then what we need to do next is to search for a
+    larger valid window, for example, a window with length <code>max_size + 1</code>. Therefore, in the following
+    sliding window process, even if the current window with size <code>max_size</code> is not valid, there is no
+    problem, because we have already found a window of length <code>max_size</code> before, so we may as well continue
+    looking for a larger window.</p>
+<br>
+<p>Understanding this, we can simplify the solution in approach 2:</p>
+<p>Again, we use a counter <code>count</code> to keep track of the number of <code>T</code> and <code>F</code> in the
+    current window. When we increase the window length by 1, we need to increase count of the answer at the current
+    right boundary <code>count[answerKey[right]]</code> by 1.</p>
+<p><img src="s1.png" alt="img"></p>
+<p>If the expanded window is still valid, it means that we get a larger valid window with length <code>max_size +
+    1</code> (from <code>2</code> to <code>3</code>). We can continue to move the boundary <code>right</code>.</p>
+<p><img src="s2.png" alt="img"></p>
+<p>However, if the expanded window is invalid, we only need to remove the leftmost answer in the window to keep the
+    window length still at <code>max_size</code> (from <code>4</code> to <code>3</code>), that is, decrease <code>count[answerKey[right
+        - max_size]]</code> by 1.</p>
+<p><img src="s3.png" alt="img"></p>
+<p>Since the expanded window of length <code>4</code> was invalid, we removed an answer from the leftmost side of the
+    window to make its length <code>3</code> again. Although the current window is still invalid, we don't need to keep
+    shrinking it because we have previously found a valid window of length <code>3</code>. We can continue to shift the
+    boundary <code>right</code> to try the next window of size <code>4</code>.</p>
+<p><img src="s4.png" alt="img"></p>
+<p>Once this iteration is over, <code>max_size</code> represents the maximum size of the valid window.</p>
+<br>
+<h4 id="algorithm-2">Algorithm</h4>
+<ol>
+    <li>
+        <p>Use a hash map <code>count</code> to keep track of the number of <code>T</code> and <code>F</code> in the
+            current window.</p>
+    </li>
+    <li>
+        <p>Set <code>max_size = 0</code>, iterate <code>right</code> from <code>0</code> to <code>n - 1</code>, at each
+            step <code>right</code>, increment <code>answerKey[right]</code> by 1, and increment <code>count[answerKey[right]]</code>
+            by 1.</p>
+        <ul>
+            <li>If <code>min(count['T'], count['F']) &gt; k</code>, decrement <code>count[answerKey[right -
+                max_size]]</code> by 1.
+            </li>
+            <li>Otherwise, increment <code>max_size</code> by 1.</li>
+        </ul>
+    </li>
+    <li>
+        <p>Return <code>max_size</code> when the iteration ends.</p>
+    </li>
+</ol>
+<h4 id="implementation-2">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int maxConsecutiveAnswers(String answerKey, int k) {
+        int maxSize = k;
+        Map<Character, Integer> count = new HashMap<>();
+        for (int i = 0; i < k; i++) {
+            count.put(answerKey.charAt(i), count.getOrDefault(answerKey.charAt(i), 0) + 1);
+        }
+
+        int left = 0;
+        for (int right = k; right < answerKey.length(); right++) {
+            count.put(answerKey.charAt(right), count.getOrDefault(answerKey.charAt(right), 0) + 1);
+
+            while (Math.min(count.getOrDefault('T', 0), count.getOrDefault('F', 0)) > k) {
+                count.put(answerKey.charAt(left), count.get(answerKey.charAt(left)) - 1);
+                left++;
+            }
+
+            maxSize = Math.max(maxSize, right - left + 1);
+        }
+
+        return maxSize;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int maxConsecutiveAnswers(string answerKey, int k) {
+        int maxSize = k;
+        unordered_map<char, int> count;
+        for (int i = 0; i < k; i++) {
+            count[answerKey[i]]++;
+        }
+
+        int left = 0;
+        for (int right = k; right < answerKey.length(); right++) {
+            count[answerKey[right]]++;
+
+            while (min(count['T'], count['F']) > k) {
+                count[answerKey[left]]--;
+                left++;
+            }
+
+            maxSize = max(maxSize, right - left + 1);
+        }
+
+        return maxSize;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def maxConsecutiveAnswers(self, answerKey: str, k: int) -> int:
+        max_size = k
+        count = collections.Counter(answerKey[:k])
+
+        left = 0
+        for right in range(k, len(answerKey)):
+            count[answerKey[right]] += 1
+
+            while min(count['T'], count['F']) > k:
+                count[answerKey[left]] -= 1
+                left += 1
+
+            max_size = max(max_size, right - left + 1)
+
+        return max_size
+    </code>
+</pre>
+<h4 id="complexity-analysis-2">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    be the length of the input string <code>answerKey</code>.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <ul>
+            <li>In the iteration of the right boundary <code>right</code>, we shift it from <code>0</code> to <code>n -
+                1</code>.
+            </li>
+            <li>At each step, we update the number of <code>answerKey[right]</code> and/or the number of <code>answerKey[right
+                - max_size]</code> in the hash map <code>count</code>, which takes constant time.
+            </li>
+            <li>To sum up, the overall time complexity is <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord">1</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>We only need to update two parameters <code>max_size</code> and <code>right</code>. During the
+                iteration, we need to count the number of <code>T</code> and <code>F</code>, which also takes <span
+                        class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord">1</span><span
+                        class="mclose">)</span></span></span></span></span> space.
+            </li>
+        </ul>
+    </li>
+</ul>
+<br>
+</body>
+</html>
