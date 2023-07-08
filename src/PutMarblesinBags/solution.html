@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Put Marbles in Bags - Solution</title>
+</head>
+<body>
+<h2 id="solution">Put Marbles in Bags - Solution</h2>
+<hr>
+<h3 id="overview">Overview</h3>
+<p>As shown in the picture below, we put <code>4</code> marbles in <code>k = 2</code> bags.</p>
+<p><img src="1.png" alt="img"></p>
+<p>There are several ways to split marbles into two bags, we have shown two of them that bring the maximum cost
+    <code>10</code> and the minimum cost <code>6</code>. Therefore the difference between them is <code>10 - 6 =
+        4</code>.</p>
+<hr>
+<h3 id="approach-sorting">Approach: Sorting</h3>
+<h4 id="intuition">Intuition</h4>
+<p>Let's start with a brute-force approach. Since we are looking for the maximum score and the minimum score, we shall
+    try iterating over all possible splits. Splitting <code>n</code> marbles into <code>k</code> consecutive groups is a
+    typical sticks-and-stones problem that has as many as <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">(nk)=n!k!(n−k)!{n \choose k} ={{n!} \over {k!(n - k)!}}</span><span class="katex-html"
+                                                                                                     aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1.2em; vertical-align: -0.35em;"></span><span
+            class="mord"><span class="mord"><span class="mopen delimcenter" style="top: 0em;"><span
+            class="delimsizing size1">(</span></span><span class="mfrac"><span class="vlist-t vlist-t2"><span
+            class="vlist-r"><span class="vlist" style="height: 0.7454em;"><span style="top: -2.355em;"><span
+            class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span
+            class="mord mtight"><span class="mord mathnormal mtight"
+                                      style="margin-right: 0.03148em;">k</span></span></span></span><span
+            style="top: -3.144em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+            class="mord mathnormal mtight">n</span></span></span></span></span><span
+            class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                       style="height: 0.345em;"><span></span></span></span></span></span><span
+            class="mclose delimcenter" style="top: 0em;"><span
+            class="delimsizing size1">)</span></span></span></span><span class="mspace"
+                                                                         style="margin-right: 0.2778em;"></span><span
+            class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 1.4001em; vertical-align: -0.52em;"></span><span
+            class="mord"><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span
+            class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.8801em;"><span
+            style="top: -2.655em;"><span class="pstrut" style="height: 3em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight"
+                                                                                    style="margin-right: 0.03148em;">k</span><span
+            class="mclose mtight">!</span><span class="mopen mtight">(</span><span
+            class="mord mathnormal mtight">n</span><span class="mbin mtight">−</span><span
+            class="mord mathnormal mtight" style="margin-right: 0.03148em;">k</span><span
+            class="mclose mtight">)!</span></span></span></span><span style="top: -3.23em;"><span class="pstrut"
+                                                                                                  style="height: 3em;"></span><span
+            class="frac-line" style="border-bottom-width: 0.04em;"></span></span><span style="top: -3.394em;"><span
+            class="pstrut" style="height: 3em;"></span><span class="sizing reset-size6 size3 mtight"><span
+            class="mord mtight"><span class="mord mathnormal mtight">n</span><span class="mclose mtight">!</span></span></span></span></span><span
+            class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                       style="height: 0.52em;"><span></span></span></span></span></span><span
+            class="mclose nulldelimiter"></span></span></span></span></span></span></span> solutions, thus it is
+    impractical to iterate over all possibilities.</p>
+<p>We might also think of using dynamic programming to solve the subproblem <code>(x, y)</code>: splitting previous
+    <code>x</code> marbles into <code>y</code> bags, then moving on to the next larger subproblem <code>(x + 1,
+        y)</code> or <code>(x, y + 1)</code>, until we reach the best solution of the entire problem <code>(n, k)</code>.
+    However, given the size of the input array and the maximum value of <code>k</code>, dynamic programming brings at
+    most <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n2)O(n ^ 2)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+            class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span
+            class="mord mtight">2</span></span></span></span></span></span></span></span><span
+            class="mclose">)</span></span></span></span></span> time thus it won't pass the time limit.</p>
+<br>
+<p>Let's shift our thinking a bit. Instead of focusing on how to partition the array of marbles, let's now focus on the
+    <strong>boundary</strong> of each subarray, the <strong>splitting point</strong> and try to find the relation
+    between the score and these splitting points.</p>
+<p>In the picture below, we split the array into 4 subarrays (shown in different colors) and resulting in 3 splitting
+    points, each of which is made of 2 adjacent ends.</p>
+<p><strong>What is the score of this split?</strong></p>
+<p>Since the score of a subarray only matters with its two ends, we can tell that the total score equals the sum of the
+    first element, the last element, and the sum of every pair (two adjacent ends at each split).</p>
+<p><img src="2.png" alt="img"></p>
+<br>
+<p>In general, if we partition the array into <code>k</code> groups, we always make <code>k - 1</code> splitting points
+    regardless of how the array is partitioned.</p>
+<p><img src="3.png" alt="img"></p>
+<br>
+<p>Now we know how to find the maximum score, by finding the sum of the largest <code>k - 1</code> pairs. Similarly, we
+    can get the minimum score by finding the sum of the smallest <code>k - 1</code> pairs. This can be done by
+    collecting every pair sum in an array <code>pairWeights</code> and sorting them.</p>
+<p><img src="4.png" alt="img"></p>
+<p><span class="math math-inline"><span class="katex"><span class="katex-mathml">MaxScore=weights[0]+weights[n−1]+∑i=n−kn−1pairWeights[i]MaxScore = weights[0] + weights[n - 1] + \sum_{i = n - k}^{n - 1} {pairWeights[i]}</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.6833em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.10903em;">M</span><span class="mord mathnormal">a</span><span
+        class="mord mathnormal">x</span><span class="mord mathnormal" style="margin-right: 0.05764em;">S</span><span
+        class="mord mathnormal">core</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+        class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span
+        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                 style="margin-right: 0.02691em;">w</span><span
+        class="mord mathnormal">e</span><span class="mord mathnormal">i</span><span class="mord mathnormal"
+                                                                                    style="margin-right: 0.03588em;">g</span><span
+        class="mord mathnormal">h</span><span class="mord mathnormal">t</span><span
+        class="mord mathnormal">s</span><span class="mopen">[</span><span class="mord">0</span><span
+        class="mclose">]</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+        class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                 style="margin-right: 0.02691em;">w</span><span
+        class="mord mathnormal">e</span><span class="mord mathnormal">i</span><span class="mord mathnormal"
+                                                                                    style="margin-right: 0.03588em;">g</span><span
+        class="mord mathnormal">h</span><span class="mord mathnormal">t</span><span
+        class="mord mathnormal">s</span><span class="mopen">[</span><span class="mord mathnormal">n</span><span
+        class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">−</span><span class="mspace"
+                                                                                               style="margin-right: 0.2222em;"></span></span><span
+        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord">1</span><span class="mclose">]</span><span class="mspace"
+                                                                style="margin-right: 0.2222em;"></span><span
+        class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+        class="strut" style="height: 1.312em; vertical-align: -0.358em;"></span><span class="mop"><span
+        class="mop op-symbol small-op" style="position: relative; top: 0em;">∑</span><span class="msupsub"><span
+        class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.954em;"><span
+        style="top: -2.4003em; margin-left: 0em; margin-right: 0.05em;"><span class="pstrut"
+                                                                              style="height: 2.7em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+        class="mord mathnormal mtight">i</span><span class="mrel mtight">=</span><span
+        class="mord mathnormal mtight">n</span><span class="mbin mtight">−</span><span class="mord mathnormal mtight"
+                                                                                       style="margin-right: 0.03148em;">k</span></span></span></span><span
+        style="top: -3.2029em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+        class="mord mathnormal mtight">n</span><span class="mbin mtight">−</span><span
+        class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span
+        class="vlist-r"><span class="vlist"
+                              style="height: 0.358em;"><span></span></span></span></span></span></span><span
+        class="mspace" style="margin-right: 0.1667em;"></span><span class="mord"><span
+        class="mord mathnormal">p</span><span class="mord mathnormal">ai</span><span class="mord mathnormal"
+                                                                                     style="margin-right: 0.02778em;">r</span><span
+        class="mord mathnormal" style="margin-right: 0.13889em;">W</span><span class="mord mathnormal">e</span><span
+        class="mord mathnormal">i</span><span class="mord mathnormal" style="margin-right: 0.03588em;">g</span><span
+        class="mord mathnormal">h</span><span class="mord mathnormal">t</span><span
+        class="mord mathnormal">s</span><span class="mopen">[</span><span class="mord mathnormal">i</span><span
+        class="mclose">]</span></span></span></span></span></span> (if sorted the array <code>pairWeights</code> in
+    non-decreasing order)<br>
+    <span class="math math-inline"><span class="katex"><span class="katex-mathml">MaxScore=weights[0]+weights[n−1]+∑i=n−kn−1pairWeights[i]\text{MaxScore} = \text{weights}[0] + \text{weights}[n - 1] + \sum_{i = n - k}^{n - 1} {\text{pairWeights}[i]}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.6833em;"></span><span
+            class="mord text"><span class="mord">MaxScore</span></span><span class="mspace"
+                                                                             style="margin-right: 0.2778em;"></span><span
+            class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">weights</span></span><span class="mopen">[</span><span
+            class="mord">0</span><span class="mclose">]</span><span class="mspace"
+                                                                    style="margin-right: 0.2222em;"></span><span
+            class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">weights</span></span><span class="mopen">[</span><span
+            class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord">1</span><span class="mclose">]</span><span class="mspace"
+                                                                    style="margin-right: 0.2222em;"></span><span
+            class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1.312em; vertical-align: -0.358em;"></span><span
+            class="mop"><span class="mop op-symbol small-op" style="position: relative; top: 0em;">∑</span><span
+            class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist"
+                                                                                       style="height: 0.954em;"><span
+            style="top: -2.4003em; margin-left: 0em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                  style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+            class="mord mathnormal mtight">i</span><span class="mrel mtight">=</span><span
+            class="mord mathnormal mtight">n</span><span class="mbin mtight">−</span><span
+            class="mord mathnormal mtight" style="margin-right: 0.03148em;">k</span></span></span></span><span
+            style="top: -3.2029em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+            class="mord mathnormal mtight">n</span><span class="mbin mtight">−</span><span class="mord mtight">1</span></span></span></span></span><span
+            class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                       style="height: 0.358em;"><span></span></span></span></span></span></span><span
+            class="mspace" style="margin-right: 0.1667em;"></span><span class="mord"><span class="mord text"><span
+            class="mord">pairWeights</span></span><span class="mopen">[</span><span
+            class="mord mathnormal">i</span><span class="mclose">]</span></span></span></span></span></span> (if sorted
+    the array <code>pairWeights</code> in non-decreasing order)</p>
+<p><span class="math math-inline"><span class="katex"><span class="katex-mathml">MinScore=weights[0]+weights[n−1]+∑i=0k−2pairWeights[i]\text{MinScore} = \text{weights}[0] + \text{weights}[n - 1] + \sum_{i = 0}^{k-2} {\text{pairWeights[i]}}</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.6833em;"></span><span
+        class="mord text"><span class="mord">MinScore</span></span><span class="mspace"
+                                                                         style="margin-right: 0.2778em;"></span><span
+        class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span
+        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord text"><span class="mord">weights</span></span><span
+        class="mopen">[</span><span class="mord">0</span><span class="mclose">]</span><span class="mspace"
+                                                                                            style="margin-right: 0.2222em;"></span><span
+        class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord text"><span class="mord">weights</span></span><span
+        class="mopen">[</span><span class="mord mathnormal">n</span><span class="mspace"
+                                                                          style="margin-right: 0.2222em;"></span><span
+        class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord">1</span><span
+        class="mclose">]</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+        class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+        class="strut" style="height: 1.2887em; vertical-align: -0.2997em;"></span><span class="mop"><span
+        class="mop op-symbol small-op" style="position: relative; top: 0em;">∑</span><span class="msupsub"><span
+        class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.989em;"><span
+        style="top: -2.4003em; margin-left: 0em; margin-right: 0.05em;"><span class="pstrut"
+                                                                              style="height: 2.7em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+        class="mord mathnormal mtight">i</span><span class="mrel mtight">=</span><span
+        class="mord mtight">0</span></span></span></span><span style="top: -3.2029em; margin-right: 0.05em;"><span
+        class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span
+        class="mord mtight"><span class="mord mathnormal mtight" style="margin-right: 0.03148em;">k</span><span
+        class="mbin mtight">−</span><span class="mord mtight">2</span></span></span></span></span><span class="vlist-s">​</span></span><span
+        class="vlist-r"><span class="vlist"
+                              style="height: 0.2997em;"><span></span></span></span></span></span></span><span
+        class="mspace" style="margin-right: 0.1667em;"></span><span class="mord"><span class="mord text"><span
+        class="mord">pairWeights[i]</span></span></span></span></span></span></span></p>
+<p>Then we have the difference between them as <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">answer=MaxScore&nbsp;-&nbsp;MinScore=∑i=n−kn−1pairWeights[i]−∑i=0k−2pairWeights[i]\text{answer} = \text{MaxScore - MinScore} \\ = \sum_{i = n - k}^{n - 1} {\text{pairWeights[i]}} - \sum_{i = 0}^{k-2} {\text{pairWeights[i]}}</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.4306em;"></span><span
+        class="mord text"><span class="mord">answer</span></span><span class="mspace"
+                                                                       style="margin-right: 0.2778em;"></span><span
+        class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span
+        class="strut" style="height: 0.6833em;"></span><span class="mord text"><span class="mord">MaxScore&nbsp;-&nbsp;MinScore</span></span></span><span
+        class="mspace newline"></span><span class="base"><span class="strut" style="height: 0.3669em;"></span><span
+        class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span
+        class="strut" style="height: 1.312em; vertical-align: -0.358em;"></span><span class="mop"><span
+        class="mop op-symbol small-op" style="position: relative; top: 0em;">∑</span><span class="msupsub"><span
+        class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.954em;"><span
+        style="top: -2.4003em; margin-left: 0em; margin-right: 0.05em;"><span class="pstrut"
+                                                                              style="height: 2.7em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+        class="mord mathnormal mtight">i</span><span class="mrel mtight">=</span><span
+        class="mord mathnormal mtight">n</span><span class="mbin mtight">−</span><span class="mord mathnormal mtight"
+                                                                                       style="margin-right: 0.03148em;">k</span></span></span></span><span
+        style="top: -3.2029em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+        class="mord mathnormal mtight">n</span><span class="mbin mtight">−</span><span
+        class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span
+        class="vlist-r"><span class="vlist"
+                              style="height: 0.358em;"><span></span></span></span></span></span></span><span
+        class="mspace" style="margin-right: 0.1667em;"></span><span class="mord"><span class="mord text"><span
+        class="mord">pairWeights[i]</span></span></span><span class="mspace"
+                                                              style="margin-right: 0.2222em;"></span><span class="mbin">−</span><span
+        class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut"
+                                                                                              style="height: 1.2887em; vertical-align: -0.2997em;"></span><span
+        class="mop"><span class="mop op-symbol small-op" style="position: relative; top: 0em;">∑</span><span
+        class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist"
+                                                                                   style="height: 0.989em;"><span
+        style="top: -2.4003em; margin-left: 0em; margin-right: 0.05em;"><span class="pstrut"
+                                                                              style="height: 2.7em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+        class="mord mathnormal mtight">i</span><span class="mrel mtight">=</span><span
+        class="mord mtight">0</span></span></span></span><span style="top: -3.2029em; margin-right: 0.05em;"><span
+        class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span
+        class="mord mtight"><span class="mord mathnormal mtight" style="margin-right: 0.03148em;">k</span><span
+        class="mbin mtight">−</span><span class="mord mtight">2</span></span></span></span></span><span class="vlist-s">​</span></span><span
+        class="vlist-r"><span class="vlist"
+                              style="height: 0.2997em;"><span></span></span></span></span></span></span><span
+        class="mspace" style="margin-right: 0.1667em;"></span><span class="mord"><span class="mord text"><span
+        class="mord">pairWeights[i]</span></span></span></span></span></span></span></p>
+<br>
+<h4 id="algorithm">Algorithm</h4>
+<ol>
+    <li>
+        <p>Collect the value of every pair from <code>weights</code> in the array <code>pairWeights</code>.</p>
+    </li>
+    <li>
+        <p>Sort <code>pairWeights</code>.</p>
+    </li>
+    <li>
+        <p>Get the sum of the <code>k - 1</code> largest pairs, and the sum of the <code>k - 1</code> smallest pairs.
+        </p>
+    </li>
+    <li>
+        <p>Return answer as the difference of the two sums in step 3.</p>
+    </li>
+</ol>
+<h4 id="implementation">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public long putMarbles(int[] weights, int k) {
+        // We collect and sort the value of all n - 1 pairs.
+        int n = weights.length;
+        int[] pairWeights = new int[n - 1];
+        for (int i = 0; i < n - 1; ++i) {
+            pairWeights[i] = weights[i] + weights[i + 1];
+        }
+        // We will sort only the first (n - 1) elements of the array.
+        Arrays.sort(pairWeights, 0, n - 1);
+
+        // Get the difference between the largest k - 1 values and the
+        // smallest k - 1 values.
+        long answer = 0l;
+        for (int i = 0; i < k - 1; ++i) {
+            answer += pairWeights[n - 2 - i] - pairWeights[i];
+        }
+
+        return answer;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    long long putMarbles(vector<int>& weights, int k) {
+        // We collect and sort the value of all n - 1 pairs.
+        int n = weights.size();
+        vector<int> pairWeights(n - 1, 0);
+        for (int i = 0; i < n - 1; ++i) {
+            pairWeights[i] += weights[i] + weights[i + 1];
+        }
+
+        sort(pairWeights.begin(), pairWeights.end());
+
+        // Get the difference between the largest k - 1 values and the
+        // smallest k - 1 values.
+        long long answer = 0;
+        for (int i = 0; i < k - 1; ++i) {
+            answer += pairWeights[n - 2 - i] - pairWeights[i];
+        }
+
+        return answer;
+    }
+};
+    </code>
+    Python
+    <code>
+        class Solution:
+    def putMarbles(self, weights: List[int], k: int) -> int:
+        # We collect and sort the value of all n - 1 pairs.
+        n = len(weights)
+        pair_weights = [0] * (n - 1)
+        for i in range(n - 1):
+            pair_weights[i] = weights[i] + weights[i + 1]
+        pair_weights.sort()
+
+        # Get the difference between the largest k - 1 values and the
+        # smallest k - 1 values.
+        answer = 0
+        for i in range(k - 1):
+            answer += pair_weights[n - 2 - i] - pair_weights[i]
+
+        return answer
+    </code>
+</pre>
+<h4 id="complexity-analysis">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    be the number of elements in the input array <code>weights</code>.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅log⁡n)O(n \cdot \log n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                      style="margin-right: 0.1667em;"></span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>We need to sort the <code>pairWeights</code>, the array of every pair value having <code>n - 1</code>
+                elements, it takes <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅log⁡n)O(n \cdot \log n)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mspace"
+                                                                                          style="margin-right: 0.2222em;"></span><span
+                        class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                                  style="margin-right: 0.1667em;"></span><span
+                        class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> time.
+            </li>
+            <li>We then traverse the sorted <code>pairWeights</code> and calculate the cumulative sum of the <code>k -
+                1</code> largest elements and the sum of the <code>k - 1</code> smallest elements, this step takes <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(k)O(k)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                    class="mclose">)</span></span></span></span></span> time.
+            </li>
+            <li>To sum up, the overall time complexity is <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(n⋅log⁡n)O(n \cdot \log n)</span><span class="katex-html"
+                                                                                 aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                              style="margin-right: 0.1667em;"></span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <ul>
+            <li>We create an auxiliary array <code>pairWeights</code> of size <code>n - 1</code> to store the value of
+                all pairs.
+            </li>
+        </ul>
+    </li>
+</ul>
+<br>
+</body>
+</html>
