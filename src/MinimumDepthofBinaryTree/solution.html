@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Minimum Depth of Binary Tree</title>
+</head>
+<body>
+<h2 id="solution">Solution</h2>
+<h4 id="approach-1-depth-first-search-dfs">Approach 1: Depth-First Search (DFS)</h4>
+<p><strong>Intuition</strong></p>
+<blockquote>
+    <p>If you're not familiar with DFS, check out our <a
+            href="https://leetcode.com/explore/learn/card/graph/619/depth-first-search-in-graph/" target="_blank">Explore
+        Card</a>.</p>
+</blockquote>
+<p>We are given a binary tree; we must return the minimum number of nodes between the root and any leaf node, including
+    both. Let's try to break this problem into subproblems; we need to return the answer from the root of the current
+    tree; what if we know the answer considering the left and right child of the root node? If the minimum depth for the
+    root node's left child is <code>x</code> and the minimum depth for the root node's right child is <code>y</code>,
+    then the minimum depth for the whole tree with the root node will be <code>1 + min(x, y)</code>. The additional
+    <code>+1</code> is for the current root node.</p>
+<p>This way, we can divide the current problem into subproblems and then solve them using recursion. The base condition
+    of this recursion would be when the node is <code>NULL</code>, in which case we should return <code>0</code>. One
+    tricky thing that we need to consider is when one of the children is <code>NULL</code> and the other one isn't. We
+    shouldn't move forward with recursion on the <code>NULL</code> child; if we do, we would return <code>0</code> due
+    to the base condition and the count of nodes from the leaf node on the other side would be discarded as we are
+    taking the minimum of the two. In case both children are <code>NULL</code>, it's fine to go into recursion as both
+    would return <code>0</code>, and the minimum of the two won't cause an issue.</p>
+<p>If we observe closely, we are first traversing to the deepest node and then backtrack to the parent node to find the
+    minimum depth for it; hence, this process is actually Depth-First Search (DFS).</p>
+<p><img src="111A.png" alt="fig"></p>
+<p><strong>Algorithm</strong></p>
+<ol>
+    <li>We will use the <code>dfs</code> method with <code>root</code> as an argument.</li>
+    <li>The base condition of the recursion would be for the <code>NULL</code> node, in which case we should return
+        <code>0</code>.
+    </li>
+    <li>If the left child of <code>root</code> is <code>NULL</code>, then we should return <code>1</code> + minimum
+        depth for the right child of the root node, which is <code>1 + dfs(root.right)</code>.
+    </li>
+    <li>If the right child of <code>root</code> is <code>NULL</code>, then we should return <code>1</code> + minimum
+        depth for the left child of the root node, which is <code>1 + dfs(root.left)</code>.
+    </li>
+    <li>If both child are non-null, then return <code>1 + min(dfs(root.left), dfs(root.right))</code>.</li>
+</ol>
+<p><strong>Implementation</strong></p>
+<pre>
+  Java
+  <code>
+    class Solution {
+    private int dfs(TreeNode root) {
+        if (root == null) {
+            return 0;
+        }
+
+        // If only one of child is non-null, then go into that recursion.
+        if (root.left == null) {
+            return 1 + dfs(root.right);
+        } else if (root.right == null) {
+            return 1 + dfs(root.left);
+        }
+
+        // Both children are non-null, hence call for both childs.
+        return 1 + Math.min(dfs(root.left), dfs(root.right));
+    }
+
+    public int minDepth(TreeNode root) {
+        return dfs(root);
+    }
+}
+  </code>
+  C++
+  <code>
+    class Solution {
+public:
+    int dfs(TreeNode* root) {
+        if (root == NULL) {
+            return 0;
+        }
+
+        // If only one of child is non-null, then go into that recursion.
+        if (!root->left) {
+            return 1 + dfs(root->right);
+        } else if (!root->right) {
+            return 1 + dfs(root->left);
+        }
+
+        // Both children are non-null, hence call for both childs.
+        return 1 + min(dfs(root->left), dfs(root->right));
+    }
+
+    int minDepth(TreeNode* root) {
+        return dfs(root);
+    }
+};
+  </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<p>Here, <span class="math math-inline"><span class="katex"><span class="katex-mathml">NN</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                style="margin-right: 0.10903em;">N</span></span></span></span></span>
+    is the number of nodes in the binary tree.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(N)O(N)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <p>We will traverse each node in the tree only once; hence, the total time complexity would be <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">O(N)O(N)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(N)O(N)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <p>The only space required is the stack space; the maximum number of active stack calls would equal the maximum
+            depth of the tree, which could equal the total number of nodes in the tree. Hence, the space complexity
+            would equal <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(N)O(N)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                    class="mclose">)</span></span></span></span></span>.<br>
+            <br></p>
+    </li>
+</ul>
+<hr>
+<h4 id="approach-2-breadth-first-search-bfs">Approach 2: Breadth-First Search (BFS)</h4>
+<p><strong>Intuition</strong></p>
+<blockquote>
+    <p>If you're not familiar with BFS, check out our <a
+            href="https://leetcode.com/explore/learn/card/graph/620/breadth-first-search-in-graph/" target="_blank">Explore
+        Card</a>.</p>
+</blockquote>
+<p>We traversed the tree depth-wise in the previous approach; the other way to iterate it is in a breadth-wise manner
+    using BFS. BFS uses FIFO, i.e. first in, first out approach using a queue, and hence we are able to traverse all the
+    nodes at a level first before going further down.</p>
+<p>We will use a queue to store all the nodes that are there at the same level. Starting with the root node, we will
+    store the root node in the queue. Then we will iterate over all the current nodes in the queue and for each node we
+    will add its left and right child to the queue. The important point to note here is that since we are traversing
+    nodes level-wise, the first node which is a leaf, i.e. both left and right child are null; We will know that this is
+    the node with the minimum depth.</p>
+<p><strong>Algorithm</strong></p>
+<ol>
+    <li>
+        <p>Return <code>0</code> if the root is <code>NULL</code>.</p>
+    </li>
+    <li>
+        <p>Initialize the queue <code>q</code> with the root node and <code>depth</code> to <code>1</code>.</p>
+    </li>
+    <li>
+        <p>Do the following while the queue isn't empty:</p>
+        <p>i. Iterate over all the nodes that are currently in the queue.</p>
+        <p>ii. Skip the node if it's null; otherwise, if it's a leaf node, then return <code>depth</code>.</p>
+        <p>iii. For each node, add the left and right child to the queue.</p>
+        <p>iv. Increment the <code>depth</code> once the level is fully iterated.</p>
+    </li>
+    <li>
+        <p>Ideally, our code shouldn't reach here, so return any value once the queue is empty.</p>
+    </li>
+</ol>
+<p><strong>Implementation</strong></p>
+<pre>
+  Java
+  <code>
+    class Solution {
+    public int minDepth(TreeNode root) {
+        if (root == null) {
+            return 0;
+        }
+
+        Queue<TreeNode> q = new LinkedList<>();
+        q.add(root);
+        int depth = 1;
+
+        while (q.isEmpty() == false) {
+            int qSize = q.size();
+
+            while (qSize > 0) {
+                qSize--;
+
+                TreeNode node = q.remove();
+                // Since we added nodes without checking null, we need to skip them here.
+                if (node == null) {
+                    continue;
+                }
+
+                // The first leaf would be at minimum depth, hence return it.
+                if (node.left == null && node.right == null) {
+                    return depth;
+                }
+
+                q.add(node.left);
+                q.add(node.right);
+            }
+            depth++;
+        }
+        return -1;
+    }
+};
+  </code>
+  C++
+  <code>
+    class Solution {
+public:
+    int minDepth(TreeNode* root) {
+        if (!root) {
+            return 0;
+        }
+
+        queue<TreeNode*> q;
+        q.push(root);
+        int depth = 1;
+
+        while (!q.empty()) {
+            int qSize = q.size();
+
+            while (qSize--) {
+                TreeNode* node = q.front(); q.pop();
+                // Since we added nodes without checking null, we need to skip them here.
+                if (!node) {
+                    continue;
+                }
+
+                // The first leaf would be at minimum depth, hence return it.
+                if (!node->left && !node->right) {
+                    return depth;
+                }
+
+                q.push({node->left});
+                q.push({node->right});
+            }
+
+            depth++;
+        }
+        return -1;
+    }
+};
+  </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<p>Here, <span class="math math-inline"><span class="katex"><span class="katex-mathml">NN</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                style="margin-right: 0.10903em;">N</span></span></span></span></span>
+    is the number of nodes in the binary tree.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(N)O(N)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <p>We will be iterating over each node in the tree only once; therefore, the total time complexity would be
+            <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(N)O(N)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                    class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(N)O(N)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <p>The only space required is the queue; the maximum number of nodes in the queue would be <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">NN</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.6833em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.10903em;">N</span></span></span></span></span>. Hence,
+            the space complexity would equal <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(N)O(N)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                    class="mclose">)</span></span></span></span></span>.<br>
+            <br></p>
+    </li>
+</ul>
+<hr>
+</body>
+</html>
