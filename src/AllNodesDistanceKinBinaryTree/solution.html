@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>All Nodes Distance K in Binary Tree - Solution</title>
+</head>
+<body>
+<h2 id="solution">All Nodes Distance K in Binary Tree - Solution</h2>
+<hr>
+<h3 id="overview">Overview</h3>
+<p>In the given tree, each node only has pointers to its left and right child nodes, making the typical tree traversal
+    approach only applicable to the subtree rooted at the target node. We cannot access other parts of the tree beyond
+    the subtree as we can't access the parent, which implies the need to establish additional connections beyond the
+    child node pointers.</p>
+<p><img src="1.png" alt="img"></p>
+<hr>
+<h3 id="approach-1-implementing-parent-pointers">Approach 1: Implementing Parent Pointers</h3>
+<h4 id="intuition">Intuition</h4>
+<blockquote>
+    <p>If you are not familiar with depth-first (DFS) search, please refer to our explore cards <a
+            href="https://leetcode.com/explore/learn/card/graph/619/depth-first-search-in-graph/" target="_blank">Depth-First
+        Search Explore Card</a>. We will focus on the usage in this article and not the implementation details.</p>
+</blockquote>
+<p>In this problem, nodes in the given binary tree only have pointers to the left and right children and we can't search
+    in the ancestor nodes of <code>target</code>. We will implement a parent pointer to each node (apart from the root
+    node) recursively.</p>
+<p><img src="2.png" alt="img"></p>
+<blockquote>
+    <p>In Python, we can add attributes (in our case a parent pointer) to an instance of a class at any time, even if
+        the attribute is not defined in the class. However, this can also lead to mistakes and hard-to-debug errors.
+        Consequently, <strong>this approach does not reflect good coding practices</strong>, but we have included it for
+        completeness.</p>
+</blockquote>
+<p>Now, we have created an undirected graph. We define a recursive function to explore nodes as far as possible along
+    each branch. Upon reaching the end of the current branch, we backtrack to the next possible branch and continue
+    exploring. Once we encounter an unvisited node, we take one of its neighbor nodes (left child, right child, or
+    parent) as the next node on this branch. Recursively call the function to the next node and solve the subproblem. If
+    we reach the end of this branch, we backtrack to the previous node and visit the next neighbor node, and repeat the
+    process. If we reach a node with a distance of <code>k</code> to <code>target</code>, it denotes that this node is
+    one of the destination nodes. Since continuing on with this branch leads to nodes with a distance larger than <code>k</code>,
+    we will also backtrack to the previous node and try visiting the next neighbor node.</p>
+<p><img src="3.png" alt="img"></p>
+<p>We can use a hash set to keep track of all the visited nodes. Whenever we find an unvisited neighbor node, we add it
+    to the hash set so it won't be visited anymore.</p>
+<br>
+<h4 id="algorithm">Algorithm</h4>
+<ol>
+    <li>
+        <p>Define a recursive function <code>add_parent(cur, parent)</code> to recursively add a parent pointer to node
+            <code>cur</code>: If <code>cur</code> is not empty, add a pointer from <code>cur</code> to
+            <code>parent</code>: <code>cur.parent = parent</code>. Then recursively call <code>add_parent</code> on the
+            left and right children of <code>cur</code>:</p>
+        <ul>
+            <li><code>add_parent(cur.left, cur)</code></li>
+            <li><code>add_parent(cur.right, cur)</code></li>
+        </ul>
+    </li>
+    <li>
+        <p>Call <code>add_parent(root, None)</code> to add all parent pointers, note that the root node does not have a
+            parent node.</p>
+    </li>
+    <li>
+        <p>Initialize an empty array <code>answer</code> and an empty hash set <code>visited</code>.</p>
+    </li>
+    <li>
+        <p>Define another recursive function <code>dfs(cur, distance)</code> to recursively find all nodes with a
+            distance of <code>k</code> to node <code>target</code>:</p>
+        <ul>
+            <li>If <code>root</code> is empty or has been visited before, return.</li>
+            <li>Add <code>cur</code> to <code>visited</code> so it won't be revisited later.</li>
+            <li>If <code>distance = k</code>, it means <code>cur</code> is one of the destination nodes, add it to
+                <code>answer</code>, and return.
+            </li>
+            <li>Recursively call <code>dfs</code> on the children and parent of <code>cur</code>.</li>
+        </ul>
+    </li>
+    <li>
+        <p>Call <code>dfs(target, 0)</code> to find all destination nodes with a distance of <code>k</code>.</p>
+    </li>
+    <li>
+        <p>Return <code>answer</code> when the DFS is complete.</p>
+    </li>
+</ol>
+<h4 id="implementation">Implementation</h4>
+<pre>
+    Python3
+    <code>
+        class Solution:
+    def distanceK(self, root: TreeNode, target: TreeNode, k: int) -> List[int]:
+        # Recursively add a parent pointer to each node.
+        def add_parent(cur, parent):
+            if cur:
+                cur.parent = parent
+                add_parent(cur.left, cur)
+                add_parent(cur.right, cur)
+        add_parent(root, None)
+
+        answer = []
+        visited = set()
+        def dfs(cur, distance):
+            if not cur or cur in visited:
+                return
+            visited.add(cur)
+            if distance == 0:
+                answer.append(cur.val)
+                return
+            dfs(cur.parent, distance - 1)
+            dfs(cur.left, distance - 1)
+            dfs(cur.right, distance - 1)
+
+        dfs(target, k)
+
+        return answer
+    </code>
+</pre>
+<h4 id="complexity-analysis">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    be the number of nodes in the binary tree.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <ul>
+            <li>Both <code>add_parent</code> and <code>dfs</code> recursively call themselves to process the left and
+                right subtrees of the current node <code>cur</code>. Each node is visited once by each function.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <ul>
+            <li><code>visited</code> stores a maximum of <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> visited
+                nodes.
+            </li>
+            <li>The recursive solution uses the call stack to keep track of the current subtree being processed. The
+                maximum depth of the call stack is equal to the height of the given tree. In the worst-case scenario,
+                the given binary tree may be a degenerate binary tree and the stack can hold up to <span
+                        class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 0.4306em;"></span><span
+                        class="mord mathnormal">n</span></span></span></span></span> calls, resulting in a space
+                complexity of <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.
+            </li>
+        </ul>
+    </li>
+</ul>
+<br>
+<hr>
+<h3 id="approach-2-depth-first-search-on-equivalent-graph">Approach 2: Depth-First Search on Equivalent Graph</h3>
+<h4 id="intuition-1">Intuition</h4>
+<p>The previous approach of dynamically adding attributes is not a recommended practice. A safer method is to transform
+    the given binary tree into an equivalent graph, where each pointer is treated as an undirected edge. Hence, the
+    graph retains all the connected nodes from the original binary tree, including the pointers from children to
+    parents. Consequently, we can perform a regular search in this graph, starting with depth-first search algorithm as
+    an example.</p>
+<p><img src="5.png" alt="img"></p>
+<p>In the equivalent graph, we only need to recursively visit all unvisited neighboring nodes of the current node, which
+    include nodes that are equivalent to the left and right children and the parent in the original tree.</p>
+<p>Similarly, we can use a hash set to keep track of all the visited nodes. Whenever we find an unvisited neighbor node,
+    we add it to the hash set so it won't be visited anymore.</p>
+<br>
+<h4 id="algorithm-1">Algorithm</h4>
+<ol>
+    <li>
+        <p>We will build a hash map <code>graph</code>. Define a recursive function <code>build_graph(cur,
+            parent)</code> to recursively build the equivalent graph: If both <code>cur</code> and <code>parent</code>
+            are not empty, add an edge that connects <code>cur</code> and <code>parent</code> in the hash map <code>graph</code>.
+            Then recursively call <code>add_parent</code> on the left and right children of <code>cur</code>:</p>
+        <ul>
+            <li>If <code>cur.left</code> is not empty, call <code>add_parent(cur.left, cur)</code></li>
+            <li>If <code>cur.right</code> is not empty, call <code>add_parent(cur.right, cur)</code></li>
+        </ul>
+    </li>
+    <li>
+        <p>Call <code>add_parent(root, None)</code> to build the equivalent graph, note that the root node does not have
+            a parent node.</p>
+    </li>
+    <li>
+        <p>Initialize an empty array <code>answer</code> and an empty hash set <code>visited</code>.</p>
+    </li>
+    <li>
+        <p>Define another recursive function <code>dfs(cur, distance)</code> to recursively find all nodes with a
+            distance of <code>k</code> to node <code>target</code>:</p>
+        <ul>
+            <li>Add <code>cur</code> to <code>visited</code> so it won't be revisited later.</li>
+            <li>If <code>distance = k</code>, it means <code>cur</code> is one of the destination nodes, add it to
+                <code>answer</code>, and return.
+            </li>
+            <li>Recursively call <code>dfs</code> on the unvisited neighbors of <code>cur</code>.</li>
+        </ul>
+    </li>
+    <li>
+        <p>Add <code>target.val</code> to <code>visited</code>. Call <code>dfs(target.val, 0)</code> to find all
+            destination nodes with a distance of <code>k</code> to the target node.</p>
+    </li>
+    <li>
+        <p>Return <code>answer</code> when the DFS is complete.</p>
+    </li>
+</ol>
+<h4 id="implementation-1">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    Map<Integer, List<Integer>> graph;
+    List<Integer> answer;
+    Set<Integer> visited;
+
+    public List<Integer> distanceK(TreeNode root, TreeNode target, int k) {
+        graph = new HashMap<>();
+        buildGraph(root, null);
+
+        answer = new ArrayList<>();
+        visited = new HashSet<>();
+        visited.add(target.val);
+
+        dfs(target.val, 0, k);
+
+        return answer;
+    }
+
+    // Recursively build the undirected graph from the given binary tree.
+    private void buildGraph(TreeNode cur, TreeNode parent) {
+        if (cur != null && parent != null) {
+            graph.computeIfAbsent(cur.val, k -> new ArrayList<>()).add(parent.val);
+            graph.computeIfAbsent(parent.val, k -> new ArrayList<>()).add(cur.val);
+        }
+        if (cur.left != null) {
+            buildGraph(cur.left, cur);
+        }
+        if (cur.right != null) {
+            buildGraph(cur.right, cur);
+        }
+    }
+
+    private void dfs(int cur, int distance, int k) {
+        if (distance == k) {
+            answer.add(cur);
+            return;
+        }
+        for (int neighbor : graph.getOrDefault(cur, new ArrayList<>())) {
+            if (!visited.contains(neighbor)) {
+                visited.add(neighbor);
+                dfs(neighbor, distance + 1, k);
+            }
+        }
+    }
+}
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def distanceK(self, root: TreeNode, target: TreeNode, k: int) -> List[int]:
+        graph = collections.defaultdict(list)
+
+        # Recursively build the undirected graph from the given binary tree.
+        def build_graph(cur, parent):
+            if cur and parent:
+                graph[cur.val].append(parent.val)
+                graph[parent.val].append(cur.val)
+            if cur.left:
+                build_graph(cur.left, cur)
+            if cur.right:
+                build_graph(cur.right, cur)
+        build_graph(root, None)
+
+
+        answer = []
+        visited = set([target.val])
+
+        def dfs(cur, distance):
+            if distance == k:
+                answer.append(cur)
+                return
+            for neighbor in graph[cur]:
+                if neighbor not in visited:
+                    visited.add(neighbor)
+                    dfs(neighbor, distance + 1)
+        dfs(target.val, 0)
+
+        return answer
+    </code>
+</pre>
+<h4 id="complexity-analysis-1">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    be the number of nodes in the binary tree.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <ul>
+            <li><code>build_graph</code> recursively calls itself to process the left and right subtrees of the current
+                node <code>cur</code>. Each node is visited once.
+            </li>
+            <li><code>dfs</code> recursively calls itself to process the unvisited neighbors of the current node <code>cur</code>.
+                Each node is visited once.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <ul>
+            <li>We use a hash map <code>graph</code> to store all edges, which requires <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> space for
+                <span class="math math-inline"><span class="katex"><span class="katex-mathml">n−1n - 1</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+                        class="mord mathnormal">n</span><span class="mspace"
+                                                              style="margin-right: 0.2222em;"></span><span class="mbin">−</span><span
+                        class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+                        class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span>
+                edges.
+            </li>
+            <li>We use a hash set <code>visited</code> to record the visited nodes, which takes <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> space.
+            </li>
+            <li>The recursive solution uses the call stack to keep track of the current subtree being processed. The
+                maximum depth of the call stack is equal to the height of the given tree. In the worst-case scenario, it
+                may be a degenerate binary tree and the stack can hold up to <span class="math math-inline"><span
+                        class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+                calls, resulting in a space complexity of <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.
+            </li>
+        </ul>
+    </li>
+</ul>
+<br>
+<hr>
+<h3 id="approach-3-breadth-first-search-on-equivalent-graph">Approach 3: Breadth-First Search on Equivalent Graph</h3>
+<h4 id="intuition-2">Intuition</h4>
+<blockquote>
+    <p>If you are not familiar with breadth-first search, please refer to our explore cards <a
+            href="https://leetcode.com/explore/learn/card/graph/620/breadth-first-search-in-graph/" target="_blank">Breadth-First
+        Search Explore Card</a>. We will focus on the usage in this article and not the implementation details.</p>
+</blockquote>
+<p>Back to this problem, we start with the node <code>target</code> with <code>distance = 0</code>, then we mark all its
+    unvisited neighbor nodes with <code>distance = 1</code> to be visited soon, once we visit a node with <code>distance
+        = 1</code>, we mark all its unvisited neighbor nodes with <code>distance = 2</code> as well.</p>
+<p>We can use a queue <code>queue</code> as a container to store all nodes to be visited without mixing the order. Since
+    the operation on the queue is done in First In, First Out (FIFO) order, it allows us to explore all nodes with the
+    current distance to the target node, before moving on to the nodes with larger distances.</p>
+<p><img src="6.png" alt="img"></p>
+<p>Similarly, we use a hash set to keep track of all the visited nodes. Whenever we find an unvisited neighbor node, we
+    add it to the hash set so it won't be visited anymore.</p>
+<br>
+<h4 id="algorithm-2">Algorithm</h4>
+<ol>
+    <li>
+        <p>Define a recursive function <code>build_graph(cur, parent)</code> to recursively build the equivalent graph:
+            If both <code>cur</code> and <code>parent</code> are not empty, add an edge that connects <code>cur</code>
+            and <code>parent</code> in the hash map <code>graph</code>. Then recursively call <code>add_parent</code> on
+            the left and right children of <code>cur</code>:</p>
+        <ul>
+            <li>If <code>cur.left</code> is not empty, call <code>add_parent(cur.left, cur)</code></li>
+            <li>If <code>cur.right</code> is not empty, call <code>add_parent(cur.right, cur)</code></li>
+        </ul>
+    </li>
+    <li>
+        <p>Call <code>add_parent(root, None)</code> to build the equivalent graph, note that the root node does not have
+            a parent node.</p>
+    </li>
+    <li>
+        <p>Initialize an empty array <code>answer</code> and an empty hash set <code>visited</code>.</p>
+    </li>
+    <li>
+        <p>Initialize an empty queue <code>queue</code> to store the nodes to be visited. Enqueue the target node, in
+            the format of <code>(target.value, distance = 0)</code></p>
+    </li>
+    <li>
+        <p>If <code>queue</code> has nodes, dequeue the first node <code>(cur, distance)</code>. If
+            <code>distance</code> is equal to k, add it to <code>answer</code>. Otherwise, enqueue all
+            <strong>unvisited</strong> neighbor nodes of <code>cur</code> to <code>queue</code> in the format of <code>(neighbor,
+                distance + 1)</code>, and mark them as <strong>visited</strong>, then repeat step 5.</p>
+    </li>
+    <li>
+        <p>Return <code>answer</code> when the BFS is complete.</p>
+    </li>
+</ol>
+<h4 id="implementation-2">Implementation</h4>
+<iframe src="https://leetcode.com/playground/UsFFyYz8/shared" name="user-content-UsFFyYz8" allowfullscreen=""
+        translate="no" width="100%" height="500"></iframe>
+<h4 id="complexity-analysis-2">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    be the number of nodes.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <ul>
+            <li><code>build_graph</code> recursively calls itself to process the left and right subtrees of the current
+                node <code>cur</code>. Each node is visited once.
+            </li>
+            <li>In a typical BFS search, the time complexity is <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(V+E)O(V + E)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.22222em;">V</span><span class="mspace"
+                                                                                           style="margin-right: 0.2222em;"></span><span
+                    class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.05764em;">E</span><span
+                    class="mclose">)</span></span></span></span></span> where <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">VV</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                            style="margin-right: 0.22222em;">V</span></span></span></span></span>
+                is the number of vertices and <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">EE</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                                style="margin-right: 0.05764em;">E</span></span></span></span></span>
+                is the number of edges. There are <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+                nodes and <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">n−1n - 1</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut"
+                                           style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+                        class="mord mathnormal">n</span><span class="mspace"
+                                                              style="margin-right: 0.2222em;"></span><span class="mbin">−</span><span
+                        class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+                        class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span>
+                edges in this problem. Each node is added to the queue and popped from the queue once, it takes <span
+                        class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+                to handle all nodes.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <ul>
+            <li>We use a hash map <code>graph</code> to store all edges, which requires <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> space for
+                <span class="math math-inline"><span class="katex"><span class="katex-mathml">n−1n - 1</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+                        class="mord mathnormal">n</span><span class="mspace"
+                                                              style="margin-right: 0.2222em;"></span><span class="mbin">−</span><span
+                        class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+                        class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span>
+                edges.
+            </li>
+            <li>We use a hash set <code>visited</code> to record the visited nodes, which takes <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> space.
+            </li>
+            <li>There may be up to <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                    class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+                nodes stored in <code>queue</code> and <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+                space is required.
+            </li>
+            <li>Therefore, the space complexity is <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.
+            </li>
+        </ul>
+    </li>
+</ul>
+<br>
+</body>
+</html>
