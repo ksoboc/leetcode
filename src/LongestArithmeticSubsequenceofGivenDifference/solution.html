@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Longest Arithmetic Subsequence of Given Difference - Solution</title>
+</head>
+<body>
+<h2 id="solution">Longest Arithmetic Subsequence of Given Difference - Solution</h2>
+<hr>
+<h3 id="overview">Overview</h3>
+<p>As shown in the picture below, we have found some arithmetic subsequences with a common difference of <code>-2</code>.
+    The task is to find the length of the longest arithmetic subsequence.</p>
+<p><img src="intro.png" alt="img"></p>
+<hr>
+<h3 id="approach-dynamic-programming">Approach: Dynamic Programming</h3>
+<h4 id="intuition">Intuition</h4>
+<p>One possible approach to solving this problem is to iterate through each element <code>arr[i]</code>, and for each
+    such <code>arr[i]</code>, we look for the longest arithmetic subsequence that starts with <code>arr[i]</code>. We
+    can simply iterate through the rest of the array starting from <code>arr[i+1]</code>, and for each such element
+    <code>arr[j]</code>, check if <code>arr[j] - arr[i] = difference</code>. If it is, we have found the next element
+    <code>arr[i] + difference</code> of the arithmetic subsequence and we can continue to look for the next element
+    <code>arr[i] + difference * 2</code> in the same way.</p>
+<p>We keep track of the length of the arithmetic subsequence that we find and update the maximum length found so
+    far.</p>
+<p><img src="1.png" alt="img"></p>
+<p>However, this brute force approach takes <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">O(n2)O(n^2)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+        class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                      style="margin-right: 0.02778em;">O</span><span
+        class="mopen">(</span><span class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span
+        class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+        style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span
+        class="mord mtight">2</span></span></span></span></span></span></span></span><span
+        class="mclose">)</span></span></span></span></span> time, which is likely to exceed the time limit, as we need
+    to iterate through the rest of the array for each element <code>arr[i]</code>.</p>
+<br>
+<p>To improve the time complexity of our solution, we can use dynamic programming (DP). DP is a technique where we solve
+    subproblems and use their solutions to solve larger problems. In this case, we can use DP to avoid iterating through
+    the array for each <code>arr[i]</code>.</p>
+<blockquote>
+    <p>If you are not familiar with dynamic programming, you can refer to our <a
+            href="https://leetcode.com/explore/featured/card/dynamic-programming/" target="_blank">Dynamic Programming
+        Explore Card</a> on LeetCode.</p>
+</blockquote>
+<p>The key idea of the DP approach is to use a hash map <code>dp</code> to store the maximum length of an arithmetic
+    subsequence that ends with each element in <code>arr</code>. We initialize <code>dp</code> as empty. Then, for each
+    element <code>arr[i]</code>, we check if <code>arr[i] - difference</code> is already present in <code>dp</code>.</p>
+<ul>
+    <li>
+        <p>If it is, let's say <code>dp[arr[i] - difference] = before_a</code>. It means there exists an arithmetic
+            subsequence of length <code>before_a</code> that ends with <code>arr[i] - difference</code>. Since we can
+            append <code>arr[i]</code> to this sequence, we update <code>dp[arr[i]]</code> to be <code>dp[arr[i] -
+                difference] + 1</code>.</p>
+    </li>
+    <li>
+        <p>Otherwise, we simply set <code>dp[arr[i]] = 1</code>, as an element on its own is technically an arithmetic
+            subsequence.</p>
+    </li>
+</ul>
+<br>
+<p>As shown in the picture below, during the iteration, if we want the longest arithmetic subsequence ending with <code>3</code>,
+    we need to find the longest arithmetic subsequence ending with <code>5</code> previously. If we have saved the
+    maximum length of a subsequence that ends with each previous element in <code>dp</code>, we can easily look into
+    <code>dp</code> and find if a subsequence that ends with <code>5</code> exists.</p>
+<p><img src="2.png" alt="img"></p>
+<br>
+<p>Please refer to the slides below as a detailed example:</p>
+<p>
+<div class="relative mx-auto mb-6 flex flex-col overflow-hidden rounded-lg border-[1px] border-label-1"
+     style="max-width: 601px;">
+    <div class="rounded-lg" style="max-height: 301px;"><img alt="Current"
+                                                            class="object-fit-contain !mb-0 max-h-full max-w-full"
+                                                            src="blob:https://leetcode.com/9332f441-de30-4da5-9438-d96129eb5963">
+    </div>
+    <div class="absolute top-[50%] left-[50%] flex h-12 w-12 translate-x-[-50%] translate-y-[-50%] items-center justify-center rounded-full bg-black/30">
+        <div class="flex h-4 w-4 cursor-pointer items-center justify-center text-[35px]">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="h-full w-full text-white">
+                <path fill-rule="evenodd"
+                      d="M18.97 12.871l-12.96 7.29a1 1 0 01-1.49-.87V4.71a1 1 0 011.49-.872l12.96 7.29a1 1 0 010 1.743z"
+                      clip-rule="evenodd"></path>
+            </svg>
+        </div>
+    </div>
+    <div class="relative flex h-8 select-none items-center justify-around bg-black">
+        <div class="flex items-center space-x-7">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M16.091 4.929l-7.057 7.078 7.057 7.064a1 1 0 01-1.414 1.414l-7.764-7.77a1 1 0 010-1.415l7.764-7.785a1 1 0 111.415 1.414z"
+                      clip-rule="evenodd"></path>
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M18.97 12.871l-12.96 7.29a1 1 0 01-1.49-.87V4.71a1 1 0 011.49-.872l12.96 7.29a1 1 0 010 1.743z"
+                      clip-rule="evenodd"></path>
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M7.913 19.071l7.057-7.078-7.057-7.064a1 1 0 011.414-1.414l7.764 7.77a1 1 0 010 1.415l-7.764 7.785a1 1 0 01-1.414-1.414z"
+                      clip-rule="evenodd"></path>
+            </svg>
+        </div>
+        <div class="absolute right-0 mr-5 text-xs font-medium text-white">1 / 11</div>
+    </div>
+</div>
+</p>
+<p>After iterating through the entire array, we can find the maximum value in <code>dp</code>, which is the length of
+    the longest arithmetic subsequence in <code>arr</code>, or alternatively we can keep track of the maximum <code>dp[arr[i]]</code>
+    during the iteration by <code>answer = max(answer, dp[arr[i]])</code></p>
+<br>
+<h4 id="algorithm">Algorithm</h4>
+<ol>
+    <li>
+        <p>Initialize an empty hash map <code>dp</code>, set <code>answer = 1</code>.</p>
+    </li>
+    <li>
+        <p>Iterate over <code>arr</code>, for each index <code>i</code>.</p>
+    </li>
+    <li>
+        <p>Get <code>before_a</code>, the maximum length of an arithmetic subsequence that ends with <code>arr[i] -
+            difference</code>:</p>
+        <ul>
+            <li>
+                <p>If <code>arr[i] - difference</code> is in <code>dp</code>, <code>before_a = dp[arr[i] -
+                    difference]</code>.</p>
+            </li>
+            <li>
+                <p>Otherwise, <code>before_a = 0</code>.</p>
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Set <code>dp[arr[i]] = before_a + 1</code>, update <code>answer</code> as <code>answer = max(answer,
+            dp[arr[i]])</code>.</p>
+    </li>
+    <li>
+        <p>Return <code>answer</code> when the iteration ends.</p>
+    </li>
+</ol>
+<h4 id="implementation">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int longestSubsequence(int[] arr, int difference) {
+        Map<Integer, Integer> dp = new HashMap<>();
+        int answer = 1;
+
+        for (int a : arr) {
+            int beforeA = dp.getOrDefault(a - difference, 0);
+            dp.put(a, beforeA + 1);
+            answer = Math.max(answer, dp.get(a));
+        }
+
+        return answer;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int longestSubsequence(vector<int>& arr, int difference) {
+        unordered_map<int, int> dp;
+        int answer = 1;
+
+        for (int a : arr) {
+            int beforeA = dp.count(a - difference) ? dp[a - difference] : 0;
+            dp[a] = beforeA + 1;
+            answer = max(answer, dp[a]);
+        }
+
+        return answer;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def longestSubsequence(self, arr: List[int], difference: int) -> int:
+        dp = {}
+        answer = 1
+        for a in arr:
+            before_a = dp.get(a - difference, 0)
+            dp[a] = before_a + 1
+            answer = max(answer, dp[a])
+
+        return answer
+    </code>
+</pre>
+<h4 id="complexity-analysis">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    be the length of the input array <code>arr</code>.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <ul>
+            <li>We need to iterate through <code>arr</code> once, and each hash map lookup and update takes constant
+                time on average.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <ul>
+            <li>We need to store the maximum length of an arithmetic subsequence that ends with each element <code>arr[i]</code>
+                in the array, with at most <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+                possible different <code>arr[i]</code> values.
+            </li>
+        </ul>
+    </li>
+</ul>
+<br>
+</body>
+</html>
