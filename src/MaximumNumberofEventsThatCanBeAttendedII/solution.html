@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Maximum Number of Events That Can Be Attended II - Solution</title>
+</head>
+<body>
+<h2 id="solution">Maximum Number of Events That Can Be Attended II - Solution</h2>
+<hr>
+<h3 id="overview">Overview</h3>
+<p>We can only attend an event if the start day of it is greater than the end day of the previously attended event. This
+    implies that we should sort events by their start time. As shown in the following figure, we sort <code>events =
+        [[1,2,4],[3,4,3],[2,3,1],[4,6,5],[2,4,8]]</code> according to the start time of each event.</p>
+<p><img src="b1.png" alt="img"></p>
+<p>All subsequent solutions are based on the sorted <code>events</code>.</p>
+<hr>
+<h3 id="approach-1-top-down-dynamic-programming--binary-search">Approach 1: Top-down Dynamic Programming + Binary
+    Search</h3>
+<h4 id="intuition">Intuition</h4>
+<blockquote>
+    <p>If you are not familiar with dynamic programming, please refer to our explore cards <a
+            href="https://leetcode.com/explore/featured/card/dynamic-programming/" target="_blank">Dynamic Programming
+        Explore Card</a>. We will focus on the usage in this article and not the underlying principles or implementation
+        details.</p>
+</blockquote>
+<p>Let <code>dfs(cur_index)</code> represent the maximum value obtained by attending events optimally in the range
+    <code>events[cur_index ~ n - 1]</code></p>
+<p>For event <code>cur_index</code>, we have two options:</p>
+<ul>
+    <li>
+        <p>attend the current event and gain a value of <code>events[cur_index][2]</code>. Then we need to find the
+            nearest event that we can attend after event <code>cur_index</code>. Recall that we have sorted
+            <code>events</code> by start time. We can apply binary search to find the index where we should insert the
+            end time of the current event <code>cur_index</code> in the sorted list of start times. Let's say the
+            nearest one is event <code>next_index</code>. Thus <code>dfs(cur_index)</code> is the larger value between
+            the two options:</p>
+    </li>
+    <li>
+        <p>attend the current event and obtain a value of <code>events[cur_index][2] + dfs(next_index)</code>.</p>
+    </li>
+    <li>
+        <p>skip the current event, move on to the next event, and gain a value of <code>dfs(cur_index + 1)</code>.</p>
+    </li>
+</ul>
+<p>which is denoted as <code>dfs(cur_index) = max(dfs(cur_index + 1), dfs(next_index) + events[cur_index][2])</code>.
+</p>
+<br>
+<p>As shown in the picture below, we find the insertion index is <code>3</code>, which indicates that the nearest
+    available event after event 0 is event 3.</p>
+<p><img src="b2.png" alt="img"></p>
+<p>Therefore, we can update <code>dfs(0)</code> as the larger value obtained by attending or skipping event 0.</p>
+<ul>
+    <li>attend event 0 and get a value of <code>events[0][2] + dfs(3)</code>.</li>
+    <li>skip event 0 and get a value of <code>dfs(1)</code>.</li>
+</ul>
+<p><img src="b3.png" alt="img"></p>
+<p>Given the restriction that we can attend a maximum of <code>k</code> events, we also need to keep track of <code>count</code>,
+    the number of events we have attended so far. Therefore, we will redefine this function as <code>dfs(cur_index,
+        count)</code>.</p>
+<p>Additionally, we use memoization to store the maximum value obtained by each state <code>(cur_index, count)</code>.
+    This helps us avoid re-solving the same subproblems multiple times and significantly reduces the time complexity of
+    the algorithm.</p>
+<br>
+<h4 id="algorithm">Algorithm</h4>
+<ol>
+    <li>
+        <p>Sort <code>events</code> by start time.</p>
+    </li>
+    <li>
+        <p>Build a 2D array <code>dp</code> of size <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">(k+1)×n(k + 1) \times n</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord">1</span><span class="mclose">)</span><span class="mspace"
+                                                                        style="margin-right: 0.2222em;"></span><span
+                class="mbin">×</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+            as memory.</p>
+    </li>
+    <li>
+        <p>Define <code>dfs(cur_index, count)</code> as the maximum value obtained by attending a maximum of
+            <code>count</code> events in the range <code>events[cur_index ~ n - 1]</code>.</p>
+        <ul>
+            <li>
+                <p>If <code>(count, cur_index)</code> is already stored in <code>dp</code>, return <code>dp[count][cur_index]</code>.
+                </p>
+            </li>
+            <li>
+                <p>Return 0 if <code>count = 0</code> or <code>cur_index = n</code>.</p>
+            </li>
+            <li>
+                <p>Skip this event and get the value of <code>dfs(cur_index + 1, count)</code>.</p>
+            </li>
+            <li>
+                <p>Find the index of the nearest available event <code>next_index</code> after the current event <code>cur_index</code>
+                    with binary search.</p>
+            </li>
+            <li>
+                <p>Attend this event and get the value of <code>dfs(next_index, count - 1)</code> plus the value of this
+                    event <code>events[cur_index][2]</code>.</p>
+            </li>
+            <li>
+                <p>Store the larger one of the two values above in <code>dp[count][cur_index]</code> and return <code>dp[count][cur_index]</code>.
+                </p>
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Return <code>dfs(0, k)</code>.</p>
+    </li>
+</ol>
+<h4 id="implementation">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int maxValue(int[][] events, int k) {
+        Arrays.sort(events, (a, b) -> a[0] - b[0]);
+        int n = events.length;
+
+        dp = new int[k + 1][n];
+        for (int[] row : dp) {
+            Arrays.fill(row, -1);
+        }
+
+        return dfs(0, k, events);
+    }
+
+    private int[][] dp;
+    private int dfs(int curIndex, int count, int[][] events) {
+        if (count == 0 || curIndex == events.length) {
+            return 0;
+        }
+        if (dp[count][curIndex] != -1) {
+            return dp[count][curIndex];
+        }
+        int nextIndex = bisectRight(events, events[curIndex][1]);
+        dp[count][curIndex] = Math.max(dfs(curIndex + 1, count, events), events[curIndex][2] + dfs(nextIndex, count - 1, events));
+        return dp[count][curIndex];
+    }
+
+    public static int bisectRight(int[][] events, int target) {
+        int left = 0, right = events.length;
+        while (left < right) {
+            int mid = (left + right) / 2;
+            if (events[mid][0] <= target) {
+                left = mid + 1;
+            } else {
+                right = mid;
+            }
+        }
+        return left;
+    }
+}
+    </code>
+    Python
+    <code>
+        class Solution:
+    def maxValue(self, events: List[List[int]], k: int) -> int:
+        events.sort()
+        n = len(events)
+        starts = [start for start, end, value in events]
+        dp = [[-1] * n for _ in range(k + 1)]
+
+        def dfs(cur_index, count):
+            if count == 0 or cur_index == n:
+                return 0
+            if dp[count][cur_index] != -1:
+                return dp[count][cur_index]
+
+            # Find the nearest available event after attending event 0.
+
+            next_index = bisect_right(starts, events[cur_index][1])
+            dp[count][cur_index] = max(dfs(cur_index + 1, count), events[cur_index][2] + dfs(next_index, count - 1))
+            return dp[count][cur_index]
+
+        return dfs(0, k)
+    </code>
+</pre>
+<h4 id="complexity-analysis">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    be the length of the input string <code>s</code>.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅k⋅log⁡n)O(n \cdot k \cdot\log n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord mathnormal"
+                                                                                        style="margin-right: 0.03148em;">k</span><span
+                class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                      style="margin-right: 0.1667em;"></span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>Sorting <code>events</code> takes <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(nlog⁡n)O(n \log n)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.1667em;"></span><span
+                    class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                              style="margin-right: 0.1667em;"></span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> time.
+            </li>
+            <li>We build <code>dp</code>, a 2D array of size <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(n×k)O(n \times k)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">×</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                    class="mclose">)</span></span></span></span></span> as memory, equal to the number of possible
+                states. Each state is computed with a binary search over all start times, which takes <span
+                        class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡n)O(\log n)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span
+                        class="mspace" style="margin-right: 0.1667em;"></span><span
+                        class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅k)O(n \cdot k)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>We build a 2D array of size <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(n×k)O(n \times k)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">×</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                    class="mclose">)</span></span></span></span></span> as memory.
+            </li>
+            <li>In the Python solution, we also create an array with length <code>n</code>, which takes <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> space.
+            </li>
+            <li>The space complexity of a recursive call depends on the maximum depth of the recursive call stack, which
+                is <span class="math math-inline"><span class="katex"><span class="katex-mathml">n+kn + k</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+                        class="mord mathnormal">n</span><span class="mspace"
+                                                              style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span
+                        class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+                        class="strut" style="height: 0.6944em;"></span><span class="mord mathnormal"
+                                                                             style="margin-right: 0.03148em;">k</span></span></span></span></span>.
+                As each recursive call either increments <code>cur_index</code> by 1 and/or decrements
+                <code>count</code> by 1. Therefore, at most <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(n+k)O(n + k)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mspace"
+                                                                                          style="margin-right: 0.2222em;"></span><span
+                        class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                        class="mclose">)</span></span></span></span></span> levels of recursion will be created, and
+                each level consumes a constant amount of space.
+            </li>
+        </ul>
+    </li>
+</ul>
+<br>
+<hr>
+<h3 id="approach-2-bottom-up-dynamic-programming--binary-search">Approach 2: Bottom-up Dynamic Programming + Binary
+    Search</h3>
+<h4 id="intuition-1">Intuition</h4>
+<p>In the previous approach, we start with the original problem <code>dfs(0, k)</code> and recursively break it down
+    into smaller subproblems. We can also use bottom-up DP that starts with the smallest subproblems and works its way
+    up to the original problem.</p>
+<p>We can build a 2D array <code>dp</code> and let <code>dp[count][cur_index]</code> represent the maximum value we
+    obtain by attending at most <code>count</code> events in the range <code>events[cur_index ~ n - 1]</code>
+    (equivalent to <code>dfs(cur_index, count)</code> in the previous approach). We first solve the smallest
+    subproblems, then use their solutions to solve slightly larger subproblems, and so on until we solve the original
+    problem <code>dp[0][k]</code>.</p>
+<p>For the current state <code>dp[count][cur_index]</code>, we have two options:</p>
+<ul>
+    <li>
+        <p>attend event <code>cur_index</code> and gain a value of <code>events[cur_index][2]</code>. Then we need to
+            find the nearest events that we can attend after this event. Recall that we have sorted <code>events</code>
+            according to the start times, so we can apply a binary search to find <code>next_index</code>, the inserting
+            index of <code>events[cur_index][1]</code>, the end time of this event, on the sorted start times. Thus the
+            value we obtain is <code>events[cur_index][2] + dp[count - 1][next_index]</code>.</p>
+    </li>
+    <li>
+        <p>skip the event <code>cur_index</code> and move on to the next event, thus the value is equal to <code>dp[count][cur_index
+            + 1]</code>.</p>
+    </li>
+</ul>
+<p>Therefore, we have the recurrence relation as <code>dp[count][cur_index] = max(dp[count][cur_index + 1], dp[count -
+    1][next_index] + events[cur_index][2])</code>.</p>
+<br>
+<h4 id="algorithm-1">Algorithm</h4>
+<ol>
+    <li>
+        <p>Sort <code>events</code> by start time.</p>
+    </li>
+    <li>
+        <p>Define a dynamic programming table <code>dp</code> of size <span class="math math-inline"><span
+                class="katex"><span class="katex-mathml">(k+1)⋅(n+1)(k + 1) \cdot (n + 1)</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord">1</span><span class="mclose">)</span><span class="mspace"
+                                                                        style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mspace"
+                                                                                  style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord">1</span><span class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+    <li>
+        <p>Iterate starting from the base cases. Iterate over <code>events</code> backward from <code>n - 1</code> to
+            <code>0</code>. For each event, iterate over the number of events that can be attended from <code>1</code>
+            to <code>k</code>.</p>
+    </li>
+    <li>
+        <p>Locate <code>nextIndex</code>, the index of the first event whose starting time is greater than the end time
+            of the current event <code>curIndex</code> using binary search.</p>
+    </li>
+    <li>
+        <p>Update <code>dp[count][curIndex]</code> as <code>max(dp[count][curIndex + 1], dp[count + 1][nextIndex] +
+            events[curIndex][2])</code>.</p>
+    </li>
+    <li>
+        <p>Return <code>dp[k][0]</code> when the iteration is complete.</p>
+    </li>
+</ol>
+<h4 id="implementation-1">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public static int bisectRight(int[][] events, int target) {
+        int left = 0, right = events.length;
+        while (left < right) {
+            int mid = (left + right) / 2;
+            if (events[mid][0] <= target) {
+                left = mid + 1;
+            } else {
+                right = mid;
+            }
+        }
+        return left;
+    }
+
+    public int maxValue(int[][] events, int k) {
+        int n = events.length;
+        int[][] dp = new int[k + 1][n + 1];
+        Arrays.sort(events, (a, b) -> a[0] - b[0]);
+
+        for (int curIndex = n - 1; curIndex >= 0; --curIndex) {
+            for (int count = 1; count <= k; count++) {
+                int nextIndex = bisectRight(events, events[curIndex][1]);
+                dp[count][curIndex] = Math.max(dp[count][curIndex + 1], events[curIndex][2] + dp[count - 1][nextIndex]);
+            }
+        }
+        return dp[k][0];
+    }
+}
+    </code>
+    Python
+    <code>
+        class Solution:
+    def maxValue(self, events: List[List[int]], k: int) -> int:
+        n = len(events)
+        dp = [[0] * (n + 1) for _ in range(k + 1)]
+        events.sort()
+        starts = [start for start, end, value in events]
+
+        for cur_index in range(n - 1, -1, -1):
+            for count in range(1, k + 1):
+                next_index = bisect_right(starts, events[cur_index][1])
+                dp[count][cur_index] = max(dp[count][cur_index + 1], events[cur_index][2] + dp[count - 1][next_index])
+
+        return dp[k][0]
+    </code>
+</pre>
+<h4 id="complexity-analysis-1">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    be the length of the input string <code>s</code>.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅k⋅log⁡n)O(n \cdot k \cdot\log n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord mathnormal"
+                                                                                        style="margin-right: 0.03148em;">k</span><span
+                class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                      style="margin-right: 0.1667em;"></span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>Sorting <code>events</code> takes <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(nlog⁡n)O(n \log n)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.1667em;"></span><span
+                    class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                              style="margin-right: 0.1667em;"></span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> time.
+            </li>
+            <li>We build a 2D array of size <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(n×k)O(n \times k)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">×</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                    class="mclose">)</span></span></span></span></span> as memory, equal to the number of possible
+                states. Each state is computed with a binary search over all start times, which takes <span
+                        class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡n)O(\log n)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span
+                        class="mspace" style="margin-right: 0.1667em;"></span><span
+                        class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅k)O(n \cdot k)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li><code>dp</code> takes <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n×k)O(n \times k)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">×</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                    class="mclose">)</span></span></span></span></span> space.
+            </li>
+            <li>In the Python solution, we creat a array <code>starts</code> with length <code>n</code> which takes
+                <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+                space.
+            </li>
+        </ul>
+    </li>
+</ul>
+<br>
+<hr>
+<h3 id="approach-3-top-down-dynamic-programming--cached-binary-search">Approach 3: Top-down Dynamic Programming + Cached
+    Binary Search</h3>
+<h4 id="intuition-2">Intuition</h4>
+<p>In the previous approaches, we perform the binary search in each of the <span class="math math-inline"><span
+        class="katex"><span class="katex-mathml">O(n⋅k)O(n \cdot k)</span><span class="katex-html"
+                                                                                aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+        class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+        class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                 style="margin-right: 0.03148em;">k</span><span
+        class="mclose">)</span></span></span></span></span> states.</p>
+<p>However, we observed that the same binary search was being repeated. In fact, there are at most <code>n</code>
+    different results. Therefore, we can precompute the results of all possible binary searches of <code>events[cur_index][0]</code>
+    over the array of start times <code>starts</code>, and store the results in an array called
+    <code>next_indices</code>. As shown in the figure below:.</p>
+<p><img src="b4.png" alt="img"></p>
+<p>In the following recursion, we can obtain the insertion index of <code>events[cur_index][1]</code> as <code>next_indices[cur_index]</code>.
+</p>
+<br>
+<h4 id="algorithm-2">Algorithm</h4>
+<ol>
+    <li>
+        <p>Sort <code>events</code> by start time.</p>
+    </li>
+    <li>
+        <p>Build a 2D array <code>dp</code> of size <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">(k+1)×n(k + 1) \times n</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord">1</span><span class="mclose">)</span><span class="mspace"
+                                                                        style="margin-right: 0.2222em;"></span><span
+                class="mbin">×</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+            as memory.</p>
+    </li>
+    <li>
+        <p>Create an array <code>next_indices</code> to collect the nearest available event <code>nextIndex</code> for
+            every event <code>curIndex</code>.</p>
+    </li>
+    <li>
+        <p>Define <code>dfs(cur_index, count)</code> as the maximum value obtained by attending a maximum of
+            <code>count</code> events in the range <code>events[cur_index ~ n - 1]</code>.</p>
+        <ul>
+            <li>
+                <p>If <code>(count, cur_index)</code> is already stored in <code>dp</code>, return <code>dp[count][cur_index]</code>.
+                </p>
+            </li>
+            <li>
+                <p>Return 0 if <code>count = 0</code> or <code>cur_index = n</code>.</p>
+            </li>
+            <li>
+                <p>Skip this event and get the value of <code>dfs(cur_index + 1, count)</code>.</p>
+            </li>
+            <li>
+                <p>Get the index of the nearest available event <code>next_index</code> after the current event <code>cur_index</code>
+                    as <code>next_indices[cur_index]</code>.</p>
+            </li>
+            <li>
+                <p>Attend this event and get the value of <code>dfs(next_index, count - 1)</code> plus the value of this
+                    event <code>events[cur_index][2]</code>.</p>
+            </li>
+            <li>
+                <p>Assign the larger value between the two options mentioned above <code>dp[count][cur_index]</code> and
+                    return <code>dp[count][cur_index]</code>.</p>
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Return <code>dfs(0, k)</code>.</p>
+    </li>
+</ol>
+<h4 id="implementation-2">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int maxValue(int[][] events, int k) {
+        Arrays.sort(events, (a, b) -> a[0] - b[0]);
+        int n = events.length;
+        nextIndices = new int[n];
+        for (int curIndex = 0; curIndex < n; ++curIndex) {
+            nextIndices[curIndex] = bisectRight(events, events[curIndex][1]);
+        }
+
+        dp = new int[k + 1][n];
+        for (int[] row : dp) {
+            Arrays.fill(row, -1);
+        }
+
+        return dfs(0, k, events);
+    }
+
+    private int[][] dp;
+    private int[] nextIndices;
+    private int dfs(int curIndex, int count, int[][] events) {
+        if (count == 0 || curIndex == events.length) {
+            return 0;
+        }
+        if (dp[count][curIndex] != -1) {
+            return dp[count][curIndex];
+        }
+        int nextIndex = nextIndices[curIndex];
+        dp[count][curIndex] = Math.max(dfs(curIndex + 1, count, events), events[curIndex][2] + dfs(nextIndex, count - 1, events));
+        return dp[count][curIndex];
+    }
+
+    public static int bisectRight(int[][] events, int target) {
+        int left = 0, right = events.length;
+        while (left < right) {
+            int mid = (left + right) / 2;
+            if (events[mid][0] <= target) {
+                left = mid + 1;
+            } else {
+                right = mid;
+            }
+        }
+        return left;
+    }
+}
+    </code>
+    Python
+    <code>
+        class Solution:
+    def maxValue(self, events: List[List[int]], k: int) -> int:
+        events.sort()
+        n = len(events)
+        starts = [start for start, end, value in events]
+        next_indices = [bisect_right(starts, events[cur_index][1]) for cur_index in range(n)]
+        dp = [[-1] * n for _ in range(k)]
+
+        def dfs(cur_index, count):
+            if count == k or cur_index == n:
+                return 0
+            if dp[count][cur_index] != -1:
+                return dp[count][cur_index]
+            next_index = next_indices[cur_index]
+            dp[count][cur_index] = max(dfs(cur_index + 1, count), events[cur_index][2] + dfs(next_index, count + 1))
+            return dp[count][cur_index]
+
+        return dfs(0, 0)
+    </code>
+</pre>
+<h4 id="complexity-analysis-2">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    be the length of the input string <code>s</code>.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅(k+log⁡n))O(n \cdot (k + \log n))</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                      style="margin-right: 0.1667em;"></span><span
+                class="mord mathnormal">n</span><span class="mclose">))</span></span></span></span></span></p>
+        <ul>
+            <li>Sorting <code>events</code> takes <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(nlog⁡n)O(n \log n)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.1667em;"></span><span
+                    class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                              style="margin-right: 0.1667em;"></span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> time.
+            </li>
+            <li>We build a 2D array of size <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(n×k)O(n \times k)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">×</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                    class="mclose">)</span></span></span></span></span> as memory. Each value is computed in <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord">1</span><span class="mclose">)</span></span></span></span></span> time.
+            </li>
+            <li>The pre-computed table <code>next_indices</code> requires <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 0.4306em;"></span><span
+                    class="mord mathnormal">n</span></span></span></span></span> binary search over the start time in
+                <code>events</code>, each binary search takes <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(log⁡n)O(\log n)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span
+                        class="mspace" style="margin-right: 0.1667em;"></span><span
+                        class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> time.
+                Therefore the total time it requires is <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(n⋅log⁡n)O(n \cdot\log n)</span><span class="katex-html"
+                                                                                    aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mspace"
+                                                                                          style="margin-right: 0.2222em;"></span><span
+                        class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                                  style="margin-right: 0.1667em;"></span><span
+                        class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅k)O(n \cdot k)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li><code>dp</code> takes <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n×k)O(n \times k)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">×</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                    class="mclose">)</span></span></span></span></span> space.
+            </li>
+            <li><code>next_indices</code> takes <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> space.
+            </li>
+            <li>In the Python solution, we create an array with length <code>n</code> which takes <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> space.
+            </li>
+        </ul>
+    </li>
+</ul>
+<br>
+<hr>
+<h3 id="approach-4-bottom-up-dynamic-programming--optimized-binary-search">Approach 4: Bottom-up Dynamic Programming +
+    Optimized Binary Search</h3>
+<h4 id="intuition-3">Intuition</h4>
+<p>We can also minimize the number of binary searches in approach 2. As all the binary searches in the inner loop search
+    for the same insertion index of event <code>cur_index</code>, we can perform this binary search beforehand, before
+    executing the inner loop.</p>
+<br>
+<h4 id="algorithm-3">Algorithm</h4>
+<ol>
+    <li>
+        <p>Sort <code>events</code> by their start time.</p>
+    </li>
+    <li>
+        <p>Define a dynamic programming table <code>dp</code> of size <span class="math math-inline"><span
+                class="katex"><span class="katex-mathml">(k+1)⋅(n+1)(k + 1) \cdot (n + 1)</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord">1</span><span class="mclose">)</span><span class="mspace"
+                                                                        style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mspace"
+                                                                                  style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord">1</span><span class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+    <li>
+        <p>Iterate from the base cases. Iterate over <code>events</code> backward from <code>n - 1</code> to
+            <code>0</code>. For each event, find <code>next_index</code>, the index of the nearest event whose start
+            time is greater the end time of the current event <code>cur_index</code> using binary search.</p>
+    </li>
+    <li>
+        <p>Iterate over the number of events that can be attended from <code>1</code> to <code>k</code>.</p>
+    </li>
+    <li>
+        <p>Update <code>dp[count][cur_index]</code> as <code>max(dp[count][cur_index + 1], dp[count + 1][next_index] +
+            events[cur_index][2])</code>.</p>
+    </li>
+    <li>
+        <p>Return <code>dp[k][0]</code> when the iteration is complete.</p>
+    </li>
+</ol>
+<h4 id="implementation-3">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public static int bisectRight(int[][] events, int target) {
+        int left = 0, right = events.length;
+        while (left < right) {
+            int mid = (left + right) / 2;
+            if (events[mid][0] <= target) {
+                left = mid + 1;
+            } else {
+                right = mid;
+            }
+        }
+        return left;
+    }
+
+    public int maxValue(int[][] events, int k) {
+        int n = events.length;
+        int[][] dp = new int[k + 1][n + 1];
+        Arrays.sort(events, (a, b) -> a[0] - b[0]);
+
+        for (int curIndex = n - 1; curIndex >= 0; --curIndex) {
+            int nextIndex = bisectRight(events, events[curIndex][1]);
+            for (int count = 1; count <= k; count++) {
+                dp[count][curIndex] = Math.max(dp[count][curIndex + 1], events[curIndex][2] + dp[count - 1][nextIndex]);
+            }
+        }
+        return dp[k][0];
+    }
+}
+    </code>
+    Python
+    <code>
+        class Solution:
+    def maxValue(self, events: List[List[int]], k: int) -> int:
+        n = len(events)
+        dp = [[0] * (n + 1) for _ in range(k + 1)]
+        events.sort()
+        starts = [start for start, end, value in events]
+
+        for cur_index in range(n - 1, -1, -1):
+            next_index = bisect_right(starts, events[cur_index][1])
+            for count in range(1, k + 1):
+                dp[count][cur_index] = max(dp[count][cur_index + 1], events[cur_index][2] + dp[count - 1][next_index])
+
+        return dp[k][0]
+    </code>
+</pre>
+<h4 id="complexity-analysis-3">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    be the length of the input string <code>s</code>.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅(k+log⁡n))O(n \cdot (k + \log n))</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                      style="margin-right: 0.1667em;"></span><span
+                class="mord mathnormal">n</span><span class="mclose">))</span></span></span></span></span></p>
+        <ul>
+            <li>Sorting <code>events</code> takes <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(nlog⁡n)O(n \log n)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.1667em;"></span><span
+                    class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                              style="margin-right: 0.1667em;"></span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> time.
+            </li>
+            <li>The nested iterations takes <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">n⋅kn \cdot k</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 0.4445em;"></span><span
+                    class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord mathnormal"
+                                                                                            style="margin-right: 0.03148em;">k</span></span></span></span></span>
+                steps, each step requires <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord">1</span><span
+                        class="mclose">)</span></span></span></span></span> time.
+            </li>
+            <li>Instead of applying binary search in each step, we only have <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 0.4306em;"></span><span
+                    class="mord mathnormal">n</span></span></span></span></span> binary searches, which take <span
+                    class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">n⋅log⁡nn \cdot\log n</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 0.4445em;"></span><span
+                    class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+                    class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                              style="margin-right: 0.1667em;"></span><span
+                    class="mord mathnormal">n</span></span></span></span></span> time.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅k)O(n \cdot k)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li><code>dp</code> takes <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n×k)O(n \times k)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">×</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                    class="mclose">)</span></span></span></span></span> space.
+            </li>
+            <li>In the Python solution, we creat a array <code>starts</code> with length <code>n</code>, which takes
+                <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+                space.
+            </li>
+        </ul>
+    </li>
+</ul>
+<br>
+<hr>
+<h3 id="approach-5-top-down-dynamic-programming-without-binary-search">Approach 5: Top-down Dynamic Programming Without
+    Binary Search</h3>
+<h4 id="intuition-4">Intuition</h4>
+<p>The reason for using binary search in previous approaches, such as approach 1, is to ensure that the current <code>dfs(cur_index,
+    count)</code> is always valid by finding the nearest event <code>next_index</code> and ensuring that the start time
+    of this following event is strictly greater than the end time of the current event. This is done by finding the
+    insertion position of <code>events[cur_index][1]</code> using binary search. We could avoid using binary search, but
+    we would need to modify the function.</p>
+<p>Let's start with the original <code>dfs(cur_index = 0, count = 0)</code>, as shown in the figure, we have two options
+    for event 0:</p>
+<ul>
+    <li>attend it and gain a value of <code>events[0][2]</code>. As we are not using binary search to locate the nearest
+        available event, we would attempt attending the next event and gain a value of <code>dfs(1, 1)</code>.
+        Therefore, the total value gained would be <code>events[0][2] + dfs(1, 1)</code>.
+    </li>
+    <li>skip it and gain a value of <code>dfs(1, 0)</code></li>
+</ul>
+<p><img src="1.png" alt="img"></p>
+<p>However, <code>dfs(0, 0) = max(events[0][2] + dfs(1, 1), dfs(1, 0))</code> creates a problem, as we mentioned
+    earlier: the start time of event 1 is not greater than the end time of event 0, so we cannot attend event 1 after
+    attending event 0. However, the algorithm does not verify this condition and will continue to recursively calculate
+    <code>dfs(1, 1)</code>, <code>dfs(2, 2)</code>, and so on, leading to incorrect answers.</p>
+<p><img src="2.png" alt="img"></p>
+<p>Therefore, we need to modify the <code>dfs(cur_index, count)</code> function by adding an extra parameter called
+    <code>prev_ending_time</code>, which represents the end time of the previous event we attended.</p>
+<p><img src="3.png" alt="img"></p>
+<p>With the added parameter <code>prev_ending_time</code>, the function <code>dfs(cur_index = 1, count, prev_ending_time
+    = 2)</code> ensures that we only consider valid events that can be attended after the previous event ends. This is
+    accomplished by checking if <code>prev_ending_time</code> is smaller than the start time of the next event. If it is
+    not, we skip the calculation of <code>dfs(cur_index + 1, count + 1, events[cur_index][1])</code> and only consider
+    the option of skipping the current event.</p>
+<p><img src="4.png" alt="img"></p>
+<blockquote>
+    <p>Let's define the complete function <code>dfs(cur_index, count, prev_ending_time)</code> as the maximum value
+        obtained by attending a maximum of <code>count</code> events in the range <code>events[cur_index ~ n - 1]</code>,
+        where the previously attended event ends at <code>prev_ending_time</code>.</p>
+</blockquote>
+<p>Additionally, We use memoization to store the maximum value obtained by each state <code>(cur_index, count)</code> to
+    avoid re-solving the same subproblems multiple times, which significantly reduces the time complexity.</p>
+<p><img src="5.png" alt="img"></p>
+<br>
+<h4 id="algorithm-4">Algorithm</h4>
+<ol>
+    <li>
+        <p>Sort <code>events</code> by the start time.</p>
+    </li>
+    <li>
+        <p>Build a 2D array <code>dp</code> of size <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">(k+1)×n(k + 1) \times n</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord">1</span><span class="mclose">)</span><span class="mspace"
+                                                                        style="margin-right: 0.2222em;"></span><span
+                class="mbin">×</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+            as memory.</p>
+    </li>
+    <li>
+        <p>Define <code>dfs(cur_index, count, prev_ending_time)</code> as the maximum value obtained by attending <code>count</code>
+            events in the range <code>events[cur_index ~ n - 1]</code>, if the previous attending meeting ends at <code>prev_ending_time</code>.
+        </p>
+        <ul>
+            <li>Return 0 if <code>count = 0</code> or <code>cur_index = n</code>.</li>
+            <li>If <code>events[cur_index][0] &lt;= pre_ending_time</code>, we must skip this event and get a value of
+                <code>dfs(cur_index + 1, count, prev_ending_time)</code>.
+            </li>
+            <li>If <code>(count, cur_index)</code> is already stored in <code>dp</code>, return <code>dp[count][cur_index]</code>.
+            </li>
+            <li>Otherwise, we can also attend this event and get a value of <code>dfs(cur_index + 1, count - 1,
+                events[cur_index][2])</code> plus a value of this event <code>events[cur_index][2]</code>.
+            </li>
+            <li>Assign the larger value between the two options mentioned above to <code>dp[count][cur_index]</code> and
+                return <code>dp[count][cur_index]</code>.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Return <code>dfs(0, k, -1)</code>.</p>
+    </li>
+</ol>
+<h4 id="implementation-4">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    int[][] dp;
+    public int maxValue(int[][] events, int k) {
+        Arrays.sort(events, (a, b) -> a[0] - b[0]);
+        int n = events.length;
+        dp = new int[k + 1][n];
+        for (int[] row : dp) {
+            Arrays.fill(row, -1);
+        }
+        return dfs(0, 0, -1, events, k);
+    }
+
+    private int dfs(int curIndex, int count, int prevEndingTime, int[][] events, int k) {
+        if (curIndex == events.length || count == k) {
+            return 0;
+        }
+
+        if (prevEndingTime >= events[curIndex][0]) {
+            return dfs(curIndex + 1, count, prevEndingTime, events, k);
+        }
+
+        if (dp[count][curIndex] != -1) {
+            return dp[count][curIndex];
+        }
+
+        int ans = Math.max(dfs(curIndex + 1, count, prevEndingTime, events, k),
+                           dfs(curIndex + 1, count + 1, events[curIndex][1], events, k) + events[curIndex][2]);
+        dp[count][curIndex] = ans;
+        return ans;
+    }
+}
+    </code>
+    Python
+    <code>
+        class Solution:
+    def maxValue(self, events: List[List[int]], k: int) -> int:
+        events.sort()
+        n = len(events)
+        dp = [[-1] * n for _ in range(k + 1)]
+
+        def dfs(cur_index, count, prev_ending_time):
+            if cur_index == n or count == k:
+                return 0
+            if events[cur_index][0] <= prev_ending_time:
+                return dfs(cur_index + 1, count, prev_ending_time)
+
+            if dp[count][cur_index] != -1:
+                return dp[count][cur_index]
+
+            ans = max(dfs(cur_index + 1, count, prev_ending_time), dfs(cur_index + 1, count + 1, events[cur_index][1]) + events[cur_index][2])
+            dp[count][cur_index] = ans
+            return ans
+
+        return dfs(0, 0, -1)
+    </code>
+</pre>
+<h4 id="complexity-analysis-4">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    be the length of the input string <code>s</code>.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅(k+log⁡n))O(n \cdot (k + \log n))</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                      style="margin-right: 0.1667em;"></span><span
+                class="mord mathnormal">n</span><span class="mclose">))</span></span></span></span></span></p>
+        <ul>
+            <li>Sorting the array <code>events</code> takes <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(nlog⁡n)O(n \log n)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.1667em;"></span><span
+                    class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                              style="margin-right: 0.1667em;"></span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> time.
+            </li>
+            <li>We build a 2D array <code>dp</code> of size <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(n×k)O(n \times k)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">×</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                    class="mclose">)</span></span></span></span></span> as memory. Even though the extra parameter
+                <code>prev_ending_time</code> creates many more states, the value of each state in the <code>dp</code>
+                array is still only computed once.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅k)O(n \cdot k)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li><code>dp</code> takes <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n×k)O(n \times k)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">×</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                    class="mclose">)</span></span></span></span></span> space.
+            </li>
+        </ul>
+    </li>
+</ul>
+<br>
+</body>
+</html>
