@@ -1,0 +1,1552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Smallest Sufficient Team - Solution</title>
+</head>
+<body>
+<h2 id="solution">Smallest Sufficient Team - Solution</h2>
+<hr>
+<h3 id="overview">Overview</h3>
+<blockquote>
+    <p><strong>Note.</strong> For this problem, we assume that you already know the fundamentals of dynamic programming
+        and are figuring out how to apply it to a wide range of problems, such as this one. If you are not yet at this
+        stage, we recommend checking out our relevant <a
+                href="https://leetcode.com/explore/featured/card/dynamic-programming/" target="_blank">Explore Card
+            content on dynamic programming</a> before coming back to this article.</p>
+</blockquote>
+<p>One of the first things you should notice in the statement are the constraints – they may hint at the time complexity
+    of the intended algorithm.</p>
+<hr>
+<h3 id="approach-1-bottom-up-dynamic-programming-with-bitmasks">Approach 1: Bottom-Up Dynamic Programming with
+    Bitmasks</h3>
+<h4 id="intuition">Intuition</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    be the number of people and <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">mm</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.4306em;"></span><span
+            class="mord mathnormal">m</span></span></span></span></span> be the number of required skills.</p>
+<p>In this problem, <span class="math math-inline"><span class="katex"><span class="katex-mathml">mm</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.4306em;"></span><span
+        class="mord mathnormal">m</span></span></span></span></span> is very small – up to <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">1616</span><span class="katex-html"
+                                                                                                 aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.6444em;"></span><span
+        class="mord">16</span></span></span></span></span>. It alludes to track which skills have been covered so far,
+    which is possible to do efficiently with a bitmask.</p>
+<p>First, let's make our lives easier by dealing with indices instead of strings for the required skills. We use a hash
+    map <code>skillId</code> that keeps the index for each skill. We initialize <span class="math math-inline"><span
+            class="katex"><span
+            class="katex-mathml">skillId[req_skills[i]]=i\text{skillId}[\text{req\_skills}[i]] = i</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1.06em; vertical-align: -0.31em;"></span><span
+            class="mord text"><span class="mord">skillId</span></span><span class="mopen">[</span><span
+            class="mord text"><span class="mord">req_skills</span></span><span class="mopen">[</span><span
+            class="mord mathnormal">i</span><span class="mclose">]]</span><span class="mspace"
+                                                                                style="margin-right: 0.2778em;"></span><span
+            class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6595em;"></span><span
+            class="mord mathnormal">i</span></span></span></span></span> for all <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">ii</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6595em;"></span><span
+            class="mord mathnormal">i</span></span></span></span></span> from <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">00</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span>
+    to <span class="math math-inline"><span class="katex"><span class="katex-mathml">m−1m - 1</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+            class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span>.
+</p>
+<p>Now, when each skill has its number, we can represent every set of skills with a bitmask – an integer between <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">00</span><span class="katex-html"
+                                                                                               aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.6444em;"></span><span
+        class="mord">0</span></span></span></span></span> and <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">2m−12^m - 1</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+        class="strut" style="height: 0.7477em; vertical-align: -0.0833em;"></span><span class="mord"><span class="mord">2</span><span
+        class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.6644em;"><span
+        style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span
+        class="mord mathnormal mtight">m</span></span></span></span></span></span></span></span><span class="mspace"
+                                                                                                      style="margin-right: 0.2222em;"></span><span
+        class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+        class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span>.</p>
+<p>How do we associate a set and an integer exactly? We look at the binary representation of the integer. If the <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">ithi^\text{th}</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.8491em;"></span><span
+        class="mord"><span class="mord mathnormal">i</span><span class="msupsub"><span class="vlist-t"><span
+        class="vlist-r"><span class="vlist" style="height: 0.8491em;"><span
+        style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span
+        class="mord mtight">th</span></span></span></span></span></span></span></span></span></span></span></span></span>
+    bit is <span class="math math-inline"><span class="katex"><span class="katex-mathml">11</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.6444em;"></span><span
+            class="mord">1</span></span></span></span></span>, element <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">ii</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6595em;"></span><span
+            class="mord mathnormal">i</span></span></span></span></span> belongs to the set. Otherwise, it does not.</p>
+<blockquote>
+    <p><strong>Examples</strong></p>
+    <ul>
+        <li><span class="math math-inline"><span class="katex"><span class="katex-mathml">1011112=20+21+22+23+25=47101111_2=2^0+2^1+2^2+2^3+2^5=47</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.7944em; vertical-align: -0.15em;"></span><span
+                class="mord">10111</span><span class="mord"><span class="mord">1</span><span class="msupsub"><span
+                class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.3011em;"><span
+                style="top: -2.55em; margin-left: 0em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                    style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span
+                class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                           style="height: 0.15em;"><span></span></span></span></span></span></span><span
+                class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2778em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.8974em; vertical-align: -0.0833em;"></span><span
+                class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span
+                class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight">0</span></span></span></span></span></span></span></span><span class="mspace"
+                                                                                                   style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.8974em; vertical-align: -0.0833em;"></span><span
+                class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span
+                class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight">1</span></span></span></span></span></span></span></span><span class="mspace"
+                                                                                                   style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.8974em; vertical-align: -0.0833em;"></span><span
+                class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span
+                class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mspace"
+                                                                                                   style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.8974em; vertical-align: -0.0833em;"></span><span
+                class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span
+                class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight">3</span></span></span></span></span></span></span></span><span class="mspace"
+                                                                                                   style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.8141em;"></span><span class="mord"><span class="mord">2</span><span
+                class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                  style="height: 0.8141em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight">5</span></span></span></span></span></span></span></span><span class="mspace"
+                                                                                                   style="margin-right: 0.2778em;"></span><span
+                class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.6444em;"></span><span
+                class="mord">47</span></span></span></span></span> represents the set <span
+                class="math math-inline"><span class="katex"><span
+                class="katex-mathml">{0,1,2,3,5}\{0, 1, 2, 3, 5\}</span><span class="katex-html"
+                                                                              aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mopen">{</span><span class="mord">0</span><span class="mpunct">,</span><span class="mspace"
+                                                                                                    style="margin-right: 0.1667em;"></span><span
+                class="mord">1</span><span class="mpunct">,</span><span class="mspace"
+                                                                        style="margin-right: 0.1667em;"></span><span
+                class="mord">2</span><span class="mpunct">,</span><span class="mspace"
+                                                                        style="margin-right: 0.1667em;"></span><span
+                class="mord">3</span><span class="mpunct">,</span><span class="mspace"
+                                                                        style="margin-right: 0.1667em;"></span><span
+                class="mord">5</span><span class="mclose">}</span></span></span></span></span>.
+        </li>
+        <li><span class="math math-inline"><span class="katex"><span class="katex-mathml">10010102=21+23+26=741001010_2=2^1+2^3+2^6=74</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.7944em; vertical-align: -0.15em;"></span><span
+                class="mord">100101</span><span class="mord"><span class="mord">0</span><span class="msupsub"><span
+                class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.3011em;"><span
+                style="top: -2.55em; margin-left: 0em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                    style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span
+                class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                           style="height: 0.15em;"><span></span></span></span></span></span></span><span
+                class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2778em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.8974em; vertical-align: -0.0833em;"></span><span
+                class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span
+                class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight">1</span></span></span></span></span></span></span></span><span class="mspace"
+                                                                                                   style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.8974em; vertical-align: -0.0833em;"></span><span
+                class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span
+                class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight">3</span></span></span></span></span></span></span></span><span class="mspace"
+                                                                                                   style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.8141em;"></span><span class="mord"><span class="mord">2</span><span
+                class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                  style="height: 0.8141em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight">6</span></span></span></span></span></span></span></span><span class="mspace"
+                                                                                                   style="margin-right: 0.2778em;"></span><span
+                class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.6444em;"></span><span
+                class="mord">74</span></span></span></span></span> represents the set <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">{1,3,6}\{1, 3, 6\}</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mopen">{</span><span class="mord">1</span><span class="mpunct">,</span><span class="mspace"
+                                                                                                    style="margin-right: 0.1667em;"></span><span
+                class="mord">3</span><span class="mpunct">,</span><span class="mspace"
+                                                                        style="margin-right: 0.1667em;"></span><span
+                class="mord">6</span><span class="mclose">}</span></span></span></span></span>.
+        </li>
+        <li><span class="math math-inline"><span class="katex"><span class="katex-mathml">00</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.6444em;"></span><span
+                class="mord">0</span></span></span></span></span> represents an empty set.
+        </li>
+        <li><span class="math math-inline"><span class="katex"><span class="katex-mathml">20+21+22+⋯+2m−1=2m−12^0+2^1+2^2+\dots+2^{m-1}=2^m-1</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.8974em; vertical-align: -0.0833em;"></span><span
+                class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span
+                class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight">0</span></span></span></span></span></span></span></span><span class="mspace"
+                                                                                                   style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.8974em; vertical-align: -0.0833em;"></span><span
+                class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span
+                class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight">1</span></span></span></span></span></span></span></span><span class="mspace"
+                                                                                                   style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.8974em; vertical-align: -0.0833em;"></span><span
+                class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span
+                class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mspace"
+                                                                                                   style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+                class="minner">⋯</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.8141em;"></span><span class="mord"><span class="mord">2</span><span
+                class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                  style="height: 0.8141em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+                class="mord mathnormal mtight">m</span><span class="mbin mtight">−</span><span
+                class="mord mtight">1</span></span></span></span></span></span></span></span></span><span class="mspace"
+                                                                                                          style="margin-right: 0.2778em;"></span><span
+                class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.7477em; vertical-align: -0.0833em;"></span><span
+                class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span
+                class="vlist-r"><span class="vlist" style="height: 0.6644em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span
+                class="mord mathnormal mtight">m</span></span></span></span></span></span></span></span><span
+                class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">−</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.6444em;"></span><span
+                class="mord">1</span></span></span></span></span> represents <span class="math math-inline"><span
+                class="katex"><span class="katex-mathml">{0,1,2,…,m−1}\{0, 1, 2, \dots, m - 1\}</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mopen">{</span><span class="mord">0</span><span class="mpunct">,</span><span class="mspace"
+                                                                                                    style="margin-right: 0.1667em;"></span><span
+                class="mord">1</span><span class="mpunct">,</span><span class="mspace"
+                                                                        style="margin-right: 0.1667em;"></span><span
+                class="mord">2</span><span class="mpunct">,</span><span class="mspace"
+                                                                        style="margin-right: 0.1667em;"></span><span
+                class="minner">…</span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mpunct">,</span><span
+                class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal">m</span><span
+                class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">−</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord">1</span><span class="mclose">}</span></span></span></span></span>.
+        </li>
+    </ul>
+</blockquote>
+<p>The problem asks to find the smallest team such that the union of the skill sets of its members is the set of all
+    required skills <span class="math math-inline"><span class="katex"><span class="katex-mathml">{0,1,2,…,m−1}\{0, 1, 2, \dots, m - 1\}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mopen">{</span><span class="mord">0</span><span class="mpunct">,</span><span class="mspace"
+                                                                                                style="margin-right: 0.1667em;"></span><span
+            class="mord">1</span><span class="mpunct">,</span><span class="mspace"
+                                                                    style="margin-right: 0.1667em;"></span><span
+            class="mord">2</span><span class="mpunct">,</span><span class="mspace"
+                                                                    style="margin-right: 0.1667em;"></span><span
+            class="minner">…</span><span class="mspace" style="margin-right: 0.1667em;"></span><span
+            class="mpunct">,</span><span class="mspace" style="margin-right: 0.1667em;"></span><span
+            class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord">1</span><span class="mclose">}</span></span></span></span></span>.</p>
+<p>One can reformulate the statement in terms of bitmasks: we need to find the smallest team such that the bitwise OR of
+    the bitmasks representing the skill sets of its members is <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">2m−12^m - 1</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.7477em; vertical-align: -0.0833em;"></span><span class="mord"><span
+            class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                                         style="height: 0.6644em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span
+            class="mord mathnormal mtight">m</span></span></span></span></span></span></span></span><span class="mspace"
+                                                                                                          style="margin-right: 0.2222em;"></span><span
+            class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span>
+    (which is the representation of <span class="math math-inline"><span class="katex"><span class="katex-mathml">{0,1,2,…,m−1}\{0, 1, 2, \dots, m - 1\}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mopen">{</span><span class="mord">0</span><span class="mpunct">,</span><span class="mspace"
+                                                                                                style="margin-right: 0.1667em;"></span><span
+            class="mord">1</span><span class="mpunct">,</span><span class="mspace"
+                                                                    style="margin-right: 0.1667em;"></span><span
+            class="mord">2</span><span class="mpunct">,</span><span class="mspace"
+                                                                    style="margin-right: 0.1667em;"></span><span
+            class="minner">…</span><span class="mspace" style="margin-right: 0.1667em;"></span><span
+            class="mpunct">,</span><span class="mspace" style="margin-right: 0.1667em;"></span><span
+            class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord">1</span><span class="mclose">}</span></span></span></span></span>).</p>
+<p>We will solve this problem using dynamic programming.</p>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">dp[skillsMask]\text{dp}[\text{skillsMask}]</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span class="mord text"><span
+        class="mord">skillsMask</span></span><span class="mclose">]</span></span></span></span></span> be a bitmask
+    representing the smallest team that possesses all the skills from <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">skillsMask\text{skillsMask}</span><span class="katex-html"
+                                                                                             aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord text"><span
+            class="mord">skillsMask</span></span></span></span></span></span>. The value of <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">dp[skillsMask]\text{dp}[\text{skillsMask}]</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+            class="mord text"><span class="mord">skillsMask</span></span><span
+            class="mclose">]</span></span></span></span></span> is a bitmask that represents the set of team members.
+</p>
+<p>We are using bitmasks to represent <code>skillsMask</code>, but we can also use bitmasks to represent a set of
+    people. <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">skillsMask\text{skillsMask}</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord text"><span
+            class="mord">skillsMask</span></span></span></span></span></span> represents the set of skills, and <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">dp[skillsMask]\text{dp}[\text{skillsMask}]</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+            class="mord text"><span class="mord">skillsMask</span></span><span
+            class="mclose">]</span></span></span></span></span> represents the set of people on the team. Similar to how
+    we treat the <code>skillsMask</code> bitmask, the bitmask representing people has the <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">ithi^\text{th}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.8491em;"></span><span
+            class="mord"><span class="mord mathnormal">i</span><span class="msupsub"><span class="vlist-t"><span
+            class="vlist-r"><span class="vlist" style="height: 0.8491em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span
+            class="mord mtight">th</span></span></span></span></span></span></span></span></span></span></span></span></span>
+    bit set if the <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">ithi^\text{th}</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.8491em;"></span><span class="mord"><span
+            class="mord mathnormal">i</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span
+            class="vlist" style="height: 0.8491em;"><span style="top: -3.063em; margin-right: 0.05em;"><span
+            class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span
+            class="mord text mtight"><span
+            class="mord mtight">th</span></span></span></span></span></span></span></span></span></span></span></span></span>
+    person is on the team.</p>
+<p>The base case of this dynamic programming (DP) problem is when <span class="math math-inline"><span
+        class="katex"><span class="katex-mathml">skillsMask=0\text{skillsMask} = 0</span><span class="katex-html"
+                                                                                               aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord text"><span class="mord">skillsMask</span></span><span
+        class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace"
+                                                                                               style="margin-right: 0.2778em;"></span></span><span
+        class="base"><span class="strut" style="height: 0.6444em;"></span><span
+        class="mord">0</span></span></span></span></span>, which represents an empty set of skills. When no skills are
+    required, we can form an empty team, and thus, we set <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">dp[0]=0\text{dp}[0] = 0</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span class="mord">0</span><span
+            class="mclose">]</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+            class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span>
+    – a bitmask representing an empty set of people.</p>
+<p>Now we need to write down the transitions of this DP.</p>
+<p>For a given <span class="math math-inline"><span class="katex"><span class="katex-mathml">skillsMask≠0\text{skillsMask} \ne 0</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+        class="mord text"><span class="mord">skillsMask</span></span><span class="mspace"
+                                                                           style="margin-right: 0.2778em;"></span><span
+        class="mrel"><span class="mrel"><span class="mord vbox"><span class="thinbox"><span class="rlap"><span
+        class="strut" style="height: 0.8889em; vertical-align: -0.1944em;"></span><span class="inner"><span
+        class="mord"><span class="mrel"></span></span></span><span class="fix"></span></span></span></span></span><span
+        class="mrel">=</span></span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+        class="base"><span class="strut" style="height: 0.6444em;"></span><span
+        class="mord">0</span></span></span></span></span>, there must be at least one person in a team. Since we need to
+    find the minimal team, we initialize <span class="math math-inline"><span class="katex"><span class="katex-mathml">dp[skillsMask]\text{dp}[\text{skillsMask}]</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+            class="mord text"><span class="mord">skillsMask</span></span><span
+            class="mclose">]</span></span></span></span></span> with a large value, like the team of all people <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">2n−12^n - 1</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.7477em; vertical-align: -0.0833em;"></span><span
+            class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span
+            class="vlist-r"><span class="vlist" style="height: 0.6644em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span
+            class="mord mathnormal mtight">n</span></span></span></span></span></span></span></span><span class="mspace"
+                                                                                                          style="margin-right: 0.2222em;"></span><span
+            class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span>.
+</p>
+<p>Then we iterate over all people and for each person, try to update <span class="math math-inline"><span
+        class="katex"><span class="katex-mathml">dp[skillsMask]\text{dp}[\text{skillsMask}]</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span class="mord text"><span
+        class="mord">skillsMask</span></span><span class="mclose">]</span></span></span></span></span> with a team
+    containing this person.</p>
+<p>The <span class="math math-inline"><span class="katex"><span class="katex-mathml">ithi^\text{th}</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.8491em;"></span><span
+        class="mord"><span class="mord mathnormal">i</span><span class="msupsub"><span class="vlist-t"><span
+        class="vlist-r"><span class="vlist" style="height: 0.8491em;"><span
+        style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span
+        class="mord mtight">th</span></span></span></span></span></span></span></span></span></span></span></span></span>
+    person or at least one other team member must possess the skills in <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">skillsMask\text{skillsMask}</span><span class="katex-html"
+                                                                                             aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord text"><span
+            class="mord">skillsMask</span></span></span></span></span></span>.</p>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">skillsMaskOfPerson[i]\text{skillsMaskOfPerson}[i]</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord text"><span class="mord">skillsMaskOfPerson</span></span><span class="mopen">[</span><span
+        class="mord mathnormal">i</span><span class="mclose">]</span></span></span></span></span> denote the bitmask
+    representing the skills set of the <span class="math math-inline"><span class="katex"><span class="katex-mathml">ithi^\text{th}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.8491em;"></span><span
+            class="mord"><span class="mord mathnormal">i</span><span class="msupsub"><span class="vlist-t"><span
+            class="vlist-r"><span class="vlist" style="height: 0.8491em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span
+            class="mord mtight">th</span></span></span></span></span></span></span></span></span></span></span></span></span>
+    person. We can precompute this to make the algorithm more efficient.</p>
+<blockquote>
+    <p>To summarize, we have 3 types of bitmasks. First, the keys to <code>dp</code>, which is <code>skillsMask</code>.
+        This represents the set of skills that a team covers. Next, the <code>dp</code> values represent a set of people
+        on a team. Finally, we are using <code>skillsMaskOfPerson</code> to represent the skills that a given person
+        possesses, which is given in the input – we just need to convert it using <code>skillId</code>, which we defined
+        at the start.</p>
+</blockquote>
+<p>Although the other team members may possess the skills from <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">skillsMaskOfPerson[i]\text{skillsMaskOfPerson}[i]</span><span class="katex-html"
+                                                                                           aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord text"><span class="mord">skillsMaskOfPerson</span></span><span class="mopen">[</span><span
+        class="mord mathnormal">i</span><span class="mclose">]</span></span></span></span></span>, it is not necessary.
+    However, they must have the skills from <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">skillsMask\text{skillsMask}</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord text"><span
+            class="mord">skillsMask</span></span></span></span></span></span> that are not present in <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">skillsMaskOfPerson[i]\text{skillsMaskOfPerson}[i]</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">skillsMaskOfPerson</span></span><span class="mopen">[</span><span
+            class="mord mathnormal">i</span><span class="mclose">]</span></span></span></span></span>.</p>
+<p>The set <span class="math math-inline"><span class="katex"><span class="katex-mathml">smallerSkillsMask=skillsMask∖skillsMaskOfPerson[i]\text{smallerSkillsMask} = \text{skillsMask} \setminus \text{skillsMaskOfPerson}[i]</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.6944em;"></span><span
+        class="mord text"><span class="mord">smallerSkillsMask</span></span><span class="mspace"
+                                                                                  style="margin-right: 0.2778em;"></span><span
+        class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span
+        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord text"><span class="mord">skillsMask</span></span><span
+        class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">∖</span><span class="mspace"
+                                                                                               style="margin-right: 0.2222em;"></span></span><span
+        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord text"><span class="mord">skillsMaskOfPerson</span></span><span class="mopen">[</span><span
+        class="mord mathnormal">i</span><span class="mclose">]</span></span></span></span></span>, where <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">∖\setminus</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord">∖</span></span></span></span></span> denotes the set difference, contains the required skills that
+    the <span class="math math-inline"><span class="katex"><span class="katex-mathml">ithi^\text{th}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.8491em;"></span><span
+            class="mord"><span class="mord mathnormal">i</span><span class="msupsub"><span class="vlist-t"><span
+            class="vlist-r"><span class="vlist" style="height: 0.8491em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span
+            class="mord mtight">th</span></span></span></span></span></span></span></span></span></span></span></span></span>
+    person does not possess. The other team members must possess these skills.</p>
+<p>In a code, a neat trick to calculate <span class="math math-inline"><span class="katex"><span class="katex-mathml">smallerSkillsMask\text{smallerSkillsMask}</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.6944em;"></span><span
+        class="mord text"><span class="mord">smallerSkillsMask</span></span></span></span></span></span> is <code>skills_mask
+    &amp; ~skills_mask_of_person[i]</code>. Alternatively, one could calculate it manually by checking each bit one by
+    one, but this trick is cleaner.</p>
+<p>We will update <span class="math math-inline"><span class="katex"><span class="katex-mathml">dp[skillsMask]\text{dp}[\text{skillsMask}]</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span class="mord text"><span
+        class="mord">skillsMask</span></span><span class="mclose">]</span></span></span></span></span> with the bitmask
+    <span class="math math-inline"><span class="katex"><span class="katex-mathml">dp[smallerSkillsMask]&nbsp;OR&nbsp;2i\text{dp}[\text{smallerSkillsMask}] \text{ OR } 2^i</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1.0747em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+            class="mord text"><span class="mord">smallerSkillsMask</span></span><span class="mclose">]</span><span
+            class="mord text"><span class="mord">&nbsp;OR&nbsp;</span></span><span class="mord"><span
+            class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                                         style="height: 0.8247em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span
+            class="mord mathnormal mtight">i</span></span></span></span></span></span></span></span></span></span></span></span>
+    – add the <span class="math math-inline"><span class="katex"><span class="katex-mathml">ithi^\text{th}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.8491em;"></span><span
+            class="mord"><span class="mord mathnormal">i</span><span class="msupsub"><span class="vlist-t"><span
+            class="vlist-r"><span class="vlist" style="height: 0.8491em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span
+            class="mord mtight">th</span></span></span></span></span></span></span></span></span></span></span></span></span>
+    person to the team and cover the remaining skills with the smallest possible set of people, which is defined as
+    <span class="math math-inline"><span class="katex"><span class="katex-mathml">dp[smallerSkillsMask]\text{dp}[\text{smallerSkillsMask}]</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+            class="mord text"><span class="mord">smallerSkillsMask</span></span><span
+            class="mclose">]</span></span></span></span></span>. This update only makes sense if <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">smallerSkillsMask≠skillsMask\text{smallerSkillsMask} \ne \text{skillsMask}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+            class="mord text"><span class="mord">smallerSkillsMask</span></span><span class="mspace"
+                                                                                      style="margin-right: 0.2778em;"></span><span
+            class="mrel"><span class="mrel"><span class="mord vbox"><span class="thinbox"><span class="rlap"><span
+            class="strut" style="height: 0.8889em; vertical-align: -0.1944em;"></span><span class="inner"><span
+            class="mord"><span class="mrel"></span></span></span><span
+            class="fix"></span></span></span></span></span><span class="mrel">=</span></span><span class="mspace"
+                                                                                                   style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord text"><span
+            class="mord">skillsMask</span></span></span></span></span></span> because otherwise, the <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">ithi^\text{th}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.8491em;"></span><span
+            class="mord"><span class="mord mathnormal">i</span><span class="msupsub"><span class="vlist-t"><span
+            class="vlist-r"><span class="vlist" style="height: 0.8491em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span
+            class="mord mtight">th</span></span></span></span></span></span></span></span></span></span></span></span></span>
+    person would not contribute any new skills to the team.</p>
+<p>The answer to the problem is <span class="math math-inline"><span class="katex"><span class="katex-mathml">dp[2m−1]\text{dp}[2^m - 1]</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span class="mord"><span
+        class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                                     style="height: 0.6644em;"><span
+        style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span
+        class="mord mathnormal mtight">m</span></span></span></span></span></span></span></span><span class="mspace"
+                                                                                                      style="margin-right: 0.2222em;"></span><span
+        class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord">1</span><span
+        class="mclose">]</span></span></span></span></span> – the smallest team that possesses all the required skills.
+</p>
+<h4 id="algorithm">Algorithm</h4>
+<ol>
+    <li>Set <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.4306em;"></span><span
+            class="mord mathnormal">n</span></span></span></span></span> to the number of people.
+    </li>
+    <li>Set <span class="math math-inline"><span class="katex"><span class="katex-mathml">mm</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.4306em;"></span><span
+            class="mord mathnormal">m</span></span></span></span></span> to the number of required skills.
+    </li>
+    <li>Declare the hash map <span class="math math-inline"><span class="katex"><span class="katex-mathml">skillId\text{skillId}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.6944em;"></span><span
+            class="mord text"><span class="mord">skillId</span></span></span></span></span></span>.
+    </li>
+    <li>Iterate <span class="math math-inline"><span class="katex"><span class="katex-mathml">ii</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.6595em;"></span><span
+            class="mord mathnormal">i</span></span></span></span></span> from <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">00</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span>
+        to <span class="math math-inline"><span class="katex"><span class="katex-mathml">m−1m - 1</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+                class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.6444em;"></span><span
+                class="mord">1</span></span></span></span></span>.
+        <ul>
+            <li>Set <span class="math math-inline"><span class="katex"><span class="katex-mathml">skillId[req_skills[i]]=i\text{skillId}[\text{req\_skills}[i]] = i</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1.06em; vertical-align: -0.31em;"></span><span
+                    class="mord text"><span class="mord">skillId</span></span><span class="mopen">[</span><span
+                    class="mord text"><span class="mord">req_skills</span></span><span class="mopen">[</span><span
+                    class="mord mathnormal">i</span><span class="mclose">]]</span><span class="mspace"
+                                                                                        style="margin-right: 0.2778em;"></span><span
+                    class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+                    class="base"><span class="strut" style="height: 0.6595em;"></span><span
+                    class="mord mathnormal">i</span></span></span></span></span>.
+            </li>
+        </ul>
+    </li>
+    <li>Declare and initialize the array <span class="math math-inline"><span class="katex"><span class="katex-mathml">skillsMaskOfPerson\text{skillsMaskOfPerson}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.6944em;"></span><span
+            class="mord text"><span class="mord">skillsMaskOfPerson</span></span></span></span></span></span>.
+    </li>
+    <li>Iterate <span class="math math-inline"><span class="katex"><span class="katex-mathml">ii</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.6595em;"></span><span
+            class="mord mathnormal">i</span></span></span></span></span> from <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">00</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span>
+        to <span class="math math-inline"><span class="katex"><span class="katex-mathml">n−1n - 1</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.6444em;"></span><span
+                class="mord">1</span></span></span></span></span>.
+        <ul>
+            <li>Iterate <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">skill\text{skill}</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord text"><span
+                    class="mord">skill</span></span></span></span></span></span> over <span
+                    class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">people[i]\text{people}[i]</span><span class="katex-html"
+                                                                               aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord text"><span class="mord">people</span></span><span class="mopen">[</span><span
+                    class="mord mathnormal">i</span><span class="mclose">]</span></span></span></span></span>.
+                <ul>
+                    <li>Set the bit <span class="math math-inline"><span class="katex"><span class="katex-mathml">skillId[skill]\text{skillId}[\text{skill}]</span><span
+                            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+                            class="mord text"><span class="mord">skillId</span></span><span class="mopen">[</span><span
+                            class="mord text"><span class="mord">skill</span></span><span class="mclose">]</span></span></span></span></span>
+                        in the bitmask <span class="math math-inline"><span class="katex"><span class="katex-mathml">skillsMaskOfPerson[i]\text{skillsMaskOfPerson}[i]</span><span
+                                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                                class="mord text"><span class="mord">skillsMaskOfPerson</span></span><span
+                                class="mopen">[</span><span class="mord mathnormal">i</span><span
+                                class="mclose">]</span></span></span></span></span>.
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </li>
+    <li>Declare the array <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">dp\text{dp}</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.8889em; vertical-align: -0.1944em;"></span><span class="mord text"><span
+            class="mord">dp</span></span></span></span></span></span> of size <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">2m2^m</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6644em;"></span><span class="mord"><span
+            class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                                         style="height: 0.6644em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span
+            class="mord mathnormal mtight">m</span></span></span></span></span></span></span></span></span></span></span></span>
+        and initialize it with the values of <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">2n−12^n - 1</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 0.7477em; vertical-align: -0.0833em;"></span><span
+                class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span
+                class="vlist-r"><span class="vlist" style="height: 0.6644em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span
+                class="mord mathnormal mtight">n</span></span></span></span></span></span></span></span><span
+                class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">−</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.6444em;"></span><span
+                class="mord">1</span></span></span></span></span>.
+    </li>
+    <li>Set <span class="math math-inline"><span class="katex"><span class="katex-mathml">dp[0]=0\text{dp}[0] = 0</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span class="mord">0</span><span
+            class="mclose">]</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+            class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span>.
+        (The base case of the DP.)
+    </li>
+    <li>Iterate <span class="math math-inline"><span class="katex"><span class="katex-mathml">skillsMask\text{skillsMask}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.6944em;"></span><span
+            class="mord text"><span class="mord">skillsMask</span></span></span></span></span></span> from <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">11</span><span class="katex-html"
+                                                                                                   aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span>
+        to <span class="math math-inline"><span class="katex"><span class="katex-mathml">2m−12^m - 1</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.7477em; vertical-align: -0.0833em;"></span><span
+                class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span
+                class="vlist-r"><span class="vlist" style="height: 0.6644em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span
+                class="mord mathnormal mtight">m</span></span></span></span></span></span></span></span><span
+                class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">−</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.6444em;"></span><span
+                class="mord">1</span></span></span></span></span>.
+        <ul>
+            <li>Iterate <span class="math math-inline"><span class="katex"><span class="katex-mathml">ii</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.6595em;"></span><span
+                    class="mord mathnormal">i</span></span></span></span></span> from <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">00</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.6444em;"></span><span
+                    class="mord">0</span></span></span></span></span> to <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">n−1n - 1</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+                    class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span>.
+                <ul>
+                    <li>Set <span class="math math-inline"><span class="katex"><span class="katex-mathml">smallerSkillsMask=skillsMask∖skillsMaskOfPerson[i]\text{smallerSkillsMask} = \text{skillsMask} \setminus \text{skillsMaskOfPerson}[i]</span><span
+                            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                           style="height: 0.6944em;"></span><span
+                            class="mord text"><span class="mord">smallerSkillsMask</span></span><span class="mspace"
+                                                                                                      style="margin-right: 0.2778em;"></span><span
+                            class="mrel">=</span><span class="mspace"
+                                                       style="margin-right: 0.2778em;"></span></span><span class="base"><span
+                            class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                            class="mord text"><span class="mord">skillsMask</span></span><span class="mspace"
+                                                                                               style="margin-right: 0.2222em;"></span><span
+                            class="mbin">∖</span><span class="mspace"
+                                                       style="margin-right: 0.2222em;"></span></span><span class="base"><span
+                            class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                            class="mord text"><span class="mord">skillsMaskOfPerson</span></span><span
+                            class="mopen">[</span><span class="mord mathnormal">i</span><span
+                            class="mclose">]</span></span></span></span></span>.
+                    </li>
+                    <li>If <span class="math math-inline"><span class="katex"><span class="katex-mathml">smallerSkillsMask≠skillsMask\text{smallerSkillsMask} \ne \text{skillsMask}</span><span
+                            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                           style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+                            class="mord text"><span class="mord">smallerSkillsMask</span></span><span class="mspace"
+                                                                                                      style="margin-right: 0.2778em;"></span><span
+                            class="mrel"><span class="mrel"><span class="mord vbox"><span class="thinbox"><span
+                            class="rlap"><span class="strut"
+                                               style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+                            class="inner"><span class="mord"><span class="mrel"></span></span></span><span
+                            class="fix"></span></span></span></span></span><span class="mrel">=</span></span><span
+                            class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span
+                            class="strut" style="height: 0.6944em;"></span><span class="mord text"><span class="mord">skillsMask</span></span></span></span></span></span>.
+                        <ul>
+                            <li>Set <span class="math math-inline"><span class="katex"><span class="katex-mathml">peopleMask\text{peopleMask}</span><span
+                                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                                   style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+                                    class="mord text"><span
+                                    class="mord">peopleMask</span></span></span></span></span></span> to <span
+                                    class="math math-inline"><span class="katex"><span class="katex-mathml">dp[smallerSkillsMask]&nbsp;OR&nbsp;2i\text{dp}[\text{smallerSkillsMask}] \text{ OR } 2^i</span><span
+                                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                                   style="height: 1.0747em; vertical-align: -0.25em;"></span><span
+                                    class="mord text"><span class="mord">dp</span></span><span
+                                    class="mopen">[</span><span class="mord text"><span
+                                    class="mord">smallerSkillsMask</span></span><span class="mclose">]</span><span
+                                    class="mord text"><span class="mord">&nbsp;OR&nbsp;</span></span><span class="mord"><span
+                                    class="mord">2</span><span class="msupsub"><span class="vlist-t"><span
+                                    class="vlist-r"><span class="vlist" style="height: 0.8247em;"><span
+                                    style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                       style="height: 2.7em;"></span><span
+                                    class="sizing reset-size6 size3 mtight"><span
+                                    class="mord mathnormal mtight">i</span></span></span></span></span></span></span></span></span></span></span></span>.
+                                This is the mask that represents the new team once you add the current person.
+                            </li>
+                            <li>Update <span class="math math-inline"><span class="katex"><span class="katex-mathml">dp[skillsMask]\text{dp}[\text{skillsMask}]</span><span
+                                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                                    class="mord text"><span class="mord">dp</span></span><span
+                                    class="mopen">[</span><span class="mord text"><span
+                                    class="mord">skillsMask</span></span><span
+                                    class="mclose">]</span></span></span></span></span> with <span
+                                    class="math math-inline"><span class="katex"><span class="katex-mathml">peopleMask\text{peopleMask}</span><span
+                                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                                   style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+                                    class="mord text"><span
+                                    class="mord">peopleMask</span></span></span></span></span></span>, if it is better
+                                (has fewer bits set).
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </li>
+    <li>Return the array containing the elements from the bitmask <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">dp[2m−1]\text{dp}[2^m - 1]</span><span class="katex-html"
+                                                                                            aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span class="mord"><span
+            class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                                         style="height: 0.6644em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span
+            class="mord mathnormal mtight">m</span></span></span></span></span></span></span></span><span class="mspace"
+                                                                                                          style="margin-right: 0.2222em;"></span><span
+            class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord">1</span><span class="mclose">]</span></span></span></span></span>.
+    </li>
+</ol>
+<h4 id="implementation">Implementation</h4>
+<blockquote>
+    <p>Note that in Java and C++ we need to use long for the masks representing teams because according to the
+        constraints, there could be at most 60 people, and <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">2602^{60}</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 0.8141em;"></span><span class="mord"><span class="mord">2</span><span
+                class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                  style="height: 0.8141em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+                class="mord mtight">60</span></span></span></span></span></span></span></span></span></span></span></span></span>
+        is too large for int.</p>
+</blockquote>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int[] smallestSufficientTeam(String[] req_skills, List<List<String>> people) {
+        int n = people.size(), m = req_skills.length;
+        HashMap<String, Integer> skillId = new HashMap<String, Integer>();
+        for (int i = 0; i < m; i++) {
+            skillId.put(req_skills[i], i);
+        }
+        int skillsMaskOfPerson[] = new int[n];
+        for (int i = 0; i < n; i++) {
+            for (String skill : people.get(i)) {
+                skillsMaskOfPerson[i] |= 1 << skillId.get(skill);
+            }
+        }
+        long dp[] = new long [1 << m];
+        Arrays.fill(dp, (1L << n) - 1);
+        dp[0] = 0;
+        for (int skillsMask = 1; skillsMask < (1 << m); skillsMask++) {
+            for (int i = 0; i < n; i++) {
+                int smallerSkillsMask = skillsMask & ~skillsMaskOfPerson[i];
+                if (smallerSkillsMask != skillsMask) {
+                    long peopleMask = dp[smallerSkillsMask] | (1L << i);
+                    if (Long.bitCount(peopleMask) < Long.bitCount(dp[skillsMask])) {
+                        dp[skillsMask] = peopleMask;
+                    }
+                }
+            }
+        }
+        long answerMask = dp[(1 << m) - 1];
+        int ans[] = new int [Long.bitCount(answerMask)];
+        int ptr = 0;
+        for (int i = 0; i < n; i++) {
+            if (((answerMask >> i) & 1) == 1) {
+                ans[ptr++] = i;
+            }
+        }
+        return ans;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    vector<int> smallestSufficientTeam(vector<string>& req_skills, vector<vector<string>>& people) {
+        int n = people.size(), m = req_skills.size();
+        unordered_map<string, int> skillId;
+        for (int i = 0; i < m; i++) {
+            skillId[req_skills[i]] = i;
+        }
+        vector<int> skillsMaskOfPerson(n);
+        for (int i = 0; i < n; i++) {
+            for (string skill : people[i]) {
+                skillsMaskOfPerson[i] |= 1 << skillId[skill];
+            }
+        }
+        vector<long long> dp(1 << m, (1LL << n) - 1);
+        dp[0] = 0;
+        for (int skillsMask = 1; skillsMask < (1 << m); skillsMask++) {
+            for (int i = 0; i < n; i++) {
+                int smallerSkillsMask = skillsMask & ~skillsMaskOfPerson[i];
+                if (smallerSkillsMask != skillsMask) {
+                    long long peopleMask = dp[smallerSkillsMask] | (1LL << i);
+                    if (__builtin_popcountll(peopleMask) < __builtin_popcountll(dp[skillsMask])) {
+                        dp[skillsMask] = peopleMask;
+                    }
+                }
+            }
+        }
+        long long answerMask = dp[(1 << m) - 1];
+        vector<int> ans;
+        for (int i = 0; i < n; i++) {
+            if ((answerMask >> i) & 1) {
+                ans.push_back(i);
+            }
+        }
+        return ans;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def smallestSufficientTeam(self, req_skills: List[str],
+                               people: List[List[str]]) -> List[int]:
+        n = len(people)
+        m = len(req_skills)
+        skill_id = dict()
+        for i, skill in enumerate(req_skills):
+            skill_id[skill] = i
+        skills_mask_of_person = [0] * n
+        for i in range(n):
+            for skill in people[i]:
+                skills_mask_of_person[i] |= 1 << skill_id[skill]
+        dp = [(1 << n) - 1] * (1 << m)
+        dp[0] = 0
+        for skills_mask in range(1, 1 << m):
+            for i in range(n):
+                smaller_skills_mask = skills_mask & ~skills_mask_of_person[i]
+                if smaller_skills_mask != skills_mask:
+                    people_mask = dp[smaller_skills_mask] | (1 << i)
+                    if people_mask.bit_count() < dp[skills_mask].bit_count():
+                        dp[skills_mask] = people_mask
+
+        answer_mask = dp[(1 << m) - 1]
+        ans = []
+        for i in range(n):
+            if (answer_mask >> i) & 1:
+                ans.append(i)
+        return ans
+    </code>
+</pre>
+<h4 id="complexity-analysis">Complexity Analysis</h4>
+<ul>
+    <li>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(2m⋅n)O(2^m \cdot n)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span
+            class="vlist-r"><span class="vlist" style="height: 0.6644em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span
+            class="mord mathnormal mtight">m</span></span></span></span></span></span></span></span><span class="mspace"
+                                                                                                          style="margin-right: 0.2222em;"></span><span
+            class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.
+    </li>
+</ul>
+<p>There are two nested for loops: <code>for skillsMask</code>, which performs <span class="math math-inline"><span
+        class="katex"><span class="katex-mathml">O(2m)O(2^m)</span><span class="katex-html" aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord"><span
+        class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                                     style="height: 0.6644em;"><span
+        style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span
+        class="mord mathnormal mtight">m</span></span></span></span></span></span></span></span><span
+        class="mclose">)</span></span></span></span></span> iterations, and <code>for i</code>, which performs <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span class="katex-html"
+                                                                                                     aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+        class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> iterations. We process
+    each transition inside these loops in <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord">1</span><span class="mclose">)</span></span></span></span></span>.</p>
+<ul>
+    <li>Space complexity: <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">O(2m)O(2^m)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                     style="margin-right: 0.02778em;">O</span><span
+            class="mopen">(</span><span class="mord"><span class="mord">2</span><span class="msupsub"><span
+            class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.6644em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span
+            class="mord mathnormal mtight">m</span></span></span></span></span></span></span></span><span
+            class="mclose">)</span></span></span></span></span>.
+    </li>
+</ul>
+<p>We store a DP array of size <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">2m2^m</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+        class="strut" style="height: 0.6644em;"></span><span class="mord"><span class="mord">2</span><span
+        class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.6644em;"><span
+        style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span
+        class="mord mathnormal mtight">m</span></span></span></span></span></span></span></span></span></span></span></span>.
+</p>
+<hr>
+<h3 id="approach-2-top-down-dynamic-programming-memoization">Approach 2: Top-Down Dynamic Programming (Memoization)</h3>
+<h4 id="intuition-1">Intuition</h4>
+<p>In this approach, we will calculate the same DP as in the previous one, but the manner of organizing computations
+    will differ.</p>
+<p>We will use the recursive function <span class="math math-inline"><span class="katex"><span class="katex-mathml">f(skillsMask)f(\text{skillsMask})</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.10764em;">f</span><span class="mopen">(</span><span
+        class="mord text"><span class="mord">skillsMask</span></span><span class="mclose">)</span></span></span></span></span>
+    that returns the value of <span class="math math-inline"><span class="katex"><span class="katex-mathml">dp[skillsMask]\text{dp}[\text{skillsMask}]</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+            class="mord text"><span class="mord">skillsMask</span></span><span
+            class="mclose">]</span></span></span></span></span>.</p>
+<p>One can rewrite the DP recurrence relation in terms of <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">ff</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                                           style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.10764em;">f</span></span></span></span></span> as follows. For
+    all <span class="math math-inline"><span class="katex"><span class="katex-mathml">ii</span><span class="katex-html"
+                                                                                                     aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6595em;"></span><span
+            class="mord mathnormal">i</span></span></span></span></span> from <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">00</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span>
+    to <span class="math math-inline"><span class="katex"><span class="katex-mathml">n−1n - 1</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+            class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span>,
+    update <span class="math math-inline"><span class="katex"><span class="katex-mathml">dp[skillsMask]\text{dp}[\text{skillsMask}]</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+            class="mord text"><span class="mord">skillsMask</span></span><span
+            class="mclose">]</span></span></span></span></span> with the bitmask <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">f(smallerSkillsMask)&nbsp;OR&nbsp;2if(\text{smallerSkillsMask}) \text{ OR } 2^i</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1.0747em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.10764em;">f</span><span class="mopen">(</span><span
+            class="mord text"><span class="mord">smallerSkillsMask</span></span><span class="mclose">)</span><span
+            class="mord text"><span class="mord">&nbsp;OR&nbsp;</span></span><span class="mord"><span
+            class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                                         style="height: 0.8247em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span
+            class="mord mathnormal mtight">i</span></span></span></span></span></span></span></span></span></span></span></span>.
+</p>
+<p>When we call <span class="math math-inline"><span class="katex"><span class="katex-mathml">f(skillsMask)f(\text{skillsMask})</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.10764em;">f</span><span class="mopen">(</span><span
+        class="mord text"><span class="mord">skillsMask</span></span><span class="mclose">)</span></span></span></span></span>
+    for the first time, we calculate the result for <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">skillsMask\text{skillsMask}</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord text"><span
+            class="mord">skillsMask</span></span></span></span></span></span> and write it into <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">dp[skillsMask]\text{dp}[\text{skillsMask}]</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+            class="mord text"><span class="mord">skillsMask</span></span><span
+            class="mclose">]</span></span></span></span></span>. When we call <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">f(skillsMask)f(\text{skillsMask})</span><span class="katex-html"
+                                                                                                   aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.10764em;">f</span><span class="mopen">(</span><span
+            class="mord text"><span class="mord">skillsMask</span></span><span
+            class="mclose">)</span></span></span></span></span> after that, we immediately return <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">dp[skillsMask]\text{dp}[\text{skillsMask}]</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+            class="mord text"><span class="mord">skillsMask</span></span><span
+            class="mclose">]</span></span></span></span></span> computed earlier.</p>
+<p>The answer to the problem is the team <span class="math math-inline"><span class="katex"><span class="katex-mathml">f(2m−1)=dp[2m−1]f(2^m - 1) = \text{dp}[2^m - 1]</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.10764em;">f</span><span class="mopen">(</span><span class="mord"><span
+        class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                                     style="height: 0.6644em;"><span
+        style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span
+        class="mord mathnormal mtight">m</span></span></span></span></span></span></span></span><span class="mspace"
+                                                                                                      style="margin-right: 0.2222em;"></span><span
+        class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord">1</span><span
+        class="mclose">)</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+        class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span
+        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord text"><span
+        class="mord">dp</span></span><span class="mopen">[</span><span class="mord"><span class="mord">2</span><span
+        class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.6644em;"><span
+        style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span
+        class="mord mathnormal mtight">m</span></span></span></span></span></span></span></span><span class="mspace"
+                                                                                                      style="margin-right: 0.2222em;"></span><span
+        class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord">1</span><span
+        class="mclose">]</span></span></span></span></span>.</p>
+<p>There remains one small technical question: how to know whether we call <span class="math math-inline"><span
+        class="katex"><span class="katex-mathml">f(skillsMask)f(\text{skillsMask})</span><span class="katex-html"
+                                                                                               aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.10764em;">f</span><span class="mopen">(</span><span
+        class="mord text"><span class="mord">skillsMask</span></span><span class="mclose">)</span></span></span></span></span>
+    for the first time and need to compute the result, or we call it later and can return <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">dp[skillsMask]\text{dp}[\text{skillsMask}]</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+            class="mord text"><span class="mord">skillsMask</span></span><span
+            class="mclose">]</span></span></span></span></span> found earlier? One can handle this by initializing the
+    <span class="math math-inline"><span class="katex"><span class="katex-mathml">dp\text{dp}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+            class="mord text"><span class="mord">dp</span></span></span></span></span></span> array with the value of
+    <span class="math math-inline"><span class="katex"><span class="katex-mathml">−1-1</span><span class="katex-html"
+                                                                                                   aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.7278em; vertical-align: -0.0833em;"></span><span
+            class="mord">−</span><span class="mord">1</span></span></span></span></span>. Then <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">dp[skillsMask]=−1\text{dp}[\text{skillsMask}] = -1</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+            class="mord text"><span class="mord">skillsMask</span></span><span class="mclose">]</span><span
+            class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace"
+                                                                                                   style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.7278em; vertical-align: -0.0833em;"></span><span
+            class="mord">−</span><span class="mord">1</span></span></span></span></span> will mean that we have not
+    calculated <span class="math math-inline"><span class="katex"><span class="katex-mathml">f(skillsMask)f(\text{skillsMask})</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.10764em;">f</span><span class="mopen">(</span><span
+            class="mord text"><span class="mord">skillsMask</span></span><span
+            class="mclose">)</span></span></span></span></span> yet. As soon as we find the result of <span
+            class="math math-inline"><span class="katex"><span
+            class="katex-mathml">f(skillsMask)f(\text{skillsMask})</span><span class="katex-html"
+                                                                               aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.10764em;">f</span><span class="mopen">(</span><span
+            class="mord text"><span class="mord">skillsMask</span></span><span
+            class="mclose">)</span></span></span></span></span>, we will write it into <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">dp[skillsMask]\text{dp}[\text{skillsMask}]</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+            class="mord text"><span class="mord">skillsMask</span></span><span
+            class="mclose">]</span></span></span></span></span>, and this value will not be <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">−1-1</span><span class="katex-html"
+                                                                                                     aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.7278em; vertical-align: -0.0833em;"></span><span
+            class="mord">−</span><span class="mord">1</span></span></span></span></span> anymore.</p>
+<h4 id="algorithm-1">Algorithm</h4>
+<p>The function <span class="math math-inline"><span class="katex"><span class="katex-mathml">ff</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.10764em;">f</span></span></span></span></span> takes a parameter
+    <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">skillsMask\text{skillsMask}</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord text"><span
+            class="mord">skillsMask</span></span></span></span></span></span>.</p>
+<ol>
+    <li>If <span class="math math-inline"><span class="katex"><span class="katex-mathml">dp[skillsMask]≠−1\text{dp}[\text{skillsMask}] \ne -1</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+            class="mord text"><span class="mord">skillsMask</span></span><span class="mclose">]</span><span
+            class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel"><span class="mrel"><span
+            class="mord vbox"><span class="thinbox"><span class="rlap"><span class="strut"
+                                                                             style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+            class="inner"><span class="mord"><span class="mrel"></span></span></span><span
+            class="fix"></span></span></span></span></span><span class="mrel">=</span></span><span class="mspace"
+                                                                                                   style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.7278em; vertical-align: -0.0833em;"></span><span
+            class="mord">−</span><span class="mord">1</span></span></span></span></span>, return <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">dp[skillsMask]\text{dp}[\text{skillsMask}]</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+            class="mord text"><span class="mord">skillsMask</span></span><span
+            class="mclose">]</span></span></span></span></span> (the value computed earlier).
+    </li>
+    <li>Iterate <span class="math math-inline"><span class="katex"><span class="katex-mathml">ii</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.6595em;"></span><span
+            class="mord mathnormal">i</span></span></span></span></span> from <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">00</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span>
+        to <span class="math math-inline"><span class="katex"><span class="katex-mathml">n−1n - 1</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.6444em;"></span><span
+                class="mord">1</span></span></span></span></span>. Try to update <span class="math math-inline"><span
+                class="katex"><span class="katex-mathml">dp[skillsMask]\text{dp}[\text{skillsMask}]</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+                class="mord text"><span class="mord">skillsMask</span></span><span class="mclose">]</span></span></span></span></span>
+        with a team containing the <span class="math math-inline"><span class="katex"><span class="katex-mathml">ithi^\text{th}</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.8491em;"></span><span
+                class="mord"><span class="mord mathnormal">i</span><span class="msupsub"><span class="vlist-t"><span
+                class="vlist-r"><span class="vlist" style="height: 0.8491em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span
+                class="mord mtight">th</span></span></span></span></span></span></span></span></span></span></span></span></span>
+        person.
+        <ul>
+            <li>Set <span class="math math-inline"><span class="katex"><span class="katex-mathml">smallerSkillsMask=skillsMask∖skillsMaskOfPerson[i]\text{smallerSkillsMask} = \text{skillsMask} \setminus \text{skillsMaskOfPerson}[i]</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.6944em;"></span><span
+                    class="mord text"><span class="mord">smallerSkillsMask</span></span><span class="mspace"
+                                                                                              style="margin-right: 0.2778em;"></span><span
+                    class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord text"><span class="mord">skillsMask</span></span><span class="mspace"
+                                                                                       style="margin-right: 0.2222em;"></span><span
+                    class="mbin">∖</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord text"><span class="mord">skillsMaskOfPerson</span></span><span
+                    class="mopen">[</span><span class="mord mathnormal">i</span><span
+                    class="mclose">]</span></span></span></span></span>.
+            </li>
+            <li>If <span class="math math-inline"><span class="katex"><span class="katex-mathml">smallerSkillsMask≠skillsMask\text{smallerSkillsMask} \ne \text{skillsMask}</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+                    class="mord text"><span class="mord">smallerSkillsMask</span></span><span class="mspace"
+                                                                                              style="margin-right: 0.2778em;"></span><span
+                    class="mrel"><span class="mrel"><span class="mord vbox"><span class="thinbox"><span
+                    class="rlap"><span class="strut" style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+                    class="inner"><span class="mord"><span class="mrel"></span></span></span><span class="fix"></span></span></span></span></span><span
+                    class="mrel">=</span></span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+                    class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord text"><span
+                    class="mord">skillsMask</span></span></span></span></span></span>.
+                <ul>
+                    <li>Set <span class="math math-inline"><span class="katex"><span class="katex-mathml">peopleMask=f(smallerSkillsMask)\text{peopleMask} = f(\text{smallerSkillsMask})</span><span
+                            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                           style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+                            class="mord text"><span class="mord">peopleMask</span></span><span class="mspace"
+                                                                                               style="margin-right: 0.2778em;"></span><span
+                            class="mrel">=</span><span class="mspace"
+                                                       style="margin-right: 0.2778em;"></span></span><span class="base"><span
+                            class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                            class="mord mathnormal" style="margin-right: 0.10764em;">f</span><span
+                            class="mopen">(</span><span class="mord text"><span
+                            class="mord">smallerSkillsMask</span></span><span
+                            class="mclose">)</span></span></span></span></span>.
+                    </li>
+                    <li>If <span class="math math-inline"><span class="katex"><span class="katex-mathml">dp[skillsMask]=−1\text{dp}[\text{skillsMask}] = -1</span><span
+                            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+                            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+                            class="mord text"><span class="mord">skillsMask</span></span><span
+                            class="mclose">]</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+                            class="mrel">=</span><span class="mspace"
+                                                       style="margin-right: 0.2778em;"></span></span><span class="base"><span
+                            class="strut" style="height: 0.7278em; vertical-align: -0.0833em;"></span><span
+                            class="mord">−</span><span class="mord">1</span></span></span></span></span> (we have not
+                        found any team for <span class="math math-inline"><span class="katex"><span
+                                class="katex-mathml">skillsMask\text{skillsMask}</span><span class="katex-html"
+                                                                                             aria-hidden="true"><span
+                                class="base"><span class="strut" style="height: 0.6944em;"></span><span
+                                class="mord text"><span
+                                class="mord">skillsMask</span></span></span></span></span></span> yet) or <span
+                                class="math math-inline"><span class="katex"><span class="katex-mathml">peopleMask&nbsp;OR&nbsp;2i\text{peopleMask} \text{ OR } 2^i</span><span
+                                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                               style="height: 1.0191em; vertical-align: -0.1944em;"></span><span
+                                class="mord text"><span class="mord">peopleMask</span></span><span
+                                class="mord text"><span class="mord">&nbsp;OR&nbsp;</span></span><span
+                                class="mord"><span class="mord">2</span><span class="msupsub"><span
+                                class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                            style="height: 0.8247em;"><span
+                                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                   style="height: 2.7em;"></span><span
+                                class="sizing reset-size6 size3 mtight"><span
+                                class="mord mathnormal mtight">i</span></span></span></span></span></span></span></span></span></span></span></span>
+                        is smaller than the current team <span class="math math-inline"><span class="katex"><span
+                                class="katex-mathml">dp[skillsMask]\text{dp}[\text{skillsMask}]</span><span
+                                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                                class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+                                class="mord text"><span class="mord">skillsMask</span></span><span
+                                class="mclose">]</span></span></span></span></span>, update <span
+                                class="math math-inline"><span class="katex"><span class="katex-mathml">dp[skillsMask]\text{dp}[\text{skillsMask}]</span><span
+                                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                                class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+                                class="mord text"><span class="mord">skillsMask</span></span><span
+                                class="mclose">]</span></span></span></span></span> with <span class="math math-inline"><span
+                                class="katex"><span class="katex-mathml">peopleMask&nbsp;OR&nbsp;2i\text{peopleMask} \text{ OR } 2^i</span><span
+                                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                               style="height: 1.0191em; vertical-align: -0.1944em;"></span><span
+                                class="mord text"><span class="mord">peopleMask</span></span><span
+                                class="mord text"><span class="mord">&nbsp;OR&nbsp;</span></span><span
+                                class="mord"><span class="mord">2</span><span class="msupsub"><span
+                                class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                            style="height: 0.8247em;"><span
+                                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                   style="height: 2.7em;"></span><span
+                                class="sizing reset-size6 size3 mtight"><span
+                                class="mord mathnormal mtight">i</span></span></span></span></span></span></span></span></span></span></span></span>.
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </li>
+    <li>Return <span class="math math-inline"><span class="katex"><span class="katex-mathml">dp[skillsMask]\text{dp}[\text{skillsMask}]</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+            class="mord text"><span class="mord">skillsMask</span></span><span
+            class="mclose">]</span></span></span></span></span>.
+    </li>
+</ol>
+<p>Before calling <span class="math math-inline"><span class="katex"><span class="katex-mathml">ff</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.10764em;">f</span></span></span></span></span> we need to
+    precalculate <span class="math math-inline"><span class="katex"><span class="katex-mathml">skillsMaskOfPerson[i]\text{skillsMaskOfPerson}[i]</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">skillsMaskOfPerson</span></span><span class="mopen">[</span><span
+            class="mord mathnormal">i</span><span class="mclose">]</span></span></span></span></span> for all <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">ii</span><span class="katex-html"
+                                                                                                   aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6595em;"></span><span
+            class="mord mathnormal">i</span></span></span></span></span>. Also, we initialize <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">dp[0]=0\text{dp}[0] = 0</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span class="mord">0</span><span
+            class="mclose">]</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+            class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span>
+    as the base case and all other elements to <code>-1</code>.</p>
+<p>The answer to the problem is <span class="math math-inline"><span class="katex"><span class="katex-mathml">f(2m−1)f(2^m - 1)</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.10764em;">f</span><span class="mopen">(</span><span class="mord"><span
+        class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                                     style="height: 0.6644em;"><span
+        style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span
+        class="mord mathnormal mtight">m</span></span></span></span></span></span></span></span><span class="mspace"
+                                                                                                      style="margin-right: 0.2222em;"></span><span
+        class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord">1</span><span
+        class="mclose">)</span></span></span></span></span>.</p>
+<h4 id="implementation-1">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    int n;
+    int skillsMaskOfPerson[];
+    long dp[];
+    private Long f(int skillsMask) {
+        if (skillsMask == 0) {
+            return 0L;
+        }
+        if (dp[skillsMask] != -1) {
+            return dp[skillsMask];
+        }
+        for (int i = 0; i < n; i++) {
+            int smallerSkillsMask = skillsMask & ~skillsMaskOfPerson[i];
+            if (smallerSkillsMask != skillsMask) {
+                long peopleMask = f(smallerSkillsMask) | (1L << i);
+                if (dp[skillsMask] == -1 || Long.bitCount(peopleMask) <
+                                                Long.bitCount(dp[skillsMask])) {
+                    dp[skillsMask] = peopleMask;
+                }
+            }
+        }
+        return dp[skillsMask];
+    }
+    public int[] smallestSufficientTeam(String[] req_skills, List<List<String>> people) {
+        n = people.size();
+        int m = req_skills.length;
+        HashMap<String, Integer> skillId = new HashMap<String, Integer>();
+        for (int i = 0; i < m; i++) {
+            skillId.put(req_skills[i], i);
+        }
+        skillsMaskOfPerson = new int[n];
+        for (int i = 0; i < n; i++) {
+            for (String skill : people.get(i)) {
+                skillsMaskOfPerson[i] |= 1 << skillId.get(skill);
+            }
+        }
+        dp = new long [1 << m];
+        Arrays.fill(dp, -1);
+        long answerMask = f((1 << m) - 1);
+        int ans[] = new int [Long.bitCount(answerMask)];
+        int ptr = 0;
+        for (int i = 0; i < n; i++) {
+            if (((answerMask >> i) & 1) == 1) {
+                ans[ptr++] = i;
+            }
+        }
+        return ans;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    vector<int> smallestSufficientTeam(vector<string>& req_skills, vector<vector<string>>& people) {
+        int n = people.size(), m = req_skills.size();
+        unordered_map<string, int> skillId;
+        for (int i = 0; i < m; i++) {
+            skillId[req_skills[i]] = i;
+        }
+        vector<int> skillsMaskOfPerson(n);
+        vector<long long> dp(1 << m, -1);
+        for (int i = 0; i < n; i++) {
+            for (string skill : people[i]) {
+                skillsMaskOfPerson[i] |= 1 << skillId[skill];
+            }
+        }
+        function<long long(int)> f = [&](int skillsMask) -> long long {
+            if (skillsMask == 0) {
+                return 0;
+            }
+            if (dp[skillsMask] != -1) {
+                return dp[skillsMask];
+            }
+            for (int i = 0; i < n; i++) {
+                int smallerSkillsMask = skillsMask & ~skillsMaskOfPerson[i];
+                if (smallerSkillsMask != skillsMask) {
+                    long long peopleMask = f(smallerSkillsMask) | (1LL << i);
+                    if (dp[skillsMask] == -1 || __builtin_popcountll(peopleMask) <
+                                                    __builtin_popcountll(dp[skillsMask])) {
+                        dp[skillsMask] = peopleMask;
+                    }
+                }
+            }
+            return dp[skillsMask];
+        };
+        long long answerMask = f((1 << m) - 1);
+        vector<int> ans;
+        for (int i = 0; i < n; i++) {
+            if ((answerMask >> i) & 1) {
+                ans.push_back(i);
+            }
+        }
+        return ans;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def smallestSufficientTeam(self, req_skills: List[str],
+                               people: List[List[str]]) -> List[int]:
+        n = len(people)
+        m = len(req_skills)
+        skill_id = dict()
+        for i, skill in enumerate(req_skills):
+            skill_id[skill] = i
+        skills_mask_of_person = [0] * n
+        for i in range(n):
+            for skill in people[i]:
+                skills_mask_of_person[i] |= 1 << skill_id[skill]
+        dp = [-1] * (1 << m)
+        dp[0] = 0
+
+        def f(skills_mask):
+            if dp[skills_mask] != -1:
+                return dp[skills_mask]
+            for i in range(n):
+                new_skills_mask = skills_mask & ~skills_mask_of_person[i]
+                if new_skills_mask != skills_mask:
+                    people_mask = f(new_skills_mask) | (1 << i)
+                    if (dp[skills_mask] == -1 or
+                        people_mask.bit_count()
+                       < dp[skills_mask].bit_count()):
+                        dp[skills_mask] = people_mask
+            return dp[skills_mask]
+        answer_mask = f((1 << m) - 1)
+        ans = []
+        for i in range(n):
+            if (answer_mask >> i) & 1:
+                ans.append(i)
+        return ans
+    </code>
+</pre>
+<h4 id="complexity-analysis-1">Complexity Analysis</h4>
+<ul>
+    <li>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(2m⋅n)O(2^m \cdot n)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span
+            class="vlist-r"><span class="vlist" style="height: 0.6644em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span
+            class="mord mathnormal mtight">m</span></span></span></span></span></span></span></span><span class="mspace"
+                                                                                                          style="margin-right: 0.2222em;"></span><span
+            class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.
+    </li>
+</ul>
+<p>Even though we changed the order of calculating DP, the time complexity is the same as in the previous approach: for
+    each <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">skillsMask\text{skillsMask}</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord text"><span
+            class="mord">skillsMask</span></span></span></span></span></span>, we compute <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">dp[skillsMask]\text{dp}[\text{skillsMask}]</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+            class="mord text"><span class="mord">skillsMask</span></span><span
+            class="mclose">]</span></span></span></span></span> in <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>. Since we store
+    the results in memory, we will calculate each <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">dp[skillsMask]\text{dp}[\text{skillsMask}]</span><span class="katex-html"
+                                                                                        aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+            class="mord text"><span class="mord">skillsMask</span></span><span
+            class="mclose">]</span></span></span></span></span> only once.</p>
+<ul>
+    <li>Space complexity: <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">O(2m)O(2^m)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                     style="margin-right: 0.02778em;">O</span><span
+            class="mopen">(</span><span class="mord"><span class="mord">2</span><span class="msupsub"><span
+            class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.6644em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span
+            class="mord mathnormal mtight">m</span></span></span></span></span></span></span></span><span
+            class="mclose">)</span></span></span></span></span>.
+    </li>
+</ul>
+<p>We store a DP array of size <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">2m2^m</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+        class="strut" style="height: 0.6644em;"></span><span class="mord"><span class="mord">2</span><span
+        class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.6644em;"><span
+        style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span
+        class="mord mathnormal mtight">m</span></span></span></span></span></span></span></span></span></span></span></span>.
+</p>
+</body>
+</html>
