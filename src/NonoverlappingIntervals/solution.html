@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Non-overlapping Intervals - Solution</title>
+</head>
+<body>
+<h2 id="solution">Non-overlapping Intervals - Solution</h2>
+<hr>
+<h4 id="approach-greedy">Approach: Greedy</h4>
+<p><strong>Intuition</strong></p>
+<p>Finding the minimum number of intervals to remove is equivalent to finding the maximum number of non-overlapping
+    intervals. This is the famous <a href="https://en.wikipedia.org/wiki/Interval_scheduling" target="_blank">interval
+        scheduling problem</a>.</p>
+<p>Let's start by considering the intervals according to their end times. Consider the two intervals with the earliest
+    end times. Let's say the earlier end time is <code>x</code> and the later one is <code>y</code>. We have <code>x
+        &lt; y</code>.</p>
+<p>If we can only choose to keep one interval, should we choose the one ending at <code>x</code> or ending at
+    <code>y</code>? To avoid overlap, We should always greedily choose the interval with an earlier end time
+    <code>x</code>. The intuition behind this can be summarized as follows:</p>
+<ul>
+    <li>We choose either <code>x</code> or <code>y</code>. Let's call our choice <code>k</code>.</li>
+    <li>To avoid overlap, the next interval we choose must have a start time greater than or equal to <code>k</code>.
+    </li>
+    <li>We want to maximize the intervals we take (without overlap), so we want to maximize our choices for the next
+        interval.
+    </li>
+    <li>Because the next interval must have a start time <strong>greater</strong> than or equal to <code>k</code>, a
+        larger value of <code>k</code> can <strong>never</strong> give us more choices than a smaller value of
+        <code>k</code>.
+    </li>
+    <li>As such, we should try to minimize <code>k</code>. Therefore, we should always greedily choose <code>x</code>,
+        since <code>x &lt; y</code>.
+    </li>
+</ul>
+<blockquote>
+    <p>In general, <code>k</code> is equal to the end time of the most recent interval we kept.</p>
+</blockquote>
+<p>Start by sorting <code>intervals</code> according to the end times so that we can process the intervals in order.
+    We'll keep the variable <code>k</code> described above.</p>
+<p>As we iterate over the intervals, let's consider the possible cases. In the following image, <code>k</code> is the
+    vertical line, and <code>x, y</code> is the next interval to be considered.</p>
+<p><img src="1.png" alt="" width="960"> <br></p>
+<p>Because we sorted the end times, <code>y</code> must be greater than <code>k</code>. This gives us two cases:</p>
+<ul>
+    <li>Case 1, <code>x &gt;= k</code>: we can safely take this interval because it won't cause an overlap. We should
+        update <code>k = y</code> since this interval is now the most recent interval we are keeping.
+    </li>
+    <li>Case 2, <code>x &lt; k</code>: taking this interval would cause an overlap. As we established earlier, we should
+        always take intervals with earlier end times. Because <code>y &gt; k</code>, we must delete the current interval
+        (don't update <code>k</code>).
+    </li>
+</ul>
+<blockquote>
+    <p>For those interested in a formal proof of this algorithm's correctness, please refer to <a
+            href="https://www.cs.umd.edu/class/fall2017/cmsc451-0101/Lects/lect07-greedy-sched.pdf" target="_blank">this
+        paper</a>, pages 2 - 4.</p>
+</blockquote>
+<p><strong>Algorithm</strong></p>
+<ol>
+    <li>Sort <code>intervals</code> according to the end times.</li>
+    <li>Initialize an answer variable <code>ans = 0</code> and an integer <code>k</code> to represent the most recent
+        end time. <code>k</code> should be initialized to a small value like <code>INT_MIN</code>.
+    </li>
+    <li>Iterate over the intervals. For each interval:
+        <ul>
+            <li>If the start time is greater than or equal to <code>k</code>, update <code>k</code> to the end time of
+                the current interval.
+            </li>
+            <li>Otherwise, increment <code>ans</code>.</li>
+        </ul>
+    </li>
+    <li>Return <code>ans</code>.</li>
+</ol>
+<p><strong>Implementation</strong></p>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int eraseOverlapIntervals(int[][] intervals) {
+        Arrays.sort(intervals, Comparator.comparingInt(a -> a[1]));
+        int ans = 0;
+        int k = Integer.MIN_VALUE;
+
+        for (int i = 0; i < intervals.length; i++) {
+            int x = intervals[i][0];
+            int y = intervals[i][1];
+
+            if (x >= k) {
+                // Case 1
+                k = y;
+            } else {
+                // Case 2
+                ans++;
+            }
+        }
+
+        return ans;
+    }
+}
+    </code>
+    C++
+    <code>
+        bool compareSecondElement(vector<int>& a, vector<int>& b) {
+    return a[1] < b[1];
+}
+
+class Solution {
+public:
+    int eraseOverlapIntervals(vector<vector<int>>& intervals) {
+        sort(intervals.begin(), intervals.end(), compareSecondElement);
+        int ans = 0;
+        int k = INT_MIN;
+
+        for (int i = 0; i < intervals.size(); i++) {
+            int x = intervals[i][0];
+            int y = intervals[i][1];
+
+            if (x >= k) {
+                // Case 1
+                k = y;
+            } else {
+                // Case 2
+                ans++;
+            }
+        }
+
+        return ans;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def eraseOverlapIntervals(self, intervals: List[List[int]]) -> int:
+        intervals.sort(key = lambda x: x[1])
+        ans = 0
+        k = -inf
+
+        for x, y in intervals:
+            if x >= k:
+                # Case 1
+                k = y
+            else:
+                # Case 2
+                ans += 1
+
+        return ans
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<p>Given <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    as the length of <code>intervals</code>,</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅log⁡n)O(n \cdot \log n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                      style="margin-right: 0.1667em;"></span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></p>
+        <p>We sort <code>intervals</code>, which costs <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n⋅log⁡n)O(n \cdot \log n)</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                      style="margin-right: 0.1667em;"></span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>. Then, we
+            iterate over the input, performing constant time work at each iteration. This means the iteration costs
+            <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>, which is
+            dominated by the sort.</p>
+    </li>
+    <li>
+        <p>Space Complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡n)O(\log n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                          style="margin-right: 0.1667em;"></span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> or <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></p>
+        <p>The space complexity of the sorting algorithm depends on the implementation of each programming language:</p>
+        <ul>
+            <li>In Java, Arrays.sort() is implemented using a variant of the Quick Sort algorithm, which has a space
+                complexity of <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡n)O(\log n)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span
+                        class="mspace" style="margin-right: 0.1667em;"></span><span
+                        class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></li>
+            <li>In C++, the sort() function provided by STL uses a hybrid of Quick Sort, Heap Sort and Insertion Sort,
+                with a worst case space complexity of <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(log⁡n)O(\log n)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span
+                        class="mspace" style="margin-right: 0.1667em;"></span><span
+                        class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></li>
+            <li>In Python, the sort() function is implemented using the Timsort algorithm, which has a worst-case space
+                complexity of <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+            </li>
+        </ul>
+    </li>
+</ul>
+<br>
+<hr>
+</body>
+</html>
