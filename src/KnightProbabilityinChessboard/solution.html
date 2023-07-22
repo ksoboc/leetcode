@@ -1,0 +1,2064 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Knight Probability in Chessboard - Solution</title>
+</head>
+<body>
+<h2 id="solution">Knight Probability in Chessboard - Solution</h2>
+<hr>
+<h3 id="overview">Overview</h3>
+<blockquote>
+    <p><strong>Note.</strong> For this problem, we assume that you already know the fundamentals of dynamic programming
+        and are figuring out how to apply it to a wide range of problems, such as this one. If you are not yet at this
+        stage, we recommend checking out our relevant <a
+                href="https://leetcode.com/explore/featured/card/dynamic-programming/" target="_blank">Explore Card
+            content on dynamic programming</a> before coming back to this article.</p>
+</blockquote>
+<hr>
+<h3 id="approach-1-bottom-up-dynamic-programming">Approach 1: Bottom-up Dynamic Programming</h3>
+<h4 id="intuition">Intuition</h4>
+<p>To solve the problem using dynamic programming, we define <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">dp[moves][i][j]\text{dp}[\text{moves}][i][j]</span><span class="katex-html"
+                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span class="mord text"><span
+        class="mord">moves</span></span><span class="mclose">]</span><span class="mopen">[</span><span
+        class="mord mathnormal">i</span><span class="mclose">]</span><span class="mopen">[</span><span
+        class="mord mathnormal" style="margin-right: 0.05724em;">j</span><span
+        class="mclose">]</span></span></span></span></span> as the probability of the knight being at cell <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">(i,j)(i, j)</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mopen">(</span><span class="mord mathnormal">i</span><span class="mpunct">,</span><span class="mspace"
+                                                                                                       style="margin-right: 0.1667em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.05724em;">j</span><span
+        class="mclose">)</span></span></span></span></span> on the chessboard after <span class="math math-inline"><span
+        class="katex"><span class="katex-mathml">moves\text{moves}</span><span class="katex-html"
+                                                                               aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord text"><span class="mord">moves</span></span></span></span></span></span>
+    moves.</p>
+<p>The base case is when <span class="math math-inline"><span class="katex"><span class="katex-mathml">moves=0\text{moves} = 0</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.4306em;"></span><span
+        class="mord text"><span class="mord">moves</span></span><span class="mspace"
+                                                                      style="margin-right: 0.2778em;"></span><span
+        class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span
+        class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span>,
+    representing the starting position of the knight. In this case, the probability of being at cell <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">(row,column)(\text{row}, \text{column})</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mopen">(</span><span class="mord text"><span class="mord">row</span></span><span
+            class="mpunct">,</span><span class="mspace" style="margin-right: 0.1667em;"></span><span
+            class="mord text"><span class="mord">column</span></span><span class="mclose">)</span></span></span></span></span>
+    is 100%. We set <span class="math math-inline"><span class="katex"><span class="katex-mathml">dp[0][row][column]=1\text{dp}[0][\text{row}][\text{column}] = 1</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span class="mord">0</span><span
+            class="mclose">]</span><span class="mopen">[</span><span class="mord text"><span
+            class="mord">row</span></span><span class="mclose">]</span><span class="mopen">[</span><span
+            class="mord text"><span class="mord">column</span></span><span class="mclose">]</span><span class="mspace"
+                                                                                                        style="margin-right: 0.2778em;"></span><span
+            class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span>,
+    and all other cells have a probability of <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">00</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span>.</p>
+<p>Now, let's consider the transitions for the dynamic programming solution. For each <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">moves\text{moves}</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.4306em;"></span><span
+        class="mord text"><span class="mord">moves</span></span></span></span></span></span> from <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">11</span><span class="katex-html"
+                                                                                               aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.6444em;"></span><span
+        class="mord">1</span></span></span></span></span> to <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">kk</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                                           style="height: 0.6944em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.03148em;">k</span></span></span></span></span>, we want to
+    calculate the probability for each cell <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">(i,j)(i, j)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mopen">(</span><span
+            class="mord mathnormal">i</span><span class="mpunct">,</span><span class="mspace"
+                                                                               style="margin-right: 0.1667em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.05724em;">j</span><span class="mclose">)</span></span></span></span></span>
+    based on the previous moves.</p>
+<p>To determine the probability for each cell after <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">moves\text{moves}</span><span class="katex-html" aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord text"><span class="mord">moves</span></span></span></span></span></span>
+    moves, we iterate over all cells <span class="math math-inline"><span class="katex"><span class="katex-mathml">(i,j)(i, j)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mopen">(</span><span class="mord mathnormal">i</span><span class="mpunct">,</span><span
+            class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal"
+                                                                        style="margin-right: 0.05724em;">j</span><span
+            class="mclose">)</span></span></span></span></span> on the chessboard. For each cell, we consider all
+    possible moves the knight can make to reach that cell.</p>
+<p>For a given cell <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">(i,j)(i, j)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mopen">(</span><span
+        class="mord mathnormal">i</span><span class="mpunct">,</span><span class="mspace"
+                                                                           style="margin-right: 0.1667em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.05724em;">j</span><span
+        class="mclose">)</span></span></span></span></span>, we iterate over the possible directions, calculating the
+    probability of reaching cell <span class="math math-inline"><span class="katex"><span class="katex-mathml">(i,j)(i, j)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mopen">(</span><span class="mord mathnormal">i</span><span class="mpunct">,</span><span
+            class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal"
+                                                                        style="margin-right: 0.05724em;">j</span><span
+            class="mclose">)</span></span></span></span></span> from neighboring cells <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">(i′,j′)(i', j')</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1.0019em; vertical-align: -0.25em;"></span><span
+            class="mopen">(</span><span class="mord"><span class="mord mathnormal">i</span><span class="msupsub"><span
+            class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.7519em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">′</span></span></span></span></span></span></span></span></span><span
+            class="mpunct">,</span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord"><span
+            class="mord mathnormal" style="margin-right: 0.05724em;">j</span><span class="msupsub"><span
+            class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.7519em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">′</span></span></span></span></span></span></span></span></span><span
+            class="mclose">)</span></span></span></span></span> in the previous move. The variables <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">i′i'</span><span class="katex-html"
+                                                                                                     aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.7519em;"></span><span class="mord"><span
+            class="mord mathnormal">i</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span
+            class="vlist" style="height: 0.7519em;"><span style="top: -3.063em; margin-right: 0.05em;"><span
+            class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span
+            class="mord mtight"><span
+            class="mord mtight">′</span></span></span></span></span></span></span></span></span></span></span></span></span>
+    and <span class="math math-inline"><span class="katex"><span class="katex-mathml">j′j'</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.9463em; vertical-align: -0.1944em;"></span><span
+            class="mord"><span class="mord mathnormal" style="margin-right: 0.05724em;">j</span><span
+            class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                              style="height: 0.7519em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">′</span></span></span></span></span></span></span></span></span></span></span></span></span>
+    represent the coordinates of the neighboring cells (in the sense of knight's moves).</p>
+<p>We consider all eight possible directions that a knight can move. Each direction corresponds to a movement pattern of
+    two steps in one direction and one step in the perpendicular direction, or vice versa. For example, one possible
+    direction is moving two steps vertically up and one step horizontally to the right. We use a list of <span
+            class="math math-inline"><span class="katex"><span
+            class="katex-mathml">directions\text{directions}</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord text"><span
+            class="mord">directions</span></span></span></span></span></span> to represent these possible moves: <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">directions=[(1,2),(1,−2),(−1,2),(−1,−2),(2,1),(2,−1),(−2,1),(−2,−1)]\text{directions} = [(1, 2), (1, -2), (-1, 2), (-1, -2), (2, 1), (2, -1), (-2, 1), (-2, -1)]</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.6944em;"></span><span
+            class="mord text"><span class="mord">directions</span></span><span class="mspace"
+                                                                               style="margin-right: 0.2778em;"></span><span
+            class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mopen">[(</span><span class="mord">1</span><span class="mpunct">,</span><span class="mspace"
+                                                                                                 style="margin-right: 0.1667em;"></span><span
+            class="mord">2</span><span class="mclose">)</span><span class="mpunct">,</span><span class="mspace"
+                                                                                                 style="margin-right: 0.1667em;"></span><span
+            class="mopen">(</span><span class="mord">1</span><span class="mpunct">,</span><span class="mspace"
+                                                                                                style="margin-right: 0.1667em;"></span><span
+            class="mord">−</span><span class="mord">2</span><span class="mclose">)</span><span
+            class="mpunct">,</span><span class="mspace" style="margin-right: 0.1667em;"></span><span
+            class="mopen">(</span><span class="mord">−</span><span class="mord">1</span><span
+            class="mpunct">,</span><span class="mspace" style="margin-right: 0.1667em;"></span><span
+            class="mord">2</span><span class="mclose">)</span><span class="mpunct">,</span><span class="mspace"
+                                                                                                 style="margin-right: 0.1667em;"></span><span
+            class="mopen">(</span><span class="mord">−</span><span class="mord">1</span><span
+            class="mpunct">,</span><span class="mspace" style="margin-right: 0.1667em;"></span><span
+            class="mord">−</span><span class="mord">2</span><span class="mclose">)</span><span
+            class="mpunct">,</span><span class="mspace" style="margin-right: 0.1667em;"></span><span
+            class="mopen">(</span><span class="mord">2</span><span class="mpunct">,</span><span class="mspace"
+                                                                                                style="margin-right: 0.1667em;"></span><span
+            class="mord">1</span><span class="mclose">)</span><span class="mpunct">,</span><span class="mspace"
+                                                                                                 style="margin-right: 0.1667em;"></span><span
+            class="mopen">(</span><span class="mord">2</span><span class="mpunct">,</span><span class="mspace"
+                                                                                                style="margin-right: 0.1667em;"></span><span
+            class="mord">−</span><span class="mord">1</span><span class="mclose">)</span><span
+            class="mpunct">,</span><span class="mspace" style="margin-right: 0.1667em;"></span><span
+            class="mopen">(</span><span class="mord">−</span><span class="mord">2</span><span
+            class="mpunct">,</span><span class="mspace" style="margin-right: 0.1667em;"></span><span
+            class="mord">1</span><span class="mclose">)</span><span class="mpunct">,</span><span class="mspace"
+                                                                                                 style="margin-right: 0.1667em;"></span><span
+            class="mopen">(</span><span class="mord">−</span><span class="mord">2</span><span
+            class="mpunct">,</span><span class="mspace" style="margin-right: 0.1667em;"></span><span
+            class="mord">−</span><span class="mord">1</span><span class="mclose">)]</span></span></span></span></span>.
+</p>
+<p>For each direction, we calculate the probability of reaching cell <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">(i,j)(i, j)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mopen">(</span><span
+        class="mord mathnormal">i</span><span class="mpunct">,</span><span class="mspace"
+                                                                           style="margin-right: 0.1667em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.05724em;">j</span><span
+        class="mclose">)</span></span></span></span></span> from the neighboring cell <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">(i′,j′)(i', j')</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1.0019em; vertical-align: -0.25em;"></span><span
+        class="mopen">(</span><span class="mord"><span class="mord mathnormal">i</span><span class="msupsub"><span
+        class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.7519em;"><span
+        style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+        class="mord mtight">′</span></span></span></span></span></span></span></span></span><span
+        class="mpunct">,</span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord"><span
+        class="mord mathnormal" style="margin-right: 0.05724em;">j</span><span class="msupsub"><span
+        class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.7519em;"><span
+        style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+        class="mord mtight">′</span></span></span></span></span></span></span></span></span><span
+        class="mclose">)</span></span></span></span></span> in the previous move. We sum up the probabilities for all
+    eight neighboring cells and divide the result by <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">88</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.6444em;"></span><span class="mord">8</span></span></span></span></span> since
+    there are eight possible moves for the knight.</p>
+<p>By considering all possible directions and summing up the probabilities from the neighboring cells, we obtain the
+    probability of being at cell <span class="math math-inline"><span class="katex"><span class="katex-mathml">(i,j)(i, j)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mopen">(</span><span class="mord mathnormal">i</span><span class="mpunct">,</span><span
+            class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal"
+                                                                        style="margin-right: 0.05724em;">j</span><span
+            class="mclose">)</span></span></span></span></span> after <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">moves\text{moves}</span><span class="katex-html"
+                                                                                   aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord text"><span
+            class="mord">moves</span></span></span></span></span></span> moves:</p>
+<p><span class="math math-inline"><span class="katex"><span class="katex-mathml">dp[moves][i][j]=18∑(i′,j′)dp[moves−1][i′][j′]\Large{\text{dp}[\text{moves}][i][j] = \frac{1}{8} \sum_{(i', j')} \text{dp}[\text{moves} - 1][i'][j']}</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1.8718em; vertical-align: -0.66em;"></span><span
+        class="mord sizing reset-size6 size8"><span class="mord text"><span class="mord">dp</span></span><span
+        class="mopen">[</span><span class="mord text"><span class="mord">moves</span></span><span
+        class="mclose">]</span><span class="mopen">[</span><span class="mord mathnormal">i</span><span
+        class="mclose">]</span><span class="mopen">[</span><span class="mord mathnormal"
+                                                                 style="margin-right: 0.05724em;">j</span><span
+        class="mclose">]</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+        class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mord"><span
+        class="mopen nulldelimiter sizing reset-size8 size6"></span><span class="mfrac"><span
+        class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.8415em;"><span
+        style="top: -2.655em;"><span class="pstrut" style="height: 3em;"></span><span
+        class="sizing reset-size8 size6 mtight"><span class="mord mtight"><span
+        class="mord mtight">8</span></span></span></span><span style="top: -3.23em;"><span class="pstrut"
+                                                                                           style="height: 3em;"></span><span
+        class="frac-line" style="border-bottom-width: 0.04em;"></span></span><span style="top: -3.394em;"><span
+        class="pstrut" style="height: 3em;"></span><span class="sizing reset-size8 size6 mtight"><span
+        class="mord mtight"><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span
+        class="vlist-r"><span class="vlist" style="height: 0.345em;"><span></span></span></span></span></span><span
+        class="mclose nulldelimiter sizing reset-size8 size6"></span></span><span class="mspace"
+                                                                                  style="margin-right: 0.1667em;"></span><span
+        class="mop"><span class="mop op-symbol small-op" style="position: relative; top: 0em;">∑</span><span
+        class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist"
+                                                                                   style="height: 0.2361em;"><span
+        style="top: -2.7153em; margin-left: 0em; margin-right: 0.0347em;"><span class="pstrut"
+                                                                                style="height: 3em;"></span><span
+        class="sizing reset-size8 size6 mtight"><span class="mord mtight"><span class="mopen mtight">(</span><span
+        class="mord mtight"><span class="mord mathnormal mtight">i</span><span class="msupsub"><span
+        class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.6779em;"><span
+        style="top: -2.989em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+        class="mord mtight">′</span></span></span></span></span></span></span></span></span><span class="mpunct mtight">,</span><span
+        class="mord mtight"><span class="mord mathnormal mtight" style="margin-right: 0.05724em;">j</span><span
+        class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.6779em;"><span
+        style="top: -2.989em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+        class="mord mtight">′</span></span></span></span></span></span></span></span></span><span class="mclose mtight">)</span></span></span></span></span><span
+        class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.4583em;"><span></span></span></span></span></span></span><span
+        class="mspace" style="margin-right: 0.1667em;"></span><span class="mord text"><span
+        class="mord">dp</span></span><span class="mopen">[</span><span class="mord text"><span class="mord">moves</span></span><span
+        class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">−</span><span class="mspace"
+                                                                                               style="margin-right: 0.2222em;"></span><span
+        class="mord">1</span><span class="mclose">]</span><span class="mopen">[</span><span class="mord"><span
+        class="mord mathnormal">i</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span
+        class="vlist" style="height: 0.7488em;"><span style="top: -3.363em; margin-right: 0.0347em;"><span
+        class="pstrut" style="height: 3em;"></span><span class="sizing reset-size8 size6 mtight"><span
+        class="mord mtight"><span
+        class="mord mtight">′</span></span></span></span></span></span></span></span></span><span
+        class="mclose">]</span><span class="mopen">[</span><span class="mord"><span class="mord mathnormal"
+                                                                                    style="margin-right: 0.05724em;">j</span><span
+        class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.7488em;"><span
+        style="top: -3.363em; margin-right: 0.0347em;"><span class="pstrut" style="height: 3em;"></span><span
+        class="sizing reset-size8 size6 mtight"><span class="mord mtight"><span
+        class="mord mtight">′</span></span></span></span></span></span></span></span></span><span
+        class="mclose">]</span></span></span></span></span></span></p>
+<p>This probability takes into account all the possible paths and movements of the knight up to that point.</p>
+<p>Finally, to calculate the total probability of the knight remaining on the board after <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">kk</span><span class="katex-html"
+                                                                                               aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord mathnormal"
+                                                                                style="margin-right: 0.03148em;">k</span></span></span></span></span>
+    moves, we sum up the probabilities for all cells <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">(i,j)(i, j)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mopen">(</span><span
+            class="mord mathnormal">i</span><span class="mpunct">,</span><span class="mspace"
+                                                                               style="margin-right: 0.1667em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.05724em;">j</span><span class="mclose">)</span></span></span></span></span>
+    on the chessboard.</p>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">total_probability\text{total\_probability}</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1.0044em; vertical-align: -0.31em;"></span><span
+        class="mord text"><span class="mord">total_probability</span></span></span></span></span></span> represent the
+    overall probability that the knight remains on the chessboard after <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">kk</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord mathnormal"
+                                                                                    style="margin-right: 0.03148em;">k</span></span></span></span></span>
+    moves. To calculate this probability, we need to consider each cell on the chessboard.</p>
+<p>We iterate over all the cells <span class="math math-inline"><span class="katex"><span class="katex-mathml">(i,j)(i, j)</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mopen">(</span><span class="mord mathnormal">i</span><span class="mpunct">,</span><span class="mspace"
+                                                                                                       style="margin-right: 0.1667em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.05724em;">j</span><span
+        class="mclose">)</span></span></span></span></span> on the chessboard, starting from the top-left cell and
+    moving row by row. For each cell, we sum up <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">dp[k][i][j]\text{dp}[k][i][j]</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+            class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span class="mclose">]</span><span
+            class="mopen">[</span><span class="mord mathnormal">i</span><span class="mclose">]</span><span
+            class="mopen">[</span><span class="mord mathnormal" style="margin-right: 0.05724em;">j</span><span
+            class="mclose">]</span></span></span></span></span>. These <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">dp\text{dp}</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+            class="mord text"><span class="mord">dp</span></span></span></span></span></span> values represent the
+    probabilities of the knight being at that cell after <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">kk</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.6944em;"></span><span class="mord mathnormal"
+                                                                 style="margin-right: 0.03148em;">k</span></span></span></span></span>
+    moves.</p>
+<p>By summing up these probabilities for all cells on the chessboard, we obtain the <span class="math math-inline"><span
+        class="katex"><span class="katex-mathml">total_probability\text{total\_probability}</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1.0044em; vertical-align: -0.31em;"></span><span
+        class="mord text"><span class="mord">total_probability</span></span></span></span></span></span>. This value
+    reflects the cumulative likelihood that the knight will remain on the chessboard after <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">kk</span><span class="katex-html"
+                                                                                                   aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord mathnormal"
+                                                                                    style="margin-right: 0.03148em;">k</span></span></span></span></span>
+    moves. The higher the <span class="math math-inline"><span class="katex"><span class="katex-mathml">total_probability\text{total\_probability}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1.0044em; vertical-align: -0.31em;"></span><span
+            class="mord text"><span class="mord">total_probability</span></span></span></span></span></span>, the
+    greater the chance that the knight will still be on the board.</p>
+<p>One can write this in mathematical notation: <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">total_probability=∑i=0n−1∑j=0n−1dp[k][i][j]\text{{total\_probability}} = \sum_{i=0}^{n-1} \sum_{j=0}^{n-1} \text{dp}[k][i][j]</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1.0044em; vertical-align: -0.31em;"></span><span
+        class="mord text"><span class="mord"><span class="mord">total_probability</span></span></span><span
+        class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace"
+                                                                                               style="margin-right: 0.2778em;"></span></span><span
+        class="base"><span class="strut" style="height: 1.3898em; vertical-align: -0.4358em;"></span><span
+        class="mop"><span class="mop op-symbol small-op" style="position: relative; top: 0em;">∑</span><span
+        class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist"
+                                                                                   style="height: 0.954em;"><span
+        style="top: -2.4003em; margin-left: 0em; margin-right: 0.05em;"><span class="pstrut"
+                                                                              style="height: 2.7em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+        class="mord mathnormal mtight">i</span><span class="mrel mtight">=</span><span
+        class="mord mtight">0</span></span></span></span><span style="top: -3.2029em; margin-right: 0.05em;"><span
+        class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span
+        class="mord mtight"><span class="mord mathnormal mtight">n</span><span class="mbin mtight">−</span><span
+        class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span
+        class="vlist-r"><span class="vlist"
+                              style="height: 0.2997em;"><span></span></span></span></span></span></span><span
+        class="mspace" style="margin-right: 0.1667em;"></span><span class="mop"><span class="mop op-symbol small-op"
+                                                                                      style="position: relative; top: 0em;">∑</span><span
+        class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist"
+                                                                                   style="height: 0.954em;"><span
+        style="top: -2.4003em; margin-left: 0em; margin-right: 0.05em;"><span class="pstrut"
+                                                                              style="height: 2.7em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight"
+                                                                                style="margin-right: 0.05724em;">j</span><span
+        class="mrel mtight">=</span><span class="mord mtight">0</span></span></span></span><span
+        style="top: -3.2029em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+        class="mord mathnormal mtight">n</span><span class="mbin mtight">−</span><span
+        class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span
+        class="vlist-r"><span class="vlist"
+                              style="height: 0.4358em;"><span></span></span></span></span></span></span><span
+        class="mspace" style="margin-right: 0.1667em;"></span><span class="mord text"><span
+        class="mord">dp</span></span><span class="mopen">[</span><span class="mord mathnormal"
+                                                                       style="margin-right: 0.03148em;">k</span><span
+        class="mclose">]</span><span class="mopen">[</span><span class="mord mathnormal">i</span><span
+        class="mclose">]</span><span class="mopen">[</span><span class="mord mathnormal"
+                                                                 style="margin-right: 0.05724em;">j</span><span
+        class="mclose">]</span></span></span></span></span>.</p>
+<p>The <span class="math math-inline"><span class="katex"><span class="katex-mathml">total_probability\text{total\_probability}</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1.0044em; vertical-align: -0.31em;"></span><span
+        class="mord text"><span class="mord">total_probability</span></span></span></span></span></span> represents the
+    probability that the knight remains on the board after <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">kk</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.6944em;"></span><span class="mord mathnormal"
+                                                                 style="margin-right: 0.03148em;">k</span></span></span></span></span>
+    moves, and you can return this value as the result.</p>
+<h4 id="algorithm">Algorithm</h4>
+<ol>
+    <li>Define possible directions for the knight's moves in <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">directions\text{directions}</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord text"><span
+            class="mord">directions</span></span></span></span></span></span>.
+    </li>
+    <li>Initialize the dynamic programming table <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">dp\text{dp}</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.8889em; vertical-align: -0.1944em;"></span><span class="mord text"><span
+            class="mord">dp</span></span></span></span></span></span> with zeros.
+    </li>
+    <li>Set <span class="math math-inline"><span class="katex"><span class="katex-mathml">dp[0][row][column]\text{dp}[0][\text{row}][\text{column}]</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span class="mord">0</span><span
+            class="mclose">]</span><span class="mopen">[</span><span class="mord text"><span
+            class="mord">row</span></span><span class="mclose">]</span><span class="mopen">[</span><span
+            class="mord text"><span class="mord">column</span></span><span class="mclose">]</span></span></span></span></span>
+        to <span class="math math-inline"><span class="katex"><span class="katex-mathml">11</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.6444em;"></span><span
+                class="mord">1</span></span></span></span></span>, representing the starting position of the knight.
+    </li>
+    <li>Iterate <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">moves\text{moves}</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.4306em;"></span><span class="mord text"><span
+            class="mord">moves</span></span></span></span></span></span> from <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">11</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span>
+        to <span class="math math-inline"><span class="katex"><span class="katex-mathml">kk</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.6944em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.03148em;">k</span></span></span></span></span>.
+        <ul>
+            <li>Iterate <span class="math math-inline"><span class="katex"><span class="katex-mathml">ii</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.6595em;"></span><span
+                    class="mord mathnormal">i</span></span></span></span></span> from <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">00</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.6444em;"></span><span
+                    class="mord">0</span></span></span></span></span> to <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">n−1n-1</span><span class="katex-html"
+                                                                                aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+                    class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span>
+                (rows on the chessboard).
+                <ul>
+                    <li>Iterate <span class="math math-inline"><span class="katex"><span
+                            class="katex-mathml">jj</span><span class="katex-html" aria-hidden="true"><span
+                            class="base"><span class="strut" style="height: 0.854em; vertical-align: -0.1944em;"></span><span
+                            class="mord mathnormal"
+                            style="margin-right: 0.05724em;">j</span></span></span></span></span> from <span
+                            class="math math-inline"><span class="katex"><span class="katex-mathml">00</span><span
+                            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                           style="height: 0.6444em;"></span><span
+                            class="mord">0</span></span></span></span></span> to <span class="math math-inline"><span
+                            class="katex"><span class="katex-mathml">n−1n-1</span><span class="katex-html"
+                                                                                        aria-hidden="true"><span
+                            class="base"><span class="strut"
+                                               style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+                            class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                            class="mbin">−</span><span class="mspace"
+                                                       style="margin-right: 0.2222em;"></span></span><span class="base"><span
+                            class="strut" style="height: 0.6444em;"></span><span
+                            class="mord">1</span></span></span></span></span> (columns on the chessboard).
+                        <ul>
+                            <li>Iterate over possible directions:
+                                <ul>
+                                    <li>Calculate <span class="math math-inline"><span class="katex"><span
+                                            class="katex-mathml">i′i'</span><span class="katex-html" aria-hidden="true"><span
+                                            class="base"><span class="strut" style="height: 0.7519em;"></span><span
+                                            class="mord"><span class="mord mathnormal">i</span><span
+                                            class="msupsub"><span class="vlist-t"><span class="vlist-r"><span
+                                            class="vlist" style="height: 0.7519em;"><span
+                                            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                               style="height: 2.7em;"></span><span
+                                            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+                                            class="mord mtight">′</span></span></span></span></span></span></span></span></span></span></span></span></span>
+                                        as <span class="math math-inline"><span class="katex"><span
+                                                class="katex-mathml">ii</span><span class="katex-html"
+                                                                                    aria-hidden="true"><span
+                                                class="base"><span class="strut" style="height: 0.6595em;"></span><span
+                                                class="mord mathnormal">i</span></span></span></span></span> minus the
+                                        vertical component of the direction.
+                                    </li>
+                                    <li>Calculate <span class="math math-inline"><span class="katex"><span
+                                            class="katex-mathml">j′j'</span><span class="katex-html" aria-hidden="true"><span
+                                            class="base"><span class="strut"
+                                                               style="height: 0.9463em; vertical-align: -0.1944em;"></span><span
+                                            class="mord"><span class="mord mathnormal" style="margin-right: 0.05724em;">j</span><span
+                                            class="msupsub"><span class="vlist-t"><span class="vlist-r"><span
+                                            class="vlist" style="height: 0.7519em;"><span
+                                            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                               style="height: 2.7em;"></span><span
+                                            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+                                            class="mord mtight">′</span></span></span></span></span></span></span></span></span></span></span></span></span>
+                                        as <span class="math math-inline"><span class="katex"><span
+                                                class="katex-mathml">jj</span><span class="katex-html"
+                                                                                    aria-hidden="true"><span
+                                                class="base"><span class="strut"
+                                                                   style="height: 0.854em; vertical-align: -0.1944em;"></span><span
+                                                class="mord mathnormal" style="margin-right: 0.05724em;">j</span></span></span></span></span>
+                                        minus the horizontal component of the direction.
+                                    </li>
+                                    <li>Check if <span class="math math-inline"><span class="katex"><span
+                                            class="katex-mathml">i′i'</span><span class="katex-html" aria-hidden="true"><span
+                                            class="base"><span class="strut" style="height: 0.7519em;"></span><span
+                                            class="mord"><span class="mord mathnormal">i</span><span
+                                            class="msupsub"><span class="vlist-t"><span class="vlist-r"><span
+                                            class="vlist" style="height: 0.7519em;"><span
+                                            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                               style="height: 2.7em;"></span><span
+                                            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+                                            class="mord mtight">′</span></span></span></span></span></span></span></span></span></span></span></span></span>
+                                        and <span class="math math-inline"><span class="katex"><span
+                                                class="katex-mathml">j′j'</span><span class="katex-html"
+                                                                                      aria-hidden="true"><span
+                                                class="base"><span class="strut"
+                                                                   style="height: 0.9463em; vertical-align: -0.1944em;"></span><span
+                                                class="mord"><span class="mord mathnormal"
+                                                                   style="margin-right: 0.05724em;">j</span><span
+                                                class="msupsub"><span class="vlist-t"><span class="vlist-r"><span
+                                                class="vlist" style="height: 0.7519em;"><span
+                                                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                                   style="height: 2.7em;"></span><span
+                                                class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+                                                class="mord mtight">′</span></span></span></span></span></span></span></span></span></span></span></span></span>
+                                        are within the range <span class="math math-inline"><span class="katex"><span
+                                                class="katex-mathml">[0,n−1][0, n-1]</span><span class="katex-html"
+                                                                                                 aria-hidden="true"><span
+                                                class="base"><span class="strut"
+                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                                                class="mopen">[</span><span class="mord">0</span><span
+                                                class="mpunct">,</span><span class="mspace"
+                                                                             style="margin-right: 0.1667em;"></span><span
+                                                class="mord mathnormal">n</span><span class="mspace"
+                                                                                      style="margin-right: 0.2222em;"></span><span
+                                                class="mbin">−</span><span class="mspace"
+                                                                           style="margin-right: 0.2222em;"></span></span><span
+                                                class="base"><span class="strut"
+                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                                                class="mord">1</span><span class="mclose">]</span></span></span></span></span>.
+                                        <ul>
+                                            <li>If within range, add <span class="math math-inline"><span class="katex"><span
+                                                    class="katex-mathml">18dp[moves−1][i′][j′]\frac{1}{8} \text{dp}[\text{moves} - 1][i'][j']</span><span
+                                                    class="katex-html" aria-hidden="true"><span class="base"><span
+                                                    class="strut"
+                                                    style="height: 1.1901em; vertical-align: -0.345em;"></span><span
+                                                    class="mord"><span class="mopen nulldelimiter"></span><span
+                                                    class="mfrac"><span class="vlist-t vlist-t2"><span
+                                                    class="vlist-r"><span class="vlist" style="height: 0.8451em;"><span
+                                                    style="top: -2.655em;"><span class="pstrut"
+                                                                                 style="height: 3em;"></span><span
+                                                    class="sizing reset-size6 size3 mtight"><span
+                                                    class="mord mtight"><span class="mord mtight">8</span></span></span></span><span
+                                                    style="top: -3.23em;"><span class="pstrut"
+                                                                                style="height: 3em;"></span><span
+                                                    class="frac-line"
+                                                    style="border-bottom-width: 0.04em;"></span></span><span
+                                                    style="top: -3.394em;"><span class="pstrut"
+                                                                                 style="height: 3em;"></span><span
+                                                    class="sizing reset-size6 size3 mtight"><span
+                                                    class="mord mtight"><span class="mord mtight">1</span></span></span></span></span><span
+                                                    class="vlist-s">​</span></span><span class="vlist-r"><span
+                                                    class="vlist"
+                                                    style="height: 0.345em;"><span></span></span></span></span></span><span
+                                                    class="mclose nulldelimiter"></span></span><span
+                                                    class="mord text"><span class="mord">dp</span></span><span
+                                                    class="mopen">[</span><span class="mord text"><span class="mord">moves</span></span><span
+                                                    class="mspace" style="margin-right: 0.2222em;"></span><span
+                                                    class="mbin">−</span><span class="mspace"
+                                                                               style="margin-right: 0.2222em;"></span></span><span
+                                                    class="base"><span class="strut"
+                                                                       style="height: 1.0019em; vertical-align: -0.25em;"></span><span
+                                                    class="mord">1</span><span class="mclose">]</span><span
+                                                    class="mopen">[</span><span class="mord"><span
+                                                    class="mord mathnormal">i</span><span class="msupsub"><span
+                                                    class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                                style="height: 0.7519em;"><span
+                                                    style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                                       style="height: 2.7em;"></span><span
+                                                    class="sizing reset-size6 size3 mtight"><span
+                                                    class="mord mtight"><span class="mord mtight">′</span></span></span></span></span></span></span></span></span><span
+                                                    class="mclose">]</span><span class="mopen">[</span><span
+                                                    class="mord"><span class="mord mathnormal"
+                                                                       style="margin-right: 0.05724em;">j</span><span
+                                                    class="msupsub"><span class="vlist-t"><span class="vlist-r"><span
+                                                    class="vlist" style="height: 0.7519em;"><span
+                                                    style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                                       style="height: 2.7em;"></span><span
+                                                    class="sizing reset-size6 size3 mtight"><span
+                                                    class="mord mtight"><span class="mord mtight">′</span></span></span></span></span></span></span></span></span><span
+                                                    class="mclose">]</span></span></span></span></span> to <span
+                                                    class="math math-inline"><span class="katex"><span
+                                                    class="katex-mathml">dp[moves][i][j]\text{dp}[\text{moves}][i][j]</span><span
+                                                    class="katex-html" aria-hidden="true"><span class="base"><span
+                                                    class="strut"
+                                                    style="height: 1em; vertical-align: -0.25em;"></span><span
+                                                    class="mord text"><span class="mord">dp</span></span><span
+                                                    class="mopen">[</span><span class="mord text"><span class="mord">moves</span></span><span
+                                                    class="mclose">]</span><span class="mopen">[</span><span
+                                                    class="mord mathnormal">i</span><span class="mclose">]</span><span
+                                                    class="mopen">[</span><span class="mord mathnormal"
+                                                                                style="margin-right: 0.05724em;">j</span><span
+                                                    class="mclose">]</span></span></span></span></span>.
+                                            </li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </li>
+    <li>Calculate the total probability by summing all values in <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">dp[k]\text{dp}[k]</span><span class="katex-html"
+                                                                                   aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+            class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span class="mclose">]</span></span></span></span></span>.
+    </li>
+    <li>Return the total probability.</li>
+</ol>
+<h4 id="implementation">Implementation</h4>
+<p>In code, the variables <span class="math math-inline"><span class="katex"><span class="katex-mathml">i′i'</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.7519em;"></span><span
+        class="mord"><span class="mord mathnormal">i</span><span class="msupsub"><span class="vlist-t"><span
+        class="vlist-r"><span class="vlist" style="height: 0.7519em;"><span
+        style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+        class="mord mtight">′</span></span></span></span></span></span></span></span></span></span></span></span></span>
+    and <span class="math math-inline"><span class="katex"><span class="katex-mathml">j′j'</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.9463em; vertical-align: -0.1944em;"></span><span
+            class="mord"><span class="mord mathnormal" style="margin-right: 0.05724em;">j</span><span
+            class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                              style="height: 0.7519em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">′</span></span></span></span></span></span></span></span></span></span></span></span></span>
+    are denoted as <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">prev_i\text{prev\_i}</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.9779em; vertical-align: -0.31em;"></span><span
+            class="mord text"><span class="mord">prev_i</span></span></span></span></span></span> and <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">prev_j\text{prev\_j}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.9779em; vertical-align: -0.31em;"></span><span
+            class="mord text"><span class="mord">prev_j</span></span></span></span></span></span>, respectively.</p>
+<pre>
+    Java
+    <code>
+        public class Solution {
+    public double knightProbability(int n, int k, int row, int column) {
+        // Define possible directions for the knight's moves
+        int[][] directions = {{1, 2}, {1, -2}, {-1, 2}, {-1, -2},
+                              {2, 1}, {2, -1}, {-2, 1}, {-2, -1}};
+
+        // Initialize the dynamic programming table
+        double[][][] dp = new double[k + 1][n][n];
+        dp[0][row][column] = 1.0;
+
+        // Iterate over the number of moves
+        for (int moves = 1; moves <= k; moves++) {
+            // Iterate over the cells on the chessboard
+            for (int i = 0; i < n; i++) {
+                for (int j = 0; j < n; j++) {
+                    // Iterate over possible directions
+                    for (int[] direction : directions) {
+                        int prevI = i - direction[0];
+                        int prevJ = j - direction[1];
+                        // Check if the previous cell is within the chessboard
+                        if (prevI >= 0 && prevI < n && prevJ >= 0 && prevJ < n) {
+                            // Add the previous probability divided by 8
+                            dp[moves][i][j] += dp[moves - 1][prevI][prevJ] / 8.0;
+                        }
+                    }
+                }
+            }
+        }
+
+        // Calculate total probability by summing probabilities for all cells
+        double totalProbability = 0.0;
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                totalProbability += dp[k][i][j];
+            }
+        }
+        return totalProbability;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    double knightProbability(int n, int k, int row, int column) {
+        // Define possible directions for the knight's moves
+        vector<pair<int, int>> directions = {{1, 2}, {1, -2}, {-1, 2}, {-1, -2},
+                                            {2, 1}, {2, -1}, {-2, 1}, {-2, -1}};
+
+        // Initialize the dynamic programming table
+        vector dp(k + 1, vector (n, vector<double>(n, 0.0)));
+        dp[0][row][column] = 1;
+
+        // Iterate over the number of moves
+        for (int moves = 1; moves <= k; moves++) {
+            // Iterate over the cells on the chessboard
+            for (int i = 0; i < n; i++) {
+                for (int j = 0; j < n; j++) {
+                    // Iterate over possible directions
+                    for (const auto& direction : directions) {
+                        int prevI = i - direction.first;
+                        int prevJ = j - direction.second;
+                        // Check if the previous cell is within the chessboard
+                        if (prevI >= 0 && prevI < n && prevJ >= 0 && prevJ < n) {
+                            // Add the previous probability divided by 8
+                            dp[moves][i][j] += dp[moves - 1][prevI][prevJ] / 8;
+                        }
+                    }
+                }
+            }
+        }
+
+        // Calculate total probability by summing probabilities for all cells
+        double totalProbability = 0;
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                totalProbability += dp[k][i][j];
+            }
+        }
+
+        return totalProbability;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def knightProbability(self, n: int, k: int, row: int, column: int) -> float:
+        # Define possible directions for the knight's moves
+        directions = [(1, 2), (1, -2), (-1, 2), (-1, -2),
+                      (2, 1), (2, -1), (-2, 1), (-2, -1)]
+
+        # Initialize the dynamic programming table
+        dp = [[[0] * n for _ in range(n)] for _ in range(k + 1)]
+        dp[0][row][column] = 1
+
+        # Iterate over the number of moves
+        for moves in range(1, k + 1):
+            # Iterate over the cells on the chessboard
+            for i in range(n):
+                for j in range(n):
+                    # Iterate over possible directions
+                    for direction in directions:
+                        prev_i, prev_j = i - direction[0], j - direction[1]
+                        # Check if the previous cell is within the chessboard
+                        if 0 <= prev_i < n and 0 <= prev_j < n:
+                            # Add the previous probability
+                            dp[moves][i][j] += dp[moves - 1][prev_i][prev_j]
+                    # Divide by 8
+                    dp[moves][i][j] /= 8
+
+        # Calculate total probability by summing probabilities for all cells
+        total_probability = sum(
+            dp[k][i][j]
+            for i in range(n)
+            for j in range(n)
+        )
+        return total_probability
+    </code>
+</pre>
+<h4 id="complexity-analysis">Complexity Analysis</h4>
+<ul>
+    <li>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(k⋅n2)O(k \cdot n^2)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span class="mspace"
+                                                                                   style="margin-right: 0.2222em;"></span><span
+            class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+            class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+            class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span
+            class="mord mtight">2</span></span></span></span></span></span></span></span><span
+            class="mclose">)</span></span></span></span></span>.
+    </li>
+</ul>
+<p>We have four nested for-loops: <code>for moves</code>, <code>for i</code>, <code>for j</code>, and <code>for
+    direction</code>. The outer loop <code>for moves</code> runs <span class="math math-inline"><span
+        class="katex"><span class="katex-mathml">kk</span><span class="katex-html" aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord mathnormal"
+                                                                                style="margin-right: 0.03148em;">k</span></span></span></span></span>
+    times, the second and third loops <code>for i</code> and <code>for j</code> iterate over all cells on the <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">n×nn \times n</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+            class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">×</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.4306em;"></span><span
+            class="mord mathnormal">n</span></span></span></span></span> chessboard, and the innermost loop <code>for
+        direction</code> iterates over the possible directions. As there are a constant number of directions (<span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">88</span><span class="katex-html"
+                                                                                                   aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">8</span></span></span></span></span>),
+    this loop can be considered as <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord">1</span><span class="mclose">)</span></span></span></span></span> iterations.</p>
+<p>Within each state <span class="math math-inline"><span class="katex"><span class="katex-mathml">(moves,i,j)(\text{moves}, i, j)</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mopen">(</span><span class="mord text"><span class="mord">moves</span></span><span
+        class="mpunct">,</span><span class="mspace" style="margin-right: 0.1667em;"></span><span
+        class="mord mathnormal">i</span><span class="mpunct">,</span><span class="mspace"
+                                                                           style="margin-right: 0.1667em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.05724em;">j</span><span
+        class="mclose">)</span></span></span></span></span>, the time complexity is constant, as we perform simple
+    calculations and update the dynamic programming table.</p>
+<p>The total number of iterations is determined by the product of the number of iterations in each loop: <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">O(k⋅n2)O(k \cdot n^2)</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+        class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span class="mspace"
+                                                                               style="margin-right: 0.2222em;"></span><span
+        class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+        class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span class="mord"><span
+        class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span
+        class="vlist" style="height: 0.8141em;"><span style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                                         style="height: 2.7em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span
+        class="mord mtight">2</span></span></span></span></span></span></span></span><span
+        class="mclose">)</span></span></span></span></span>.</p>
+<ul>
+    <li>Space complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(k⋅n2)O(k \cdot n^2)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span class="mspace"
+                                                                                   style="margin-right: 0.2222em;"></span><span
+            class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+            class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+            class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span
+            class="mord mtight">2</span></span></span></span></span></span></span></span><span
+            class="mclose">)</span></span></span></span></span>.
+    </li>
+</ul>
+<p>We use a three-dimensional dynamic programming table <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">dp\text{dp}</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+        class="strut" style="height: 0.8889em; vertical-align: -0.1944em;"></span><span class="mord text"><span
+        class="mord">dp</span></span></span></span></span></span> of size <span class="math math-inline"><span
+        class="katex"><span class="katex-mathml">(k+1)×n×n(k+1) \times n \times n</span><span class="katex-html"
+                                                                                              aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+        class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace"
+                                                                                               style="margin-right: 0.2222em;"></span></span><span
+        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord">1</span><span class="mclose">)</span><span class="mspace"
+                                                                style="margin-right: 0.2222em;"></span><span
+        class="mbin">×</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+        class="strut" style="height: 0.6667em; vertical-align: -0.0833em;"></span><span class="mord mathnormal">n</span><span
+        class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">×</span><span class="mspace"
+                                                                                               style="margin-right: 0.2222em;"></span></span><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    to store the probabilities of being at each cell after a certain number of moves. Therefore, the space complexity is
+    <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(k⋅n2)O(k \cdot n^2)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span class="mspace"
+                                                                                   style="margin-right: 0.2222em;"></span><span
+            class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+            class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+            class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span
+            class="mord mtight">2</span></span></span></span></span></span></span></span><span
+            class="mclose">)</span></span></span></span></span>.</p>
+<hr>
+<h3 id="approach-2-bottom-up-dynamic-programming-with-optimized-space-complexity">Approach 2: Bottom-up Dynamic
+    Programming with Optimized Space Complexity</h3>
+<p>In the original approach, we used a 3D dynamic programming table <span class="math math-inline"><span
+        class="katex"><span class="katex-mathml">dp\text{dp}</span><span class="katex-html" aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+        class="mord text"><span class="mord">dp</span></span></span></span></span></span> to store the probabilities of
+    being at each cell after a certain number of moves. However, this approach requires <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">O(k⋅n2)O(k \cdot n^2)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span class="mspace"
+                                                                                   style="margin-right: 0.2222em;"></span><span
+            class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+            class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+            class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span
+            class="mord mtight">2</span></span></span></span></span></span></span></span><span
+            class="mclose">)</span></span></span></span></span> space complexity.</p>
+<p>To reduce the space complexity, we can observe that we only need the probabilities from the previous move <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">moves−1\text{moves} - 1</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+        class="mord text"><span class="mord">moves</span></span><span class="mspace"
+                                                                      style="margin-right: 0.2222em;"></span><span
+        class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+        class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span> to
+    calculate the probabilities for the current move <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">moves\text{moves}</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.4306em;"></span><span class="mord text"><span
+            class="mord">moves</span></span></span></span></span></span>. Therefore, we can maintain two 2D arrays <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">prev_dp\text{prev\_dp}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1.0044em; vertical-align: -0.31em;"></span><span
+            class="mord text"><span class="mord">prev_dp</span></span></span></span></span></span> and <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">curr_dp\text{curr\_dp}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1.0044em; vertical-align: -0.31em;"></span><span
+            class="mord text"><span class="mord">curr_dp</span></span></span></span></span></span>, each of size <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">n×nn \times n</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+            class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">×</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.4306em;"></span><span
+            class="mord mathnormal">n</span></span></span></span></span>, to store the probabilities for the previous
+    move and the current move, respectively.</p>
+<p>During the iteration, we update the values in <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">curr_dp\text{curr\_dp}</span><span class="katex-html" aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 1.0044em; vertical-align: -0.31em;"></span><span
+        class="mord text"><span class="mord">curr_dp</span></span></span></span></span></span> based on the values in
+    <span class="math math-inline"><span class="katex"><span class="katex-mathml">prev_dp\text{prev\_dp}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1.0044em; vertical-align: -0.31em;"></span><span
+            class="mord text"><span class="mord">prev_dp</span></span></span></span></span></span>. After each
+    iteration, we swap the arrays <span class="math math-inline"><span class="katex"><span class="katex-mathml">prev_dp\text{prev\_dp}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1.0044em; vertical-align: -0.31em;"></span><span
+            class="mord text"><span class="mord">prev_dp</span></span></span></span></span></span> and <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">curr_dp\text{curr\_dp}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1.0044em; vertical-align: -0.31em;"></span><span
+            class="mord text"><span class="mord">curr_dp</span></span></span></span></span></span> to reuse the space
+    for the next iteration.</p>
+<p>This way, we only need <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">O(n2)O(n^2)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+        class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                      style="margin-right: 0.02778em;">O</span><span
+        class="mopen">(</span><span class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span
+        class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+        style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span
+        class="mord mtight">2</span></span></span></span></span></span></span></span><span
+        class="mclose">)</span></span></span></span></span> space to store the probabilities for the current and
+    previous moves, resulting in an optimized space complexity of <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">O(n2)O(n^2)</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+            class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span
+            class="mord mtight">2</span></span></span></span></span></span></span></span><span
+            class="mclose">)</span></span></span></span></span>.</p>
+<p>By using this optimized memory approach, we can solve the problem efficiently while reducing the space required for
+    storage.</p>
+<h4 id="algorithm-1">Algorithm</h4>
+<ol>
+    <li>Define possible directions for the knight's moves in <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">directions\text{directions}</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord text"><span
+            class="mord">directions</span></span></span></span></span></span>..
+    </li>
+    <li>Initialize the dynamic programming tables <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">prev_dp\text{prev\_dp}</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1.0044em; vertical-align: -0.31em;"></span><span
+            class="mord text"><span class="mord">prev_dp</span></span></span></span></span></span> and <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">curr_dp\text{curr\_dp}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1.0044em; vertical-align: -0.31em;"></span><span
+            class="mord text"><span class="mord">curr_dp</span></span></span></span></span></span> with zeros.
+    </li>
+    <li>Set <span class="math math-inline"><span class="katex"><span class="katex-mathml">prev_dp[row][column]\text{prev\_dp}[\text{row}][\text{column}]</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1.06em; vertical-align: -0.31em;"></span><span
+            class="mord text"><span class="mord">prev_dp</span></span><span class="mopen">[</span><span
+            class="mord text"><span class="mord">row</span></span><span class="mclose">]</span><span
+            class="mopen">[</span><span class="mord text"><span class="mord">column</span></span><span
+            class="mclose">]</span></span></span></span></span> to <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">11</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span>,
+        representing the starting position of the knight.
+    </li>
+    <li>Iterate <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">moves\text{moves}</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.4306em;"></span><span class="mord text"><span
+            class="mord">moves</span></span></span></span></span></span> from <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">11</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span>
+        to <span class="math math-inline"><span class="katex"><span class="katex-mathml">kk</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.6944em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.03148em;">k</span></span></span></span></span>.
+        <ul>
+            <li>Iterate <span class="math math-inline"><span class="katex"><span class="katex-mathml">ii</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.6595em;"></span><span
+                    class="mord mathnormal">i</span></span></span></span></span> from <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">00</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.6444em;"></span><span
+                    class="mord">0</span></span></span></span></span> to <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">n−1n-1</span><span class="katex-html"
+                                                                                aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+                    class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span>
+                (rows on the chessboard).
+                <ul>
+                    <li>Iterate <span class="math math-inline"><span class="katex"><span
+                            class="katex-mathml">jj</span><span class="katex-html" aria-hidden="true"><span
+                            class="base"><span class="strut" style="height: 0.854em; vertical-align: -0.1944em;"></span><span
+                            class="mord mathnormal"
+                            style="margin-right: 0.05724em;">j</span></span></span></span></span> from <span
+                            class="math math-inline"><span class="katex"><span class="katex-mathml">00</span><span
+                            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                           style="height: 0.6444em;"></span><span
+                            class="mord">0</span></span></span></span></span> to <span class="math math-inline"><span
+                            class="katex"><span class="katex-mathml">n−1n-1</span><span class="katex-html"
+                                                                                        aria-hidden="true"><span
+                            class="base"><span class="strut"
+                                               style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+                            class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                            class="mbin">−</span><span class="mspace"
+                                                       style="margin-right: 0.2222em;"></span></span><span class="base"><span
+                            class="strut" style="height: 0.6444em;"></span><span
+                            class="mord">1</span></span></span></span></span> (columns on the chessboard).
+                    </li>
+                    <li>Reset the probability for the current square before calculating it <span
+                            class="math math-inline"><span class="katex"><span class="katex-mathml">curr_dp[i][j]=0\text{curr\_dp}[i][j] = 0</span><span
+                            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                           style="height: 1.06em; vertical-align: -0.31em;"></span><span
+                            class="mord text"><span class="mord">curr_dp</span></span><span class="mopen">[</span><span
+                            class="mord mathnormal">i</span><span class="mclose">]</span><span
+                            class="mopen">[</span><span class="mord mathnormal"
+                                                        style="margin-right: 0.05724em;">j</span><span
+                            class="mclose">]</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+                            class="mrel">=</span><span class="mspace"
+                                                       style="margin-right: 0.2778em;"></span></span><span class="base"><span
+                            class="strut" style="height: 0.6444em;"></span><span
+                            class="mord">0</span></span></span></span></span>.
+                        <ul>
+                            <li>Iterate over possible directions:
+                                <ul>
+                                    <li>Calculate <span class="math math-inline"><span class="katex"><span
+                                            class="katex-mathml">i′i'</span><span class="katex-html" aria-hidden="true"><span
+                                            class="base"><span class="strut" style="height: 0.7519em;"></span><span
+                                            class="mord"><span class="mord mathnormal">i</span><span
+                                            class="msupsub"><span class="vlist-t"><span class="vlist-r"><span
+                                            class="vlist" style="height: 0.7519em;"><span
+                                            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                               style="height: 2.7em;"></span><span
+                                            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+                                            class="mord mtight">′</span></span></span></span></span></span></span></span></span></span></span></span></span>
+                                        as <span class="math math-inline"><span class="katex"><span
+                                                class="katex-mathml">ii</span><span class="katex-html"
+                                                                                    aria-hidden="true"><span
+                                                class="base"><span class="strut" style="height: 0.6595em;"></span><span
+                                                class="mord mathnormal">i</span></span></span></span></span> minus the
+                                        vertical component of the direction.
+                                    </li>
+                                    <li>Calculate <span class="math math-inline"><span class="katex"><span
+                                            class="katex-mathml">j′j'</span><span class="katex-html" aria-hidden="true"><span
+                                            class="base"><span class="strut"
+                                                               style="height: 0.9463em; vertical-align: -0.1944em;"></span><span
+                                            class="mord"><span class="mord mathnormal" style="margin-right: 0.05724em;">j</span><span
+                                            class="msupsub"><span class="vlist-t"><span class="vlist-r"><span
+                                            class="vlist" style="height: 0.7519em;"><span
+                                            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                               style="height: 2.7em;"></span><span
+                                            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+                                            class="mord mtight">′</span></span></span></span></span></span></span></span></span></span></span></span></span>
+                                        as <span class="math math-inline"><span class="katex"><span
+                                                class="katex-mathml">jj</span><span class="katex-html"
+                                                                                    aria-hidden="true"><span
+                                                class="base"><span class="strut"
+                                                                   style="height: 0.854em; vertical-align: -0.1944em;"></span><span
+                                                class="mord mathnormal" style="margin-right: 0.05724em;">j</span></span></span></span></span>
+                                        minus the horizontal component of the direction.
+                                    </li>
+                                    <li>Check if <span class="math math-inline"><span class="katex"><span
+                                            class="katex-mathml">i′i'</span><span class="katex-html" aria-hidden="true"><span
+                                            class="base"><span class="strut" style="height: 0.7519em;"></span><span
+                                            class="mord"><span class="mord mathnormal">i</span><span
+                                            class="msupsub"><span class="vlist-t"><span class="vlist-r"><span
+                                            class="vlist" style="height: 0.7519em;"><span
+                                            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                               style="height: 2.7em;"></span><span
+                                            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+                                            class="mord mtight">′</span></span></span></span></span></span></span></span></span></span></span></span></span>
+                                        and <span class="math math-inline"><span class="katex"><span
+                                                class="katex-mathml">j′j'</span><span class="katex-html"
+                                                                                      aria-hidden="true"><span
+                                                class="base"><span class="strut"
+                                                                   style="height: 0.9463em; vertical-align: -0.1944em;"></span><span
+                                                class="mord"><span class="mord mathnormal"
+                                                                   style="margin-right: 0.05724em;">j</span><span
+                                                class="msupsub"><span class="vlist-t"><span class="vlist-r"><span
+                                                class="vlist" style="height: 0.7519em;"><span
+                                                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                                   style="height: 2.7em;"></span><span
+                                                class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+                                                class="mord mtight">′</span></span></span></span></span></span></span></span></span></span></span></span></span>
+                                        are within the range <span class="math math-inline"><span class="katex"><span
+                                                class="katex-mathml">[0,n−1][0, n-1]</span><span class="katex-html"
+                                                                                                 aria-hidden="true"><span
+                                                class="base"><span class="strut"
+                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                                                class="mopen">[</span><span class="mord">0</span><span
+                                                class="mpunct">,</span><span class="mspace"
+                                                                             style="margin-right: 0.1667em;"></span><span
+                                                class="mord mathnormal">n</span><span class="mspace"
+                                                                                      style="margin-right: 0.2222em;"></span><span
+                                                class="mbin">−</span><span class="mspace"
+                                                                           style="margin-right: 0.2222em;"></span></span><span
+                                                class="base"><span class="strut"
+                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                                                class="mord">1</span><span class="mclose">]</span></span></span></span></span>.
+                                        <ul>
+                                            <li>If within range, add <span class="math math-inline"><span class="katex"><span
+                                                    class="katex-mathml">18prev_dp[i′][j′]\frac{1}{8} \text{prev\_dp}[i'][j']</span><span
+                                                    class="katex-html" aria-hidden="true"><span class="base"><span
+                                                    class="strut"
+                                                    style="height: 1.1901em; vertical-align: -0.345em;"></span><span
+                                                    class="mord"><span class="mopen nulldelimiter"></span><span
+                                                    class="mfrac"><span class="vlist-t vlist-t2"><span
+                                                    class="vlist-r"><span class="vlist" style="height: 0.8451em;"><span
+                                                    style="top: -2.655em;"><span class="pstrut"
+                                                                                 style="height: 3em;"></span><span
+                                                    class="sizing reset-size6 size3 mtight"><span
+                                                    class="mord mtight"><span class="mord mtight">8</span></span></span></span><span
+                                                    style="top: -3.23em;"><span class="pstrut"
+                                                                                style="height: 3em;"></span><span
+                                                    class="frac-line"
+                                                    style="border-bottom-width: 0.04em;"></span></span><span
+                                                    style="top: -3.394em;"><span class="pstrut"
+                                                                                 style="height: 3em;"></span><span
+                                                    class="sizing reset-size6 size3 mtight"><span
+                                                    class="mord mtight"><span class="mord mtight">1</span></span></span></span></span><span
+                                                    class="vlist-s">​</span></span><span class="vlist-r"><span
+                                                    class="vlist"
+                                                    style="height: 0.345em;"><span></span></span></span></span></span><span
+                                                    class="mclose nulldelimiter"></span></span><span
+                                                    class="mord text"><span class="mord">prev_dp</span></span><span
+                                                    class="mopen">[</span><span class="mord"><span
+                                                    class="mord mathnormal">i</span><span class="msupsub"><span
+                                                    class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                                style="height: 0.7519em;"><span
+                                                    style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                                       style="height: 2.7em;"></span><span
+                                                    class="sizing reset-size6 size3 mtight"><span
+                                                    class="mord mtight"><span class="mord mtight">′</span></span></span></span></span></span></span></span></span><span
+                                                    class="mclose">]</span><span class="mopen">[</span><span
+                                                    class="mord"><span class="mord mathnormal"
+                                                                       style="margin-right: 0.05724em;">j</span><span
+                                                    class="msupsub"><span class="vlist-t"><span class="vlist-r"><span
+                                                    class="vlist" style="height: 0.7519em;"><span
+                                                    style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                                       style="height: 2.7em;"></span><span
+                                                    class="sizing reset-size6 size3 mtight"><span
+                                                    class="mord mtight"><span class="mord mtight">′</span></span></span></span></span></span></span></span></span><span
+                                                    class="mclose">]</span></span></span></span></span> to <span
+                                                    class="math math-inline"><span class="katex"><span
+                                                    class="katex-mathml">curr_dp[i][j]\text{curr\_dp}[i][j]</span><span
+                                                    class="katex-html" aria-hidden="true"><span class="base"><span
+                                                    class="strut"
+                                                    style="height: 1.06em; vertical-align: -0.31em;"></span><span
+                                                    class="mord text"><span class="mord">curr_dp</span></span><span
+                                                    class="mopen">[</span><span class="mord mathnormal">i</span><span
+                                                    class="mclose">]</span><span class="mopen">[</span><span
+                                                    class="mord mathnormal"
+                                                    style="margin-right: 0.05724em;">j</span><span
+                                                    class="mclose">]</span></span></span></span></span>.
+                                            </li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+            <li>Swap <span class="math math-inline"><span class="katex"><span class="katex-mathml">prev_dp\text{prev\_dp}</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1.0044em; vertical-align: -0.31em;"></span><span
+                    class="mord text"><span class="mord">prev_dp</span></span></span></span></span></span> and <span
+                    class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">curr_dp\text{curr\_dp}</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1.0044em; vertical-align: -0.31em;"></span><span
+                    class="mord text"><span class="mord">curr_dp</span></span></span></span></span></span>.
+            </li>
+        </ul>
+    </li>
+    <li>Calculate the total probability by summing all values in <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">prev_dp\text{prev\_dp}</span><span class="katex-html"
+                                                                                        aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1.0044em; vertical-align: -0.31em;"></span><span
+            class="mord text"><span class="mord">prev_dp</span></span></span></span></span></span>.
+    </li>
+    <li>Return the total probability.</li>
+</ol>
+<h4 id="implementation-1">Implementation</h4>
+<pre>
+    Java
+    <code>
+        public class Solution {
+    public double knightProbability(int n, int k, int row, int column) {
+        // Define possible directions for the knight's moves
+        int[][] directions = {
+            {1, 2}, {1, -2}, {-1, 2}, {-1, -2},
+            {2, 1}, {2, -1}, {-2, 1}, {-2, -1}
+        };
+
+        // Initialize the previous and current DP tables
+        double[][] prevDp = new double[n][n];
+        double[][] currDp = new double[n][n];
+
+        // Set the probability of the starting cell to 1
+        prevDp[row][column] = 1;
+
+        // Iterate over the number of moves
+        for (int moves = 1; moves <= k; moves++) {
+            // Iterate over the cells on the chessboard
+            for (int i = 0; i < n; i++) {
+                for (int j = 0; j < n; j++) {
+                    currDp[i][j] = 0;
+
+                    // Iterate over possible directions
+                    for (int[] direction : directions) {
+                        int prevI = i - direction[0];
+                        int prevJ = j - direction[1];
+
+                        // Check if the previous cell is within the chessboard
+                        if (prevI >= 0 && prevI < n && prevJ >= 0 && prevJ < n) {
+                            // Update the probability by adding the previous probability divided by 8
+                            currDp[i][j] += prevDp[prevI][prevJ] / 8;
+                        }
+                    }
+                }
+            }
+
+            // Swap the previous and current DP tables
+            double[][] temp = prevDp;
+            prevDp = currDp;
+            currDp = temp;
+        }
+
+        // Calculate the total probability by summing up the probabilities for all cells
+        double totalProbability = 0;
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                totalProbability += prevDp[i][j];
+            }
+        }
+
+        // Return the total probability
+        return totalProbability;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    double knightProbability(int n, int k, int row, int column) {
+        // Define possible directions for the knight's moves
+        vector<pair<int, int>> directions = {
+            {1, 2}, {1, -2}, {-1, 2}, {-1, -2},
+            {2, 1}, {2, -1}, {-2, 1}, {-2, -1}
+        };
+
+        // Initialize the previous and current DP tables
+        vector prevDp(n, vector<double>(n, 0));
+        vector currDp(n, vector<double>(n, 0));
+
+        // Set the probability of the starting cell to 1
+        prevDp[row][column] = 1;
+
+        // Iterate over the number of moves
+        for (int moves = 1; moves <= k; moves++) {
+            // Iterate over the cells on the chessboard
+            for (int i = 0; i < n; i++) {
+                for (int j = 0; j < n; j++) {
+                    currDp[i][j] = 0;
+
+                    // Iterate over possible directions
+                    for (const auto& direction : directions) {
+                        int prevI = i - direction.first;
+                        int prevJ = j - direction.second;
+
+                        // Check if the previous cell is within the chessboard
+                        if (prevI >= 0 && prevI < n && prevJ >= 0 && prevJ < n) {
+                            // Update the probability by adding the previous probability divided by 8
+                            currDp[i][j] += prevDp[prevI][prevJ] / 8;
+                        }
+                    }
+                }
+            }
+
+            // Swap the previous and current DP tables
+            prevDp.swap(currDp);
+        }
+
+        // Calculate the total probability by summing up the probabilities for all cells
+        double totalProbability = 0;
+        for (const auto& row : prevDp) {
+            for (const auto& cell : row) {
+                totalProbability += cell;
+            }
+        }
+
+        // Return the total probability
+        return totalProbability;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def knightProbability(self, n: int, k: int, row: int, column: int) -> float:
+        # Define possible directions for the knight's moves
+        directions = [(1, 2), (1, -2), (-1, 2), (-1, -2),
+                      (2, 1), (2, -1), (-2, 1), (-2, -1)]
+
+        # Initialize the previous and current DP arrays
+        prev_dp = [[0] * n for _ in range(n)]
+        curr_dp = [[0] * n for _ in range(n)]
+
+        # Set the probability of the starting position to 1
+        prev_dp[row][column] = 1
+
+        # Iterate over the number of moves
+        for moves in range(1, k + 1):
+            # Iterate over the cells on the chessboard
+            for i in range(n):
+                for j in range(n):
+                    # Reset the probability for the current cell
+                    curr_dp[i][j] = 0
+
+                    # Iterate over possible directions
+                    for direction in directions:
+                        prev_i, prev_j = i - direction[0], j - direction[1]
+                        # Check if the previous cell is within the chessboard
+                        if 0 <= prev_i < n and 0 <= prev_j < n:
+                            # Update the probability for the current cell
+                            curr_dp[i][j] += prev_dp[prev_i][prev_j] / 8
+
+            # Swap the previous and current DP arrays
+            prev_dp, curr_dp = curr_dp, prev_dp
+
+        # Calculate the total probability
+        total_probability = sum(
+            prev_dp[i][j]
+            for i in range(n)
+            for j in range(n)
+        )
+        return total_probability
+    </code>
+</pre>
+<h4 id="complexity-analysis-1">Complexity Analysis</h4>
+<ul>
+    <li>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(k⋅n2)O(k \cdot n^2)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span class="mspace"
+                                                                                   style="margin-right: 0.2222em;"></span><span
+            class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+            class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+            class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span
+            class="mord mtight">2</span></span></span></span></span></span></span></span><span
+            class="mclose">)</span></span></span></span></span>.
+    </li>
+</ul>
+<p>It is the same as in the previous approach.</p>
+<ul>
+    <li>Space complexity: <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">O(n2)O(n^2)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                          style="margin-right: 0.02778em;">O</span><span
+            class="mopen">(</span><span class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span
+            class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span
+            class="mord mtight">2</span></span></span></span></span></span></span></span><span
+            class="mclose">)</span></span></span></span></span>.
+    </li>
+</ul>
+<p>We use two dynamic programming tables: <span class="math math-inline"><span class="katex"><span class="katex-mathml">prev_dp\text{prev\_dp}</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1.0044em; vertical-align: -0.31em;"></span><span
+        class="mord text"><span class="mord">prev_dp</span></span></span></span></span></span> and <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">curr_dp\text{curr\_dp}</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1.0044em; vertical-align: -0.31em;"></span><span
+        class="mord text"><span class="mord">curr_dp</span></span></span></span></span></span>, each of size <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">n×nn \times n</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+        class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+        class="mbin">×</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+        class="strut" style="height: 0.4306em;"></span><span
+        class="mord mathnormal">n</span></span></span></span></span>. Therefore, the space complexity is <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">O(n2)O(n^2)</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord"><span
+        class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span
+        class="vlist" style="height: 0.8141em;"><span style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                                         style="height: 2.7em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span
+        class="mord mtight">2</span></span></span></span></span></span></span></span><span
+        class="mclose">)</span></span></span></span></span>. The space complexity does not depend on the number of moves
+    <span class="math math-inline"><span class="katex"><span class="katex-mathml">kk</span><span class="katex-html"
+                                                                                                 aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord mathnormal"
+                                                                                    style="margin-right: 0.03148em;">k</span></span></span></span></span>,
+    as we only keep track of the probabilities of being at each cell after the previous and current moves.</p>
+<hr>
+<h3 id="approach-3-top-down-dynamic-programming-memoization">Approach 3: Top-down Dynamic Programming (Memoization)</h3>
+<h4 id="intuition-1">Intuition</h4>
+<p>In this approach, we will calculate the same DP table using the same recurrence relation as in the first one, but the
+    manner of organizing computations will differ.</p>
+<p>We will use the recursive function <span class="math math-inline"><span class="katex"><span class="katex-mathml">calculateDP(moves,i,j)\text{calculateDP}(\text{moves}, i, j)</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord text"><span class="mord">calculateDP</span></span><span class="mopen">(</span><span
+        class="mord text"><span class="mord">moves</span></span><span class="mpunct">,</span><span class="mspace"
+                                                                                                   style="margin-right: 0.1667em;"></span><span
+        class="mord mathnormal">i</span><span class="mpunct">,</span><span class="mspace"
+                                                                           style="margin-right: 0.1667em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.05724em;">j</span><span
+        class="mclose">)</span></span></span></span></span> that returns the value of <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">dp[moves][i][j]\text{dp}[\text{moves}][i][j]</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span class="mord text"><span
+        class="mord">moves</span></span><span class="mclose">]</span><span class="mopen">[</span><span
+        class="mord mathnormal">i</span><span class="mclose">]</span><span class="mopen">[</span><span
+        class="mord mathnormal" style="margin-right: 0.05724em;">j</span><span
+        class="mclose">]</span></span></span></span></span>.</p>
+<p>The base case of the recursive function is <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">moves=0\text{moves} = 0</span><span class="katex-html" aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord text"><span class="mord">moves</span></span><span
+        class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace"
+                                                                                               style="margin-right: 0.2778em;"></span></span><span
+        class="base"><span class="strut" style="height: 0.6444em;"></span><span
+        class="mord">0</span></span></span></span></span>: <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">calculateDP(0,row,column)\text{calculateDP}(0, \text{row}, \text{column})</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord text"><span class="mord">calculateDP</span></span><span class="mopen">(</span><span
+        class="mord">0</span><span class="mpunct">,</span><span class="mspace"
+                                                                style="margin-right: 0.1667em;"></span><span
+        class="mord text"><span class="mord">row</span></span><span class="mpunct">,</span><span class="mspace"
+                                                                                                 style="margin-right: 0.1667em;"></span><span
+        class="mord text"><span class="mord">column</span></span><span
+        class="mclose">)</span></span></span></span></span> returns <span class="math math-inline"><span
+        class="katex"><span class="katex-mathml">11</span><span class="katex-html" aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.6444em;"></span><span
+        class="mord">1</span></span></span></span></span>, and <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">calculateDP(0,i,j)\text{calculateDP}(0, i, j)</span><span class="katex-html"
+                                                                                       aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord text"><span class="mord">calculateDP</span></span><span class="mopen">(</span><span
+        class="mord">0</span><span class="mpunct">,</span><span class="mspace"
+                                                                style="margin-right: 0.1667em;"></span><span
+        class="mord mathnormal">i</span><span class="mpunct">,</span><span class="mspace"
+                                                                           style="margin-right: 0.1667em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.05724em;">j</span><span
+        class="mclose">)</span></span></span></span></span> returns <span class="math math-inline"><span
+        class="katex"><span class="katex-mathml">00</span><span class="katex-html" aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.6444em;"></span><span
+        class="mord">0</span></span></span></span></span> for all cells <span class="math math-inline"><span
+        class="katex"><span class="katex-mathml">(i,j)≠(row,column)(i, j) \ne (\text{row}, \text{column})</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mopen">(</span><span class="mord mathnormal">i</span><span class="mpunct">,</span><span class="mspace"
+                                                                                                       style="margin-right: 0.1667em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.05724em;">j</span><span class="mclose">)</span><span
+        class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel"><span class="mrel"><span
+        class="mord vbox"><span class="thinbox"><span class="rlap"><span class="strut"
+                                                                         style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+        class="inner"><span class="mord"><span class="mrel"></span></span></span><span
+        class="fix"></span></span></span></span></span><span class="mrel">=</span></span><span class="mspace"
+                                                                                               style="margin-right: 0.2778em;"></span></span><span
+        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mopen">(</span><span class="mord text"><span class="mord">row</span></span><span
+        class="mpunct">,</span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord text"><span
+        class="mord">column</span></span><span class="mclose">)</span></span></span></span></span>.</p>
+<p>One can rewrite the DP recurrence relation as follows in terms of <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">calculateDP\text{calculateDP}</span><span class="katex-html" aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord text"><span class="mord">calculateDP</span></span></span></span></span></span>:
+    <span class="math math-inline"><span class="katex"><span class="katex-mathml">calculateDP(moves,i,j)\text{calculateDP}(\text{moves}, i, j)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">calculateDP</span></span><span class="mopen">(</span><span
+            class="mord text"><span class="mord">moves</span></span><span class="mpunct">,</span><span class="mspace"
+                                                                                                       style="margin-right: 0.1667em;"></span><span
+            class="mord mathnormal">i</span><span class="mpunct">,</span><span class="mspace"
+                                                                               style="margin-right: 0.1667em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.05724em;">j</span><span class="mclose">)</span></span></span></span></span>
+    returns the sum of <span class="math math-inline"><span class="katex"><span class="katex-mathml">18calculateDP(moves−1,i′,j′)\frac{1}{8} \text{calculateDP}(\text{moves} - 1, i', j')</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1.1901em; vertical-align: -0.345em;"></span><span
+            class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span
+            class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.8451em;"><span
+            style="top: -2.655em;"><span class="pstrut" style="height: 3em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">8</span></span></span></span><span
+            style="top: -3.23em;"><span class="pstrut" style="height: 3em;"></span><span class="frac-line"
+                                                                                         style="border-bottom-width: 0.04em;"></span></span><span
+            style="top: -3.394em;"><span class="pstrut" style="height: 3em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">1</span></span></span></span></span><span
+            class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                       style="height: 0.345em;"><span></span></span></span></span></span><span
+            class="mclose nulldelimiter"></span></span><span class="mord text"><span
+            class="mord">calculateDP</span></span><span class="mopen">(</span><span class="mord text"><span
+            class="mord">moves</span></span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1.0019em; vertical-align: -0.25em;"></span><span
+            class="mord">1</span><span class="mpunct">,</span><span class="mspace"
+                                                                    style="margin-right: 0.1667em;"></span><span
+            class="mord"><span class="mord mathnormal">i</span><span class="msupsub"><span class="vlist-t"><span
+            class="vlist-r"><span class="vlist" style="height: 0.7519em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">′</span></span></span></span></span></span></span></span></span><span
+            class="mpunct">,</span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord"><span
+            class="mord mathnormal" style="margin-right: 0.05724em;">j</span><span class="msupsub"><span
+            class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.7519em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">′</span></span></span></span></span></span></span></span></span><span
+            class="mclose">)</span></span></span></span></span> over the neighboring cells <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">(i′,j′)(i', j')</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1.0019em; vertical-align: -0.25em;"></span><span
+            class="mopen">(</span><span class="mord"><span class="mord mathnormal">i</span><span class="msupsub"><span
+            class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.7519em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">′</span></span></span></span></span></span></span></span></span><span
+            class="mpunct">,</span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord"><span
+            class="mord mathnormal" style="margin-right: 0.05724em;">j</span><span class="msupsub"><span
+            class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.7519em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">′</span></span></span></span></span></span></span></span></span><span
+            class="mclose">)</span></span></span></span></span>. It is the same relation as in the first approach.</p>
+<p>The answer to the problem is the sum of <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">calculateDP(k,i,j)\text{calculateDP}(k, i, j)</span><span class="katex-html"
+                                                                                       aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord text"><span class="mord">calculateDP</span></span><span class="mopen">(</span><span
+        class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span class="mpunct">,</span><span
+        class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal">i</span><span
+        class="mpunct">,</span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal"
+                                                                                                 style="margin-right: 0.05724em;">j</span><span
+        class="mclose">)</span></span></span></span></span> over all cells <span class="math math-inline"><span
+        class="katex"><span class="katex-mathml">(i,j)(i, j)</span><span class="katex-html" aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mopen">(</span><span class="mord mathnormal">i</span><span class="mpunct">,</span><span class="mspace"
+                                                                                                       style="margin-right: 0.1667em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.05724em;">j</span><span
+        class="mclose">)</span></span></span></span></span>.</p>
+<p>In the function <span class="math math-inline"><span class="katex"><span class="katex-mathml">calculateDP(moves,i,j)\text{calculateDP}(\text{moves}, i, j)</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord text"><span class="mord">calculateDP</span></span><span class="mopen">(</span><span
+        class="mord text"><span class="mord">moves</span></span><span class="mpunct">,</span><span class="mspace"
+                                                                                                   style="margin-right: 0.1667em;"></span><span
+        class="mord mathnormal">i</span><span class="mpunct">,</span><span class="mspace"
+                                                                           style="margin-right: 0.1667em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.05724em;">j</span><span
+        class="mclose">)</span></span></span></span></span>, we check if the value <span class="math math-inline"><span
+        class="katex"><span class="katex-mathml">dp[moves][i][j]\text{dp}[\text{moves}][i][j]</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span class="mord text"><span
+        class="mord">moves</span></span><span class="mclose">]</span><span class="mopen">[</span><span
+        class="mord mathnormal">i</span><span class="mclose">]</span><span class="mopen">[</span><span
+        class="mord mathnormal" style="margin-right: 0.05724em;">j</span><span
+        class="mclose">]</span></span></span></span></span> has already been calculated and stored in the DP table. If
+    it has, we directly return the stored value. Otherwise, we calculate the probability using the same recurrence
+    relation as in the first approach.</p>
+<p>To use this function, we need to initialize the DP table <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">dp\text{dp}</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+        class="strut" style="height: 0.8889em; vertical-align: -0.1944em;"></span><span class="mord text"><span
+        class="mord">dp</span></span></span></span></span></span> with <span class="math math-inline"><span
+        class="katex"><span class="katex-mathml">−1-1</span><span class="katex-html" aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.7278em; vertical-align: -0.0833em;"></span><span class="mord">−</span><span
+        class="mord">1</span></span></span></span></span> values to indicate that the probabilities have not been
+    calculated yet.</p>
+<p>After calculating the probabilities for each cell, we can calculate the total probability by summing up the
+    probabilities for all cells <span class="math math-inline"><span class="katex"><span class="katex-mathml">(i,j)(i, j)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mopen">(</span><span class="mord mathnormal">i</span><span class="mpunct">,</span><span
+            class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal"
+                                                                        style="margin-right: 0.05724em;">j</span><span
+            class="mclose">)</span></span></span></span></span> on the chessboard.</p>
+<h4 id="algorithm-2">Algorithm</h4>
+<p>The function <span class="math math-inline"><span class="katex"><span class="katex-mathml">calculateDP\text{calculateDP}</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.6944em;"></span><span
+        class="mord text"><span class="mord">calculateDP</span></span></span></span></span></span> takes three
+    parameters: <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">moves\text{moves}</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.4306em;"></span><span class="mord text"><span
+            class="mord">moves</span></span></span></span></span></span>, <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">ii</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6595em;"></span><span
+            class="mord mathnormal">i</span></span></span></span></span>, and <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">jj</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.854em; vertical-align: -0.1944em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.05724em;">j</span></span></span></span></span>.</p>
+<ol>
+    <li>If <span class="math math-inline"><span class="katex"><span class="katex-mathml">moves\text{moves}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.4306em;"></span><span
+            class="mord text"><span class="mord">moves</span></span></span></span></span></span> equals <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">00</span><span class="katex-html"
+                                                                                                   aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span>,
+        return <span class="math math-inline"><span class="katex"><span class="katex-mathml">11</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.6444em;"></span><span
+                class="mord">1</span></span></span></span></span> if <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">ii</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 0.6595em;"></span><span
+                class="mord mathnormal">i</span></span></span></span></span> equals <span class="math math-inline"><span
+                class="katex"><span class="katex-mathml">row\text{row}</span><span class="katex-html"
+                                                                                   aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord text"><span
+                class="mord">row</span></span></span></span></span></span> and <span class="math math-inline"><span
+                class="katex"><span class="katex-mathml">jj</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 0.854em; vertical-align: -0.1944em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.05724em;">j</span></span></span></span></span> equals
+        <span class="math math-inline"><span class="katex"><span class="katex-mathml">column\text{column}</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.6944em;"></span><span
+                class="mord text"><span class="mord">column</span></span></span></span></span></span>, otherwise return
+        <span class="math math-inline"><span class="katex"><span class="katex-mathml">00</span><span class="katex-html"
+                                                                                                     aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 0.6444em;"></span><span
+                class="mord">0</span></span></span></span></span>.
+    </li>
+    <li>If <span class="math math-inline"><span class="katex"><span class="katex-mathml">dp[moves][i][j]\text{dp}[\text{moves}][i][j]</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+            class="mord text"><span class="mord">moves</span></span><span class="mclose">]</span><span
+            class="mopen">[</span><span class="mord mathnormal">i</span><span class="mclose">]</span><span
+            class="mopen">[</span><span class="mord mathnormal" style="margin-right: 0.05724em;">j</span><span
+            class="mclose">]</span></span></span></span></span> is not equal to <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">−1-1</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.7278em; vertical-align: -0.0833em;"></span><span
+            class="mord">−</span><span class="mord">1</span></span></span></span></span>, return <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">dp[moves][i][j]\text{dp}[\text{moves}][i][j]</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+            class="mord text"><span class="mord">moves</span></span><span class="mclose">]</span><span
+            class="mopen">[</span><span class="mord mathnormal">i</span><span class="mclose">]</span><span
+            class="mopen">[</span><span class="mord mathnormal" style="margin-right: 0.05724em;">j</span><span
+            class="mclose">]</span></span></span></span></span>.
+    </li>
+    <li>Initialize <span class="math math-inline"><span class="katex"><span class="katex-mathml">dp[moves][i][j]\text{dp}[\text{moves}][i][j]</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+            class="mord text"><span class="mord">moves</span></span><span class="mclose">]</span><span
+            class="mopen">[</span><span class="mord mathnormal">i</span><span class="mclose">]</span><span
+            class="mopen">[</span><span class="mord mathnormal" style="margin-right: 0.05724em;">j</span><span
+            class="mclose">]</span></span></span></span></span> to <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">00</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span>.
+    </li>
+    <li>Iterate over possible directions:
+        <ul>
+            <li>Calculate <span class="math math-inline"><span class="katex"><span class="katex-mathml">i′i'</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.7519em;"></span><span
+                    class="mord"><span class="mord mathnormal">i</span><span class="msupsub"><span class="vlist-t"><span
+                    class="vlist-r"><span class="vlist" style="height: 0.7519em;"><span
+                    style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                       style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">′</span></span></span></span></span></span></span></span></span></span></span></span></span>
+                by subtracting the vertical component of the direction from <span class="math math-inline"><span
+                        class="katex"><span class="katex-mathml">ii</span><span class="katex-html"
+                                                                                aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 0.6595em;"></span><span class="mord mathnormal">i</span></span></span></span></span>.
+            </li>
+            <li>Calculate <span class="math math-inline"><span class="katex"><span class="katex-mathml">j′j'</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.9463em; vertical-align: -0.1944em;"></span><span
+                    class="mord"><span class="mord mathnormal" style="margin-right: 0.05724em;">j</span><span
+                    class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                      style="height: 0.7519em;"><span
+                    style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                       style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">′</span></span></span></span></span></span></span></span></span></span></span></span></span>
+                by subtracting the horizontal component of the direction from <span class="math math-inline"><span
+                        class="katex"><span class="katex-mathml">jj</span><span class="katex-html"
+                                                                                aria-hidden="true"><span
+                        class="base"><span class="strut"
+                                           style="height: 0.854em; vertical-align: -0.1944em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.05724em;">j</span></span></span></span></span>.
+            </li>
+            <li>Check if <span class="math math-inline"><span class="katex"><span class="katex-mathml">i′i'</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.7519em;"></span><span
+                    class="mord"><span class="mord mathnormal">i</span><span class="msupsub"><span class="vlist-t"><span
+                    class="vlist-r"><span class="vlist" style="height: 0.7519em;"><span
+                    style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                       style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">′</span></span></span></span></span></span></span></span></span></span></span></span></span>
+                and <span class="math math-inline"><span class="katex"><span class="katex-mathml">j′j'</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 0.9463em; vertical-align: -0.1944em;"></span><span
+                        class="mord"><span class="mord mathnormal" style="margin-right: 0.05724em;">j</span><span
+                        class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                          style="height: 0.7519em;"><span
+                        style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                        class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+                        class="mord mtight">′</span></span></span></span></span></span></span></span></span></span></span></span></span>
+                are within the chessboard boundaries:
+                <ul>
+                    <li>If so, add <span class="math math-inline"><span class="katex"><span class="katex-mathml">18calculateDP(moves−1,i′,j′)\frac{1}{8} \text{calculateDP}(\text{moves} - 1, i', j')</span><span
+                            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                           style="height: 1.1901em; vertical-align: -0.345em;"></span><span
+                            class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span
+                            class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist"
+                                                                                 style="height: 0.8451em;"><span
+                            style="top: -2.655em;"><span class="pstrut" style="height: 3em;"></span><span
+                            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">8</span></span></span></span><span
+                            style="top: -3.23em;"><span class="pstrut" style="height: 3em;"></span><span
+                            class="frac-line" style="border-bottom-width: 0.04em;"></span></span><span
+                            style="top: -3.394em;"><span class="pstrut" style="height: 3em;"></span><span
+                            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">1</span></span></span></span></span><span
+                            class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                                       style="height: 0.345em;"><span></span></span></span></span></span><span
+                            class="mclose nulldelimiter"></span></span><span class="mord text"><span class="mord">calculateDP</span></span><span
+                            class="mopen">(</span><span class="mord text"><span class="mord">moves</span></span><span
+                            class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">−</span><span
+                            class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+                            class="strut" style="height: 1.0019em; vertical-align: -0.25em;"></span><span
+                            class="mord">1</span><span class="mpunct">,</span><span class="mspace"
+                                                                                    style="margin-right: 0.1667em;"></span><span
+                            class="mord"><span class="mord mathnormal">i</span><span class="msupsub"><span
+                            class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.7519em;"><span
+                            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                               style="height: 2.7em;"></span><span
+                            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">′</span></span></span></span></span></span></span></span></span><span
+                            class="mpunct">,</span><span class="mspace" style="margin-right: 0.1667em;"></span><span
+                            class="mord"><span class="mord mathnormal" style="margin-right: 0.05724em;">j</span><span
+                            class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                              style="height: 0.7519em;"><span
+                            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                               style="height: 2.7em;"></span><span
+                            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">′</span></span></span></span></span></span></span></span></span><span
+                            class="mclose">)</span></span></span></span></span> to <span class="math math-inline"><span
+                            class="katex"><span class="katex-mathml">dp[moves][i][j]\text{dp}[\text{moves}][i][j]</span><span
+                            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+                            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+                            class="mord text"><span class="mord">moves</span></span><span class="mclose">]</span><span
+                            class="mopen">[</span><span class="mord mathnormal">i</span><span
+                            class="mclose">]</span><span class="mopen">[</span><span class="mord mathnormal"
+                                                                                     style="margin-right: 0.05724em;">j</span><span
+                            class="mclose">]</span></span></span></span></span>.
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </li>
+    <li>Return <span class="math math-inline"><span class="katex"><span class="katex-mathml">dp[moves][i][j]\text{dp}[\text{moves}][i][j]</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+            class="mord text"><span class="mord">moves</span></span><span class="mclose">]</span><span
+            class="mopen">[</span><span class="mord mathnormal">i</span><span class="mclose">]</span><span
+            class="mopen">[</span><span class="mord mathnormal" style="margin-right: 0.05724em;">j</span><span
+            class="mclose">]</span></span></span></span></span>.
+    </li>
+</ol>
+<p>To solve the problem:</p>
+<ul>
+    <li>Initialize the <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">dp\text{dp}</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.8889em; vertical-align: -0.1944em;"></span><span class="mord text"><span
+            class="mord">dp</span></span></span></span></span></span> table with <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">−1-1</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.7278em; vertical-align: -0.0833em;"></span><span
+            class="mord">−</span><span class="mord">1</span></span></span></span></span> values.
+    </li>
+    <li>Calculate the total probability by summing <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">calculateDP(k,i,j)\text{calculateDP}(k, i, j)</span><span class="katex-html"
+                                                                                           aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">calculateDP</span></span><span class="mopen">(</span><span
+            class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span class="mpunct">,</span><span
+            class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal">i</span><span
+            class="mpunct">,</span><span class="mspace" style="margin-right: 0.1667em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.05724em;">j</span><span class="mclose">)</span></span></span></span></span>
+        for all <span class="math math-inline"><span class="katex"><span class="katex-mathml">ii</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.6595em;"></span><span
+                class="mord mathnormal">i</span></span></span></span></span>, <span class="math math-inline"><span
+                class="katex"><span class="katex-mathml">jj</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 0.854em; vertical-align: -0.1944em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.05724em;">j</span></span></span></span></span>.
+    </li>
+    <li>Return the total probability.</li>
+</ul>
+<h4 id="implementation-2">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    int[][] directions = {{1, 2}, {1, -2}, {-1, 2}, {-1, -2}, {2, 1}, {2, -1}, {-2, 1}, {-2, -1}};
+
+    private double calculateDP(double[][][] dp, int moves, int i, int j, int n, int row, int column) {
+        // Base case
+        if (moves == 0) {
+            if (i == row && j == column) {
+                return 1;
+            } else {
+                return 0;
+            }
+        }
+
+        // Check if the value has already been calculated
+        if (dp[moves][i][j] != -1) {
+            return dp[moves][i][j];
+        }
+
+        dp[moves][i][j] = 0;
+
+        // Iterate over possible directions
+        for (int[] direction : directions) {
+            int prevI = i - direction[0];
+            int prevJ = j - direction[1];
+
+            // Boundary check
+            if (prevI >= 0 && prevI < n && prevJ >= 0 && prevJ < n) {
+                dp[moves][i][j] += calculateDP(dp, moves - 1, prevI, prevJ, n, row, column) / 8.0;
+            }
+        }
+
+        return dp[moves][i][j];
+    }
+
+    public double knightProbability(int n, int k, int row, int column) {
+        double[][][] dp = new double[k + 1][n][n];
+
+        // Initialize dp with -1 values
+        for (double[][] layer : dp) {
+            for (double[] rowArray : layer) {
+                Arrays.fill(rowArray, -1);
+            }
+        }
+
+        // Calculate the total probability by summing up the probabilities for all cells
+        double totalProbability = 0;
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                totalProbability += calculateDP(dp, k, i, j, n, row, column);
+            }
+        }
+
+        return totalProbability;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    double knightProbability(int n, int k, int row, int column) {
+        vector<pair<int, int>> directions = {{1, 2}, {1, -2}, {-1, 2}, {-1, -2}, {2, 1}, {2, -1}, {-2, 1}, {-2, -1}};
+        vector dp(k + 1, vector (n, vector<double>(n, -1)));
+
+        function<double(int, int, int)> calculateDP = [&](int moves, int i, int j) -> double {
+            // Base case
+            if (moves == 0) {
+                if (i == row && j == column) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            }
+
+            // Check if value has already been calculated
+            if (dp[moves][i][j] != -1) {
+                return dp[moves][i][j];
+            }
+
+            dp[moves][i][j] = 0;
+
+            // Iterate over possible directions
+            for (const auto& direction : directions) {
+                int prevI = i - direction.first;
+                int prevJ = j - direction.second;
+
+                // Boundary check
+                if (prevI >= 0 && prevI < n && prevJ >= 0 && prevJ < n) {
+                    dp[moves][i][j] += calculateDP(moves - 1, prevI, prevJ) / 8.0;
+                }
+            }
+
+            return dp[moves][i][j];
+        };
+
+        // Calculate the total probability by summing up the probabilities for all cells
+        double totalProbability = 0;
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                totalProbability += calculateDP(k, i, j);
+            }
+        }
+
+        return totalProbability;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def knightProbability(self, n: int, k: int, row: int, column: int) -> float:
+        directions = [(1, 2), (1, -2), (-1, 2), (-1, -2),
+                      (2, 1), (2, -1), (-2, 1), (-2, -1)]
+        dp = [[[-1] * n for _ in range(n)] for _ in range(k + 1)]
+
+        def calculate_dp(moves, i, j):
+            # Base case
+            if moves == 0:
+                if i == row and j == column:
+                    return 1
+                else:
+                    return 0
+
+            # Check if the value has already been calculated
+            if dp[moves][i][j] != -1:
+                return dp[moves][i][j]
+
+            dp[moves][i][j] = 0
+
+            # Iterate over possible directions
+            for direction in directions:
+                prev_i = i - direction[0]
+                prev_j = j - direction[1]
+
+                # Boundary check
+                if 0 <= prev_i < n and 0 <= prev_j < n:
+                    dp[moves][i][j] += calculate_dp(moves - 1, prev_i, prev_j)
+            dp[moves][i][j] /= 8
+
+            return dp[moves][i][j]
+
+        # Calculate the total probability
+        total_probability = sum(
+            calculate_dp(k, i, j)
+            for i in range(n)
+            for j in range(n)
+        )
+
+        return total_probability
+    </code>
+</pre>
+<h4 id="complexity-analysis-2">Complexity Analysis</h4>
+<ul>
+    <li>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(k⋅n2)O(k \cdot n^2)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span class="mspace"
+                                                                                   style="margin-right: 0.2222em;"></span><span
+            class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+            class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+            class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span
+            class="mord mtight">2</span></span></span></span></span></span></span></span><span
+            class="mclose">)</span></span></span></span></span>.
+    </li>
+</ul>
+<p>Even though we changed the order in which we calculate DP, the time complexity is the same as in the previous
+    approach: for each state <span class="math math-inline"><span class="katex"><span class="katex-mathml">(moves,i,j)(\text{moves}, i, j)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mopen">(</span><span class="mord text"><span class="mord">moves</span></span><span
+            class="mpunct">,</span><span class="mspace" style="margin-right: 0.1667em;"></span><span
+            class="mord mathnormal">i</span><span class="mpunct">,</span><span class="mspace"
+                                                                               style="margin-right: 0.1667em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.05724em;">j</span><span class="mclose">)</span></span></span></span></span>,
+    we calculate <span class="math math-inline"><span class="katex"><span class="katex-mathml">dp[moves][i][j]\text{dp}[\text{moves}][i][j]</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+            class="mord text"><span class="mord">moves</span></span><span class="mclose">]</span><span
+            class="mopen">[</span><span class="mord mathnormal">i</span><span class="mclose">]</span><span
+            class="mopen">[</span><span class="mord mathnormal" style="margin-right: 0.05724em;">j</span><span
+            class="mclose">]</span></span></span></span></span> in <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord">1</span><span class="mclose">)</span></span></span></span></span>. Since we store the results
+    in the memory, we will compute <span class="math math-inline"><span class="katex"><span class="katex-mathml">dp[moves][i][j]\text{dp}[\text{moves}][i][j]</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+            class="mord text"><span class="mord">moves</span></span><span class="mclose">]</span><span
+            class="mopen">[</span><span class="mord mathnormal">i</span><span class="mclose">]</span><span
+            class="mopen">[</span><span class="mord mathnormal" style="margin-right: 0.05724em;">j</span><span
+            class="mclose">]</span></span></span></span></span> only once.</p>
+<ul>
+    <li>Space complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(k⋅n2)O(k \cdot n^2)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span class="mspace"
+                                                                                   style="margin-right: 0.2222em;"></span><span
+            class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+            class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+            class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span
+            class="mord mtight">2</span></span></span></span></span></span></span></span><span
+            class="mclose">)</span></span></span></span></span>.
+    </li>
+</ul>
+<p>We store the DP table of size <span class="math math-inline"><span class="katex"><span class="katex-mathml">[k+1][n][n][k + 1][n][n]</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mopen">[</span><span class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+        class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace"
+                                                                                               style="margin-right: 0.2222em;"></span></span><span
+        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord">1</span><span class="mclose">]</span><span class="mopen">[</span><span
+        class="mord mathnormal">n</span><span class="mclose">]</span><span class="mopen">[</span><span
+        class="mord mathnormal">n</span><span class="mclose">]</span></span></span></span></span>.</p>
+</body>
+</html>
