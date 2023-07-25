@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Peak Index in a Mountain Array - Solution</title>
+</head>
+<body>
+<h2 id="solution">Peak Index in a Mountain Array - Solution</h2>
+<hr>
+<h3 id="overview">Overview</h3>
+<p>Given a mountain array <code>arr</code>, our task is to return the index <code>i</code> such that <code>arr[0] &lt;
+    arr[1] &lt; ... &lt; arr[i - 1] &lt; arr[i] &gt; arr[i + 1] &gt; ... &gt; arr[arr.length - 1]</code>. In simpler
+    terms, all elements to the left are sorted ascending and all elements to the right are sorted descending.</p>
+<hr>
+<h3 id="approach-1-linear-scan">Approach 1: Linear Scan</h3>
+<h4 id="intuition">Intuition</h4>
+<p>We are guaranteed to have an array of the form <code>arr[0] &lt; arr[1] &lt; ... &lt; arr[i - 1] &lt; arr[i] &gt;
+    arr[i + 1] &gt; ... &gt; arr[arr.length - 1]</code>. As our task is to find the index <code>i</code> (called the
+    peak index of the mountain array), we can iterate over the array starting from the first element.</p>
+<p>We can create a pointer <code>i</code> and set it to <code>0</code> to point to the first element. We compare the
+    current element at index <code>i</code> with the next element at index <code>i + 1</code>. If <code>arr[i] &lt;
+        arr[i + 1]</code>, it means we haven't got the peak of the mountain yet. As a result, we increment
+    <code>i</code> by <code>1</code> in this case to move to the next element. Otherwise, the first time we see <code>arr[i]
+        &gt; arr[i + 1]</code>, we return <code>i</code>.</p>
+<h4 id="algorithm">Algorithm</h4>
+<ol>
+    <li>Create an integer variable <code>i</code> and initialize it to <code>0</code>.</li>
+    <li>Using a while loop check if the current element pointed by <code>i</code> is smaller than the next element at
+        index <code>i + 1</code>. If <code>arr[i] &lt; arr[i + 1]</code>, increment <code>i</code> by <code>1</code>.
+        Otherwise, if <code>arr[i] &gt; arr[i + 1]</code>, we return <code>i</code>.
+    </li>
+</ol>
+<h4 id="implementation">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int peakIndexInMountainArray(int[] arr) {
+        int i = 0;
+        while (arr[i] < arr[i + 1]) {
+            i++;
+        }
+        return i;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int peakIndexInMountainArray(vector<int>& arr) {
+        int i = 0;
+        while (arr[i] < arr[i + 1]) {
+            i++;
+        }
+        return i;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def peakIndexInMountainArray(self, arr: List[int]) -> int:
+        i = 0
+        while arr[i] < arr[i + 1]:
+            i += 1
+        return i
+    </code>
+</pre>
+<h4 id="complexity-analysis">Complexity Analysis</h4>
+<p>Here <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                     aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    is the length of <code>arr</code>.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.
+        </p>
+        <ul>
+            <li>We are doing a linear scan and comparing adjacent elements until we get the peak of the mountain over
+                the <code>arr</code> array. In the worst-case situation, the peak of the mountain could correspond to
+                the second last element of <code>arr</code>, in which case we would take <span class="math math-inline"><span
+                        class="katex"><span class="katex-mathml">O(n)O(n)</span><span class="katex-html"
+                                                                                      aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+                time.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord">1</span><span
+                class="mclose">)</span></span></span></span></span>.</p>
+        <ul>
+            <li>We are not using any extra space other than an integer <code>i</code>, which takes up constant space.
+            </li>
+        </ul>
+    </li>
+</ul>
+<hr>
+<h3 id="approach-2-binary-search">Approach 2: Binary Search</h3>
+<h4 id="intuition-1">Intuition</h4>
+<p>In a mountain array with peak index <code>i</code>, any element at <code>index</code> with <code>index</code> less
+    than <code>i</code> would obey <code>arr[index] &lt; arr[index + 1]</code>. Furthermore, any <code>index</code>
+    greater than or equal to <code>i</code> would follow the rule <code>arr[index] &gt; arr[index + 1]</code> (and not
+    obey <code>arr[index] &lt; arr[index + 1]</code>).</p>
+<p>A scenario like this where our task is to search for an element <code>i</code> from a given range <code>(l, r)</code>
+    where all values smaller than <code>i</code> satisfy a certain condition and all values greater than or equal to
+    <code>i</code> do not satisfy it (or vice-versa) can be solved optimally with a binary search algorithm. In binary
+    search, we repeatedly divide the solution space where the answer could be in half until the range contains just one
+    element.</p>
+<p>Following the above discussion, we use binary search to solve this problem. We create an integer <code>l</code> and
+    initialize it to the starting index <code>0</code>. We also create another integer variable <code>r</code> and set
+    it to the last index of <code>arr</code>, i.e., <code>arr.length - 1</code>.</p>
+<p>We get the middle of the range <code>mid = (l + r) / 2</code> and compare <code>arr[mid]</code> with the next
+    element. If <code>arr[mid] &lt; arr[mid + 1]</code>, we move to the upper half of the range by setting <code>l = mid
+        + 1</code> as our peak index is definitely greater than <code>mid</code>. Otherwise, if <code>arr[mid] &gt;
+        arr[mid + 1]</code>, we move to the lower half of the range by setting <code>r = mid</code> as the peak index is
+    either <code>mid</code> or some index smaller than <code>mid</code>.</p>
+<p>The answer would be within the range <code>(l, r)</code> at any point. All the indices smaller than <code>l</code>
+    are indices smaller than the peak index and all indices greater than <code>r</code> are indices greater than the
+    peak index. We continue the search as long as <code>l &lt; r</code>.</p>
+<p>When <code>l == r</code>, <code>l</code> (or <code>r</code>) denotes the required peak index.</p>
+<p>Here is a visual representation of an example to illustrate how it works:</p>
+<p><img src="852-1.png" alt="img"></p>
+<h4 id="algorithm-1">Algorithm</h4>
+<ol>
+    <li>Create two integer variables <code>l</code> and <code>r</code> to store the solution space of the problem. We
+        initialize <code>l</code> with <code>0</code> and <code>r</code> to <code>arr.length - 1</code>.
+    </li>
+    <li>While <code>l &lt; r</code>:
+        <ul>
+            <li>Get the index of the middle element using <code>mid = (l + r) / 2</code>.</li>
+            <li>If <code>arr[mid] &lt; arr[mid + 1]</code>, it indicates peak index is greather than <code>mid</code>.
+                As a result, we move to upper half of the range by setting <code>left = mid + 1</code>.
+            </li>
+            <li>Else, if <code>arr[mid] &gt;= arr[mid + 1]</code>, it indicates that the peak index is either
+                <code>mid</code> or some index smaller than <code>mid</code>. As a result, we move to the lower half of
+                the range by setting <code>r = mid</code>.
+            </li>
+        </ul>
+    </li>
+    <li>Return <code>l</code> (or <code>r</code> as both are equal now).</li>
+</ol>
+<h4 id="implementation-1">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int peakIndexInMountainArray(int[] arr) {
+        int l = 0, r = arr.length - 1, mid;
+        while (l < r) {
+            mid = (l + r) / 2;
+            if (arr[mid] < arr[mid + 1])
+                l = mid + 1;
+            else
+                r = mid;
+        }
+        return l;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int peakIndexInMountainArray(vector<int>& arr) {
+        int l = 0, r = arr.size() - 1, mid;
+        while (l < r) {
+            mid = (l + r) / 2;
+            if (arr[mid] < arr[mid + 1])
+                l = mid + 1;
+            else
+                r = mid;
+        }
+        return l;
+    }
+};
+
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def peakIndexInMountainArray(self, arr: List[int]) -> int:
+        l = 0
+        r = len(arr)
+        while l < r:
+            mid = (l + r) // 2
+            if arr[mid] < arr[mid + 1]:
+                l = mid + 1
+            else:
+                r = mid
+        return l
+    </code>
+</pre>
+<h4 id="complexity-analysis-1">Complexity Analysis</h4>
+<p>Here <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                     aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    is the length of <code>arr</code>.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡n)O(\log n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                          style="margin-right: 0.1667em;"></span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.</p>
+        <ul>
+            <li>We perform <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡n)O(\log n)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                              style="margin-right: 0.1667em;"></span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> iterations
+                using the binary search algorithm as the problem set is divided into half in each iteration.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord">1</span><span
+                class="mclose">)</span></span></span></span></span>.</p>
+        <ul>
+            <li>Except for a few variables <code>l</code>, <code>r</code>, and <code>mid</code> which take constant
+                space each, we do not consume any other space.
+            </li>
+        </ul>
+    </li>
+</ul>
+</body>
+</html>
