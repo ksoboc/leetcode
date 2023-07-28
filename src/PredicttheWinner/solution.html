@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Predict the Winner</title>
+</head>
+<body>
+<h2 id="solution">Solution</h2>
+<hr>
+<h3 id="overview">Overview</h3>
+<p>Before introducing the following approaches, we need to clarify the requirements of the problem. The problem isn't
+    asking for what the final scores will be, but only if Player 1 will have a score greater than or equal to Player 2.
+    Thus, to make the task easier, we can focus only on the <strong>score difference</strong>.</p>
+<blockquote>
+    <ul>
+        <li>10 points for Player 1 and 10 points for Player 2<br>
+            or
+        </li>
+        <li>100 points for Player 1 and 10 points for Player 2</li>
+    </ul>
+    <p>There is no difference, as long as Player 1's score is greater than or equal to Player 2's, Player 1 has won.</p>
+</blockquote>
+<p>During Player 1's turn, if he scores <code>x</code> points, his score difference to Player 2 will increase by
+    <code>x</code>.</p>
+<p>Conversely, if Player 2 scores <code>y</code> points during his turn, it will <strong>decrease</strong> the score
+    difference between Player 1 and Player 2 by <code>y</code> points.</p>
+<hr>
+<h3 id="approach-1-recursion">Approach 1: Recursion</h3>
+<h4 id="intuition">Intuition</h4>
+<p>We can define a recursive function <code>maxDiff(left, right)</code> that takes the starting and ending indices
+    <code>left</code> and <code>right</code> of the list as input to maximize the current score difference between the
+    two players.</p>
+<p>At each step, we simulate the current player selecting a number from the list and then call the function recursively
+    to determine the optimal move for the next player. We update the score difference based on the player's move, and
+    then return the maximum score difference that the first player can achieve.</p>
+<p><img src="d1.png" alt="img"></p>
+<blockquote>
+    <p>Please note that: Both players play optimally, meaning they will choose the move that maximizes the score
+        difference of himself from the other.</p>
+</blockquote>
+<p>Taking the example in the figure, when it is the green player's turn for the subarray <code>nums[left ~ right]</code>,
+    his maximum score difference is denoted by <code>maxDiff(left, right)</code>. He has two choices:
+    <code>nums[left]</code> and <code>nums[right]</code>.</p>
+<p>If he chooses <code>nums[left]</code> and increases the score difference by <code>nums[left]</code>, then the next
+    move will be made by the red player on the remaining array <code>nums[left + 1 ~ right]</code>, and <code>maxDiff(left
+        + 1, right)</code> represents the max score difference that the red player could lead the green player by.</p>
+<p>However, this subproblem <code>maxDiff(left + 1, right)</code> is from the perspective of the red player, and the
+    positive gain for the red player is exactly the negative gain for the green player. Therefore, in our formula for
+    counting the current score gain of green player, the impact factor of the red player's gain is -1.</p>
+<p><img src="d2.png" alt="img"></p>
+<p>Therefore, by picking <code>nums[left]</code>, the green player's maximum score difference is <code>nums[left]</code>
+    <strong>minus</strong> <code>maxDiff(left + 1, right)</code>. Likewise, by picking <code>nums[right]</code>, his
+    maximum score difference is <code>nums[right]</code> <strong>minus</strong> <code>maxDiff(left, right - 1)</code>.
+</p>
+<p>The green player shall pick the larger one of the two, that is:</p>
+<p><code>maxDiff(left, right) = max(nums[left] - maxDiff(left + 1, right), nums[right] - maxDiff(left, right -
+    1))</code>. We can recursively solve the problem until we reach the base case <code>left = right</code>, where the
+    game ends after the last player picks the final number and the maximum score difference he can make is <code>nums[left]</code>.
+</p>
+<br>
+<h4 id="algorithm">Algorithm</h4>
+<ol>
+    <li>
+        <p>Define <code>maxDiff(left, right)</code> as the maximum score difference the current player can achieve.</p>
+        <ul>
+            <li>If <code>left = right</code>, return <code>nums[left]</code>.</li>
+            <li>Otherwise, the current player can pick <code>nums[left]</code> or <code>nums[right]</code>, the maximum
+                score difference he can get is the larger one from <code>nums[left] - maxDiff(left + 1, right)</code>
+                and <code>nums[right] - maxDiff(left, right - 1)</code>.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Return if <code>maxDiff(0, n - 1) &gt;= 0</code>. This call is from the perspective of the first player, and
+            the first player is the winner if the players have the same score (difference of 0).</p>
+    </li>
+</ol>
+<h4 id="implementation">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    private int maxDiff(int[] nums, int left, int right, int n) {
+        if (left == right) {
+            return nums[left];
+        }
+
+        int scoreByLeft = nums[left] - maxDiff(nums, left + 1, right, n);
+        int scoreByRight = nums[right] - maxDiff(nums, left, right - 1, n);
+
+        return Math.max(scoreByLeft, scoreByRight);
+    }
+
+    public boolean PredictTheWinner(int[] nums) {
+        int n = nums.length;
+
+        return maxDiff(nums, 0, n - 1, n) >= 0;
+    }
+}
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def PredictTheWinner(self, nums: List[int]) -> bool:
+        n = len(nums)
+
+        def maxDiff(left, right):
+            if left == right:
+                return nums[left]
+            score_by_left = nums[left] - maxDiff(left + 1, right)
+            score_by_right = nums[right] - maxDiff(left, right - 1)
+            return max(score_by_left, score_by_right)
+
+        return maxDiff(0, n - 1) >= 0
+    </code>
+</pre>
+<h4 id="complexity-analysis">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    be the length of the input array <code>nums</code>.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(2n)O(2^n)</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span
+                class="vlist-r"><span class="vlist" style="height: 0.6644em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span
+                class="mord mathnormal mtight">n</span></span></span></span></span></span></span></span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>The depth of the call stack will be <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                    class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+                once the base cases are reached because each call moves <code>left</code> and <code>right</code> closer
+                by one.
+            </li>
+            <li>For each problem except the base case, the current player can either pick an element from the front or
+                end. That means each call to <code>maxDiff</code> creates two more calls to <code>maxDiff</code>.
+            </li>
+        </ul>
+        <p>Thus the recursion tree having a depth of <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 0.4306em;"></span><span
+                class="mord mathnormal">n</span></span></span></span></span> has <span class="math math-inline"><span
+                class="katex"><span class="katex-mathml">O(2n)O(2^n)</span><span class="katex-html"
+                                                                                 aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span
+                class="vlist-r"><span class="vlist" style="height: 0.6644em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span
+                class="mord mathnormal mtight">n</span></span></span></span></span></span></span></span><span
+                class="mclose">)</span></span></span></span></span> nodes, which is the time it takes to finish the
+            search. <strong>Note that the constraints have <code>n &lt;= 20</code>. This approach would not be feasible
+                for larger values of <code>n</code>.</strong></p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <ul>
+            <li>The space complexity depends on the number of recursive calls of <code>maxDiff</code>. It takes <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.4306em;"></span><span
+                    class="mord mathnormal">n</span></span></span></span></span> recursion steps to reach the base case,
+                thus the space complexity is <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.
+            </li>
+        </ul>
+    </li>
+</ul>
+<br>
+<hr>
+<h3 id="approach-2-dynamic-programming-top-down">Approach 2: Dynamic Programming, Top-Down</h3>
+<h4 id="intuition-1">Intuition</h4>
+<blockquote>
+    <p>If you are not familiar with Dynamic Programming (DP), you can refer to our <a
+            href="https://leetcode.com/explore/featured/card/dynamic-programming/" target="_blank">Dynamic Programming
+        Explore Card</a> for more information.</p>
+</blockquote>
+<p>In the previous solution, we were calculating all encountered <code>maxScore(left, right)</code> recursively.
+    However, this included a lot of redundant calculations (as highlighted by colors in the figure below). Considering
+    the total number of combinations that left and right can form is only <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">O(n2)O(n^2)</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+            class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span
+            class="mord mtight">2</span></span></span></span></span></span></span></span><span
+            class="mclose">)</span></span></span></span></span>, if we use a cache to store the calculated <code>maxScore(left,
+        right)</code>, we do not need to repeatedly calculate the same function from then on.</p>
+<p><img src="d3.png" alt="img"></p>
+<p>Therefore, we can use a hashmap or a two-dimensional array <code>memo</code> as a cache. Every time we calculate the
+    value of <code>maxScore(left, right)</code>, we store it in <code>memo</code>. During the subsequent calculation
+    process, if we find that <code>maxScore(left, right)</code> has already been calculated, we can simply retrieve its
+    value <code>memo[(left, right)]</code> from the <code>memo</code>.</p>
+<br>
+<h4 id="algorithm-1">Algorithm</h4>
+<ol>
+    <li>
+        <p>Initialize a 2D array or a hash map <code>memo</code> as a cache.</p>
+    </li>
+    <li>
+        <p>Define <code>maxDiff(left, right)</code> as the maximum score difference the current player can achieve. If
+            the state <code>(left, right)</code> is already stored in <code>memo</code>, we can just return <code>memo[(left,
+                right)]</code>. Otherwise:</p>
+        <ul>
+            <li>If <code>left = right</code>, return <code>nums[left]</code>.</li>
+            <li>Otherwise, the current player can pick <code>nums[left]</code> or <code>nums[right]</code>, the maximum
+                score difference he can get is the larger one from <code>nums[left] - maxDiff(left + 1, right)</code>
+                and <code>nums[right] - maxDiff(left, right - 1)</code>.
+            </li>
+            <li>Store this result in <code>memo</code> to avoid repeated calculations.</li>
+            <li>Return <code>memo[(left, right)]</code>.</li>
+        </ul>
+    </li>
+    <li>
+        <p>Return if <code>maxDiff(0, n - 1) &gt;= 0</code>.</p>
+    </li>
+</ol>
+<h4 id="implementation-1">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    int[][] memo;
+
+    private int maxDiff(int[] nums, int left, int right, int n) {
+        if (memo[left][right] != -1) {
+            return memo[left][right];
+        }
+        if (left == right) {
+            return nums[left];
+        }
+
+        int scoreByLeft = nums[left] - maxDiff(nums, left + 1, right, n);
+        int scoreByRight = nums[right] - maxDiff(nums, left, right - 1, n);
+        memo[left][right] = Math.max(scoreByLeft, scoreByRight);
+
+        return memo[left][right];
+    }
+
+    public boolean PredictTheWinner(int[] nums) {
+        int n = nums.length;
+        memo = new int[n][n];
+        for (int i = 0; i < n; ++i) {
+            Arrays.fill(memo[i], -1);
+        }
+
+        return maxDiff(nums, 0, n - 1, n) >= 0;
+    }
+}
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def PredictTheWinner(self, nums: List[int]) -> bool:
+        n = len(nums)
+        memo = collections.defaultdict(int)
+
+        def maxDiff(left, right):
+            if (left, right) in memo:
+                return memo[(left, right)]
+            if left == right:
+                return nums[left]
+            score_by_left = nums[left] - maxDiff(left + 1, right)
+            score_by_right = nums[right] - maxDiff(left, right - 1)
+
+            memo[(left, right)] = max(score_by_left, score_by_right)
+            return memo[(left, right)]
+
+        return maxDiff(0, n - 1) >= 0
+    </code>
+</pre>
+<h4 id="complexity-analysis-1">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    be the length of the input array <code>nums</code>.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n2)O(n^2)</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+                class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>
+                <p>We use a cache <code>memo</code> to store the computed states. During the recursion, the cache makes
+                    sure we don't calculate a state more than once. The number of states <code>(left, right)</code> is
+                    <span class="math math-inline"><span class="katex"><span
+                            class="katex-mathml">O(n2)O(n^2)</span><span class="katex-html" aria-hidden="true"><span
+                            class="base"><span class="strut"
+                                               style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                            class="mopen">(</span><span class="mord"><span class="mord mathnormal">n</span><span
+                            class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                              style="height: 0.8141em;"><span
+                            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                               style="height: 2.7em;"></span><span
+                            class="sizing reset-size6 size3 mtight"><span
+                            class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                            class="mclose">)</span></span></span></span></span>.</p>
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n2)O(n^2)</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+                class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>We use a hashmap or a two-dimensional array <code>memo</code> as memory, it contains at most <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(n2)O(n^2)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+                    class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                    style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                       style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span
+                    class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                    class="mclose">)</span></span></span></span></span> distinct states.
+            </li>
+        </ul>
+    </li>
+</ul>
+<br>
+<hr>
+<h3 id="approach-3-dynamic-programming-bottom-up">Approach 3: Dynamic Programming, Bottom-Up</h3>
+<h4 id="intuition-2">Intuition</h4>
+<p>With recursion, we start at the original problem <code>(left = 0, right = n - 1)</code> and move down the tree,
+    combining answers to smaller subproblems to eventually form the answer to the original problem. We can also start
+    with the smaller subproblems and build up the solution for the larger problem. We represent all subproblems using a
+    2D array <code>dp</code>, where <code>dp[left][right]</code> indicates the maximum score that the current player can
+    get by playing on the subarray <code>nums[left ~ right]</code>. We start filling up the 2D array from the base
+    cases, solving smaller subproblems and using their solutions to solve larger subproblems until we reach the final
+    problem <code>dp[0][n - 1]</code>.</p>
+<blockquote>
+    <p>Note that <code>dp[left][right]</code> is analogous to what <code>maxDiff(left, right)</code> was in the previous
+        approaches.</p>
+</blockquote>
+<p><img src="1.png" alt="img"></p>
+<p>First, we fill up the diagonal elements of the 2D array <code>dp[left][left]</code> with the value
+    <code>nums[left]</code>, since the player can only choose one number from this subarray (this is the base case).
+    Then, we move to the next diagonal elements <code>dp[left][left + 1]</code>, where we calculate the maximum score
+    that the current player can get by choosing either <code>nums[left]</code> or <code>nums[left + 1]</code>. After
+    that, we move on to larger subarrays <code>dp[left][left + 2]</code>, <code>dp[left][left + 3]</code>, and so on
+    until we reach the final subarray <code>dp[0][n - 1]</code>. To fill <code>dp[left][right]</code>, we consider two
+    cases: either the current player chooses the number <code>nums[left]</code> or the number <code>nums[right]</code>.
+</p>
+<ul>
+    <li>If he selects <code>nums[left]</code>, his score difference is increased by <code>nums[left] - dp[left +
+        1][right]</code>.
+    </li>
+    <li>If he selects <code>nums[right]</code>, his score difference is increased by <code>nums[right] - dp[left][right
+        - 1]</code>.
+    </li>
+</ul>
+<p>Since we are filling the <code>dp</code> table in a bottom-up manner, both <code>dp[left + 1][right]</code> and
+    <code>dp[left][right - 1]</code> have been solved previously.</p>
+<p><img src="2.png" alt="img"></p>
+<p>When the iteration ends, <code>dp[0][n - 1]</code> depicts the maximum score difference achieved by the first player,
+    and we can determine if he wins by comparing it with 0.</p>
+<br>
+<h4 id="algorithm-2">Algorithm</h4>
+<ol>
+    <li>
+        <p>Initialize an empty array <code>dp</code> of size <code>n * n</code>.</p>
+    </li>
+    <li>
+        <p>Fill each diagonal value <code>dp[i][i]</code> with <code>nums[i]</code>.</p>
+    </li>
+    <li>
+        <p>Start with smaller subarrays <code>nums[left ~ left + diff] = nums[left][right]</code>, for each
+            <code>diff</code> from <code>1</code> to <code>n - 1</code>, fill the diagonal cells
+            <code>dp[left][right]</code> as the larger one from:</p>
+        <ul>
+            <li><code>nums[left] - dp[left + 1][right]</code></li>
+            <li><code>nums[right] - dp[left][right - 1]</code></li>
+        </ul>
+    </li>
+    <li>
+        <p>Return if <code>dp[0][n - 1] &gt;= 0</code> when the iteration is complete.</p>
+    </li>
+</ol>
+<h4 id="implementation-2">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public boolean PredictTheWinner(int[] nums) {
+        int n = nums.length;
+        int[][] dp = new int[n][n];
+        for (int i = 0; i < n; ++i) {
+            dp[i][i] = nums[i];
+        }
+
+        for (int diff = 1; diff < n; ++diff) {
+            for (int left = 0; left < n - diff; ++left) {
+                int right = left + diff;
+                dp[left][right] = Math.max(nums[left] - dp[left + 1][right],
+                                          nums[right] - dp[left][right - 1]);
+            }
+        }
+
+        return dp[0][n - 1] >= 0;
+    }
+}
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def PredictTheWinner(self, nums: List[int]) -> bool:
+        n = len(nums)
+        dp = [[0] * n for _ in range(n)]
+        for i in range(n):
+            dp[i][i] = nums[i]
+
+        for diff in range(1, n):
+            for left in range(n - diff):
+                right = left + diff
+                dp[left][right] = max(nums[left] - dp[left + 1][right], nums[right] - dp[left][right - 1])
+
+        return dp[0][n - 1] >= 0
+    </code>
+</pre>
+<h4 id="complexity-analysis-2">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    be the length of the input array <code>nums</code>.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n2)O(n^2)</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+                class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>We create a 2D array of size <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">n×nn\times n</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+                    class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">×</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 0.4306em;"></span><span
+                    class="mord mathnormal">n</span></span></span></span></span> as memory. The value of each cell is
+                computed once, which takes <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord">1</span><span
+                        class="mclose">)</span></span></span></span></span> time.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n2)O(n^2)</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+                class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>We create a 2D array of size <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">n×nn\times n</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+                    class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">×</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 0.4306em;"></span><span
+                    class="mord mathnormal">n</span></span></span></span></span> as memory.
+            </li>
+        </ul>
+    </li>
+</ul>
+<br>
+<hr>
+<h3 id="approach-4-dynamic-programming-space-optimized">Approach 4: Dynamic Programming, Space-Optimized</h3>
+<h4 id="intuition-3">Intuition</h4>
+<p>Recall the order of filling in <code>dp</code> in the previous approach. We fill the first diagonal which stands for
+    all subarrays of length 1 in the 1st round, then move on to the upper secondary diagonal that represent all
+    subarrays of length 2, and so on.</p>
+<p><img src="3.png" alt="img"></p>
+<blockquote>
+    <p>We only need the previous (lower) diagonal to fill the current (upper) diagonal.</p>
+</blockquote>
+<p>By observing the pattern of filling <code>dp</code>, we can optimize the space complexity to <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span class="katex-html"
+                                                                                                     aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+        class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> by only storing the
+    previous diagonal of <code>dp</code>, and updating <code>new_dp</code> of shorter length. Then we can reset
+    <code>dp</code> as <code>dp = new_dp</code> and reuse it for the next round.</p>
+<p><img src="4.png" alt="img"></p>
+<p>Furthermore, we don't even need to create <code>new_dp</code>. We can simply update <code>dp</code> in-place
+    repeatedly:</p>
+<ul>
+    <li>Begin with: <code>[dp[0], dp[1], dp[2], dp[3]]</code></li>
+    <li>Update the 1st element: <code>[new_dp[0], dp[1], dp[2], dp[3]]</code>.</li>
+    <li>Update the 2nd element: <code>[new_dp[0], new_dp[1], dp[2], dp[3]]</code></li>
+    <li>Update the 3rd element: <code>[new_dp[0], new_dp[1], new_dp[2], dp[3]]</code></li>
+</ul>
+<p>now the first 3 elements in <code>dp</code> will represent <code>new_dp</code>.</p>
+<p><img src="5.png" alt="img"></p>
+<p>We continue this updating process for <code>n</code> rounds, and the first element in the array represents <code>dp[0][n-1]</code>
+    in the 2D array, which is the maximum score difference achieved by Player 1.</p>
+<br>
+<h4 id="algorithm-3">Algorithm</h4>
+<ol>
+    <li>
+        <p>Initialize an empty array <code>dp</code> of size <code>n</code>.</p>
+    </li>
+    <li>
+        <p>Set each value <code>dp[i]</code> as <code>nums[i]</code>.</p>
+    </li>
+    <li>
+        <p>Start with each shorter diagonal, for each <code>diff</code> from <code>1</code> to <code>n - 1</code>,
+            update the first <code>n - diff</code> cells in place using every two adjacent cells in <code>dp</code>.
+            <code>dp[left]</code> equals the larger one of:</p>
+        <ul>
+            <li><code>nums[left] - dp[left + 1]</code></li>
+            <li><code>nums[right] - dp[left]</code></li>
+        </ul>
+    </li>
+    <li>
+        <p>Return if <code>dp[0] &gt;= 0</code> after the iteration is complete.</p>
+    </li>
+</ol>
+<h4 id="implementation-3">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public boolean PredictTheWinner(int[] nums) {
+        int n = nums.length;
+        int[] dp = Arrays.copyOf(nums, n);
+
+        for (int diff = 1; diff < n; ++diff) {
+            for (int left = 0; left < n - diff; ++left) {
+                int right = left + diff;
+                dp[left] = Math.max(nums[left] - dp[left + 1], nums[right] - dp[left]);
+            }
+        }
+
+        return dp[0] >= 0;
+    }
+}
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def PredictTheWinner(self, nums: List[int]) -> bool:
+        n = len(nums)
+        dp = nums[:]
+
+        for diff in range(1, n):
+            for left in range(n - diff):
+                right = left + diff
+                dp[left] = max(nums[left] - dp[left + 1], nums[right] - dp[left])
+
+        return dp[0] >= 0
+    </code>
+</pre>
+<h4 id="complexity-analysis-3">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    be the length of the input array <code>nums</code>.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n2)O(n^2)</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+                class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>
+                <p>We fill <code>n</code> cells of <code>dp</code> in the 1st round, then <code>n - 1</code> cells in
+                    the 2nd round, and so on. The total number of updated cells is <span class="math math-inline"><span
+                            class="katex"><span class="katex-mathml">O(n2)O(n^2)</span><span class="katex-html"
+                                                                                             aria-hidden="true"><span
+                            class="base"><span class="strut"
+                                               style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                            class="mopen">(</span><span class="mord"><span class="mord mathnormal">n</span><span
+                            class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                              style="height: 0.8141em;"><span
+                            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                               style="height: 2.7em;"></span><span
+                            class="sizing reset-size6 size3 mtight"><span
+                            class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                            class="mclose">)</span></span></span></span></span>, each cell takes constant time.</p>
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <ul>
+            <li>We only use an array of size <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                    class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>.
+            </li>
+        </ul>
+    </li>
+</ul>
+<br>
+</body>
+</html>
