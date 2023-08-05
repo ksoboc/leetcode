@@ -1,0 +1,1551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Unique Binary Search Trees II - Solution</title>
+</head>
+<body>
+<h2 id="solution">Unique Binary Search Trees II - Solution</h2>
+<hr>
+<h3 id="overview">Overview</h3>
+<p>Given an integer <code>n</code>, our task is to return all unique BSTs (binary search trees) that have exactly <code>n</code>
+    nodes of unique values from <code>1</code> to <code>n</code>.</p>
+<hr>
+<h3 id="approach-1-recursive-dynamic-programming">Approach 1: Recursive Dynamic Programming</h3>
+<h4 id="intuition">Intuition</h4>
+<p>In each node of a binary search tree (BST), all values in the left subtree are smaller and all values in the right
+    subtree are greater.</p>
+<p>To find all the possible permutations of BSTs with <code>n</code> nodes, we can lock one node as the
+    <code>root</code> node and split <code>n - 1</code> nodes between the left and right subtrees in all the possible
+    ways. Let's say we place a node with value <code>i</code> as the root node and place <code>i - 1</code> nodes having
+    values from <code>1</code> to <code>i - 1</code> in the left subtree. (If <code>i == 1</code>, the left child is
+    null). Similarly, we place the remaining <code>n - i</code> nodes having values from <code>i + 1</code> to
+    <code>n</code> in the right subtree. (If <code>i == n</code>, the right child is null).</p>
+<p>Now, we create a list of nodes called <code>leftSubTrees</code> for all the possible BSTs that could be the left
+    subtree. Similarly, we create a list of nodes called <code>rightSubTrees</code> for all the BSTs that could be the
+    right subtree.</p>
+<blockquote>
+    <p>In a BST, every subtree is also a BST.</p>
+</blockquote>
+<p>We iterate over both the lists and for each node pair <code>l</code> in <code>leftSubTrees</code> and <code>r</code>
+    in <code>rightSubTrees</code>, we create a new <code>root</code> node with value <code>i</code> and set the left and
+    right child of <code>root</code> to <code>l</code> and <code>r</code> respectively to form all the BSTs with the
+    root node as <code>i</code>.</p>
+<p>We can iterate over the root's value from <code>i = 1</code> to <code>n</code> and repeat the process for each root
+    value to get all the BSTs.</p>
+<p>You may notice that the subproblem of finding the arrays <code>leftSubTrees</code> and <code>rightSubTrees</code> are
+    similar to the original problem. We can implement this approach using recursion as we are breaking down a problem
+    with <code>n</code> nodes to smaller, repetitive subproblems with <code>i - 1</code> and <code>n - i</code> nodes
+    (for <code>i = 1</code> till <code>n</code>) to compute the answer for <code>n</code> nodes. We only need the range
+    of node values as the parameters to create the BSTs with nodes having values in that range.</p>
+<p>We implement a recursive function <code>allPossibleBST(start, end)</code> where <code>start</code> and
+    <code>end</code> correspond to the range of node values that should be present in the BSTs created by this call. For
+    a root node with value <code>i</code>, we will find all the left subtrees using <code>leftSubTrees =
+        allPossibleBST(start, i - 1)</code> and also compute all the right subtrees using <code>rightSubTrees =
+        allPossibleBST(i + 1, right)</code>. Finally, we iterate over all pairs between <code>leftSubTrees</code> and
+    <code>rightSubTrees</code> and create a new root with value <code>i</code> for each pair.</p>
+<p>The base case of this function is when <code>start &gt; end</code>. We have no values in our range and thus we will
+    return <code>null</code> (an empty tree).</p>
+<p>Here is a visual representation of the recursion tree with <code>3</code> nodes:</p>
+<p><img src="95-1.png" alt="img"></p>
+<p>Several subproblems, such as <code>allPossibleBST(1, 1)</code>, <code>allPossibleBST(3, 3)</code>, etc., are solved
+    multiple times in the small partial recursion tree shown above. If we draw the entire recursion tree, we can see
+    that there are many subproblems that are solved repeatedly.</p>
+<p>To avoid this issue, we store the solution of the subproblem in a hashmap that stores the mapping from a range of
+    nodes values to the list of root nodes of all possible BSTs that can be formed with the same number of nodes. When
+    we encounter the same subproblem again, we simply refer to this map to get the required list of
+    <code>TreeNode</code>. This is called <strong>memoization</strong>.</p>
+<h4 id="algorithm">Algorithm</h4>
+<ol>
+    <li>Create a hash map <code>memo</code> where <code>memo[(start, end)]</code> contains the list of root nodes of all
+        possible BSTs with the range of node values from <code>start</code> to <code>end</code>.
+    </li>
+    <li>We implement a recursive function <code>allPossibleBST</code> which takes the starting range of node values
+        <code>start</code>, ending range <code>end</code>, and <code>memo</code> as parameters. It returns a list of
+        <code>TreeNode</code> corresponding to all the BSTs that can be formed with this range of node values. We call
+        <code>allPossibleBST(1, n, memo)</code> and perform the following:
+        <ul>
+            <li>We declare a list of <code>TreeNode</code> called <code>res</code> to store the list of root nodes of
+                all possible BSTs.
+            </li>
+            <li>If <code>start &gt; end</code>, we push <code>null</code> to <code>res</code> and return it.</li>
+            <li>If we already have solved this subproblem, i.e., <code>memo</code> contains the pair <code>(start,
+                end)</code>, we return <code>memo[(start, end)]</code>.
+            </li>
+            <li>Select the root node value from <code>i = start</code> to <code>end</code> incrementing <code>i</code>
+                by <code>1</code> after each iteration. We recursively call <code>leftSubtrees = llPossibleBST(start, i
+                    - 1, memo)</code> and <code>rightSubTrees = allPossibleBST(i + 1, end, memo)</code>. We iterate over
+                all pairs between <code>leftSubtrees</code> and <code>rightSubTrees</code> and create a new root with
+                value <code>i</code> for each pair. We push <code>root</code> of the new formed BST into
+                <code>res</code>.
+            </li>
+            <li>Set <code>memo[(start, end)] = res</code> and return <code>res</code>.</li>
+        </ul>
+    </li>
+</ol>
+<h4 id="implementation">Implementation</h4>
+<pre>
+    Java
+    <code>
+    class Solution {
+    public List<TreeNode> allPossibleBST(int start, int end,
+            Map<Pair<Integer, Integer>, List<TreeNode>> memo) {
+        List<TreeNode> res = new ArrayList<>();
+        if (start > end) {
+            res.add(null);
+            return res;
+        }
+        if (memo.containsKey(new Pair<>(start, end))) {
+            return memo.get(new Pair<>(start, end));
+        }
+        // Iterate through all values from start to end to construct left and right subtree recursively.
+        for (int i = start; i <= end; ++i) {
+            List<TreeNode> leftSubTrees = allPossibleBST(start, i - 1, memo);
+            List<TreeNode> rightSubTrees = allPossibleBST(i + 1, end, memo);
+
+            // Loop through all left and right subtrees and connect them to ith root.
+            for (TreeNode left: leftSubTrees) {
+                for (TreeNode right: rightSubTrees) {
+                    TreeNode root = new TreeNode(i, left, right);
+                    res.add(root);
+                }
+            }
+        }
+        memo.put(new Pair<>(start, end), res);
+        return res;
+    }
+
+    public List<TreeNode> generateTrees(int n) {
+        Map<Pair<Integer, Integer>, List<TreeNode>> memo = new HashMap<>();
+        return allPossibleBST(1, n, memo);
+    }
+}
+          </code>
+    C++
+    <code>
+        class Solution {
+public:
+    vector<TreeNode*> allPossibleBST(int start, int end, map<pair<int, int>, vector<TreeNode*>>& memo) {
+        vector<TreeNode*> res;
+        if (start > end) {
+            res.push_back(nullptr);
+            return res;
+        }
+        if (memo.find(make_pair(start, end)) != memo.end()) {
+            return memo[make_pair(start, end)];
+        }
+        // Iterate through all values from start to end to construct left and right subtrees recursively.
+        for (int i = start; i <= end; ++i) {
+            vector<TreeNode*> leftSubTrees = allPossibleBST(start, i - 1, memo);
+            vector<TreeNode*> rightSubTrees = allPossibleBST(i + 1, end, memo);
+
+            // Loop through all left and right subtrees and connect them to the ith root.
+            for (auto left: leftSubTrees) {
+                for (auto right: rightSubTrees) {
+                    TreeNode* root = new TreeNode(i, left, right);
+                    res.push_back(root);
+                }
+            }
+        }
+        return memo[make_pair(start, end)] = res;
+    }
+
+    vector<TreeNode*> generateTrees(int n) {
+        map<pair<int, int>, vector<TreeNode*>> memo;
+        return allPossibleBST(1, n, memo);
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def allPossibleBST(self, start, end, memo):
+        res = []
+        if start > end:
+            res.append(None)
+            return res
+        if (start, end) in memo:
+            return memo[(start, end)]
+
+        # Iterate through all values from start to end to construct left and right subtree recursively.
+        for i in range(start, end + 1):
+            leftSubTrees = self.allPossibleBST(start, i - 1, memo)
+            rightSubTrees = self.allPossibleBST(i + 1, end, memo)
+
+            # Loop through all left and right subtrees and connect them to ith root.
+            for left in leftSubTrees:
+                for right in rightSubTrees:
+                    root = TreeNode(i, left, right)
+                    res.append(root)
+
+        memo[(start, end)] = res
+        return res
+
+    def generateTrees(self, n: int) -> List[Optional[TreeNode]]:
+        memo = {}
+        return self.allPossibleBST(1, n, memo)
+    </code>
+</pre>
+<h4 id="complexity-analysis">Complexity Analysis</h4>
+<p>Note, the time and space complexity of this problem is difficult to derive. In an interview, you should do your best
+    to find an upper bound. The level of analysis here would not be expected in an interview.</p>
+<p>The number of unique BSTs that can be formed with <code>n</code> nodes is <span class="math math-inline"><span
+        class="katex"><span class="katex-mathml">G(n)G(n)</span><span class="katex-html" aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord mathnormal">G</span><span class="mopen">(</span><span class="mord mathnormal">n</span><span
+        class="mclose">)</span></span></span></span></span> where <span class="math math-inline"><span
+        class="katex"><span class="katex-mathml">G(n)G(n)</span><span class="katex-html" aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord mathnormal">G</span><span class="mopen">(</span><span class="mord mathnormal">n</span><span
+        class="mclose">)</span></span></span></span></span> is the <span class="math math-inline"><span
+        class="katex"><span class="katex-mathml">nthn^{th}</span><span class="katex-html" aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.8491em;"></span><span class="mord"><span
+        class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span
+        class="vlist" style="height: 0.8491em;"><span style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                                         style="height: 2.7em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+        class="mord mathnormal mtight">t</span><span class="mord mathnormal mtight">h</span></span></span></span></span></span></span></span></span></span></span></span></span>
+    <a href="https://en.wikipedia.org/wiki/Catalan_number" target="_blank">Catalan number</a>. <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">G(n)=O(4nn1.5)G(n) = O(\dfrac{4^{n}}{n^{1.5}})</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal">G</span><span class="mopen">(</span><span class="mord mathnormal">n</span><span
+            class="mclose">)</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+            class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 2.0274em; vertical-align: -0.686em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span
+            class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 1.3414em;"><span
+            style="top: -2.314em;"><span class="pstrut" style="height: 3em;"></span><span class="mord"><span
+            class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+            class="vlist-r"><span class="vlist" style="height: 0.7401em;"><span
+            style="top: -2.989em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+            class="mord mtight">1.5</span></span></span></span></span></span></span></span></span></span></span><span
+            style="top: -3.23em;"><span class="pstrut" style="height: 3em;"></span><span class="frac-line"
+                                                                                         style="border-bottom-width: 0.04em;"></span></span><span
+            style="top: -3.677em;"><span class="pstrut" style="height: 3em;"></span><span class="mord"><span
+            class="mord"><span class="mord">4</span><span class="msupsub"><span class="vlist-t"><span
+            class="vlist-r"><span class="vlist" style="height: 0.6644em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+            class="mord mathnormal mtight">n</span></span></span></span></span></span></span></span></span></span></span></span><span
+            class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                       style="height: 0.686em;"><span></span></span></span></span></span><span
+            class="mclose nulldelimiter"></span></span><span class="mclose">)</span></span></span></span></span>.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(4nn)O(\dfrac{4^n}{\sqrt{n}})</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 2.2714em; vertical-align: -0.93em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span
+                class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 1.3414em;"><span
+                style="top: -2.3097em;"><span class="pstrut" style="height: 3em;"></span><span class="mord"><span
+                class="mord sqrt"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist"
+                                                                                             style="height: 0.8003em;"><span
+                class="svg-align" style="top: -3em;"><span class="pstrut" style="height: 3em;"></span><span class="mord"
+                                                                                                            style="padding-left: 0.833em;"><span
+                class="mord mathnormal">n</span></span></span><span style="top: -2.7603em;"><span class="pstrut"
+                                                                                                  style="height: 3em;"></span><span
+                class="hide-tail" style="min-width: 0.853em; height: 1.08em;"><svg width="400em" height="1.08em"
+                                                                                   viewBox="0 0 400000 1080"
+                                                                                   preserveAspectRatio="xMinYMin slice"><path
+                d="M95,702
+c-2.7,0,-7.17,-2.7,-13.5,-8c-5.8,-5.3,-9.5,-10,-9.5,-14
+c0,-2,0.3,-3.3,1,-4c1.3,-2.7,23.83,-20.7,67.5,-54
+c44.2,-33.3,65.8,-50.3,66.5,-51c1.3,-1.3,3,-2,5,-2c4.7,0,8.7,3.3,12,10
+s173,378,173,378c0.7,0,35.3,-71,104,-213c68.7,-142,137.5,-285,206.5,-429
+c69,-144,104.5,-217.7,106.5,-221
+l0 -0
+c5.3,-9.3,12,-14,20,-14
+H400000v40H845.2724
+s-225.272,467,-225.272,467s-235,486,-235,486c-2.7,4.7,-9,7,-19,7
+c-6,0,-10,-1,-12,-3s-194,-422,-194,-422s-65,47,-65,47z
+M834 80h400000v40h-400000z"></path></svg></span></span></span><span class="vlist-s">​</span></span><span
+                class="vlist-r"><span class="vlist" style="height: 0.2397em;"><span></span></span></span></span></span></span></span><span
+                style="top: -3.23em;"><span class="pstrut" style="height: 3em;"></span><span class="frac-line"
+                                                                                             style="border-bottom-width: 0.04em;"></span></span><span
+                style="top: -3.677em;"><span class="pstrut" style="height: 3em;"></span><span class="mord"><span
+                class="mord"><span class="mord">4</span><span class="msupsub"><span class="vlist-t"><span
+                class="vlist-r"><span class="vlist" style="height: 0.6644em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span
+                class="mord mathnormal mtight">n</span></span></span></span></span></span></span></span></span></span></span><span
+                class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                           style="height: 0.93em;"><span></span></span></span></span></span><span
+                class="mclose nulldelimiter"></span></span><span class="mclose">)</span></span></span></span></span>.
+        </p>
+        <ul>
+            <li>There are <span class="math math-inline"><span class="katex"><span class="katex-mathml">G(n)=4nn1.5G(n) = \dfrac{4^n}{n^{1.5}}</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal">G</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span><span class="mspace"
+                                                                                       style="margin-right: 0.2778em;"></span><span
+                    class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+                    class="base"><span class="strut" style="height: 2.0274em; vertical-align: -0.686em;"></span><span
+                    class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span
+                    class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 1.3414em;"><span
+                    style="top: -2.314em;"><span class="pstrut" style="height: 3em;"></span><span class="mord"><span
+                    class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+                    class="vlist-r"><span class="vlist" style="height: 0.7401em;"><span
+                    style="top: -2.989em; margin-right: 0.05em;"><span class="pstrut"
+                                                                       style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+                    class="mord mtight">1.5</span></span></span></span></span></span></span></span></span></span></span><span
+                    style="top: -3.23em;"><span class="pstrut" style="height: 3em;"></span><span class="frac-line"
+                                                                                                 style="border-bottom-width: 0.04em;"></span></span><span
+                    style="top: -3.677em;"><span class="pstrut" style="height: 3em;"></span><span class="mord"><span
+                    class="mord"><span class="mord">4</span><span class="msupsub"><span class="vlist-t"><span
+                    class="vlist-r"><span class="vlist" style="height: 0.6644em;"><span
+                    style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                       style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">n</span></span></span></span></span></span></span></span></span></span></span><span
+                    class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                               style="height: 0.686em;"><span></span></span></span></span></span><span
+                    class="mclose nulldelimiter"></span></span></span></span></span></span> BSTs in our answer. Each of
+                these BSTs has <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+                nodes, so it cost us <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+                to build each one. This gives us a time complexity of <span class="math math-inline"><span
+                        class="katex"><span class="katex-mathml">O(n⋅G(n))=O(4nn)O(n \cdot G(n)) = O(\dfrac{4^n}{\sqrt{n}})</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mspace"
+                                                                                          style="margin-right: 0.2222em;"></span><span
+                        class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal">G</span><span class="mopen">(</span><span
+                        class="mord mathnormal">n</span><span class="mclose">))</span><span class="mspace"
+                                                                                            style="margin-right: 0.2778em;"></span><span
+                        class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+                        class="base"><span class="strut" style="height: 2.2714em; vertical-align: -0.93em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord"><span class="mopen nulldelimiter"></span><span
+                        class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist"
+                                                                                                 style="height: 1.3414em;"><span
+                        style="top: -2.3097em;"><span class="pstrut" style="height: 3em;"></span><span
+                        class="mord"><span class="mord sqrt"><span class="vlist-t vlist-t2"><span class="vlist-r"><span
+                        class="vlist" style="height: 0.8003em;"><span class="svg-align" style="top: -3em;"><span
+                        class="pstrut" style="height: 3em;"></span><span class="mord"
+                                                                         style="padding-left: 0.833em;"><span
+                        class="mord mathnormal">n</span></span></span><span style="top: -2.7603em;"><span class="pstrut"
+                                                                                                          style="height: 3em;"></span><span
+                        class="hide-tail" style="min-width: 0.853em; height: 1.08em;"><svg width="400em" height="1.08em"
+                                                                                           viewBox="0 0 400000 1080"
+                                                                                           preserveAspectRatio="xMinYMin slice"><path
+                        d="M95,702
+c-2.7,0,-7.17,-2.7,-13.5,-8c-5.8,-5.3,-9.5,-10,-9.5,-14
+c0,-2,0.3,-3.3,1,-4c1.3,-2.7,23.83,-20.7,67.5,-54
+c44.2,-33.3,65.8,-50.3,66.5,-51c1.3,-1.3,3,-2,5,-2c4.7,0,8.7,3.3,12,10
+s173,378,173,378c0.7,0,35.3,-71,104,-213c68.7,-142,137.5,-285,206.5,-429
+c69,-144,104.5,-217.7,106.5,-221
+l0 -0
+c5.3,-9.3,12,-14,20,-14
+H400000v40H845.2724
+s-225.272,467,-225.272,467s-235,486,-235,486c-2.7,4.7,-9,7,-19,7
+c-6,0,-10,-1,-12,-3s-194,-422,-194,-422s-65,47,-65,47z
+M834 80h400000v40h-400000z"></path></svg></span></span></span><span class="vlist-s">​</span></span><span
+                        class="vlist-r"><span class="vlist" style="height: 0.2397em;"><span></span></span></span></span></span></span></span><span
+                        style="top: -3.23em;"><span class="pstrut" style="height: 3em;"></span><span class="frac-line"
+                                                                                                     style="border-bottom-width: 0.04em;"></span></span><span
+                        style="top: -3.677em;"><span class="pstrut" style="height: 3em;"></span><span class="mord"><span
+                        class="mord"><span class="mord">4</span><span class="msupsub"><span class="vlist-t"><span
+                        class="vlist-r"><span class="vlist" style="height: 0.6644em;"><span
+                        style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                        class="sizing reset-size6 size3 mtight"><span
+                        class="mord mathnormal mtight">n</span></span></span></span></span></span></span></span></span></span></span><span
+                        class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                                   style="height: 0.93em;"><span></span></span></span></span></span><span
+                        class="mclose nulldelimiter"></span></span><span
+                        class="mclose">)</span></span></span></span></span>.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(∑k=1n[(n−k+1)⋅4kk])O(\sum_{k=1}^{n}{[(n - k + 1) \cdot \dfrac{4^k}{\sqrt{k}}]})</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 2.4561em; vertical-align: -0.93em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mop"><span class="mop op-symbol small-op" style="position: relative; top: 0em;">∑</span><span
+                class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist"
+                                                                                           style="height: 0.8043em;"><span
+                style="top: -2.4003em; margin-left: 0em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                      style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight"
+                                                                                        style="margin-right: 0.03148em;">k</span><span
+                class="mrel mtight">=</span><span class="mord mtight">1</span></span></span></span><span
+                style="top: -3.2029em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+                class="mord mathnormal mtight">n</span></span></span></span></span><span class="vlist-s">​</span></span><span
+                class="vlist-r"><span class="vlist" style="height: 0.2997em;"><span></span></span></span></span></span></span><span
+                class="mspace" style="margin-right: 0.1667em;"></span><span class="mord"><span
+                class="mopen">[(</span><span class="mord mathnormal">n</span><span class="mspace"
+                                                                                   style="margin-right: 0.2222em;"></span><span
+                class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span class="mspace"
+                                                                                       style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mord">1</span><span class="mclose">)</span><span class="mspace"
+                                                                        style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span
+                class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 1.5261em;"><span
+                style="top: -2.1778em;"><span class="pstrut" style="height: 3em;"></span><span class="mord"><span
+                class="mord sqrt"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist"
+                                                                                             style="height: 0.9322em;"><span
+                class="svg-align" style="top: -3em;"><span class="pstrut" style="height: 3em;"></span><span class="mord"
+                                                                                                            style="padding-left: 0.833em;"><span
+                class="mord mathnormal" style="margin-right: 0.03148em;">k</span></span></span><span
+                style="top: -2.8922em;"><span class="pstrut" style="height: 3em;"></span><span class="hide-tail"
+                                                                                               style="min-width: 0.853em; height: 1.08em;"><svg
+                width="400em" height="1.08em" viewBox="0 0 400000 1080" preserveAspectRatio="xMinYMin slice"><path d="M95,702
+c-2.7,0,-7.17,-2.7,-13.5,-8c-5.8,-5.3,-9.5,-10,-9.5,-14
+c0,-2,0.3,-3.3,1,-4c1.3,-2.7,23.83,-20.7,67.5,-54
+c44.2,-33.3,65.8,-50.3,66.5,-51c1.3,-1.3,3,-2,5,-2c4.7,0,8.7,3.3,12,10
+s173,378,173,378c0.7,0,35.3,-71,104,-213c68.7,-142,137.5,-285,206.5,-429
+c69,-144,104.5,-217.7,106.5,-221
+l0 -0
+c5.3,-9.3,12,-14,20,-14
+H400000v40H845.2724
+s-225.272,467,-225.272,467s-235,486,-235,486c-2.7,4.7,-9,7,-19,7
+c-6,0,-10,-1,-12,-3s-194,-422,-194,-422s-65,47,-65,47z
+M834 80h400000v40h-400000z"></path></svg></span></span></span><span class="vlist-s">​</span></span><span
+                class="vlist-r"><span class="vlist" style="height: 0.1078em;"><span></span></span></span></span></span></span></span><span
+                style="top: -3.23em;"><span class="pstrut" style="height: 3em;"></span><span class="frac-line"
+                                                                                             style="border-bottom-width: 0.04em;"></span></span><span
+                style="top: -3.677em;"><span class="pstrut" style="height: 3em;"></span><span class="mord"><span
+                class="mord"><span class="mord">4</span><span class="msupsub"><span class="vlist-t"><span
+                class="vlist-r"><span class="vlist" style="height: 0.8491em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight"
+                                                              style="margin-right: 0.03148em;">k</span></span></span></span></span></span></span></span></span></span></span><span
+                class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                           style="height: 0.93em;"><span></span></span></span></span></span><span
+                class="mclose nulldelimiter"></span></span><span class="mclose">]</span></span><span
+                class="mclose">)</span></span></span></span></span>.
+        </p>
+        <p>We use some space for the recursion call stack, but the majority of the space used by the algorithm is
+            storing the lists of BSTs in <code>memo</code>. Let's analyze how many nodes are stored in <code>memo</code>.
+        </p>
+        <p>The number of nodes in a range <code>start, end</code> is <code>end - start + 1</code>. Let <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">k=end−start+1k = \text{end} - \text{start} + 1</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.6944em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span class="mspace"
+                                                                                       style="margin-right: 0.2778em;"></span><span
+                class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.7778em; vertical-align: -0.0833em;"></span><span
+                class="mord text"><span class="mord">end</span></span><span class="mspace"
+                                                                            style="margin-right: 0.2222em;"></span><span
+                class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.6984em; vertical-align: -0.0833em;"></span><span
+                class="mord text"><span class="mord">start</span></span><span class="mspace"
+                                                                              style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.6444em;"></span><span
+                class="mord">1</span></span></span></span></span> represent this formula.</p>
+        <p>There are <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.4306em;"></span><span
+                class="mord mathnormal">n</span></span></span></span></span> states <code>start, end</code> with one
+            node, that is <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">k=1k = 1</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord mathnormal"
+                                                                                            style="margin-right: 0.03148em;">k</span><span
+                    class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span
+                    class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut"
+                                                                                                          style="height: 0.6444em;"></span><span
+                    class="mord">1</span></span></span></span></span>.</p>
+        <p>There are <span class="math math-inline"><span class="katex"><span class="katex-mathml">n−1n - 1</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.6444em;"></span><span
+                class="mord">1</span></span></span></span></span> states <code>start, end</code> with two nodes, that is
+            <span class="math math-inline"><span class="katex"><span class="katex-mathml">k=2k = 2</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.6944em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span class="mspace"
+                                                                                           style="margin-right: 0.2778em;"></span><span
+                    class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+                    class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">2</span></span></span></span></span>.
+        </p>
+        <p>There are <span class="math math-inline"><span class="katex"><span class="katex-mathml">n−2n - 2</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.6444em;"></span><span
+                class="mord">2</span></span></span></span></span> states <code>start, end</code> with three nodes, that
+            is <span class="math math-inline"><span class="katex"><span class="katex-mathml">k=3k = 3</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.6944em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span class="mspace"
+                                                                                           style="margin-right: 0.2778em;"></span><span
+                    class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+                    class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">3</span></span></span></span></span>.
+        </p>
+        <p>This continues until there is only one state with <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 0.4306em;"></span><span
+                class="mord mathnormal">n</span></span></span></span></span> nodes (the original input). In general, a
+            value of <span class="math math-inline"><span class="katex"><span class="katex-mathml">kk</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.6944em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.03148em;">k</span></span></span></span></span> has
+            <span class="math math-inline"><span class="katex"><span class="katex-mathml">n−k+1n - k + 1</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+                    class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 0.7778em; vertical-align: -0.0833em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span class="mspace"
+                                                                                           style="margin-right: 0.2222em;"></span><span
+                    class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span>
+            states.</p>
+        <p>For a given state with value <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">kk</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 0.6944em;"></span><span class="mord mathnormal"
+                                                                     style="margin-right: 0.03148em;">k</span></span></span></span></span>,
+            there are <span class="math math-inline"><span class="katex"><span class="katex-mathml">G(k)=4kk1.5G(k) = \dfrac{4^k}{k^{1.5}}</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal">G</span><span class="mopen">(</span><span class="mord mathnormal"
+                                                                                      style="margin-right: 0.03148em;">k</span><span
+                    class="mclose">)</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+                    class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+                    class="base"><span class="strut" style="height: 2.2121em; vertical-align: -0.686em;"></span><span
+                    class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span
+                    class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 1.5261em;"><span
+                    style="top: -2.314em;"><span class="pstrut" style="height: 3em;"></span><span class="mord"><span
+                    class="mord"><span class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                    class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                      style="height: 0.7401em;"><span
+                    style="top: -2.989em; margin-right: 0.05em;"><span class="pstrut"
+                                                                       style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+                    class="mord mtight">1.5</span></span></span></span></span></span></span></span></span></span></span><span
+                    style="top: -3.23em;"><span class="pstrut" style="height: 3em;"></span><span class="frac-line"
+                                                                                                 style="border-bottom-width: 0.04em;"></span></span><span
+                    style="top: -3.677em;"><span class="pstrut" style="height: 3em;"></span><span class="mord"><span
+                    class="mord"><span class="mord">4</span><span class="msupsub"><span class="vlist-t"><span
+                    class="vlist-r"><span class="vlist" style="height: 0.8491em;"><span
+                    style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                       style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight"
+                                                                  style="margin-right: 0.03148em;">k</span></span></span></span></span></span></span></span></span></span></span><span
+                    class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                               style="height: 0.686em;"><span></span></span></span></span></span><span
+                    class="mclose nulldelimiter"></span></span></span></span></span></span> BSTs. Each of these BSTs has
+            <span class="math math-inline"><span class="katex"><span class="katex-mathml">kk</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.6944em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.03148em;">k</span></span></span></span></span> nodes,
+            and thus takes up <span class="math math-inline"><span class="katex"><span class="katex-mathml">k⋅G(k)=4kkk \cdot G(k) = \dfrac{4^k}{\sqrt{k}}</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.6944em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span class="mspace"
+                                                                                           style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal">G</span><span class="mopen">(</span><span class="mord mathnormal"
+                                                                                      style="margin-right: 0.03148em;">k</span><span
+                    class="mclose">)</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+                    class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+                    class="base"><span class="strut" style="height: 2.4561em; vertical-align: -0.93em;"></span><span
+                    class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span
+                    class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 1.5261em;"><span
+                    style="top: -2.1778em;"><span class="pstrut" style="height: 3em;"></span><span class="mord"><span
+                    class="mord sqrt"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist"
+                                                                                                 style="height: 0.9322em;"><span
+                    class="svg-align" style="top: -3em;"><span class="pstrut" style="height: 3em;"></span><span
+                    class="mord" style="padding-left: 0.833em;"><span class="mord mathnormal"
+                                                                      style="margin-right: 0.03148em;">k</span></span></span><span
+                    style="top: -2.8922em;"><span class="pstrut" style="height: 3em;"></span><span class="hide-tail"
+                                                                                                   style="min-width: 0.853em; height: 1.08em;"><svg
+                    width="400em" height="1.08em" viewBox="0 0 400000 1080" preserveAspectRatio="xMinYMin slice"><path
+                    d="M95,702
+c-2.7,0,-7.17,-2.7,-13.5,-8c-5.8,-5.3,-9.5,-10,-9.5,-14
+c0,-2,0.3,-3.3,1,-4c1.3,-2.7,23.83,-20.7,67.5,-54
+c44.2,-33.3,65.8,-50.3,66.5,-51c1.3,-1.3,3,-2,5,-2c4.7,0,8.7,3.3,12,10
+s173,378,173,378c0.7,0,35.3,-71,104,-213c68.7,-142,137.5,-285,206.5,-429
+c69,-144,104.5,-217.7,106.5,-221
+l0 -0
+c5.3,-9.3,12,-14,20,-14
+H400000v40H845.2724
+s-225.272,467,-225.272,467s-235,486,-235,486c-2.7,4.7,-9,7,-19,7
+c-6,0,-10,-1,-12,-3s-194,-422,-194,-422s-65,47,-65,47z
+M834 80h400000v40h-400000z"></path></svg></span></span></span><span class="vlist-s">​</span></span><span
+                    class="vlist-r"><span class="vlist"
+                                          style="height: 0.1078em;"><span></span></span></span></span></span></span></span><span
+                    style="top: -3.23em;"><span class="pstrut" style="height: 3em;"></span><span class="frac-line"
+                                                                                                 style="border-bottom-width: 0.04em;"></span></span><span
+                    style="top: -3.677em;"><span class="pstrut" style="height: 3em;"></span><span class="mord"><span
+                    class="mord"><span class="mord">4</span><span class="msupsub"><span class="vlist-t"><span
+                    class="vlist-r"><span class="vlist" style="height: 0.8491em;"><span
+                    style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                       style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight"
+                                                                  style="margin-right: 0.03148em;">k</span></span></span></span></span></span></span></span></span></span></span><span
+                    class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                               style="height: 0.93em;"><span></span></span></span></span></span><span
+                    class="mclose nulldelimiter"></span></span></span></span></span></span> space in <code>memo</code>.
+        </p>
+        <p>A given value <span class="math math-inline"><span class="katex"><span class="katex-mathml">kk</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.6944em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.03148em;">k</span></span></span></span></span> has <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">n−k+1n - k + 1</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.7778em; vertical-align: -0.0833em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span class="mspace"
+                                                                                       style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.6444em;"></span><span
+                class="mord">1</span></span></span></span></span> states and thus takes up <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">(n−k+1)⋅4kk(n - k + 1) \cdot \dfrac{4^k}{\sqrt{k}}</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mspace"
+                                                                                  style="margin-right: 0.2222em;"></span><span
+                class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.7778em; vertical-align: -0.0833em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span class="mspace"
+                                                                                       style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord">1</span><span class="mclose">)</span><span class="mspace"
+                                                                        style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 2.4561em; vertical-align: -0.93em;"></span><span
+                class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span
+                class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 1.5261em;"><span
+                style="top: -2.1778em;"><span class="pstrut" style="height: 3em;"></span><span class="mord"><span
+                class="mord sqrt"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist"
+                                                                                             style="height: 0.9322em;"><span
+                class="svg-align" style="top: -3em;"><span class="pstrut" style="height: 3em;"></span><span class="mord"
+                                                                                                            style="padding-left: 0.833em;"><span
+                class="mord mathnormal" style="margin-right: 0.03148em;">k</span></span></span><span
+                style="top: -2.8922em;"><span class="pstrut" style="height: 3em;"></span><span class="hide-tail"
+                                                                                               style="min-width: 0.853em; height: 1.08em;"><svg
+                width="400em" height="1.08em" viewBox="0 0 400000 1080" preserveAspectRatio="xMinYMin slice"><path d="M95,702
+c-2.7,0,-7.17,-2.7,-13.5,-8c-5.8,-5.3,-9.5,-10,-9.5,-14
+c0,-2,0.3,-3.3,1,-4c1.3,-2.7,23.83,-20.7,67.5,-54
+c44.2,-33.3,65.8,-50.3,66.5,-51c1.3,-1.3,3,-2,5,-2c4.7,0,8.7,3.3,12,10
+s173,378,173,378c0.7,0,35.3,-71,104,-213c68.7,-142,137.5,-285,206.5,-429
+c69,-144,104.5,-217.7,106.5,-221
+l0 -0
+c5.3,-9.3,12,-14,20,-14
+H400000v40H845.2724
+s-225.272,467,-225.272,467s-235,486,-235,486c-2.7,4.7,-9,7,-19,7
+c-6,0,-10,-1,-12,-3s-194,-422,-194,-422s-65,47,-65,47z
+M834 80h400000v40h-400000z"></path></svg></span></span></span><span class="vlist-s">​</span></span><span
+                class="vlist-r"><span class="vlist" style="height: 0.1078em;"><span></span></span></span></span></span></span></span><span
+                style="top: -3.23em;"><span class="pstrut" style="height: 3em;"></span><span class="frac-line"
+                                                                                             style="border-bottom-width: 0.04em;"></span></span><span
+                style="top: -3.677em;"><span class="pstrut" style="height: 3em;"></span><span class="mord"><span
+                class="mord"><span class="mord">4</span><span class="msupsub"><span class="vlist-t"><span
+                class="vlist-r"><span class="vlist" style="height: 0.8491em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight"
+                                                              style="margin-right: 0.03148em;">k</span></span></span></span></span></span></span></span></span></span></span><span
+                class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                           style="height: 0.93em;"><span></span></span></span></span></span><span
+                class="mclose nulldelimiter"></span></span></span></span></span></span> space. In our algorithm, <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">kk</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.6944em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.03148em;">k</span></span></span></span></span> ranges
+            from <span class="math math-inline"><span class="katex"><span class="katex-mathml">11</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.6444em;"></span><span
+                    class="mord">1</span></span></span></span></span> to <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 0.4306em;"></span><span
+                    class="mord mathnormal">n</span></span></span></span></span>.
+        </p>
+        <p>The space complexity is the summation for all values of <span class="math math-inline"><span
+                class="katex"><span class="katex-mathml">kk</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord mathnormal"
+                                                                                        style="margin-right: 0.03148em;">k</span></span></span></span></span>:
+        </p>
+        <p><span class="math math-inline"><span class="katex"><span class="katex-mathml">∑k=1n[(n−k+1)⋅4kk]\Large{\sum_{k=1}^{n}{[(n - k + 1) \cdot \dfrac{4^k}{\sqrt{k}}]}}</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 3.5312em; vertical-align: -1.3392em;"></span><span
+                class="mord sizing reset-size6 size8"><span class="mop"><span class="mop op-symbol small-op"
+                                                                              style="position: relative; top: 0em;">∑</span><span
+                class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist"
+                                                                                           style="height: 0.7809em;"><span
+                style="top: -2.7153em; margin-left: 0em; margin-right: 0.0347em;"><span class="pstrut"
+                                                                                        style="height: 3em;"></span><span
+                class="sizing reset-size8 size6 mtight"><span class="mord mtight"><span class="mord mathnormal mtight"
+                                                                                        style="margin-right: 0.03148em;">k</span><span
+                class="mrel mtight">=</span><span class="mord mtight">1</span></span></span></span><span
+                style="top: -3.4819em; margin-right: 0.0347em;"><span class="pstrut" style="height: 3em;"></span><span
+                class="sizing reset-size8 size6 mtight"><span class="mord mtight"><span
+                class="mord mathnormal mtight">n</span></span></span></span></span><span class="vlist-s">​</span></span><span
+                class="vlist-r"><span class="vlist" style="height: 0.2847em;"><span></span></span></span></span></span></span><span
+                class="mspace" style="margin-right: 0.1667em;"></span><span class="mord"><span
+                class="mopen">[(</span><span class="mord mathnormal">n</span><span class="mspace"
+                                                                                   style="margin-right: 0.2222em;"></span><span
+                class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span class="mspace"
+                                                                                       style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mord">1</span><span class="mclose">)</span><span class="mspace"
+                                                                        style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mord"><span class="mopen nulldelimiter sizing reset-size8 size6"></span><span class="mfrac"><span
+                class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 1.5223em;"><span
+                style="top: -2.6178em;"><span class="pstrut" style="height: 3.44em;"></span><span class="mord"><span
+                class="mord sqrt"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist"
+                                                                                             style="height: 0.9322em;"><span
+                class="svg-align" style="top: -3.44em;"><span class="pstrut" style="height: 3.44em;"></span><span
+                class="mord" style="padding-left: 0.833em;"><span class="mord mathnormal"
+                                                                  style="margin-right: 0.03148em;">k</span></span></span><span
+                style="top: -3.3322em;"><span class="pstrut" style="height: 3.44em;"></span><span class="hide-tail"
+                                                                                                  style="min-width: 0.853em; height: 1.08em;"><svg
+                width="400em" height="1.08em" viewBox="0 0 400000 1080" preserveAspectRatio="xMinYMin slice"><path d="M95,702
+c-2.7,0,-7.17,-2.7,-13.5,-8c-5.8,-5.3,-9.5,-10,-9.5,-14
+c0,-2,0.3,-3.3,1,-4c1.3,-2.7,23.83,-20.7,67.5,-54
+c44.2,-33.3,65.8,-50.3,66.5,-51c1.3,-1.3,3,-2,5,-2c4.7,0,8.7,3.3,12,10
+s173,378,173,378c0.7,0,35.3,-71,104,-213c68.7,-142,137.5,-285,206.5,-429
+c69,-144,104.5,-217.7,106.5,-221
+l0 -0
+c5.3,-9.3,12,-14,20,-14
+H400000v40H845.2724
+s-225.272,467,-225.272,467s-235,486,-235,486c-2.7,4.7,-9,7,-19,7
+c-6,0,-10,-1,-12,-3s-194,-422,-194,-422s-65,47,-65,47z
+M834 80h400000v40h-400000z"></path></svg></span></span></span><span class="vlist-s">​</span></span><span
+                class="vlist-r"><span class="vlist" style="height: 0.1078em;"><span></span></span></span></span></span></span></span><span
+                style="top: -3.67em;"><span class="pstrut" style="height: 3.44em;"></span><span class="frac-line"
+                                                                                                style="border-bottom-width: 0.04em;"></span></span><span
+                style="top: -4.117em;"><span class="pstrut" style="height: 3.44em;"></span><span class="mord"><span
+                class="mord"><span class="mord">4</span><span class="msupsub"><span class="vlist-t"><span
+                class="vlist-r"><span class="vlist" style="height: 0.8452em;"><span
+                style="top: -3.363em; margin-right: 0.0347em;"><span class="pstrut" style="height: 3em;"></span><span
+                class="sizing reset-size8 size6 mtight"><span class="mord mathnormal mtight"
+                                                              style="margin-right: 0.03148em;">k</span></span></span></span></span></span></span></span></span></span></span><span
+                class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                           style="height: 0.93em;"><span></span></span></span></span></span><span
+                class="mclose nulldelimiter sizing reset-size8 size6"></span></span><span class="mclose">]</span></span></span></span></span></span></span>
+        </p>
+        <p>This is a difficult sum to compute and involves higher-level mathematics. Using a program like WolframAlpha,
+            we find that the sum is equal to:</p>
+        <p><span class="math math-inline"><span class="katex"><span class="katex-mathml">41+n⋅Φ(4,−0.5,1+n)−41+n⋅(1+n)⋅Φ(4,0.5,1+n)−Li−0.5(4)+Li0.5(4)+n⋅Li0.5(4)4^{1 + n} \cdot \Phi(4, -0.5, 1 + n) - 4^{1 + n} \cdot (1 + n) \cdot \Phi(4, 0.5, 1 + n) - \text{Li}_{-0.5}(4) + \text{Li}_{0.5}(4) + n \cdot \text{Li}_{0.5}(4)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.8141em;"></span><span
+                class="mord"><span class="mord">4</span><span class="msupsub"><span class="vlist-t"><span
+                class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+                class="mord mtight">1</span><span class="mbin mtight">+</span><span
+                class="mord mathnormal mtight">n</span></span></span></span></span></span></span></span></span><span
+                class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord">Φ</span><span class="mopen">(</span><span class="mord">4</span><span
+                class="mpunct">,</span><span class="mspace" style="margin-right: 0.1667em;"></span><span
+                class="mord">−</span><span class="mord">0.5</span><span class="mpunct">,</span><span class="mspace"
+                                                                                                     style="margin-right: 0.1667em;"></span><span
+                class="mord">1</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span><span class="mspace"
+                                                                                   style="margin-right: 0.2222em;"></span><span
+                class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.8141em;"></span><span class="mord"><span class="mord">4</span><span
+                class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                  style="height: 0.8141em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+                class="mord mtight">1</span><span class="mbin mtight">+</span><span
+                class="mord mathnormal mtight">n</span></span></span></span></span></span></span></span></span><span
+                class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mopen">(</span><span class="mord">1</span><span class="mspace"
+                                                                       style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span><span class="mspace"
+                                                                                   style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord">Φ</span><span class="mopen">(</span><span class="mord">4</span><span
+                class="mpunct">,</span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord">0.5</span><span
+                class="mpunct">,</span><span class="mspace" style="margin-right: 0.1667em;"></span><span
+                class="mord">1</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span><span class="mspace"
+                                                                                   style="margin-right: 0.2222em;"></span><span
+                class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord"><span class="mord text"><span class="mord">Li</span></span><span class="msupsub"><span
+                class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.3011em;"><span
+                style="top: -2.55em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+                class="mord mtight">−</span><span class="mord mtight">0.5</span></span></span></span></span><span
+                class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                           style="height: 0.2083em;"><span></span></span></span></span></span></span><span
+                class="mopen">(</span><span class="mord">4</span><span class="mclose">)</span><span class="mspace"
+                                                                                                    style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord"><span class="mord text"><span class="mord">Li</span></span><span class="msupsub"><span
+                class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.3011em;"><span
+                style="top: -2.55em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+                class="mord mtight">0.5</span></span></span></span></span><span class="vlist-s">​</span></span><span
+                class="vlist-r"><span class="vlist"
+                                      style="height: 0.15em;"><span></span></span></span></span></span></span><span
+                class="mopen">(</span><span class="mord">4</span><span class="mclose">)</span><span class="mspace"
+                                                                                                    style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.4445em;"></span><span class="mord mathnormal">n</span><span
+                class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord"><span class="mord text"><span class="mord">Li</span></span><span class="msupsub"><span
+                class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.3011em;"><span
+                style="top: -2.55em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+                class="mord mtight">0.5</span></span></span></span></span><span class="vlist-s">​</span></span><span
+                class="vlist-r"><span class="vlist"
+                                      style="height: 0.15em;"><span></span></span></span></span></span></span><span
+                class="mopen">(</span><span class="mord">4</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <p>Where <span class="math math-inline"><span class="katex"><span class="katex-mathml">Φ\Phi</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.6833em;"></span><span
+                class="mord">Φ</span></span></span></span></span> is the <a
+                href="https://en.wikipedia.org/wiki/Lerch_zeta_function" target="_blank">Lerch transcendent</a> and
+            <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">Lin(x)\text{Li}_n(x)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord"><span class="mord text"><span class="mord">Li</span></span><span class="msupsub"><span
+                    class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.1514em;"><span
+                    style="top: -2.55em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">n</span></span></span></span><span
+                    class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                               style="height: 0.15em;"><span></span></span></span></span></span></span><span
+                    class="mopen">(</span><span class="mord mathnormal">x</span><span
+                    class="mclose">)</span></span></span></span></span> is the <a
+                    href="https://en.wikipedia.org/wiki/Polylogarithm" target="_blank">polylogarithm function</a>.
+            Needless to say, computing this sum by hand is not necessary in an interview. Even reaching the summation
+            expression would likely impress any interviewer.</p>
+    </li>
+</ul>
+<hr>
+<h3 id="approach-2-iterative-dynamic-programming">Approach 2: Iterative Dynamic Programming</h3>
+<h4 id="intuition-1">Intuition</h4>
+<p>We used memoization in the preceding approach to store the answers to subproblems in order to solve a larger problem.
+    We can also use a bottom-up approach to solve such problems without using recursion. We build answers to subproblems
+    iteratively first, then use them to build answers to larger problems.</p>
+<p>We create a 3D list <code>dp[n + 1][n + 1]</code> where <code>dp[i][j]</code> will store a list of all BSTs that have
+    node values ranging from <code>i</code> to <code>j</code>. Note that <code>dp[i][j] = allPossibleBST(i, j)</code>
+    from the previous approach.</p>
+<p>When <code>i = j</code>, the range contains only one node with value <code>i</code>. We push a single node with value
+    <code>i</code> in the list <code>dp[i][i]</code> for all the values of <code>i</code> from <code>1</code> to
+    <code>n</code>. This acts as the base case of our solution while we move in bottom to top manner.</p>
+<p>We form the answer with a smaller number of nodes having consecutive node values and move on to form answers for a
+    bigger number of nodes. We run an outer loop from <code>numberOfNodes = 2</code> to <code>numberOfNodes = n</code>
+    incrementing <code>numberOfNodes</code> by <code>1</code> after each iteration. This loop controls the total number
+    of nodes under consideration.</p>
+<p>We further need to choose a node value we start with. Let's call it <code>start</code>. As we have <code>numberOfNodes</code>
+    nodes under consideration with consecutive values, the maximum node value in such a BST would be <code>end = start +
+        numberOfNodes - 1</code>. We will move <code>start</code> from <code>1</code> to <code>n - numberOfNodes +
+        1</code>.</p>
+<p>Now we have the <code>start</code> value and the <code>end</code> value, we can implement the same logic that we did
+    in the <code>allPossibleBST</code> function from the previous approach. Lock a value <code>i</code>, find all left
+    and right subtrees, and then iterate over each <code>left, right</code> pair and create a new root with value <code>i</code>
+    for each pair.</p>
+<p>As we move from bottom to top, we will have a list of all the root nodes for all BSTs for every range of node values
+    with lesser nodes.</p>
+<p>Locking a value <code>i</code> as the root node, we can find all left subtrees in <code>dp[start][i - 1]</code> and
+    all right subtrees in <code>dp[i + 1][end]</code>. If <code>i == start</code>, the left subtree would be empty.
+    Similarly, if <code>i == end</code>, the right subtree would be empty. We can handle these cases separately.</p>
+<p>We run an outer loop from <code>numberOfNodes = 2</code> to <code>n</code>. We run an inner loop that selects the
+    starting node value. It runs from <code>start = 1</code> to <code>n - numberOfNodes + 1</code>. We define <code>end
+        = start + numberOfNodes - 1</code>. We run a third nested loop that selects the root of the BSTs under
+    consideration. It runs from <code>i = start</code> to <code>end</code>.</p>
+<p>We then iterate over the both the lists of left and right subtrees. For each root node <code>l</code> of the left
+    subtree and <code>r</code> of the right subtree, we create a new <code>root</code> node with value <code>i</code>
+    and set the left and right child to <code>l</code> and <code>r</code> respectively to form all the BSTs with root
+    node as <code>i</code>. We also push each BST into <code>dp[start][end]</code> to be used later to build answer for
+    other <code>dp</code> states with larger number of nodes.</p>
+<h4 id="algorithm-1">Algorithm</h4>
+<ol>
+    <li>Create a 3D list <code>dp[n + 1][n + 1]</code> where <code>dp[i][j]</code> will store a list of root nodes for
+        all possible BSTs using <code>j - i + 1</code> nodes with values from <code>i</code> to <code>j</code> nodes.
+    </li>
+    <li>We initialize each list <code>dp[i][i]</code> to a <code>TreeNode</code> having value <code>i</code> for <code>i
+        = 0</code> to <code>n</code>.
+    </li>
+    <li>Iterate from <code>numberOfNodes = 2</code> till <code>numberOfNodes = n</code> incrementing
+        <code>numberOfNodes</code> by <code>1</code> after each iteration. We start an inner loop from <code>start =
+            1</code> to <code>n - numberOfNodes + 1</code> incrementing <code>start</code> by <code>1</code>. We create
+        an integer variable <code>end = start + numberOfNodes - 1</code> which stores the highest node value of the BSTs
+        that will be formed. We run another loop from <code>i = start</code> to <code>end</code> to use all the
+        permutations as the root node value. We perform the following in this loop:
+        <ul>
+            <li>We create a list of <code>TreeNode</code> called <code>leftSubtrees</code> which will store all the BSTs
+                that can be formed with node values from <code>start</code> to <code>i - 1</code>. If <code>i ==
+                    start</code>, we just add <code>null</code> to <code>leftSubtrees</code>, else <code>leftSubtrees ==
+                    dp[start][i - 1]</code>.
+            </li>
+            <li>Similarly, we create a list of <code>TreeNode</code> called <code>rightSubtrees</code> which will store
+                all the BSTs that can be formed with node values from <code>i + 1</code> to <code>end</code>. If <code>i
+                    == end</code>, we just add <code>null</code> to <code>rightSubtrees</code>, else <code>rightSubtrees
+                    == dp[i + 1][end]</code>.
+            </li>
+            <li>We form a new BST by creating a new node which acts as a root node with value <code>i</code>. For each
+                element <code>left</code> in <code>leftSubtrees</code> and <code>right</code> in
+                <code>rightSubtrees</code>, we set <code>root.left = left</code> and <code>root.right = right</code>.
+                Finally, we add <code>root</code> to <code>dp[start][end]</code>.
+            </li>
+        </ul>
+    </li>
+    <li>Return <code>dp[1][n]</code>.</li>
+</ol>
+<h4 id="implementation-1">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+public List<TreeNode> generateTrees(int n) {
+        List<List<List<TreeNode>>> dp = new ArrayList<>(n + 1);
+        for (int i = 0; i <= n; i++) {
+            List<List<TreeNode>> innerList = new ArrayList<>(n + 1);
+            for (int j = 0; j <= n; j++) {
+                innerList.add(new ArrayList<>());
+            }
+            dp.add(innerList);
+        }
+
+        for (int i = 1; i <= n; i++) {
+            dp.get(i).get(i).add(new TreeNode(i));
+        }
+
+        for (int numberOfNodes = 2; numberOfNodes <= n; numberOfNodes++) {
+            for (int start = 1; start <= n - numberOfNodes + 1; start++) {
+                int end = start + numberOfNodes - 1;
+                for (int i = start; i <= end; i++) {
+                    List<TreeNode> leftSubtrees =
+                        (i != start) ? dp.get(start).get(i - 1) : new ArrayList<>();
+                    if (leftSubtrees.isEmpty()) {
+                        leftSubtrees.add(null);
+                    }
+                    List<TreeNode> rightSubtrees =
+                        (i != end) ? dp.get(i + 1).get(end) : new ArrayList<>();
+                    if (rightSubtrees.isEmpty()) {
+                        rightSubtrees.add(null);
+                    }
+
+                    for (TreeNode left : leftSubtrees) {
+                        for (TreeNode right : rightSubtrees) {
+                            TreeNode root = new TreeNode(i, left, right);
+                            dp.get(start).get(end).add(root);
+                        }
+                    }
+                }
+            }
+        }
+        return dp.get(1).get(n);
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    vector<TreeNode*> generateTrees(int n) {
+        vector<vector<vector<TreeNode*>>> dp(n + 1, vector(n + 1, vector<TreeNode*>(0)));
+        for (int i = 1; i <= n; i++) {
+            dp[i][i].push_back(new TreeNode(i));
+        }
+
+        for (int numberOfNodes = 2; numberOfNodes <= n; numberOfNodes++) {
+            for (int start = 1; start <= n - numberOfNodes + 1; start++) {
+                int end = start + numberOfNodes - 1;
+                for (int i = start; i <= end; i++) {
+                    vector<TreeNode*> leftSubtrees =
+                        i - 1 >= start ? dp[start][i - 1] : vector<TreeNode*>({NULL});
+                    vector<TreeNode*> rightSubtrees =
+                        i + 1 <= end ? dp[i + 1][end] : vector<TreeNode*>({NULL});
+
+                    for (auto left : leftSubtrees) {
+                        for (auto right : rightSubtrees) {
+                            TreeNode* root = new TreeNode(i, left, right);
+                            dp[start][end].push_back(root);
+                        }
+                    }
+                }
+            }
+        }
+        return dp[1][n];
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def generateTrees(self, n: int) -> List[TreeNode]:
+        dp = [[[] for _ in range(n + 1)] for _ in range(n + 1)]
+        for i in range(1, n + 1):
+            dp[i][i] = [TreeNode(i)]
+
+        for numberOfNodes in range(2, n + 1):
+            for start in range(1, n - numberOfNodes + 2):
+                end = start + numberOfNodes - 1
+                for i in range(start, end + 1):
+                    left_subtrees = dp[start][i - 1] if i != start else [None]
+                    right_subtrees = dp[i + 1][end] if i != end else [None]
+
+                    for left in left_subtrees:
+                        for right in right_subtrees:
+                            root = TreeNode(i, left, right)
+                            dp[start][end].append(root)
+
+        return dp[1][n]
+    </code>
+</pre>
+<h4 id="complexity-analysis-1">Complexity Analysis</h4>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(4nn)O(\dfrac{4^n}{\sqrt{n}})</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 2.2714em; vertical-align: -0.93em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span
+                class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 1.3414em;"><span
+                style="top: -2.3097em;"><span class="pstrut" style="height: 3em;"></span><span class="mord"><span
+                class="mord sqrt"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist"
+                                                                                             style="height: 0.8003em;"><span
+                class="svg-align" style="top: -3em;"><span class="pstrut" style="height: 3em;"></span><span class="mord"
+                                                                                                            style="padding-left: 0.833em;"><span
+                class="mord mathnormal">n</span></span></span><span style="top: -2.7603em;"><span class="pstrut"
+                                                                                                  style="height: 3em;"></span><span
+                class="hide-tail" style="min-width: 0.853em; height: 1.08em;"><svg width="400em" height="1.08em"
+                                                                                   viewBox="0 0 400000 1080"
+                                                                                   preserveAspectRatio="xMinYMin slice"><path
+                d="M95,702
+c-2.7,0,-7.17,-2.7,-13.5,-8c-5.8,-5.3,-9.5,-10,-9.5,-14
+c0,-2,0.3,-3.3,1,-4c1.3,-2.7,23.83,-20.7,67.5,-54
+c44.2,-33.3,65.8,-50.3,66.5,-51c1.3,-1.3,3,-2,5,-2c4.7,0,8.7,3.3,12,10
+s173,378,173,378c0.7,0,35.3,-71,104,-213c68.7,-142,137.5,-285,206.5,-429
+c69,-144,104.5,-217.7,106.5,-221
+l0 -0
+c5.3,-9.3,12,-14,20,-14
+H400000v40H845.2724
+s-225.272,467,-225.272,467s-235,486,-235,486c-2.7,4.7,-9,7,-19,7
+c-6,0,-10,-1,-12,-3s-194,-422,-194,-422s-65,47,-65,47z
+M834 80h400000v40h-400000z"></path></svg></span></span></span><span class="vlist-s">​</span></span><span
+                class="vlist-r"><span class="vlist" style="height: 0.2397em;"><span></span></span></span></span></span></span></span><span
+                style="top: -3.23em;"><span class="pstrut" style="height: 3em;"></span><span class="frac-line"
+                                                                                             style="border-bottom-width: 0.04em;"></span></span><span
+                style="top: -3.677em;"><span class="pstrut" style="height: 3em;"></span><span class="mord"><span
+                class="mord"><span class="mord">4</span><span class="msupsub"><span class="vlist-t"><span
+                class="vlist-r"><span class="vlist" style="height: 0.6644em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span
+                class="mord mathnormal mtight">n</span></span></span></span></span></span></span></span></span></span></span><span
+                class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                           style="height: 0.93em;"><span></span></span></span></span></span><span
+                class="mclose nulldelimiter"></span></span><span class="mclose">)</span></span></span></span></span>.
+        </p>
+        <ul>
+            <li>The time complexity of this approach will be similar to the <strong>time complexity</strong> of the
+                first approach because we are iterating over the same <code>dp</code> states in bottom-up manner as
+                compared to the previous approach where we used top-down approach with memoization.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(∑k=1n[(n−k+1)⋅4kk])O(\sum_{k=1}^{n}{[(n - k + 1) \cdot \dfrac{4^k}{\sqrt{k}}]})</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 2.4561em; vertical-align: -0.93em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mop"><span class="mop op-symbol small-op" style="position: relative; top: 0em;">∑</span><span
+                class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist"
+                                                                                           style="height: 0.8043em;"><span
+                style="top: -2.4003em; margin-left: 0em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                      style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight"
+                                                                                        style="margin-right: 0.03148em;">k</span><span
+                class="mrel mtight">=</span><span class="mord mtight">1</span></span></span></span><span
+                style="top: -3.2029em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+                class="mord mathnormal mtight">n</span></span></span></span></span><span class="vlist-s">​</span></span><span
+                class="vlist-r"><span class="vlist" style="height: 0.2997em;"><span></span></span></span></span></span></span><span
+                class="mspace" style="margin-right: 0.1667em;"></span><span class="mord"><span
+                class="mopen">[(</span><span class="mord mathnormal">n</span><span class="mspace"
+                                                                                   style="margin-right: 0.2222em;"></span><span
+                class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span class="mspace"
+                                                                                       style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mord">1</span><span class="mclose">)</span><span class="mspace"
+                                                                        style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span
+                class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 1.5261em;"><span
+                style="top: -2.1778em;"><span class="pstrut" style="height: 3em;"></span><span class="mord"><span
+                class="mord sqrt"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist"
+                                                                                             style="height: 0.9322em;"><span
+                class="svg-align" style="top: -3em;"><span class="pstrut" style="height: 3em;"></span><span class="mord"
+                                                                                                            style="padding-left: 0.833em;"><span
+                class="mord mathnormal" style="margin-right: 0.03148em;">k</span></span></span><span
+                style="top: -2.8922em;"><span class="pstrut" style="height: 3em;"></span><span class="hide-tail"
+                                                                                               style="min-width: 0.853em; height: 1.08em;"><svg
+                width="400em" height="1.08em" viewBox="0 0 400000 1080" preserveAspectRatio="xMinYMin slice"><path d="M95,702
+c-2.7,0,-7.17,-2.7,-13.5,-8c-5.8,-5.3,-9.5,-10,-9.5,-14
+c0,-2,0.3,-3.3,1,-4c1.3,-2.7,23.83,-20.7,67.5,-54
+c44.2,-33.3,65.8,-50.3,66.5,-51c1.3,-1.3,3,-2,5,-2c4.7,0,8.7,3.3,12,10
+s173,378,173,378c0.7,0,35.3,-71,104,-213c68.7,-142,137.5,-285,206.5,-429
+c69,-144,104.5,-217.7,106.5,-221
+l0 -0
+c5.3,-9.3,12,-14,20,-14
+H400000v40H845.2724
+s-225.272,467,-225.272,467s-235,486,-235,486c-2.7,4.7,-9,7,-19,7
+c-6,0,-10,-1,-12,-3s-194,-422,-194,-422s-65,47,-65,47z
+M834 80h400000v40h-400000z"></path></svg></span></span></span><span class="vlist-s">​</span></span><span
+                class="vlist-r"><span class="vlist" style="height: 0.1078em;"><span></span></span></span></span></span></span></span><span
+                style="top: -3.23em;"><span class="pstrut" style="height: 3em;"></span><span class="frac-line"
+                                                                                             style="border-bottom-width: 0.04em;"></span></span><span
+                style="top: -3.677em;"><span class="pstrut" style="height: 3em;"></span><span class="mord"><span
+                class="mord"><span class="mord">4</span><span class="msupsub"><span class="vlist-t"><span
+                class="vlist-r"><span class="vlist" style="height: 0.8491em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight"
+                                                              style="margin-right: 0.03148em;">k</span></span></span></span></span></span></span></span></span></span></span><span
+                class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                           style="height: 0.93em;"><span></span></span></span></span></span><span
+                class="mclose nulldelimiter"></span></span><span class="mclose">]</span></span><span
+                class="mclose">)</span></span></span></span></span>.
+        </p>
+        <ul>
+            <li>The space complexity would also be the number of BSTs stored in the <code>dp</code> list which is equal
+                to the number of BSTs stored in <code>memo</code> in the worst-case. Hence, we have the same space
+                complexity as the first approach.
+            </li>
+        </ul>
+    </li>
+</ul>
+<hr>
+<h3 id="approach-3-dynamic-programming-with-space-optimization">Approach 3: Dynamic Programming with Space
+    Optimization</h3>
+<h4 id="intuition-2">Intuition</h4>
+<p>We used a 3D list where we used <code>dp[start][end]</code> to store all the BSTs having <code>end - start + 1</code>
+    nodes with range from <code>start</code> to <code>end</code>. Let's think if we can reduce the 3D <code>dp</code>
+    list to a 2D list.</p>
+<p>If we compare all the BSTs that can be created from a set of consecutive values from <code>start</code> to
+    <code>end</code> to those that can be created with the same number of nodes from a set of values starting at
+    <code>1</code> and ending at <code>end - start + 1</code>, we will find that <strong>the structure of all the BSTs
+        created with the above two ranges would be identical</strong>. The only difference is an offset of <code>start -
+        1</code> in the node values.</p>
+<p>Here's a visual representation of BSTs with 3 nodes from range <code>[1, 3]</code> and all BSTs with range <code>[4,
+    6]</code>:</p>
+<p><img src="95-2.png" alt="img"></p>
+<p>We can see the structure of all the BSTs created with the above two ranges are identical.</p>
+<p>So, we can just store the BSTs for all the ranges starting from <code>1</code> and add the offset to convert them to
+    required ranges.</p>
+<p>We create a 2D list <code>dp[n + 1]</code> where <code>dp[i]</code> will store a list of all BSTs with <code>i</code>
+    nodes having values from <code>1</code> to <code>i</code>. <code>dp[n]</code> would be the answer to the problem.
+    Similar to the above approach, we will move in bottom to top manner.</p>
+<p>We push a <code>null</code> node (empty tree) to <code>dp[0]</code> which acts as the base case.</p>
+<p>To get the list of root nodes for all possible BSTs with <code>numberOfNodes</code> nodes, we would split the <code>numberOfNodes</code>
+    nodes with <code>i - 1</code> nodes with values <code>1</code> to <code>i - 1</code> in the left subtree, a root
+    node with value <code>i</code> and the remaining <code>numberOfNodes - i</code> nodes with values <code>i + 1</code>
+    to <code>numberOfNodes</code> in the right subtree where <code>1 &lt;= i &lt;= numberOfNodes</code>. Note that we do
+    not need the starting of the range here, unlike the previous approach. It is always <code>1</code>.</p>
+<p>As we are executing in bottom-up manner and figuring out the answer for <code>numberOfNodes</code> nodes, we will
+    already have the list of root nodes for all BSTs with <code>i - 1</code> and <code>numberOfNodes - i</code> nodes
+    (for all values of <code>i = 1</code> to <code>numberOfNodes</code>).</p>
+<p>However, you may realize that <code>dp[i - 1]</code> will give all the BSTs having values from <code>1</code> to
+    <code>i - 1</code> which is exactly what we want but <code>dp[numberOfNodes - i]</code> will give all the BSTs
+    having values from <code>1</code> to <code>numberOfNodes - i</code> which isn't what we want. We want the right
+    subtree to have <code>numberOfNodes - i</code> nodes but the range of nodes should be from <code>i + 1</code> to
+    <code>numberOfNodes</code>. If we add the offset <code>(i + 1) - 1 = i</code> to all the nodes, it would solve this
+    as we would now have trees with <code>numberOfNodes - i</code> nodes from values <code>i + 1</code> to <code>numberOfNodes</code>.
+    Let us form the BSTs now.</p>
+<p>Similar to the previous approach, we create a new instance of <code>TreeNode</code> called <code>root</code> with the
+    value <code>i</code>. We set the left child of <code>root</code> to an element in <code>dp[i - 1]</code>.</p>
+<p>Now, let's set the right child of <code>root</code>. We know every element in <code>dp[numberOfNodes - i]</code> is a
+    root node that stores a BST with <code>numberOfNodes - 1</code> nodes having values from <code>1</code> to <code>numberOfodes
+        - i</code>. To set the right child of <code>root</code>, we create a new tree exactly similar to the tree stored
+    by an element of <code>dp[numberOfNodes - i]</code> but increment all the node values of the new tree by
+    <code>i</code>. We then set the right child of <code>root</code> to this newer tree.</p>
+<p>The required tree with <code>i</code> offset can be created by using a recursive function <code>clone</code> in which
+    we pass a <code>TreeNode node</code> which corresponds to an element in <code>dp[numberOfNodes - i]</code> and an
+    integer <code>offset</code>. We create a new <code>TreeNode clonedNode</code> with value <code>node.val +
+        offset</code>. We then recursively set the left and the right child of <code>clonedNode</code> by performing
+    <code>clonedNode.left = clone(node.left, offset)</code> and <code>clonedNode.right = clone(node.right,
+        offset)</code>. Finally, return <code>clonedNode</code>.</p>
+<p>It is important to note that we are creating new trees to set the right child of <code>root</code> to preserve the
+    original trees as it might be used directly (as <code>dp[i - 1]</code>) in some other iteration of <code>i</code>
+    and <code>numberOfNodes</code>.</p>
+<h4 id="algorithm-2">Algorithm</h4>
+<ol>
+    <li>Create a list <code>dp[n + 1]</code> where <code>dp[i]</code> will store a list of root nodes for all possible
+        BSTs using <code>i</code> nodes. We initialize each list <code>dp[i]</code> to an empty list for <code>i =
+            0</code> to <code>n</code>.
+    </li>
+    <li>We push a <code>null</code> node (empty tree) into <code>dp[0]</code> because with <code>n = 0</code> we can't
+        have any BST. This forms the base case.
+    </li>
+    <li>Iterate from <code>numberOfNodes = 1</code> till <code>numberOfNodes = n</code> incrementing
+        <code>numberOfNodes</code> by <code>1</code> after each iteration. We start an inner loop from <code>i =
+            1</code> to <code>numberOfNodes</code> incrementing <code>i</code> by <code>1</code>. We perform the
+        following in this loop:
+        <ul>
+            <li>Create a variable <code>j = numberOfNodes - i - 1</code>. It presents the number of nodes in the right
+                subtree under consideration.
+            </li>
+            <li>We can form a new BST by creating a new node which acts as a root node with value <code>i</code>. We
+                assign its left child to any element in <code>dp[i]</code> and right child to a new tree where tree is
+                similar to an element in <code>dp[j]</code> but all node values are incremented by <code>i</code>. As a
+                result, we need two loops to iterate through the lists <code>dp[i]</code> and <code>dp[j]</code>. We
+                create a new <code>root</code> node with value <code>i</code>. For each element <code>left</code> in
+                <code>dp[i]</code> and <code>right</code> in <code>dp[j]</code>, we set <code>root.left = left</code>
+                and <code>root.right = clone(right, i)</code>. Finally, we add <code>root</code> to <code>dp[numberOfNodes]</code>.
+            </li>
+        </ul>
+    </li>
+    <li>Return <code>dp[n]</code>.</li>
+</ol>
+<h4 id="implementation-2">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public List<TreeNode> generateTrees(int n) {
+        List<List<TreeNode>> dp = new ArrayList<>(n + 1);
+        for (int i = 0; i <= n; i++) {
+            dp.add(new ArrayList<>());
+        }
+        dp.get(0).add(null);
+
+        for (int numberOfNodes = 1; numberOfNodes <= n; numberOfNodes++) {
+            for (int i = 1; i <= numberOfNodes; i++) {
+                int j = numberOfNodes - i;
+                for (TreeNode left : dp.get(i - 1)) {
+                    for (TreeNode right : dp.get(j)) {
+                        TreeNode root = new TreeNode(i, left, clone(right, i));
+                        dp.get(numberOfNodes).add(root);
+                    }
+                }
+            }
+        }
+        return dp.get(n);
+    }
+
+    private TreeNode clone(TreeNode node, int offset) {
+        if (node == null) {
+            return null;
+        }
+        TreeNode clonedNode = new TreeNode(node.val + offset);
+        clonedNode.left = clone(node.left, offset);
+        clonedNode.right = clone(node.right, offset);
+        return clonedNode;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    vector<TreeNode*> generateTrees(int n) {
+        vector<vector<TreeNode*>> dp(n + 1);
+        dp[0].push_back(NULL);
+
+        for (int numberOfNodes = 1; numberOfNodes <= n; numberOfNodes ++) {
+            for (int i = 1; i <= numberOfNodes; i ++) {
+                int j = numberOfNodes - i;
+                for (auto left : dp[i - 1]) {
+                    for (auto right : dp[j]) {
+                        TreeNode* root = new TreeNode(i, left, clone(right, i));
+                        dp[numberOfNodes].push_back(root);
+                    }
+                }
+            }
+        }
+        return dp[n];
+    }
+
+private:
+    TreeNode* clone(TreeNode* node, int offset) {
+        if (node == NULL) {
+            return NULL;
+        }
+        TreeNode* clonedNode = new TreeNode(node->val + offset);
+        clonedNode->left = clone(node->left, offset);
+        clonedNode->right = clone(node->right, offset);
+        return clonedNode;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def generateTrees(self, n: int) -> List[Optional[TreeNode]]:
+        dp = [[] for _ in range(n + 1)]
+        dp[0].append(None)
+
+        for numberOfNodes in range(1, n + 1):
+            for i in range(1, numberOfNodes + 1):
+                j = numberOfNodes - i
+                for left in dp[i - 1]:
+                    for right in dp[j]:
+                        root = TreeNode(i, left, self.clone(right, i))
+                        dp[numberOfNodes].append(root)
+
+        return dp[n]
+
+    def clone(self, node: Optional[TreeNode], offset: int) -> Optional[TreeNode]:
+        if not node:
+            return None
+        cloned_node = TreeNode(node.val + offset)
+        cloned_node.left = self.clone(node.left, offset)
+        cloned_node.right = self.clone(node.right, offset)
+        return cloned_node
+    </code>
+</pre>
+<h4 id="complexity-analysis-2">Complexity Analysis</h4>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(4nn)O(\dfrac{4^n}{\sqrt{n}})</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 2.2714em; vertical-align: -0.93em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span
+                class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 1.3414em;"><span
+                style="top: -2.3097em;"><span class="pstrut" style="height: 3em;"></span><span class="mord"><span
+                class="mord sqrt"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist"
+                                                                                             style="height: 0.8003em;"><span
+                class="svg-align" style="top: -3em;"><span class="pstrut" style="height: 3em;"></span><span class="mord"
+                                                                                                            style="padding-left: 0.833em;"><span
+                class="mord mathnormal">n</span></span></span><span style="top: -2.7603em;"><span class="pstrut"
+                                                                                                  style="height: 3em;"></span><span
+                class="hide-tail" style="min-width: 0.853em; height: 1.08em;"><svg width="400em" height="1.08em"
+                                                                                   viewBox="0 0 400000 1080"
+                                                                                   preserveAspectRatio="xMinYMin slice"><path
+                d="M95,702
+c-2.7,0,-7.17,-2.7,-13.5,-8c-5.8,-5.3,-9.5,-10,-9.5,-14
+c0,-2,0.3,-3.3,1,-4c1.3,-2.7,23.83,-20.7,67.5,-54
+c44.2,-33.3,65.8,-50.3,66.5,-51c1.3,-1.3,3,-2,5,-2c4.7,0,8.7,3.3,12,10
+s173,378,173,378c0.7,0,35.3,-71,104,-213c68.7,-142,137.5,-285,206.5,-429
+c69,-144,104.5,-217.7,106.5,-221
+l0 -0
+c5.3,-9.3,12,-14,20,-14
+H400000v40H845.2724
+s-225.272,467,-225.272,467s-235,486,-235,486c-2.7,4.7,-9,7,-19,7
+c-6,0,-10,-1,-12,-3s-194,-422,-194,-422s-65,47,-65,47z
+M834 80h400000v40h-400000z"></path></svg></span></span></span><span class="vlist-s">​</span></span><span
+                class="vlist-r"><span class="vlist" style="height: 0.2397em;"><span></span></span></span></span></span></span></span><span
+                style="top: -3.23em;"><span class="pstrut" style="height: 3em;"></span><span class="frac-line"
+                                                                                             style="border-bottom-width: 0.04em;"></span></span><span
+                style="top: -3.677em;"><span class="pstrut" style="height: 3em;"></span><span class="mord"><span
+                class="mord"><span class="mord">4</span><span class="msupsub"><span class="vlist-t"><span
+                class="vlist-r"><span class="vlist" style="height: 0.6644em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span
+                class="mord mathnormal mtight">n</span></span></span></span></span></span></span></span></span></span></span><span
+                class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                           style="height: 0.93em;"><span></span></span></span></span></span><span
+                class="mclose nulldelimiter"></span></span><span class="mclose">)</span></span></span></span></span>.
+        </p>
+        <ul>
+            <li>In this approach we are not storing all the BSTs with all the ranges. We are just storing BSTs starting
+                from range <code>1</code>. However, we are creating all the BSTs for all the ranges from <code>[start,
+                    end]</code> (for <code>1 &lt;= start, end &lt;= 1</code>) using the <code>clone</code> method by
+                iterating over the BSTs starting with range <code>1</code>.
+            </li>
+            <li>As a result, the time complexity should be similar to the previous approach as we are generating the
+                same number of BSTs.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(∑k=1n4kk)O(\sum_{k=1}^{n}\dfrac{4^k}{{\sqrt{k}}})</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 2.4561em; vertical-align: -0.93em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mop"><span class="mop op-symbol small-op" style="position: relative; top: 0em;">∑</span><span
+                class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist"
+                                                                                           style="height: 0.8043em;"><span
+                style="top: -2.4003em; margin-left: 0em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                      style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight"
+                                                                                        style="margin-right: 0.03148em;">k</span><span
+                class="mrel mtight">=</span><span class="mord mtight">1</span></span></span></span><span
+                style="top: -3.2029em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+                class="mord mathnormal mtight">n</span></span></span></span></span><span class="vlist-s">​</span></span><span
+                class="vlist-r"><span class="vlist" style="height: 0.2997em;"><span></span></span></span></span></span></span><span
+                class="mspace" style="margin-right: 0.1667em;"></span><span class="mord"><span
+                class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span
+                class="vlist-r"><span class="vlist" style="height: 1.5261em;"><span style="top: -2.1778em;"><span
+                class="pstrut" style="height: 3em;"></span><span class="mord"><span class="mord"><span
+                class="mord sqrt"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist"
+                                                                                             style="height: 0.9322em;"><span
+                class="svg-align" style="top: -3em;"><span class="pstrut" style="height: 3em;"></span><span class="mord"
+                                                                                                            style="padding-left: 0.833em;"><span
+                class="mord mathnormal" style="margin-right: 0.03148em;">k</span></span></span><span
+                style="top: -2.8922em;"><span class="pstrut" style="height: 3em;"></span><span class="hide-tail"
+                                                                                               style="min-width: 0.853em; height: 1.08em;"><svg
+                width="400em" height="1.08em" viewBox="0 0 400000 1080" preserveAspectRatio="xMinYMin slice"><path d="M95,702
+c-2.7,0,-7.17,-2.7,-13.5,-8c-5.8,-5.3,-9.5,-10,-9.5,-14
+c0,-2,0.3,-3.3,1,-4c1.3,-2.7,23.83,-20.7,67.5,-54
+c44.2,-33.3,65.8,-50.3,66.5,-51c1.3,-1.3,3,-2,5,-2c4.7,0,8.7,3.3,12,10
+s173,378,173,378c0.7,0,35.3,-71,104,-213c68.7,-142,137.5,-285,206.5,-429
+c69,-144,104.5,-217.7,106.5,-221
+l0 -0
+c5.3,-9.3,12,-14,20,-14
+H400000v40H845.2724
+s-225.272,467,-225.272,467s-235,486,-235,486c-2.7,4.7,-9,7,-19,7
+c-6,0,-10,-1,-12,-3s-194,-422,-194,-422s-65,47,-65,47z
+M834 80h400000v40h-400000z"></path></svg></span></span></span><span class="vlist-s">​</span></span><span
+                class="vlist-r"><span class="vlist" style="height: 0.1078em;"><span></span></span></span></span></span></span></span></span><span
+                style="top: -3.23em;"><span class="pstrut" style="height: 3em;"></span><span class="frac-line"
+                                                                                             style="border-bottom-width: 0.04em;"></span></span><span
+                style="top: -3.677em;"><span class="pstrut" style="height: 3em;"></span><span class="mord"><span
+                class="mord"><span class="mord">4</span><span class="msupsub"><span class="vlist-t"><span
+                class="vlist-r"><span class="vlist" style="height: 0.8491em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight"
+                                                              style="margin-right: 0.03148em;">k</span></span></span></span></span></span></span></span></span></span></span><span
+                class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                           style="height: 0.93em;"><span></span></span></span></span></span><span
+                class="mclose nulldelimiter"></span></span><span class="mclose">)</span></span></span></span></span>.
+        </p>
+        <ul>
+            <li>For any state <code>dp[k]</code>, we are storing all the BSTs that can be formed with <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">kk</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.6944em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.03148em;">k</span></span></span></span></span> nodes.
+                We know there are <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">G(k)G(k)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal">G</span><span class="mopen">(</span><span class="mord mathnormal"
+                                                                                          style="margin-right: 0.03148em;">k</span><span
+                        class="mclose">)</span></span></span></span></span> BSTs that can be formed with <span
+                        class="math math-inline"><span class="katex"><span class="katex-mathml">kk</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 0.6944em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.03148em;">k</span></span></span></span></span>
+                nodes. As we have <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">11</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 0.6444em;"></span><span
+                        class="mord">1</span></span></span></span></span> to <span class="math math-inline"><span
+                        class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+                states, the total space consumed would be <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(∑k=1nk⋅G(k))O(\sum_{k=1}^{n} k \cdot G(k))</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+                        class="base"><span class="strut"
+                                           style="height: 1.104em; vertical-align: -0.2997em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mop"><span class="mop op-symbol small-op"
+                                                                      style="position: relative; top: 0em;">∑</span><span
+                        class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist"
+                                                                                                   style="height: 0.8043em;"><span
+                        style="top: -2.4003em; margin-left: 0em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                              style="height: 2.7em;"></span><span
+                        class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+                        class="mord mathnormal mtight" style="margin-right: 0.03148em;">k</span><span
+                        class="mrel mtight">=</span><span class="mord mtight">1</span></span></span></span><span
+                        style="top: -3.2029em; margin-right: 0.05em;"><span class="pstrut"
+                                                                            style="height: 2.7em;"></span><span
+                        class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+                        class="mord mathnormal mtight">n</span></span></span></span></span><span
+                        class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                                   style="height: 0.2997em;"><span></span></span></span></span></span></span><span
+                        class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal"
+                                                                                    style="margin-right: 0.03148em;">k</span><span
+                        class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span
+                        class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+                        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal">G</span><span class="mopen">(</span><span class="mord mathnormal"
+                                                                                          style="margin-right: 0.03148em;">k</span><span
+                        class="mclose">))</span></span></span></span></span> = <span class="math math-inline"><span
+                        class="katex"><span
+                        class="katex-mathml">O(∑k=1n4kk)O(\sum_{k=1}^{n}\dfrac{4^k}{{\sqrt{k}}})</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 2.4561em; vertical-align: -0.93em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mop"><span class="mop op-symbol small-op"
+                                                                      style="position: relative; top: 0em;">∑</span><span
+                        class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist"
+                                                                                                   style="height: 0.8043em;"><span
+                        style="top: -2.4003em; margin-left: 0em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                              style="height: 2.7em;"></span><span
+                        class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+                        class="mord mathnormal mtight" style="margin-right: 0.03148em;">k</span><span
+                        class="mrel mtight">=</span><span class="mord mtight">1</span></span></span></span><span
+                        style="top: -3.2029em; margin-right: 0.05em;"><span class="pstrut"
+                                                                            style="height: 2.7em;"></span><span
+                        class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+                        class="mord mathnormal mtight">n</span></span></span></span></span><span
+                        class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                                   style="height: 0.2997em;"><span></span></span></span></span></span></span><span
+                        class="mspace" style="margin-right: 0.1667em;"></span><span class="mord"><span
+                        class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span
+                        class="vlist-r"><span class="vlist" style="height: 1.5261em;"><span
+                        style="top: -2.1778em;"><span class="pstrut" style="height: 3em;"></span><span
+                        class="mord"><span class="mord"><span class="mord sqrt"><span class="vlist-t vlist-t2"><span
+                        class="vlist-r"><span class="vlist" style="height: 0.9322em;"><span class="svg-align"
+                                                                                            style="top: -3em;"><span
+                        class="pstrut" style="height: 3em;"></span><span class="mord"
+                                                                         style="padding-left: 0.833em;"><span
+                        class="mord mathnormal" style="margin-right: 0.03148em;">k</span></span></span><span
+                        style="top: -2.8922em;"><span class="pstrut" style="height: 3em;"></span><span class="hide-tail"
+                                                                                                       style="min-width: 0.853em; height: 1.08em;"><svg
+                        width="400em" height="1.08em" viewBox="0 0 400000 1080" preserveAspectRatio="xMinYMin slice"><path
+                        d="M95,702
+c-2.7,0,-7.17,-2.7,-13.5,-8c-5.8,-5.3,-9.5,-10,-9.5,-14
+c0,-2,0.3,-3.3,1,-4c1.3,-2.7,23.83,-20.7,67.5,-54
+c44.2,-33.3,65.8,-50.3,66.5,-51c1.3,-1.3,3,-2,5,-2c4.7,0,8.7,3.3,12,10
+s173,378,173,378c0.7,0,35.3,-71,104,-213c68.7,-142,137.5,-285,206.5,-429
+c69,-144,104.5,-217.7,106.5,-221
+l0 -0
+c5.3,-9.3,12,-14,20,-14
+H400000v40H845.2724
+s-225.272,467,-225.272,467s-235,486,-235,486c-2.7,4.7,-9,7,-19,7
+c-6,0,-10,-1,-12,-3s-194,-422,-194,-422s-65,47,-65,47z
+M834 80h400000v40h-400000z"></path></svg></span></span></span><span class="vlist-s">​</span></span><span
+                        class="vlist-r"><span class="vlist" style="height: 0.1078em;"><span></span></span></span></span></span></span></span></span><span
+                        style="top: -3.23em;"><span class="pstrut" style="height: 3em;"></span><span class="frac-line"
+                                                                                                     style="border-bottom-width: 0.04em;"></span></span><span
+                        style="top: -3.677em;"><span class="pstrut" style="height: 3em;"></span><span class="mord"><span
+                        class="mord"><span class="mord">4</span><span class="msupsub"><span class="vlist-t"><span
+                        class="vlist-r"><span class="vlist" style="height: 0.8491em;"><span
+                        style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                        class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight"
+                                                                      style="margin-right: 0.03148em;">k</span></span></span></span></span></span></span></span></span></span></span><span
+                        class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                                   style="height: 0.93em;"><span></span></span></span></span></span><span
+                        class="mclose nulldelimiter"></span></span><span
+                        class="mclose">)</span></span></span></span></span>.
+            </li>
+        </ul>
+    </li>
+</ul>
+</body>
+</html>
