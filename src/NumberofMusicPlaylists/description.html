@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Number of Music Playlists</title>
+</head>
+<body>
+<div class="w-full px-5 pt-5">
+    <div class="w-full">
+        <div class="flex space-x-4">
+            <div class="flex-1">
+                <div class="flex h-full items-center"><a
+                        class="mr-2 text-label-1 dark:text-dark-label-1 hover:text-label-1 dark:hover:text-dark-label-1 text-lg font-medium"
+                        href="/problems/number-of-music-playlists/">920. Number of Music Playlists</a>
+                    <div class="inline-flex min-h-[20px] items-center space-x-2 align-top mt-1">
+                        <div class="inline-flex items-center space-x-2"></div>
+                    </div>
+                </div>
+            </div>
+         </div>
+        <div class="mt-3 flex items-center space-x-4">
+            <div class="text-pink dark:text-dark-pink inline-block text-sm font-medium capitalize leading-[22px]">Hard
+            </div>
+        </div>
+    </div>
+</div>
+<div class="px-5 pt-3">
+    <div class="relative">
+        <div class="inline-block">
+            <div class="transition-colors flex cursor-pointer items-center space-x-1.5 rounded-[21px] px-2 py-1 text-xs hover:bg-opacity-20 bg-fill-3 dark:bg-dark-fill-3 text-label-2 dark:text-dark-label-2 hover:bg-fill-2 dark:hover:bg-dark-fill-2">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                     class="text-brand-orange dark:text-brand-orange">
+                    <path fill-rule="evenodd"
+                          d="M7 8v2H6a3 3 0 00-3 3v6a3 3 0 003 3h12a3 3 0 003-3v-6a3 3 0 00-3-3h-1V8A5 5 0 007 8zm8 0v2H9V8a3 3 0 116 0zm-3 6a2 2 0 100 4 2 2 0 000-4z"
+                          clip-rule="evenodd"></path>
+                </svg>
+                <span>Companies</span></div>
+                <div>
+                    <ul>
+                        <li>Google</li>
+                    </ul>
+                </div>
+        </div>
+    </div>
+</div>
+<div class="px-5 pt-4">
+    <div class="flex"></div>
+    <div class="_1l1MA" data-track-load="description_content"><p>Your music player contains <code>n</code> different
+        songs. You want to listen to <code>goal</code> songs (not necessarily different) during your trip. To avoid
+        boredom, you will create a playlist so that:</p>
+
+        <ul>
+            <li>Every song is played <strong>at least once</strong>.</li>
+            <li>A song can only be played again only if <code>k</code> other songs have been played.</li>
+        </ul>
+
+        <p>Given <code>n</code>, <code>goal</code>, and <code>k</code>, return <em>the number of possible playlists that
+            you can create</em>. Since the answer can be very large, return it <strong>modulo</strong>
+            <code>10<sup>9</sup> + 7</code>.</p>
+        <p>&nbsp;</p>
+        <p><strong class="example">Example 1:</strong></p>
+
+        <pre><strong>Input:</strong> n = 3, goal = 3, k = 1
+<strong>Output:</strong> 6
+<strong>Explanation:</strong> There are 6 possible playlists: [1, 2, 3], [1, 3, 2], [2, 1, 3], [2, 3, 1], [3, 1, 2], and [3, 2, 1].
+</pre>
+
+        <p><strong class="example">Example 2:</strong></p>
+
+        <pre><strong>Input:</strong> n = 2, goal = 3, k = 0
+<strong>Output:</strong> 6
+<strong>Explanation:</strong> There are 6 possible playlists: [1, 1, 2], [1, 2, 1], [2, 1, 1], [2, 2, 1], [2, 1, 2], and [1, 2, 2].
+</pre>
+
+        <p><strong class="example">Example 3:</strong></p>
+
+        <pre><strong>Input:</strong> n = 2, goal = 3, k = 1
+<strong>Output:</strong> 2
+<strong>Explanation:</strong> There are 2 possible playlists: [1, 2, 1] and [2, 1, 2].
+</pre>
+
+        <p>&nbsp;</p>
+        <p><strong>Constraints:</strong></p>
+
+        <ul>
+            <li><code>0 &lt;= k &lt; n &lt;= goal &lt;= 100</code></li>
+        </ul>
+    </div>
+</div>
+</body>
+</html>
