@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Search in Rotated Sorted Array - Solution</title>
+</head>
+<body>
+<h2 id="solution">Search in Rotated Sorted Array - Solution</h2>
+<hr>
+<h3 id="overview">Overview</h3>
+<p>Define the <strong>pivot</strong> index as representing the <strong>smallest</strong> element in <code>nums</code>.
+</p>
+<p><img src="1.png" alt="img"></p>
+<p>In a rotated sorted array, the pivot value signifies where the rotation occurs. It partitions the array (of length
+    <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                 aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.4306em;"></span><span
+            class="mord mathnormal">n</span></span></span></span></span>) into two sorted portions <code>nums[0 ~ pivot
+        - 1]</code> and <code>nums[pivot ~ n - 1]</code>.</p>
+<hr>
+<h3 id="approach-1-find-pivot-index--binary-search">Approach 1: Find Pivot Index + Binary Search</h3>
+<h4 id="intuition">Intuition</h4>
+<blockquote>
+    <p>If you are not familiar with binary search, please refer to our explore cards <a
+            href="https://leetcode.com/explore/learn/card/binary-search/" target="_blank">Binary Search Explore Card</a>.
+        We will focus on the usage in this article and not the underlying principles or implementation details.</p>
+</blockquote>
+<p>To pinpoint the pivot value, we can employ a modified binary search algorithm and find the leftmost element that is
+    smaller than or equal to the last element in <code>nums</code>.</p>
+<p><img src="o1.png" alt="img"></p>
+<p>After identifying the middle element in the searching space <code>[left ~ right]</code>, we compare
+    <code>nums[mid]</code> with <code>nums[-1]</code>.</p>
+<ul>
+    <li>If <code>nums[mid] &gt; nums[-1]</code>, it suggests that the pivot value lies on the right of
+        <code>nums[mid]</code>. We will then proceed with the right half of the search space, which is <code>[mid + 1 ~
+            right]</code>.
+    </li>
+    <li>Otherwise, the pivot value is <code>nums[mid]</code> or it's situated to the left of <code>nums[mid]</code>, we
+        continue with the left half of the searching space, which is <code>[left ~ mid - 1]</code>.
+    </li>
+</ul>
+<p><img src="o2.png" alt="img"></p>
+<p>By determining the pivot value, we set the boundaries for our subsequent binary searches. Once we have the pivot
+    value, we can execute two binary searches on each half of the array to locate the target element.</p>
+<br>
+<blockquote>
+    <blockquote>
+        <p>Note: the typical way to calculate <code>mid</code> is <code>(left + right) / 2</code>. However, a safer way
+            is <code>left + (right - left) / 2</code>. The two equations are equivalent, but the second one is safer
+            because it guarantees no number larger than <code>right</code> is ever stored. In the first equation, if
+            <code>left + right</code> is huge, then it could end up overflowing.</p>
+    </blockquote>
+</blockquote>
+<h4 id="algorithm">Algorithm</h4>
+<ol>
+    <li>
+        <p>Perform a binary search to locate the pivot element by initializing the boundaries of the searching space as
+            <code>left = 0</code> and <code>right = n - 1</code>. While <code>left &lt; right</code>:</p>
+        <ul>
+            <li>Let <code>mid = left + (right - left) // 2</code>.</li>
+            <li>If <code>nums[mid] &gt; nums[n - 1]</code>, this suggests that <code>pivot</code> is located to the
+                right of <code>mid</code>, hence we set <code>left = mid + 1</code>. Otherwise, <code>pivot</code> could
+                be either at <code>mid</code> or to the left of <code>mid</code>, in which case we should set <code>right
+                    = mid - 1</code>.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Upon completion of the binary search, we have the pivot index denoted as <code>pivot = left</code>.</p>
+    </li>
+    <li>
+        <p><code>nums</code> consists of two sorted subarrays, <code>nums[0 ~ left - 1]</code> and <code>nums[left ~ n -
+            1]</code>.</p>
+    </li>
+    <li>
+        <p>Perform a binary search over <code>nums[0 ~ left - 1]</code> for <code>target</code>. If <code>target</code>
+            is within this subarray, return its index.</p>
+    </li>
+    <li>
+        <p>Otherwise, perform a binary search over <code>nums[left ~ n - 1]</code> for <code>target</code>. If <code>target</code>
+            is within this subarray, return its index. Otherwise, return <code>-1</code>.</p>
+    </li>
+</ol>
+<h4 id="implementation">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int search(int[] nums, int target) {
+        int n = nums.length;
+        int left = 0, right = n - 1;
+
+        // Find the index of the pivot element (the smallest element)
+        while (left <= right) {
+            int mid = (left + right) / 2;
+            if (nums[mid] > nums[n - 1]) {
+                left = mid + 1;
+            } else {
+                right = mid - 1;
+            }
+        }
+
+        // Binary search over elements on the pivot element's left
+        int answer = binarySearch(nums, 0, left - 1, target);
+        if (answer != -1) {
+            return answer;
+        }
+
+        // Binary search over elements on the pivot element's right
+        return binarySearch(nums, left, n - 1, target);
+    }
+
+    // Binary search over an inclusive range [left_boundary ~ right_boundary]
+    private int binarySearch(int[] nums, int leftBoundary, int rightBoundary, int target) {
+        int left = leftBoundary, right = rightBoundary;
+        while (left <= right) {
+            int mid = (left + right) / 2;
+            if (nums[mid] == target) {
+                return mid;
+            } else if (nums[mid] > target) {
+                right = mid - 1;
+            } else {
+                left = mid + 1;
+            }
+        }
+        return -1;
+    }
+}
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def search(self, nums: List[int], target: int) -> int:
+        n = len(nums)
+        left, right = 0, n - 1
+
+        # Find the index of the pivot element (the smallest element)
+        while left <= right:
+            mid = (left + right) // 2
+            if nums[mid] > nums[-1]:
+                left = mid + 1
+            else:
+                right = mid - 1
+
+        # Binary search over an inclusive range [left_boundary ~ right_boundary]
+        def binarySearch(left_boundary, right_boundary, target):
+            left, right = left_boundary, right_boundary
+            while left <= right:
+                mid = (left + right) // 2
+                if nums[mid] == target:
+                    return mid
+                elif nums[mid] > target:
+                    right = mid - 1
+                else:
+                    left = mid + 1
+            return -1
+
+        # Binary search over elements on the pivot element's left
+        if (answer := binarySearch(0, left - 1, target)) != -1:
+            return answer
+
+        # Binary search over elements on the pivot element's right
+        return binarySearch(left, n - 1, target)
+    </code>
+</pre>
+<h4 id="complexity-analysis">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    be the length of <code>nums</code>.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡n)O(\log n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                          style="margin-right: 0.1667em;"></span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>The algorithm requires one binary search to locate <code>pivot</code>, and at most 2 binary searches to
+                find <code>target</code>. Each binary search takes <span class="math math-inline"><span
+                        class="katex"><span class="katex-mathml">O(log⁡n)O(\log n)</span><span class="katex-html"
+                                                                                               aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span
+                        class="mspace" style="margin-right: 0.1667em;"></span><span
+                        class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> time.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord">1</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>We only need to update several parameters <code>left</code>, <code>right</code> and <code>mid</code>,
+                which takes <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord">1</span><span
+                        class="mclose">)</span></span></span></span></span> space.
+            </li>
+        </ul>
+    </li>
+</ul>
+<br>
+<hr>
+<h3 id="approach-2-find-pivot-index--binary-search-with-shift">Approach 2: Find Pivot Index + Binary Search with
+    Shift</h3>
+<h4 id="intuition-1">Intuition</h4>
+<p>The array we're working with has been rotated by a certain number of steps, which means we can't apply a regular
+    binary search to the modified array. However, if we can revert this array to its original sorted form, then a
+    conventional binary search becomes a viable approach.</p>
+<p>Our key task is to locate <code>pivot</code>, the index of the smallest value in <code>nums</code>. Notably, <code>nums[pivot]</code>
+    would have been at index 0 in the unrotated, original array. Hence, if we were to rotate it to the right by <code>n
+        - pivot</code> steps (taking the modulus of <code>n</code> into account), it would return to its original
+    position, index 0.</p>
+<p>Applying the same transformation to every element enables us to revert the rotated array back to its original, sorted
+    form.</p>
+<p><img src="t1.png" alt="img"></p>
+<p>At this point, we can perform a conventional binary search to locate the target. Let's assume that <code>nums[i] =
+    target</code>. Remembering that we had to shift every element to the right by <code>n - pivot</code> steps to reach
+    the sorted version of nums, we now need to shift the index in the sorted nums to the left by <code>n - pivot</code>
+    steps to find its corresponding index, <code>i</code>, in the original nums. This gives us <code>i - (n -
+        pivot)</code> (taking the modulus of <code>n</code> into account).</p>
+<p><img src="t2.png" alt="img"></p>
+<p>Crucially, there's no need to actually create the sorted version of <code>nums</code> from the original
+    <code>nums</code>. We can simply represent the sorted <code>nums</code> by shifting the indices.</p>
+<br>
+<h4 id="algorithm-1">Algorithm</h4>
+<ol>
+    <li>
+        <p>Perform a binary search to locate the pivot element by initializing the boundaries of the searching space as
+            <code>left = 0</code> and <code>right = n - 1</code>. While <code>left &lt; right</code>:</p>
+        <ul>
+            <li>Let <code>mid = left + (right - left) // 2</code>.</li>
+            <li>If <code>nums[mid] &gt; nums[n - 1]</code>, this suggests that <code>pivot</code> is located to the
+                right of <code>mid</code>, hence we set <code>left = mid + 1</code>. Otherwise, <code>pivot</code> could
+                be either at <code>mid</code> or to the left of <code>mid</code>, in which case we should set <code>right
+                    = mid - 1</code>.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Upon completion of the binary search, we have the pivot index denoted as <code>pivot = left</code>.</p>
+    </li>
+    <li>
+        <p>Set the boundaries of the search space as <code>(pivot + shift) % n</code> and <code>(pivot - 1 + shift) %
+            n</code>.</p>
+    </li>
+    <li>
+        <p>While <code>left &lt; right</code>, we get the middle index <code>mid = (left + right) // 2</code>, and
+            compare <code>nums[(mid - shift + n) % n]</code> with <code>target</code>.</p>
+        <ul>
+            <li>If <code>nums[(mid - shift + n) % n]</code> is equal to <code>target</code>, return <code>mid - shift +
+                n</code></li>
+            <li>If <code>nums[(mid - shift + n) % n] &gt; target</code>, continue with the left half by setting <code>right</code>
+                as <code>mid - 1</code>.
+            </li>
+            <li>If <code>nums[(mid - shift + n) % n] &lt; target</code>, continue with the right half by setting <code>left</code>
+                as <code>mid + 1</code>.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Return <code>-1</code> once the binary search is complete.</p>
+    </li>
+</ol>
+<h4 id="implementation-1">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int search(int[] nums, int target) {
+        int n = nums.length;
+        int left = 0, right = n - 1;
+
+        // Find the index of the pivot element (the smallest element)
+        while (left <= right) {
+            int mid = (left + right) / 2;
+            if (nums[mid] > nums[n - 1]) {
+                left = mid + 1;
+            } else {
+                right = mid - 1;
+            }
+        }
+
+        return shiftedBinarySearch(nums, left, target);
+    }
+
+    // Shift elements in a circular manner, with the pivot element at index 0.
+    // Then perform a regular binary search
+    private int shiftedBinarySearch(int[] nums, int pivot, int target) {
+        int n = nums.length;
+        int shift = n - pivot;
+        int left = (pivot + shift) % n;
+        int right = (pivot - 1 + shift) % n;
+
+        while (left <= right) {
+            int mid = (left + right) / 2;
+            if (nums[(mid - shift + n) % n] == target) {
+                return (mid - shift + n) % n;
+            } else if (nums[(mid - shift + n) % n] > target) {
+                right = mid - 1;
+            } else {
+                left = mid + 1;
+            }
+        }
+        return -1;
+    }
+}
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def search(self, nums: List[int], target: int) -> int:
+        n = len(nums)
+        left, right = 0, n - 1
+
+        # Find the index of the pivot element (the smallest element)
+        while left <= right:
+            mid = (left + right) // 2
+            if nums[mid] > nums[-1]:
+                left = mid + 1
+            else:
+                right = mid - 1
+
+        # Shift elements in circular manner, with the pivot element at index 0.
+        # Then perform a regular binary search
+        def shiftedBinarySearch(pivot_index, target):
+            shift = n - pivot_index
+            left, right = (pivot_index + shift) % n, (pivot_index - 1 + shift) % n
+
+            while left <= right:
+                mid = (left + right) // 2
+                if nums[(mid - shift) % n] == target:
+                    return (mid - shift) % n
+                elif nums[(mid - shift) % n] > target:
+                    right = mid - 1
+                else:
+                    left = mid + 1
+            return -1
+
+        return shiftedBinarySearch(left, target)
+    </code>
+</pre>
+<h4 id="complexity-analysis-1">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    be the length of <code>nums</code>.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡n)O(\log n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                          style="margin-right: 0.1667em;"></span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>The algorithm requires one binary search to locate <code>pivot</code> and one binary search over the
+                shifted indices to find <code>target</code>. Each binary search takes <span
+                        class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡n)O(\log n)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span
+                        class="mspace" style="margin-right: 0.1667em;"></span><span
+                        class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> time.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord">1</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>We only need to update several parameters <code>left</code>, <code>right</code> <code>mid</code> and
+                <code>shift</code>, which takes <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord">1</span><span
+                        class="mclose">)</span></span></span></span></span> space.
+            </li>
+        </ul>
+    </li>
+</ul>
+<br>
+<hr>
+<h3 id="approach-3-one-binary-search">Approach 3: One Binary Search</h3>
+<h4 id="intuition-2">Intuition</h4>
+<p>The two preceding approaches both comprise two steps:</p>
+<ul>
+    <li>Perform a binary search to identify the pivot index.</li>
+    <li>Conduct another binary search to locate the target value.</li>
+</ul>
+<p>However, we can perform these two steps within a single binary search.</p>
+<br>
+<p>Let's take a step back and consider a regular binary search. Why are we able to confidently discard half of the array
+    after comparing <code>target</code> with the middle value <code>nums[mid]</code>? The reason is that both halves of
+    the array are sorted. Hence, if <code>target</code> is less than the middle value, it's assured to be smaller than
+    every value in the right half. If <code>target</code> is larger than the middle value, it's guaranteed to be larger
+    than every value in the left half. Therefore, we can safely discard one half of <code>nums</code> in either case.
+</p>
+<p>However, a rotated sorted array may not possess this characteristic – we can't determine whether <code>target</code>
+    is definitively not in the array just by comparing boundary values.</p>
+<br>
+<p>If we cut a subarray <code>nums[left ~ right]</code> by the index <code>mid</code>. We split this subarray into 3
+    parts:</p>
+<ul>
+    <li>subarray <code>nums[left ~ mid - 1]</code></li>
+    <li>element <code>nums[mid]</code>.</li>
+    <li>subarray <code>nums[mid + 1, right]</code>.</li>
+</ul>
+<p>It is important to note that there is at most one rotated sorted array in the two subarrays, which means that there
+    is at least one sorted array for comparison.</p>
+<p><img src="q0.png" alt="img"></p>
+<p>Therefore, we can compare <code>target</code> with the sorted half to decide which subarray to retain for the next
+    round.</p>
+<blockquote>
+    <p>It is straightforward to determine if a sorted array <code>A[l ~ r]</code> could possibly contain
+        <code>target</code>, we can simply compare <code>target</code> with two boundary values <code>A[l]</code> and
+        <code>A[r]</code>.</p>
+    <ul>
+        <li>If <code>A[l] &lt;= target &lt;= A[r]</code>, then <code>A[l ~ r]</code> might contain <code>target</code>,
+            which needs to be verified by binary search, we will continue with this subarray.
+        </li>
+    </ul>
+</blockquote>
+<blockquote>
+    <ul>
+        <li>Otherwise, <code>target</code> is guaranteed to not be in <code>A[l ~ r]</code>, and there is no need to
+            search over this array, we will continue with the other subarray.
+        </li>
+    </ul>
+</blockquote>
+<br>
+<p>To sum up, there are 3 possible cases after comparing <code>target</code> with <code>nums[mid]</code>:</p>
+<p>Case 1. If <code>nums[mid] = target</code>, which denotes that we have found <code>target</code>, return
+    <code>mid</code> as its index.</p>
+<p>Case 2. If <code>nums[mid] &gt;= nums[left]</code>. It implies that the left subarray <code>nums[left ~ mid]</code>
+    is sorted. We can determine whether to proceed with this subarray by comparing <code>target</code> with the boundary
+    elements:</p>
+<ul>
+    <li>If <code>nums[left] &lt;= target</code> and <code>target &lt; nums[mid]</code>, it suggests that the sorted left
+        half might include <code>target</code> while the other half does not contain <code>target</code>. Consequently,
+        we focus on the left half for further steps.
+    </li>
+    <li>Otherwise, the left half is guaranteed not to contain <code>target</code>, and we will move on to the right
+        half.
+    </li>
+</ul>
+<p><img src="q1.png" alt="img"></p>
+<p>Case 3. If <code>nums[mid] &lt; nums[left]</code>, it implies that the left subarray is rotated and the right
+    subarray <code>nums[mid ~ right]</code> is sorted. Therefore, we can determine whether to proceed with the right
+    subarray by comparing the target with its boundary elements:</p>
+<ul>
+    <li>If <code>nums[mid] &lt; target</code> and <code>target &lt; nums[right]</code>, it implies that the sorted right
+        half might contain <code>target</code>. As a result, we will move on with the right half.
+    </li>
+    <li>Otherwise, the right half is guaranteed not to contain <code>target</code>, and we will move on to the left
+        half.
+    </li>
+</ul>
+<p><img src="q2.png" alt="img"></p>
+<br>
+<h4 id="algorithm-2">Algorithm</h4>
+<ol>
+    <li>
+        <p>Initialize the boundaries of the searching space as <code>left = 0</code> and <code>right = n - 1</code>.</p>
+    </li>
+    <li>
+        <p>While <code>left &lt;= right</code>, do the followings:</p>
+    </li>
+    <li>
+        <p>Locate the middle index as <code>mid = left + (right - left) // 2</code>. Compare<br>
+            <code>nums[mid]</code> with <code>target</code>. If <code>target = nums[mid]</code>, return <code>mid</code>.
+            Otherwise:</p>
+    </li>
+    <li>
+        <p>If <code>nums[mid] &gt;= nums[left]</code>, the left half is sorted.</p>
+        <ul>
+            <li>If <code>target &gt;= nums[left]</code> and <code>target &lt; nums[mid]</code>, <code>target</code>
+                might be in the left half. Continue with the left half by setting <code>right = mid - 1</code>.
+            </li>
+            <li>Otherwise, move on with the right half by setting <code>left = mid + 1</code>.</li>
+        </ul>
+        <p>Repeat step 2.</p>
+    </li>
+    <li>
+        <p>If <code>nums[mid] &lt; nums[left]</code>, the right half is sorted.</p>
+        <ul>
+            <li>If <code>target &lt;= nums[left]</code> and <code>target &gt; nums[mid]</code>, <code>target</code>
+                might be in the right half. Continue with the right half by setting <code>left = mid + 1</code>.
+            </li>
+            <li>Otherwise, move on with the left half by setting <code>right = mid + 1</code>.</li>
+        </ul>
+    </li>
+    <li>
+        <p>Return -1 when the search is complete.</p>
+    </li>
+</ol>
+<h4 id="implementation-2">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int search(int[] nums, int target) {
+        int n = nums.length;
+        int left = 0, right = n - 1;
+
+        while (left <= right) {
+            int mid = left + (right - left) / 2;
+
+            // Case 1: find target
+            if (nums[mid] == target) {
+                return mid;
+            }
+
+            // Case 2: subarray on mid's left is sorted
+            else if (nums[mid] >= nums[left]) {
+                if (target >= nums[left] && target < nums[mid]) {
+                    right = mid - 1;
+                } else {
+                    left = mid + 1;
+                }
+            }
+
+            // Case 3: subarray on mid's right is sorted
+            else {
+                if (target <= nums[right] && target > nums[mid]) {
+                    left = mid + 1;
+                } else {
+                    right = mid - 1;
+                }
+            }
+        }
+
+        return -1;
+    }
+}
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def search(self, nums: List[int], target: int) -> int:
+        n = len(nums)
+        left, right = 0, n - 1
+        while left <= right:
+            mid = left + (right - left) // 2
+
+            # Case 1: find target
+            if nums[mid] == target:
+                return mid
+
+            # Case 2: subarray on mid's left is sorted
+            elif nums[mid] >= nums[left]:
+                if target >= nums[left] and target < nums[mid]:
+                    right = mid - 1
+                else:
+                    left = mid + 1
+
+            # Case 3: subarray on mid's right is sorted.
+            else:
+                if target <= nums[right] and target > nums[mid]:
+                    left = mid + 1
+                else:
+                    right = mid - 1
+        return -1
+    </code>
+</pre>
+<h4 id="complexity-analysis-2">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    be the length of <code>nums</code>.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡n)O(\log n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                          style="margin-right: 0.1667em;"></span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>This algorithm only requires one binary search over <code>nums</code>.</li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord">1</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>We only need to update several parameters <code>left</code>, <code>right</code> and <code>mid</code>,
+                which takes <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord">1</span><span
+                        class="mclose">)</span></span></span></span></span> space.
+            </li>
+        </ul>
+    </li>
+</ul>
+<br>
+</body>
+</html>
