@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Minimize the Maximum Difference of Pairs - Solution</title>
+</head>
+<body>
+<h2 id="solution">Minimize the Maximum Difference of Pairs - Solution</h2>
+<hr>
+<h3 id="overview">Overview</h3>
+<p>Since this problem involves minimizing the "maximum difference," it is necessary to sort the array beforehand. This
+    way, we can narrow down the selection of pairs to only adjacent numbers, and avoid wasting time on incorrect
+    choices.</p>
+<p><img src="1.png" alt="img"></p>
+<p>As shown in the diagram below, without sorting, we might inadvertently select pairs with larger differences. By
+    sorting the array, we eliminate such scenarios.</p>
+<p><img src="2.png" alt="img"></p>
+<hr>
+<h3 id="approach-greedy--binary-search">Approach: Greedy + Binary Search</h3>
+<h4 id="intuition">Intuition</h4>
+<blockquote>
+    <p>If you are not familiar with binary search, please refer to our explore cards <a
+            href="https://leetcode.com/explore/learn/card/binary-search/" target="_blank">Binary Search Explore Card</a>.
+        We will focus on the usage in this article and not the underlying principles or implementation details.</p>
+</blockquote>
+<p>Since we are looking for the <strong>minimum</strong> maximum difference, one brute force approach is to start from a
+    <strong>threshold</strong> (a maximum difference) of <code>0</code> and incrementally try all possible thresholds:
+</p>
+<ul>
+    <li>
+        <p>try to find <code>p</code> pairs with a difference less than or equal to <code>0</code>.</p>
+    </li>
+    <li>
+        <p>if not possible, try to find <code>p</code> pairs with a difference less than or equal to <code>1</code>.</p>
+    </li>
+    <li>
+        <p>and so on, until we find a threshold that succeeds.</p>
+    </li>
+</ul>
+<p><img src="5.png" alt="img"></p>
+<p>However, as you may have noticed, this approach requires trying a linear number of thresholds, which is
+    inefficient.</p>
+<p>We observe that:</p>
+<ul>
+    <li>
+        <p>If we can find <code>p</code> pairs with a threshold of <code>x</code>, then we can certainly find
+            <code>p</code> pairs with a threshold of <code>x + 1</code>. A trivial example would be to just use the
+            exact same <code>p</code> pairs. As their differences are less than <code>x</code>, they must also be less
+            than <code>x + 1</code>.</p>
+    </li>
+    <li>
+        <p>If we cannot find <code>p</code> pairs with a threshold of <code>x</code>, then we certainly cannot find
+            <code>p</code> pairs with a threshold of <code>x - 1</code>.</p>
+    </li>
+</ul>
+<p>This splits the number line into two sections: one section where the task is possible, and one where the task is
+    impossible. Therefore, we can use binary search to quickly narrow down the search space until we find the dividing
+    point, which is the minimum threshold.</p>
+<br>
+<p>Now let's address the second question: given <code>threshold</code>, how do we determine if there exist at least
+    <code>p</code> valid pairs?</p>
+<p>We can solve this using a greedy approach, by iterating through the sorted <code>nums</code> and checking the
+    difference between <code>nums[i]</code> and <code>nums[i + 1]</code>. If the difference is less than or equal to the
+    threshold, it means that <code>nums[i]</code> and <code>nums[i + 1]</code> form a valid pair, and we can directly
+    move to <code>i + 2</code> to find the next pair.</p>
+<p>However, you might wonder why the greedy approach works. Is there a possibility that the greedy approach fails while
+    another approach succeeds?</p>
+<p><img src="3.png" alt="img"></p>
+<p><strong>The answer is No! Greedy approach always brings the most number of valid pairs.</strong></p>
+<p>Here we provide a brief explanation: Recall that in the greedy approach, we traverse the array in ascending order.
+    Suppose there is another alternative approach that yields more valid pairs compared to the greedy approach. We can
+    align the arrays of these two approaches side by side and traverse them together in ascending order until the first
+    point of divergence.</p>
+<p>Since the greedy approach always selects the "leftmost" pair, when a divergence occurs, the pair from the alternative
+    approach must be "to the right." Let's assume these pairs as <code>(i - 1, i)</code> and <code>(i, i + 1)</code>
+    respectively. As shown in the picture above.</p>
+<p>So far, both approaches have selected an equal number of valid pairs in subarrays <code>nums[0 ~ i]</code> and <code>nums[0
+    ~ i + 1]</code>, respectively. However, the remaining subarray of the greedy approach (<code>nums[i+1 ~ n-1]</code>)
+    is longer, providing more choices. Thus the valid pairs (if exist) selected from this remaining subarray are
+    guaranteed to be greater than or equal to the pairs from the remaining portion of the alternative approach (<code>nums[i+2
+        ~ n-1]</code>).</p>
+<p><img src="4.png" alt="img"></p>
+<p>This implies that even if we do not use the greedy approach, the number of valid pairs we can select will not exceed
+    the number of pairs selected using the greedy approach. <strong>The greedy approach will always yield the maximum
+        number of valid pairs.</strong></p>
+<br>
+<h4 id="algorithm">Algorithm</h4>
+<blockquote>
+    <p>Note: the typical way to calculate mid is (left + right) / 2. However, a safer way is left + (right - left) / 2.
+        The two equations are equivalent, but the second one is safer because it guarantees no number larger than right
+        is ever stored. In the first equation, if left + right is huge, then it could end up overflowing.</p>
+</blockquote>
+<ol>
+    <li>
+        <p>Define <code>countValidPairs(threshold)</code> to find the number of pairs having a threshold of <code>threshold</code>
+            in <code>nums</code>. Let <code>n</code> be the size of <code>nums</code>.</p>
+        <ul>
+            <li>Set <code>count = 0</code>.</li>
+            <li>Iteraver over <code>nums</code> from <code>index = 0</code> to <code>index = n - 2</code>. If <code>nums[index
+                + 1] - nums[index] &lt;= threshold</code>, increment <code>count</code> by <code>1</code>, and skip both
+                indices. Otherwise, skip the current index.
+            </li>
+            <li>Return <code>count</code>.</li>
+        </ul>
+    </li>
+    <li>
+        <p>Sort <code>nums</code>.</p>
+    </li>
+    <li>
+        <p>Initialize the searching space as <code>left = 0</code> and <code>right = nums[n - 1] - nums[0]</code>, the
+            maximum difference in the array.</p>
+    </li>
+    <li>
+        <p>While <code>left &lt; right</code>, do the following:</p>
+    </li>
+    <li>
+        <p>Get the middle value as <code>mid = left + (right - left) // 2</code>.</p>
+    </li>
+    <li>
+        <p>Calculate the number of valid pairs with a threshold of <code>mid</code> using
+            <code>countValidPairs(mid)</code>.</p>
+    </li>
+    <li>
+        <p>If <code>countValidPairs(mid) &gt;= p</code>, continue with the left half by setting <code>right = mid</code>.
+            Otherwise, continue with the right half by setting <code>left = mid - 1</code>. Repeat from step 4.</p>
+    </li>
+    <li>
+        <p>Return <code>left</code> when the binary search is complete.</p>
+    </li>
+</ol>
+<h4 id="implementation">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    // Find the number of valid pairs by greedy approach
+    private int countValidPairs(int[] nums, int threshold) {
+        int index = 0, count = 0;
+        while (index < nums.length - 1) {
+            // If a valid pair is found, skip both numbers.
+            if (nums[index + 1] - nums[index] <= threshold) {
+                count++;
+                index++;
+            }
+            index++;
+        }
+        return count;
+    }
+
+    public int minimizeMax(int[] nums, int p) {
+        Arrays.sort(nums);
+        int n = nums.length;
+        int left = 0, right = nums[n - 1] - nums[0];
+
+        while (left < right) {
+            int mid = left + (right - left) / 2;
+
+            // If there are enough pairs, look for a smaller threshold.
+            // Otherwise, look for a larger threshold.
+            if (countValidPairs(nums, mid) >= p) {
+                right = mid;
+            } else {
+                left = mid + 1;
+            }
+        }
+        return left;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    // Find the number of valid pairs by greedy approach
+    int countValidPairs(vector<int>& nums, int threshold) {
+        int index = 0, count = 0;
+        while (index < nums.size() - 1) {
+            // If a valid pair is found, skip both numbers.
+            if (nums[index + 1] - nums[index] <= threshold) {
+                count++;
+                index++;
+            }
+            index++;
+        }
+        return count;
+    }
+
+    int minimizeMax(vector<int>& nums, int p) {
+        sort(nums.begin(), nums.end());
+        int n = nums.size();
+        int left = 0, right = nums[n - 1] - nums[0];
+
+        while (left < right) {
+            int mid = left + (right - left) / 2;
+
+            // If there are enough pairs, look for a smaller threshold.
+            // Otherwise, look for a larger threshold.
+            if (countValidPairs(nums, mid) >= p) {
+                right = mid;
+            } else {
+                left = mid + 1;
+            }
+        }
+        return left;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def minimizeMax(self, nums: List[int], p: int) -> int:
+        nums.sort()
+        n = len(nums)
+
+        # Find the number of valid pairs by greedy approach
+        def countValidPairs(threshold):
+            index, count = 0, 0
+            while index < n - 1:
+                # If a valid pair is found, skip both numbers.
+                if nums[index + 1] - nums[index] <= threshold:
+                    count += 1
+                    index += 1
+                index += 1
+            return count
+
+        left, right = 0, nums[-1] - nums[0]
+        while left < right:
+            mid = left + (right - left) // 2
+
+            # If there are enough pairs, look for a smaller threshold.
+            # Otherwise, look for a larger threshold.
+            if countValidPairs(mid) >= p:
+                right = mid
+            else:
+                left = mid + 1
+        return left
+    </code>
+</pre>
+<h4 id="complexity-analysis">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    be the size of <code>nums</code> and <code>V</code> be the maximum value in <code>nums</code>.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅log⁡V)O(n \cdot\log V)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                      style="margin-right: 0.1667em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.22222em;">V</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>
+                <p>The right boundary of the searching space is defined as <code>nums[n - 1] - nums[0]</code>, the
+                    maximum value minus the minimum value, which is <span class="math math-inline"><span
+                            class="katex"><span class="katex-mathml">O(V)O(V)</span><span class="katex-html"
+                                                                                          aria-hidden="true"><span
+                            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                            class="mopen">(</span><span class="mord mathnormal"
+                                                        style="margin-right: 0.22222em;">V</span><span
+                            class="mclose">)</span></span></span></span></span>. Thus the binary search takes <span
+                            class="math math-inline"><span class="katex"><span
+                            class="katex-mathml">O(log⁡V)O(\log V)</span><span class="katex-html"
+                                                                               aria-hidden="true"><span
+                            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                            class="mopen">(</span><span class="mop">lo<span
+                            style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                  style="margin-right: 0.1667em;"></span><span
+                            class="mord mathnormal" style="margin-right: 0.22222em;">V</span><span
+                            class="mclose">)</span></span></span></span></span> steps.</p>
+            </li>
+            <li>
+                <p>At each step, we need to iterate over <code>nums</code> to determine if there are at least
+                    <code>p</code> pairs, which takes <span class="math math-inline"><span class="katex"><span
+                            class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                            class="mopen">(</span><span class="mord mathnormal">n</span><span
+                            class="mclose">)</span></span></span></span></span> time.</p>
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord">1</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>We only need to update several parameters, <code>left</code>, <code>right</code>, <code>index</code>,
+                and <code>count</code>, which takes <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord">1</span><span
+                        class="mclose">)</span></span></span></span></span> space.
+            </li>
+        </ul>
+    </li>
+</ul>
+<br>
+</body>
+</html>
