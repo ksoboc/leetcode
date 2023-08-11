@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Coin Change II</title>
+</head>
+<body>
+<h2 id="solution">Solution</h2>
+<hr>
+<h3 id="overview">Overview</h3>
+<p>We are given an integer array <code>coins</code> representing coins of different denominations and an integer <code>amount</code>
+    representing the total amount of money.</p>
+<p>Our task is to return the number of unique combinations that make up that amount. We can assume that we have an
+    infinite number of each kind of coin.</p>
+<hr>
+<h3 id="approach-1-top-down-dynamic-programming">Approach 1: Top-Down Dynamic Programming</h3>
+<h4 id="intuition">Intuition</h4>
+<p>This is a classical dynamic programming problem. If you are new to Dynamic Programming, please see our <a
+        href="https://leetcode.com/explore/featured/card/dynamic-programming/" target="_blank">Leetcode Explore Card</a>
+    for more information on it!</p>
+<p>Intuitively, we could think of iterating over the coins. For a specific coin, we have two options: either we take
+    this coin and decrease the remaining amount we still need, or we ignore the coin and move to the next one without
+    changing the remaining amount we still need. We add the number of ways to make up the required amount from both
+    choices.</p>
+<p>As we may notice, we are breaking down a larger problem into smaller, similar problems and adding the results of them
+    to get the answer to the original problem. If we choose to take a coin with <code>value</code>, we are now searching
+    for a combination of coins that sum up to <code>amount - value</code>. If we choose to skip the coin, we are still
+    looking for a combination of coins that sum up to <code>amount</code>, but with fewer coins.</p>
+<p>As we are breaking down a larger problem into smaller, similar problems, we can use recursion to implement this
+    approach.</p>
+<p>Let <code>numberOfWays</code> be the recursive method that we use to solve the problem. It would require two
+    parameters: the index of the current coin under consideration <code>i</code> and the remaining <code>amount</code>
+    needed. It would return the number of ways to make up the <code>amount</code> by only considering the coins
+    beginning from index <code>i</code>.</p>
+<p>If <code>amount</code> equals <code>0</code>, we return <code>1</code> as we can always make up the <code>0</code>
+    amount by not taking any coins.</p>
+<p>If <code>i</code> equals <code>n</code> (where <code>n</code> is the number of coins), we return <code>0</code> as we
+    don't have any more coins and hence can't possibly make up the amount. These two form the base cases of our
+    recursive implementation.</p>
+<p>The recursive relation can be written as:</p>
+<div class="mb-6 rounded-lg px-3 py-2.5 font-menlo text-sm bg-fill-3 dark:bg-dark-fill-3">
+    <div class="group relative" translate="no"><pre
+            style="color: rgb(212, 212, 212); font-size: 13px; text-shadow: none; font-family: Menlo, Monaco, Consolas; direction: ltr; text-align: left; white-space: pre; word-spacing: normal; word-break: normal; line-height: 1.5; tab-size: 4; hyphens: none; padding: 0px; margin: 0px; overflow: auto; background: transparent;"><code
+            class="language-javascript"
+            style="color: rgb(156, 220, 254); font-size: 13px; text-shadow: none; font-family: Menlo, Monaco, Consolas, &quot;Andale Mono&quot;, &quot;Ubuntu Mono&quot;, &quot;Courier New&quot;, monospace; direction: ltr; text-align: left; white-space: pre; word-spacing: normal; word-break: normal; line-height: 1.5; tab-size: 4; hyphens: none;"><span><span
+            class="token" style="color: rgb(220, 220, 170);">If</span><span> </span><span class="token"
+                                                                                          style="color: rgb(212, 212, 212);">(</span><span
+            class="token" style="color: rgb(156, 220, 254);">coins</span><span class="token"
+                                                                               style="color: rgb(212, 212, 212);">[</span><span
+            class="token" style="color: rgb(156, 220, 254);">i</span><span class="token"
+                                                                           style="color: rgb(212, 212, 212);">]</span><span
+            class="token" style="color: rgb(156, 220, 254);"> </span><span class="token"
+                                                                           style="color: rgb(212, 212, 212);">&gt;</span><span
+            class="token" style="color: rgb(156, 220, 254);"> amount</span><span class="token"
+                                                                                 style="color: rgb(212, 212, 212);">)</span><span> </span><span
+            class="token" style="color: rgb(212, 212, 212);">{</span><span>
+</span></span><span><span>    </span><span class="token" style="color: rgb(220, 220, 170);">numberOfWays</span><span
+            class="token" style="color: rgb(212, 212, 212);">(</span><span>i</span><span class="token"
+                                                                                         style="color: rgb(212, 212, 212);">,</span><span> amount</span><span
+            class="token" style="color: rgb(212, 212, 212);">)</span><span> </span><span class="token"
+                                                                                         style="color: rgb(212, 212, 212);">=</span><span> </span><span
+            class="token" style="color: rgb(220, 220, 170);">numberOfWays</span><span class="token"
+                                                                                      style="color: rgb(212, 212, 212);">(</span><span>i </span><span
+            class="token" style="color: rgb(212, 212, 212);">+</span><span> </span><span class="token"
+                                                                                         style="color: rgb(181, 206, 168);">1</span><span
+            class="token" style="color: rgb(212, 212, 212);">,</span><span> amount</span><span class="token"
+                                                                                               style="color: rgb(212, 212, 212);">)</span><span>
+</span></span><span><span></span><span class="token" style="color: rgb(212, 212, 212);">}</span><span> </span><span
+            class="token" style="color: rgb(197, 134, 192);">else</span><span> </span><span class="token"
+                                                                                            style="color: rgb(212, 212, 212);">{</span><span>
+</span></span><span><span>    </span><span class="token" style="color: rgb(220, 220, 170);">numberOfWays</span><span
+            class="token" style="color: rgb(212, 212, 212);">(</span><span>i</span><span class="token"
+                                                                                         style="color: rgb(212, 212, 212);">,</span><span> amount</span><span
+            class="token" style="color: rgb(212, 212, 212);">)</span><span> </span><span class="token"
+                                                                                         style="color: rgb(212, 212, 212);">=</span><span> </span><span
+            class="token" style="color: rgb(220, 220, 170);">numberOfWays</span><span class="token"
+                                                                                      style="color: rgb(212, 212, 212);">(</span><span>i</span><span
+            class="token" style="color: rgb(212, 212, 212);">,</span><span> amount </span><span class="token"
+                                                                                                style="color: rgb(212, 212, 212);">-</span><span> coins</span><span
+            class="token" style="color: rgb(212, 212, 212);">[</span><span>i</span><span class="token"
+                                                                                         style="color: rgb(212, 212, 212);">]</span><span
+            class="token" style="color: rgb(212, 212, 212);">)</span><span> </span><span class="token"
+                                                                                         style="color: rgb(212, 212, 212);">+</span><span> </span><span
+            class="token" style="color: rgb(220, 220, 170);">numberOfWays</span><span class="token"
+                                                                                      style="color: rgb(212, 212, 212);">(</span><span>i </span><span
+            class="token" style="color: rgb(212, 212, 212);">+</span><span> </span><span class="token"
+                                                                                         style="color: rgb(181, 206, 168);">1</span><span
+            class="token" style="color: rgb(212, 212, 212);">,</span><span> amount</span><span class="token"
+                                                                                               style="color: rgb(212, 212, 212);">)</span><span>
+</span></span><span><span></span><span class="token" style="color: rgb(212, 212, 212);">}</span></span></code></pre>
+        <div class="h-4 w-4 cursor-pointer absolute top-0 right-0">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="h-4 w-4 fill-gray-6 hover:fill-gray-7 dark:fill-dark-gray-6 dark:hover:fill-dark-gray-7 hidden group-hover:block">
+                <path fill-rule="evenodd"
+                      d="M11.3 8.3H19a3 3 0 013 3V19a3 3 0 01-3 3h-7.7a3 3 0 01-3-3v-7.7a3 3 0 013-3zm0 2a1 1 0 00-1 1V19a1 1 0 001 1H19a1 1 0 001-1v-7.7a1 1 0 00-1-1h-7.7zm-5.6 3.4a1 1 0 110 2h-.9A2.8 2.8 0 012 12.9V4.8A2.8 2.8 0 014.8 2h8.1a2.8 2.8 0 012.8 2.8v.9a1 1 0 11-2 0v-.9a.8.8 0 00-.8-.8H4.8a.8.8 0 00-.8.8v8.1a.8.8 0 00.8.8h.9z"
+                      clip-rule="evenodd"></path>
+            </svg>
+        </div>
+    </div>
+</div>
+<p>If the current coin is worth more than the remaining amount we need, we must skip the current coin. Otherwise, we
+    consider both options: skip the current coin or use the current coin.</p>
+<p>Let's take an example where we have three coins, <code>coins = [2, 2, 1]</code>, and <code>amount = 6</code>. The
+    recursion tree of this example using the above relation would look something like this:</p>
+<p><img src="518-1.png" alt="img"></p>
+<p>The first integer indicates the index of the current coin under consideration, while the second number indicates how
+    much amount we need to make up. In the above diagram, we don't use the current coin in the left branch and we use it
+    to decrease the required amount by its value in the right branch.</p>
+<p>We can observe that there are several repeating problems in this solution highlighted in red. Several subproblems,
+    such as <code>(2, 4)</code>, <code>(1, 4)</code>, <code>(1, 2)</code>, etc., are solved multiple times in the
+    partial recursion tree shown above. If we draw the entire recursion tree, we can see that many subproblems are
+    solved repeatedly.</p>
+<p>To avoid this issue, we store the solution of each sub-problem and when we encounter the same subproblem again, we
+    simply refer to the stored result. This is called <strong>memoization</strong>.</p>
+<p>As we know the current state of a sub-problem depends on the index of the current under consideration and the
+    remaining amount, we can use a 2D array <code>memo</code>. <code>memo[i][j]</code> stores the number of ways to make
+    up <code>j</code> using the coins beginning from index <code>i</code>.</p>
+<p>Whenever we solve a subproblem, we store its answer in <code>memo</code>. We re-use it whenever it is required,
+    instead of solving it again and again.</p>
+<h4 id="algorithm">Algorithm</h4>
+<ol>
+    <li>Create a 2D array <code>memo</code> with <code>n</code> rows and <code>amount + 1</code> columns. We initialize
+        values to <code>-1</code> to indicate a subproblem not being solved yet.
+    </li>
+    <li>We implement a recursive method <code>numberOfWays</code> which takes two parameters: the index <code>i</code>
+        of the current coin under consideration and the remaining <code>amount</code> to be made up. It returns the
+        number of ways to make up the <code>amount</code> by using the coins starting from the index <code>i</code> till
+        the last coin.
+        <ul>
+            <li>If <code>amount == 0</code>, return <code>1</code>. We can choose one way by not selecting any coin to
+                make up an amount of <code>0</code>.
+            </li>
+            <li>If <code>i == n</code>, we have no coins left to make up any amount. We return <code>0</code>.</li>
+            <li>If we have already computed this problem, i.e., <code>memo[i][amount] != -1</code>, we return <code>memo[i][amount]</code>.
+            </li>
+            <li>If the value of the current coin under consideration exceeds the <code>amount</code>, we cannot use it.
+                We recursively call <code>numberOfWays(i + 1, amount)</code>, set it equal to
+                <code>memo[i][amount]</code>, and return it.
+            </li>
+            <li>Otherwise, we add the total number of ways to make up the <code>amount</code> by both picking up the
+                current coin and ignoring it. Add up the values <code>numberOfWays(i, amount - coins[i])</code> and
+                <code>numberOfWays(i + 1, amount)</code>, store the result in <code>memo[i][amount]</code>, and return
+                it.
+            </li>
+        </ul>
+    </li>
+    <li>Return <code>numberOfWays(0, amount)</code>, the answer to the original problem.</li>
+</ol>
+<h4 id="implementation">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    int[][] memo;
+    int[] coins;
+
+    public int numberOfWays(int i, int amount) {
+        if (amount == 0) {
+            return 1;
+        }
+        if (i == coins.length) {
+            return 0;
+        }
+        if (memo[i][amount] != -1) {
+            return memo[i][amount];
+        }
+
+        if (coins[i] > amount) {
+            return memo[i][amount] = numberOfWays(i + 1, amount);
+        }
+
+        memo[i][amount] = numberOfWays(i, amount - coins[i]) + numberOfWays(i + 1, amount);
+        return memo[i][amount];
+    }
+
+    public int change(int amount, int[] coins) {
+        this.coins = coins;
+        memo = new int[coins.length][amount + 1];
+        for (int[] row : memo) {
+            Arrays.fill(row, -1);
+        }
+
+        return numberOfWays(0, amount);
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    vector<int> coins;
+    vector<vector<int>> memo;
+
+    int numberOfWays(int i, int amount) {
+        if (amount == 0) {
+            return 1;
+        }
+        if (i == coins.size()) {
+            return 0;
+        }
+        if (memo[i][amount] != -1) {
+            return memo[i][amount];
+        }
+
+        if (coins[i] > amount) {
+            return memo[i][amount] = numberOfWays(i + 1, amount);
+        }
+
+        memo[i][amount] = numberOfWays(i, amount - coins[i]) + numberOfWays(i + 1, amount);
+        return memo[i][amount];
+    }
+
+    int change(int amount, vector<int>& coins) {
+        this->coins = coins;
+        memo = vector<vector<int>>(coins.size(), vector<int>(amount + 1, -1));
+        return numberOfWays(0, amount);
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def change(self, amount: int, coins: List[int]) -> int:
+        def numberOfWays(i: int, amount: int) -> int:
+            if amount == 0:
+                return 1
+            if i == len(coins):
+                return 0
+            if memo[i][amount] != -1:
+                return memo[i][amount]
+
+            if coins[i] > amount:
+                memo[i][amount] = numberOfWays(i + 1, amount)
+            else:
+                memo[i][amount] = numberOfWays(i, amount - coins[i]) + numberOfWays(i + 1, amount)
+
+            return memo[i][amount]
+
+        memo = [[-1] * (amount + 1) for _ in range(len(coins))]
+        return numberOfWays(0, amount)
+    </code>
+</pre>
+<h4 id="complexity-analysis">Complexity Analysis</h4>
+<p>Here <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                     aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    is the size of <code>coins</code>.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅amount)O(n \cdot \text{amount})</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord text"><span class="mord">amount</span></span><span
+                class="mclose">)</span></span></span></span></span>.</p>
+        <ul>
+            <li>We take <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅amount)O(n \cdot \text{amount})</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord text"><span class="mord">amount</span></span><span class="mclose">)</span></span></span></span></span>
+                to intialize the <code>memo</code> array.
+            </li>
+            <li>There are total of <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅amount)O(n \cdot \text{amount})</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord text"><span class="mord">amount</span></span><span class="mclose">)</span></span></span></span></span>
+                states that are computed. There is no loop inside the recursive method. Each state is computed once and
+                it takes an average of <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord">1</span><span
+                        class="mclose">)</span></span></span></span></span> time to compute the answer of a state using
+                the smaller states. So, it takes <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(n⋅amount)O(n \cdot \text{amount})</span><span class="katex-html"
+                                                                                             aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mspace"
+                                                                                          style="margin-right: 0.2222em;"></span><span
+                        class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord text"><span class="mord">amount</span></span><span
+                        class="mclose">)</span></span></span></span></span> time to compute values for all the states.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅amount)O(n \cdot \text{amount})</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord text"><span class="mord">amount</span></span><span
+                class="mclose">)</span></span></span></span></span>.</p>
+        <ul>
+            <li>The memo array takes <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅amount)O(n \cdot \text{amount})</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord text"><span class="mord">amount</span></span><span class="mclose">)</span></span></span></span></span>
+                space.
+            </li>
+            <li>The recursion stack can grow up to a maximum size of <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(n+amount)O(n + \text{amount})</span><span class="katex-html"
+                                                                                     aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord text"><span class="mord">amount</span></span><span class="mclose">)</span></span></span></span></span>
+                as we are reducing either the number of coins or the required amount while going from one recursive call
+                to another.
+            </li>
+        </ul>
+    </li>
+</ul>
+<hr>
+<h3 id="approach-2-bottom-up-dynamic-programming">Approach 2: Bottom-Up Dynamic Programming</h3>
+<h4 id="intuition-1">Intuition</h4>
+<p>We used memoization in the preceding approach to store the answers to subproblems to solve a larger problem. We can
+    also use a bottom-up approach to solve such problems without using recursion. We build answers to subproblems
+    iteratively first, then use them to build answers to larger problems.</p>
+<p>We create a 2D list <code>dp[n][amount]</code> where <code>dp[i][j]</code> stores the number of ways to make up the
+    <code>j</code> amount using the coins beginning from index <code>i</code>. Note that here, <code>dp[i][j]</code> is
+    equivalent to <code>numberOfWays(i, j)</code> from the previous approach.</p>
+<p>We initialize <code>dp[i][0] = 1</code> for all values of <code>i</code> from <code>0</code> to <code>n</code> since
+    we can always make up the amount <code>0</code> by not selecting any coins. While moving from bottom to top, this
+    serves as the base case for our solution.</p>
+<p>When converting a top-down solution to a bottom-up one, we need to iterate starting from the base cases. As such, we
+    will iterate <code>i</code> from <code>n - 1</code> until <code>0</code> in the outer loop. It controls the index of
+    the current coin under consideration. For the inner loop, we iterate <code>j</code> from <code>1</code> until <code>amount</code>
+    to control the remaining amount to be made.</p>
+<p>Each iteration inside the nested loop represents a state <code>(i, j)</code>, which is equivalent to a function call
+    from the previous approach. As such, we can apply the exact same logic to calculate <code>dp[i][j]</code>.</p>
+<p>If <code>coins[i] &gt; j</code>, we cannot use the current coin, so we set <code>dp[i][j] = dp[i + 1][j]</code>.</p>
+<p>Otherwise, if we can use the current coin, we add the number of ways to make up the amount <code>j</code> by both
+    selecting it and ignoring it. We set <code>dp[i][j] = dp[i + 1][j] + dp[i][j - coins[i]]</code>.</p>
+<p>After computing all the <code>dp</code> states in the nested loops, <code>dp[0][amount]</code> state stores the
+    answer, just like <code>numberOfWays(0, amount)</code> was the answer in the previous approach.</p>
+<h4 id="algorithm-1">Algorithm</h4>
+<ol>
+    <li>Create an integer variable <code>n</code> and initialize it to the size of the <code>coins</code> array.</li>
+    <li>Create a 2D array called <code>dp</code> with <code>n + 1</code> rows and <code>amount + 1</code> columns where
+        <code>dp[i][j]</code> stores the number of ways to make up the <code>j</code> amount using the coins starting
+        from index <code>i</code>.
+    </li>
+    <li>Set <code>dp[i][0] = 1</code> for all values of <code>i</code> as the base case.</li>
+    <li>Fill <code>dp</code> using two loops. The outer loop runs from <code>i = n - 1</code> to <code>0</code>. It
+        controls the index of the current coin under consideration. The inner loop runs from <code>j = 1</code> to
+        <code>amount</code> and controls the amount to be made up. In the nested loops, we perform the following:
+        <ul>
+            <li>If the value of the current coin at index <code>i</code> exceeds <code>j</code>, we cannot use it. We
+                set <code>dp[i][j] = dp[i + 1][j]</code>.
+            </li>
+            <li>Otherwise, we add the total number of ways to make up <code>j</code> by using the current coin and
+                ignoring it. We set <code>dp[i][j] = dp[i + 1][j] + dp[i][j - coins[i]]</code>.
+            </li>
+        </ul>
+    </li>
+    <li>Return <code>dp[0][amount]</code>.</li>
+</ol>
+<h4 id="implementation-1">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int change(int amount, int[] coins) {
+        int n = coins.length;
+        int[][] dp = new int[n + 1][amount + 1];
+        for (int i = 0; i < n; i++) {
+            dp[i][0] = 1;
+        }
+
+        for (int i = 1; i <= amount; i++) {
+            dp[0][i] = 0;
+        }
+
+        for (int i = n - 1; i >= 0; i--) {
+            for (int j = 1; j <= amount; j++) {
+                if (coins[i] > j) {
+                    dp[i][j] = dp[i + 1][j];
+                } else {
+                    dp[i][j] = dp[i + 1][j] + dp[i][j - coins[i]];
+                }
+            }
+        }
+
+        return dp[0][amount];
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int change(int amount, vector<int>& coins) {
+        int n = coins.size();
+        vector<vector<int>> dp(n + 1, vector<int>(amount + 1));
+        for (int i = 0; i < n; i++) {
+            dp[i][0] = 1;
+        }
+
+        for (int i = n - 1; i >= 0; i--) {
+            for (int j = 1; j <= amount; j++) {
+                if (coins[i] > j) {
+                    dp[i][j] = dp[i + 1][j];
+                } else {
+                    dp[i][j] = dp[i + 1][j] + dp[i][j - coins[i]];
+                }
+            }
+        }
+
+        return dp[0][amount];
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def change(self, amount: int, coins: List[int]) -> int:
+        n = len(coins)
+        dp = [[0] * (amount + 1) for _ in range(n + 1)]
+        for i in range(n):
+            dp[i][0] = 1
+
+        for i in range(n - 1, -1, -1):
+            for j in range(1, amount + 1):
+                if coins[i] > j:
+                    dp[i][j] = dp[i + 1][j]
+                else:
+                    dp[i][j] = dp[i + 1][j] + dp[i][j - coins[i]]
+
+        return dp[0][amount]
+    </code>
+</pre>
+<h4 id="complexity-analysis-1">Complexity Analysis</h4>
+<p>Here <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                     aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    is the size of <code>coins</code>.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅amount)O(n \cdot \text{amount})</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord text"><span class="mord">amount</span></span><span
+                class="mclose">)</span></span></span></span></span>.</p>
+        <ul>
+            <li>We take <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅amount)O(n \cdot \text{amount})</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord text"><span class="mord">amount</span></span><span class="mclose">)</span></span></span></span></span>
+                to intialize the <code>dp</code> array.
+            </li>
+            <li>We run two nested to fill the entire <code>dp</code> table. Each state consumes <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord">1</span><span class="mclose">)</span></span></span></span></span> time to compute. As a
+                result, it takes <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅amount)O(n \cdot \text{amount})</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mspace"
+                                                                                          style="margin-right: 0.2222em;"></span><span
+                        class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord text"><span class="mord">amount</span></span><span
+                        class="mclose">)</span></span></span></span></span> to fill the <code>dp</code> table using two
+                nested loops.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅amount)O(n \cdot \text{amount})</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord text"><span class="mord">amount</span></span><span
+                class="mclose">)</span></span></span></span></span>.</p>
+        <ul>
+            <li>The dp array takes <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅amount)O(n \cdot \text{amount})</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord text"><span class="mord">amount</span></span><span class="mclose">)</span></span></span></span></span>
+                space.
+            </li>
+        </ul>
+    </li>
+</ul>
+<hr>
+<h3 id="approach-3-dynamic-programming-with-space-optimization">Approach 3: Dynamic Programming with Space
+    Optimization</h3>
+<h4 id="intuition-2">Intuition</h4>
+<p>The state transition, as we discussed in previous approaches, is:</p>
+<blockquote>
+    <p>dp[i][j] = dp[i + 1][j] + dp[i][j - coins[i]</p>
+</blockquote>
+<p>Looking closely at this transition, we can see that to fill <code>dp[i][j]</code> for a specific <code>i</code> and
+    all values of <code>j</code> we only need the values from <code>dp[i]</code> and <code>dp[i + 1]</code>. Values from
+    older rows like <code>i + 2</code>, <code>i + 3</code>, etc. are no longer relevant.</p>
+<p>We can optimize the previous solution by using just one 1D array <code>dp</code> of size <code>amount + 1</code>.</p>
+<p>We would have an outer loop that selects the current coin under consideration from <code>i = n - 1</code> to
+    <code>0</code> similar to the previous approach. After the <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">ithi^{th}</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.8491em;"></span><span class="mord"><span
+            class="mord mathnormal">i</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span
+            class="vlist" style="height: 0.8491em;"><span style="top: -3.063em; margin-right: 0.05em;"><span
+            class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span
+            class="mord mtight"><span class="mord mathnormal mtight">t</span><span
+            class="mord mathnormal mtight">h</span></span></span></span></span></span></span></span></span></span></span></span></span>
+    iteration of the outer loop, <code>dp[j]</code> would represent <code>dp[i][j]</code> from the previous approach.
+</p>
+<p>We initialize <code>dp[0] = 1</code> since we can always make up the amount <code>0</code> by not selecting any
+    coins. It acts as a base case. This is similar to setting <code>dp[i][0] = 1</code> in the previous approach.</p>
+<p>Now, consider that we have all of the values of row <code>i + 1</code> in <code>dp</code> and that we now need to
+    compute the values of row <code>i</code>. We can begin an inner loop that iterates from <code>j = coins[i]</code> to
+    <code>amount</code>. The reason we don't need to consider values from <code>j = 1</code> to <code>coins[i] -
+        1</code> is because we cannot select the <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">ithi^{th}</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.8491em;"></span><span class="mord"><span
+            class="mord mathnormal">i</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span
+            class="vlist" style="height: 0.8491em;"><span style="top: -3.063em; margin-right: 0.05em;"><span
+            class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span
+            class="mord mtight"><span class="mord mathnormal mtight">t</span><span
+            class="mord mathnormal mtight">h</span></span></span></span></span></span></span></span></span></span></span></span></span>
+    coin for those values of <code>j</code>.</p>
+<p>In such cases, as we saw in the previous approach, <code>dp[i][j] = dp[i + 1][j]</code>. As a result, we don't need
+    to modify these values that were computed in the previous iteration.</p>
+<p>We start an inner loop from <code>j = coins[i]</code> to <code>amount</code>. Now, we have two cases.</p>
+<p>We ignore the current coin. The number of ways to make up the <code>j</code> amount ignoring the current coin is
+    already present in <code>dp[j]</code>. It is computed in the previous iteration (for row <code>i + 1</code>) and is
+    identical to the state <code>dp[i + 1][j]</code> of the previous approach.</p>
+<p>When we choose the current coin, we add <code>dp[j - coins[i]]</code>. This is equivalent to adding <code>dp[i][j -
+    coins[i]]</code> from the previous approach.</p>
+<p>So, we perform <code>dp[j] += dp[j - coins[i]]</code> to add both the cases (analogous to <code>dp[i + 1][j]</code>
+    and <code>dp[i][j - coins[i]]</code>).</p>
+<p>After all iterations, <code>dp[amount]</code> stores the answer.</p>
+<blockquote>
+    <p>It is important to note that changing the order of the nested loops would produce an incorrect answer. We
+        <strong>must</strong> iterate over the coins in the outer loop, not the amount.</p>
+</blockquote>
+<p>If we change the ordering of the two loops, the outer loop would run from <code>i = 1</code> to <code>amount</code>
+    and the inner loop would execute from <code>j = n - 1</code> to <code>0</code>. We would perform the same operation
+    <code>dp[i] += dp[i - coins[j]]</code> inside the loops. After the <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">ithi^{th}</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.8491em;"></span><span class="mord"><span
+            class="mord mathnormal">i</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span
+            class="vlist" style="height: 0.8491em;"><span style="top: -3.063em; margin-right: 0.05em;"><span
+            class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span
+            class="mord mtight"><span class="mord mathnormal mtight">t</span><span
+            class="mord mathnormal mtight">h</span></span></span></span></span></span></span></span></span></span></span></span></span>
+    iteration, <code>dp[i]</code> would store all the ways to make up the amount <code>i</code> using all the coins.</p>
+<p>Let's take an example where <code>coins = [1, 2]</code> and <code>amount = 3</code>. The correct answer for this case
+    is <code>2</code> (<code>1 + 1 + 1</code> and <code>1 + 2</code>).</p>
+<p>However, if we look at the last iteration of the outer loop when <code>i = 3</code>, we will execute <code>dp[3] =
+    dp[3] + dp[3 - 1]</code> when the first coin is selected using the inner loop. <code>dp[2]</code> would be equal to
+    <code>2</code> as there are two ways to make up amount <code>2</code> (<code>1 + 1</code> and <code>2</code>). This
+    way we selected two cases <code>1 + 1 + 1</code> and <code>1 + 2</code>.</p>
+<p>We also execute <code>dp[3] = dp[3] + dp[3 - 2]</code> when the second coin is selected. <code>dp[1]</code> would be
+    equal to <code>1</code> as there is just one way to make up amount <code>1</code>. This way we counted the <code>1 +
+        2</code> case. We counted the <code>1 + 2</code> case twice. Here's a visual representation showing all the
+    <code>dp</code> states for this approach:</p>
+<p><img src="518-2.png" alt="img"></p>
+<p>Overall, the returned answer would be <code>3</code> which is incorrect. Switching the ordering of the loops returns
+    all the permutations (<code>1 + 1 + 1</code>, <code>1 + 2</code>, <code>2 + 1</code>) as the answer instead of the
+    combinations where <code>1 + 2</code> and <code>2 + 1</code> are not considered as separate cases.</p>
+<h4 id="algorithm-2">Algorithm</h4>
+<ol>
+    <li>Create an integer variable <code>n</code> and initialize it to the size of the <code>coins</code> array.</li>
+    <li>Create an array <code>dp</code> of size <code>amount + 1</code>. Initialize <code>dp[0] = 1</code> (analogous to
+        <code>dp[i][0] = 1</code>).
+    </li>
+    <li>Fill <code>dp</code> using two loops. The outer loop runs from <code>i = n - 1</code> to <code>0</code>. It
+        controls the index of the current coin under consideration. The inner loop runs from <code>j = coins[i]</code>
+        to <code>amount</code> and controls the amount to be made up. In the nested loops, we perform the following:
+        <ul>
+            <li><code>dp[j] += dp[j - coins[i]]</code>.</li>
+        </ul>
+    </li>
+    <li>Return <code>dp[amount]</code>.</li>
+</ol>
+<h4 id="implementation-2">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int change(int amount, int[] coins) {
+        int n = coins.length;
+        int[] dp = new int[amount + 1];
+        dp[0] = 1;
+
+        for (int i = n - 1; i >= 0; i--) {
+            for (int j = coins[i]; j <= amount; j++) {
+                dp[j] += dp[j - coins[i]];
+            }
+        }
+
+        return dp[amount];
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int change(int amount, vector<int>& coins) {
+        int n = coins.size();
+        vector<int> dp(amount + 1);
+        dp[0] = 1;
+
+        for (int i = n - 1; i >= 0; i--) {
+            for (int j = coins[i]; j <= amount; j++) {
+                dp[j] += dp[j - coins[i]];
+            }
+        }
+
+        return dp[amount];
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def change(self, amount: int, coins: List[int]) -> int:
+        n = len(coins)
+        dp = [0] * (amount + 1)
+        dp[0] = 1
+
+        for i in range(n - 1, -1, -1):
+            for j in range(coins[i], amount + 1):
+                dp[j] += dp[j - coins[i]]
+
+        return dp[amount]
+    </code>
+</pre>
+<h4 id="complexity-analysis-2">Complexity Analysis</h4>
+<p>Here <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                     aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    is the size of <code>coins</code>.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅amount)O(n \cdot \text{amount})</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord text"><span class="mord">amount</span></span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>Initializing the <code>dp</code> array takes <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(amount)O(\text{amount})</span><span class="katex-html"
+                                                                               aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord text"><span class="mord">amount</span></span><span class="mclose">)</span></span></span></span></span>
+                time.
+            </li>
+            <li>To get the answer, we use two nested loops that take <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(n⋅amount)O(n \cdot \text{amount})</span><span class="katex-html"
+                                                                                         aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord text"><span class="mord">amount</span></span><span class="mclose">)</span></span></span></span></span>
+                time.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(amount)O(\text{amount})</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord text"><span class="mord">amount</span></span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>The <code>dp</code> array take <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(amount)O(\text{amount})</span><span class="katex-html"
+                                                                               aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord text"><span class="mord">amount</span></span><span class="mclose">)</span></span></span></span></span>
+                space.
+            </li>
+        </ul>
+    </li>
+</ul>
+</body>
+</html>
