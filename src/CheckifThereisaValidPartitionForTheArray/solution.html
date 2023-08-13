@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Check if There is a Valid Partition For The Array - Solution</title>
+</head>
+<body>
+<h2 id="solution">Check if There is a Valid Partition For The Array - Solution</h2>
+<hr>
+<h3 id="overview">Overview</h3>
+<p>As shown in the diagram below, for the given <code>nums</code>, we have two different partitioning methods that
+    satisfy one of the three conditions required by the problem.</p>
+<p><img src="1.png" alt="img"></p>
+<p>This raises the question; when there are multiple options, which one should we choose? Each decision will affect
+    future decisions. When we have a problem with this characteristic, we should consider using dynamic programming.</p>
+<hr>
+<h3 id="approach-1-top-down-dynamic-programming">Approach 1: Top-Down Dynamic Programming</h3>
+<h4 id="intuition">Intuition</h4>
+<blockquote>
+    <p>If you are not familiar with dynamic programming, please refer to our explore cards <a
+            href="https://leetcode.com/explore/featured/card/dynamic-programming/" target="_blank">Dynamic Programming
+        Explore Card</a>. We will focus on the usage in this article and not the underlying principles or implementation
+        details.</p>
+</blockquote>
+<p>The recursive dynamic programming approach can be used to solve this problem. Here, the idea is to create a recursive
+    function <code>prefixIsValid(i)</code> which checks whether a valid partition exists for the prefix subarray <code>nums[0
+        ~ i]</code>. Therefore, for <code>nums</code> of length <code>n</code>, <code>prefixIsValid(n - 1)</code>
+    represents whether there is a valid partition for the whole array.</p>
+<p><img src="r1.png" alt="img"></p>
+<p>To determine <code>prefixIsValid(i)</code> at every index <code>i</code>, we have three possibilities plus one base
+    case to check:</p>
+<ul>
+    <li>base case: If <code>i &lt; 0</code>, then <code>prefixIsValid(i)</code> is true, since it denotes an empty
+        subarray that always has a valid partition.
+    </li>
+</ul>
+<p><img src="r1p.png" alt="img"></p>
+<ol>
+    <li>The last two elements <code>nums[i]</code> and <code>nums[i - 1]</code> form a subarray of two equal elements.
+        In this case, if <code>prefixIsValid(i - 2)</code> is true, it indicates that <code>prefixIsValid(i)</code> is
+        also true. Since the valid partition for <code>nums[0 ~ i - 2]</code> can be appended by the subarray <code>[nums[i
+            - 1], nums[i]]</code> to form a valid partition for <code>nums[0 ~ i]</code>.
+    </li>
+</ol>
+<p><img src="r4.png" alt="img"></p>
+<ol start="2">
+    <li>The last three elements <code>nums[i]</code>, <code>nums[i - 1]</code>, and <code>nums[i - 2]</code> form a
+        subarray of three equal elements. In this case, if <code>prefixIsValid(i - 3)</code> is true, it indicates that
+        <code>prefixIsValid(i)</code> is also true. Since the valid partition for <code>nums[0 ~ i - 3]</code> can be
+        appended by the subarray <code>[nums[i - 2], nums[i - 1], nums[i]]</code> to form a valid partition for <code>nums[0
+            ~ i]</code>.
+    </li>
+</ol>
+<p><img src="r3.png" alt="img"></p>
+<ol start="3">
+    <li>The last three elements <code>nums[i]</code>, <code>nums[i - 1]</code>, and <code>nums[i - 2]</code> form a
+        subarray of three consecutive increasing elements. In this case, if <code>prefixIsValid(i - 3)</code> is true,
+        it indicates that <code>prefixIsValid(i)</code> is also true. Since the valid partition for <code>nums[0 ~ i -
+            3]</code> can be appended by the subarray <code>[nums[i - 2], nums[i - 1], nums[i]]</code> to form a valid
+        partition for <code>nums[0 ~ i]</code>.
+    </li>
+</ol>
+<p><img src="r2.png" alt="img"></p>
+<p>In summary, if any of the following conditions is true, we can conclude that <code>prefixIsValid(i)</code> is true:
+</p>
+<p><img src="r5.png" alt="img"></p>
+<blockquote>
+    <p>To optimize the time complexity, we can make use of memoization (caching previously calculated results) to avoid
+        recomputing the same values multiple times. For instance, if we already know that a valid partition exists
+        starting from the index <code>i</code>, we can save it in a hash map <code>memo</code> as <code>memo[i] =
+            true</code>, therefore, we don't need to check it again the next time we encounter the same index.</p>
+</blockquote>
+<br>
+<h4 id="algorithm">Algorithm</h4>
+<ol>
+    <li>
+        <p>Initialize a hash map <code>memo</code>, and set <code>memo[-1] = true</code> since an empty array always has
+            a valid partition.</p>
+    </li>
+    <li>
+        <p>Define a function <code>prefixIsValid(i)</code> as whether the prefix subarray <code>nums[0 ~ i]</code> has a
+            valid partition.</p>
+        <ul>
+            <li>If <code>i</code> is stored in <code>memo</code>, return <code>memo[i]</code>.</li>
+            <li>Otherwise, set <code>ans = false</code>.</li>
+            <li>If <code>i &gt; 0</code> and <code>nums[i] = nums[i - 1]</code>, we update <code>ans</code> as <code>ans
+                |= prefixIsValid(i - 2)</code>.
+            </li>
+            <li>If <code>i &gt; 1</code> and <code>nums[i] = nums[i - 1] = nums[i - 2]</code>, update <code>ans |=
+                prefixIsValid(i - 3)</code>.
+            </li>
+            <li>If <code>i &gt; 1</code> and <code>nums[i] = nums[i - 1] + 1 = nums[i - 2] + 2</code>, update <code>ans
+                |= prefixIsValid(i - 3)</code>.
+            </li>
+            <li>Set <code>memo[i] = ans</code> and return <code>ans</code>.</li>
+        </ul>
+    </li>
+    <li>
+        <p>Return <code>prefixIsValid(n - 1)</code>.</p>
+    </li>
+</ol>
+<h4 id="implementation">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    Map<Integer, Boolean> memo = new HashMap<>();
+
+    // Determine if the prefix array nums[0 ~ i] has a valid partition
+    boolean prefixIsValid(int[] nums, int i) {
+        if (memo.containsKey(i)) {
+            return memo.get(i);
+        }
+        boolean ans = false;
+
+        // Check 3 possibilities
+        if (i > 0 && nums[i] == nums[i - 1]) {
+            ans |= prefixIsValid(nums, i - 2);
+        }
+        if (i > 1 && nums[i] == nums[i - 1] && nums[i - 1] == nums[i - 2]) {
+            ans |= prefixIsValid(nums, i - 3);
+        }
+        if (i > 1 && nums[i] == nums[i - 1] + 1 && nums[i - 1] == nums[i - 2] + 1) {
+            ans |= prefixIsValid(nums, i - 3);
+        }
+        memo.put(i, ans);
+        return ans;
+    }
+
+    public boolean validPartition(int[] nums) {
+        int n = nums.length;
+        memo.put(-1, true);
+
+        return prefixIsValid(nums, n - 1);
+    }
+}
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def validPartition(self, nums: List[int]) -> bool:
+        n = len(nums)
+        memo = {-1: True}
+
+        # Determine if the prefix array nums[0 ~ i] has a valid partition
+        def prefixIsValid(i):
+            if i in memo:
+                return memo[i]
+            ans = False
+
+            # Check 3 possibilities
+            if i > 0 and nums[i] == nums[i - 1]:
+                ans |= prefixIsValid(i - 2)
+            if i > 1 and nums[i] == nums[i - 1] == nums[i - 2]:
+                ans |= prefixIsValid(i - 3)
+            if i > 1 and nums[i] == nums[i - 1] + 1 == nums[i - 2] + 2:
+                ans |= prefixIsValid(i - 3)
+            memo[i] = ans
+            return ans
+
+        return prefixIsValid(n - 1)
+    </code>
+</pre>
+<h4 id="complexity-analysis">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    be the size of <code>nums</code></p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <ul>
+            <li><code>prefixIsValid(i)</code> recursively calls itself to determine the existence of a valid partition
+                for the current subarray <code>nums[0 ~ i]</code>. Due to memoization, we only calculate each value of
+                <code>i</code> once. There are <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+                states and calculating each one involves making no more than 3 calls, which is <span
+                        class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord">1</span><span
+                        class="mclose">)</span></span></span></span></span> per call.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <ul>
+            <li>The recursive solution uses the call stack to keep track of the current function being processed. The
+                maximum depth of the call stack equals <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">n/2n/2</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal">n</span><span class="mord">/2</span></span></span></span></span> as the
+                index is decremented by at least <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">22</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 0.6444em;"></span><span
+                        class="mord">2</span></span></span></span></span> at each call, resulting in a space complexity
+                of <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.
+            </li>
+            <li>The hash map <code>memo</code> stores at most <code>n</code> pairs, which also takes <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> space.
+            </li>
+        </ul>
+    </li>
+</ul>
+<br>
+<hr>
+<h3 id="approach-2-bottom-up-dynamic-programming">Approach 2: Bottom-Up Dynamic Programming</h3>
+<h4 id="intuition-1">Intuition</h4>
+<p>The iterative dynamic programming (DP) approach involves tabulation, where we create a DP table to keep track of the
+    validity of partitions for every index in the array. Instead of starting from the end and recursively breaking the
+    problem into subproblems toward the beginning, this approach starts from the beginning of the array and moves toward
+    the end.</p>
+<p>We will initialize an array <code>dp</code> of size <code>n + 1</code> with <code>false</code> (indicating no valid
+    partition is found yet). Here, <code>dp[i]</code> represents if the prefix of length <code>i</code> can form a valid
+    partition. Note that <code>dp[i] = prefixIsValid(i - 1)</code> from the previous approach. We set <code>dp[0] =
+        true</code> since it represents a valid partition for an empty array.</p>
+<p>Considering this base case <code>dp[0] = true</code>, for the same prefix array, <code>dp</code> and
+    <code>nums</code> have different indices, specifically <code>dp_index = i + 1</code>. Hence,
+    <code>dp[dp_index]</code> denotes whether there is a valid partition for the prefix array <code>nums[0 ~ i]</code>.
+    We will iterate over <code>nums</code> and update <code>dp</code> as we go along.</p>
+<p><img src="2.png" alt="img"></p>
+<p>We check the same three possibilities at each index <code>i</code> as in the recursive approach. If any of the
+    conditions is true, it represents the existence of a valid partition, and we update <code>dp[dp_index]</code> as
+    <code>true</code>.</p>
+<p><img src="6.png" alt="img"></p>
+<p>In the end, we check the last index of <code>dp</code>. If <code>dp[n]</code> is true, it means we can form a valid
+    partition of the whole array, we return <code>true</code>. Otherwise, we return <code>false</code>.</p>
+<br>
+<h4 id="algorithm-1">Algorithm</h4>
+<ol>
+    <li>
+        <p>Create an array <code>dp</code> of length <code>n + 1</code>, initialized with all <code>false</code> values.
+            Set <code>dp[0] = true</code>.</p>
+    </li>
+    <li>
+        <p>Iterate over <code>nums</code>, for each index <code>i</code>:</p>
+        <ul>
+            <li>Get the corresponding index to <code>dp</code> as <code>dp_index = i + 1</code>.</li>
+            <li>If <code>i &gt; 0</code> and <code>nums[i] = nums[i - 1]</code>, we update <code>dp[dp_index]</code> as
+                <code>dp[dp_index] |= dp[dp_index - 2]</code>.
+            </li>
+            <li>If <code>i &gt; 1</code> and <code>nums[i] = nums[i - 1] = nums[i - 2]</code>, update <code>dp[dp_index]
+                |= dp[dp_index - 3]</code>.
+            </li>
+            <li>If <code>i &gt; 1</code> and <code>nums[i] = nums[i - 1] + 1 = nums[i - 2] + 2</code>, update <code>dp[dp_index]
+                |= dp[dp_index - 3]</code>.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Return <code>dp[n]</code> once the iteration is complete.</p>
+    </li>
+</ol>
+<h4 id="implementation-1">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public boolean validPartition(int[] nums) {
+        int n = nums.length;
+        boolean[] dp = new boolean[n + 1];
+        dp[0] = true;
+
+        // Determine if the prefix array nums[0 ~ i] has a valid partition
+        for (int i = 0; i < n; i++) {
+            int dpIndex = i + 1;
+
+            // Check 3 possibilities
+            if (i > 0 && nums[i] == nums[i - 1]) {
+                dp[dpIndex] |= dp[dpIndex - 2];
+            }
+            if (i > 1 && nums[i] == nums[i - 1] && nums[i] == nums[i - 2]) {
+                dp[dpIndex] |= dp[dpIndex - 3];
+            }
+            if (i > 1 && nums[i] == nums[i - 1] + 1 && nums[i] == nums[i - 2] + 2) {
+                dp[dpIndex] |= dp[dpIndex - 3];
+            }
+        }
+
+        return dp[n];
+    }
+}
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def validPartition(self, nums: List[int]) -> bool:
+        n = len(nums)
+        dp = [True] + [False] * n
+
+        # Determine if the prefix array nums[0 ~ i] has a valid partition
+        for i in range(n):
+            dp_index = i + 1
+
+            # Check 3 possibilities
+            if i > 0 and nums[i] == nums[i - 1]:
+                dp[dp_index] |= dp[dp_index - 2]
+            if i > 1 and nums[i] == nums[i - 1] == nums[i - 2]:
+                dp[dp_index] |= dp[dp_index - 3]
+            if i > 1 and nums[i] == nums[i - 1] + 1 == nums[i - 2] + 2:
+                dp[dp_index] |= dp[dp_index - 3]
+
+        return dp[n]
+    </code>
+</pre>
+<h4 id="complexity-analysis-1">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    be the size of <code>nums</code>.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <ul>
+            <li>
+                <p>We iterate over <code>nums</code> and fill <code>dp</code> which consists of <span
+                        class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+                    iterations.</p>
+            </li>
+            <li>
+                <p>At each index <code>i</code>, we check 3 possibilities, which can be done in costant time.</p>
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <ul>
+            <li><code>dp</code> has a length of <code>n + 1</code>.</li>
+        </ul>
+    </li>
+</ul>
+<br>
+<hr>
+<h3 id="approach-3-space-optimized-bottom-up-dynamic-programming">Approach 3: Space Optimized Bottom-Up Dynamic
+    Programming</h3>
+<h4 id="intuition-2">Intuition</h4>
+<p>In the previous approach, we build a table <code>dp</code> of size <code>n + 1</code>. Here we try to optimize the
+    space requirement of this iterative approach. Note that we don't need to keep all elements in the original
+    <code>dp</code>. Whether the current subarray has a valid partition only depends on the last three elements in
+    <code>dp</code>, hence, it is safe to keep track of only the last three elements in <code>dp</code>.</p>
+<p><img src="better.png" alt="img"></p>
+<p>How do we continuously update the stored values using an array of length 3? We use a method called the "rolling
+    index", as shown in the picture below. Let's assume that <code>long_dp</code> is the long table we used in the
+    previous approach, and <code>dp</code> is the short array of length <code>3</code> for this approach.</p>
+<ul>
+    <li>
+        <p>The first three indices can be directly saved in <code>dp</code>.</p>
+    </li>
+    <li>
+        <p>Upon reaching <code>dp_index = 3</code>, we obtain the value of <code>long_dp[dp_index]</code>. Recall that
+            we only need the most recent three indices. Therefore, we can directly use <code>dp[0]</code> to store
+            <code>long_dp[3]</code>. Although the original value <code>dp[0] = long_dp[0]</code> is overwritten, it does
+            not affect the calculation because we no longer need that value in the following iterations.</p>
+    </li>
+    <li>
+        <p>Upon reaching <code>dp_index = 4</code>, similarly, we use <code>dp[1]</code> to store
+            <code>long_dp[4]</code>.</p>
+    </li>
+    <li>
+        <p>Upon reaching <code>dp_index = 5</code>, we use <code>dp[2]</code> to store <code>long_dp[5]</code>.</p>
+    </li>
+</ul>
+<p><img src="better2.png" alt="img"></p>
+<p>We can use the modulo operation on <code>dp_index</code> with <code>3</code> to map each element <code>long_dp[dp_index]</code>
+    to <code>dp[dp_index % 3]</code>.</p>
+<p>In the end, we check the last element <code>long_dp[n]</code>, which is <code>dp[n % 3]</code> in our case. If <code>dp[n
+    % 3]</code> is true, it means we can form a valid partition of the whole array, we return <code>true</code>.
+    Otherwise, we return <code>false</code>.</p>
+<br>
+<h4 id="algorithm-2">Algorithm</h4>
+<ol>
+    <li>
+        <p>Create an array <code>dp</code> of length <code>3</code>, initialized with all <code>false</code> values. Set
+            <code>dp[0] = true</code>.</p>
+    </li>
+    <li>
+        <p>Iterate over <code>nums</code>, for each index <code>i</code>:</p>
+        <ul>
+            <li>Get the corresponding index to <code>dp</code> as <code>dp_index = i + 1</code>.</li>
+            <li>If <code>i &gt; 0</code> and <code>nums[i] = nums[i - 1]</code>, we update <code>dp[dp_index % 3] |=
+                dp[(dp_index - 2) % 3]</code>.
+            </li>
+            <li>If <code>i &gt; 1</code> and <code>nums[i] = nums[i - 1] = nums[i - 2]</code>, update <code>dp[dp_index
+                % 3] |= dp[(dp_index - 3) % 3]</code>.
+            </li>
+            <li>If <code>i &gt; 1</code> and <code>nums[i] = nums[i - 1] + 1 = nums[i - 2] + 2</code>, update <code>dp[dp_index
+                % 3] |= dp[(dp_index - 3) % 3]</code>.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Return <code>dp[n % 3]</code> once the iteration is complete.</p>
+    </li>
+</ol>
+<h4 id="implementation-2">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public boolean validPartition(int[] nums) {
+        int n = nums.length;
+        boolean[] dp = new boolean[3];
+        dp[0] = true;
+
+        // Determine if prefix array nums[0 ~ i] has a valid partition
+        for (int i = 0; i < n; i++) {
+            int dpIndex = i + 1;
+            boolean ans = false;
+
+            // Check 3 possibilities
+            if (i > 0 && nums[i] == nums[i - 1]) {
+                ans |= dp[(dpIndex - 2) % 3];
+            }
+            if (i > 1 && nums[i] == nums[i - 1] && nums[i] == nums[i - 2]) {
+                ans |= dp[(dpIndex - 3) % 3];
+            }
+            if (i > 1 && nums[i] == nums[i - 1] + 1 && nums[i] == nums[i - 2] + 2) {
+                ans |= dp[(dpIndex - 3) % 3];
+            }
+
+            dp[dpIndex % 3] = ans;
+        }
+
+        return dp[n % 3];
+    }
+}
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def validPartition(self, nums: List[int]) -> bool:
+        n = len(nums)
+
+        # Only record the most recent 3 indices
+        dp = [True] + [False] * 2
+
+        # Determine if the prefix array nums[0 ~ i] has a valid partition
+        for i in range(n):
+            dp_index = i + 1
+            ans = False
+            if i > 0 and nums[i] == nums[i - 1]:
+                ans |= dp[(dp_index - 2) % 3]
+            if i > 1 and nums[i] == nums[i - 1] == nums[i - 2]:
+                ans |= dp[(dp_index - 3) % 3]
+            if i > 1 and nums[i] == nums[i - 1] + 1 == nums[i - 2] + 2:
+                ans |= dp[(dp_index - 3) % 3]
+            dp[dp_index % 3] = ans
+
+        return dp[n % 3]
+    </code>
+</pre>
+<h4 id="complexity-analysis-2">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    be the size of <code>nums</code>.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <ul>
+            <li>
+                <p>We iterate over <code>nums</code> and fill <code>dp</code>, requiring a total of <span
+                        class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+                    iterations.</p>
+            </li>
+            <li>
+                <p>At each index <code>i</code>, we check 3 possibilities, which takes <span
+                        class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord">1</span><span
+                        class="mclose">)</span></span></span></span></span> time.</p>
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord">1</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li><code>dp</code> has a length of <code>3</code> and only takes constant space.</li>
+        </ul>
+    </li>
+</ul>
+<br>
+</body>
+</html>
