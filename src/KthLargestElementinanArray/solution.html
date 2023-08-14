@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Kth Largest Element in an Array - Solution</title>
+</head>
+<body>
+<h2 id="solution">Kth Largest Element in an Array - Solution</h2>
+<hr>
+<h4 id="approach-1-sort">Approach 1: Sort</h4>
+<p><strong>Intuition</strong></p>
+<p>Sort the array in descending order and then return the <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">kthk^{th}</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+        class="strut" style="height: 0.8491em;"></span><span class="mord"><span class="mord mathnormal"
+                                                                                style="margin-right: 0.03148em;">k</span><span
+        class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.8491em;"><span
+        style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+        class="mord mathnormal mtight">t</span><span class="mord mathnormal mtight">h</span></span></span></span></span></span></span></span></span></span></span></span></span>
+    element. Note that this is the "trivial" approach and if asked this question in an interview, you would be expected
+    to come up with a better solution than this.</p>
+<p><strong>Implementation</strong></p>
+<blockquote>
+    <p>Note: <code>k</code> is 1-indexed, not 0-indexed. As such, we need to return the element at index <code>k -
+        1</code> after sorting, not index <code>k</code>.</p>
+</blockquote>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int findKthLargest(int[] nums, int k) {
+        Arrays.sort(nums);
+        // Can't sort int[] in descending order in Java;
+        // Sort ascending and then return the kth element from the end
+        return nums[nums.length - k];
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int findKthLargest(vector<int>& nums, int k) {
+        sort(nums.begin(), nums.end(), greater<int>());
+        return nums[k - 1];
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def findKthLargest(self, nums, k):
+        nums.sort(reverse=True)
+        return nums[k - 1]
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<p>Given <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    as the length of <code>nums</code>,</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅log⁡n)O(n \cdot \log n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                      style="margin-right: 0.1667em;"></span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></p>
+        <p>Sorting <code>nums</code> requires <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n⋅log⁡n)O(n \cdot \log n)</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                      style="margin-right: 0.1667em;"></span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> time.</p>
+    </li>
+    <li>
+        <p>Space Complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡n)O(\log n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                          style="margin-right: 0.1667em;"></span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> or <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></p>
+        <p>The space complexity of the sorting algorithm depends on the implementation of each programming language:</p>
+        <ul>
+            <li>In Java, Arrays.sort() for primitives is implemented using a variant of the Quick Sort algorithm, which
+                has a space complexity of <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡n)O(\log n)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span
+                        class="mspace" style="margin-right: 0.1667em;"></span><span
+                        class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></li>
+            <li>In C++, the sort() function provided by STL uses a hybrid of Quick Sort, Heap Sort and Insertion Sort,
+                with a worst case space complexity of <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(log⁡n)O(\log n)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span
+                        class="mspace" style="margin-right: 0.1667em;"></span><span
+                        class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></li>
+            <li>In Python, the sort() function is implemented using the Timsort algorithm, which has a worst-case space
+                complexity of <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+            </li>
+        </ul>
+    </li>
+</ul>
+<br>
+<hr>
+<h4 id="approach-2-min-heap">Approach 2: Min-Heap</h4>
+<p><strong>Intuition</strong></p>
+<p>A heap is a very powerful data structure that allows us to efficiently find the maximum or minimum value in a dynamic
+    dataset.</p>
+<p>If you are not familiar with heaps, we recommend checking out the <a
+        href="https://leetcode.com/explore/learn/card/heap/" target="_blank">Heap Explore Card</a>.</p>
+<p>The problem is asking for the <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">kthk^{th}</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+        class="strut" style="height: 0.8491em;"></span><span class="mord"><span class="mord mathnormal"
+                                                                                style="margin-right: 0.03148em;">k</span><span
+        class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.8491em;"><span
+        style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+        class="mord mathnormal mtight">t</span><span class="mord mathnormal mtight">h</span></span></span></span></span></span></span></span></span></span></span></span></span>
+    largest element. Let's push all the elements onto a min-heap, but pop from the heap when the size exceeds
+    <code>k</code>. When we pop, the smallest element is removed. By limiting the heap's size to <code>k</code>, after
+    handling all elements, the heap will contain exactly the <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">kk</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.6944em;"></span><span class="mord mathnormal"
+                                                                 style="margin-right: 0.03148em;">k</span></span></span></span></span>
+    largest elements from the array.</p>
+<p><img src="1.png" alt="" width="960"> <br></p>
+<p>It is impossible for one of the green elements to be popped because that would imply there are at least <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">kk</span><span class="katex-html"
+                                                                                               aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord mathnormal"
+                                                                                style="margin-right: 0.03148em;">k</span></span></span></span></span>
+    elements in the array greater than it. This is because we only pop when the heap's size exceeds <code>k</code>, and
+    popping removes the smallest element.</p>
+<p>After we handle all the elements, we can just check the top of the heap. Because the heap is holding the <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">kk</span><span class="katex-html"
+                                                                                               aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord mathnormal"
+                                                                                style="margin-right: 0.03148em;">k</span></span></span></span></span>
+    largest elements and the top of the heap is the smallest element, the top of the heap would be the <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">kthk^{th}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.8491em;"></span><span
+            class="mord"><span class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+            class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                              style="height: 0.8491em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+            class="mord mathnormal mtight">t</span><span
+            class="mord mathnormal mtight">h</span></span></span></span></span></span></span></span></span></span></span></span></span>
+    largest element, which is what the problem is asking for.</p>
+<p><strong>Algorithm</strong></p>
+<ol>
+    <li>Initialize a min-heap <code>heap</code>.</li>
+    <li>Iterate over the input. For each <code>num</code>:
+        <ul>
+            <li>Push <code>num</code> onto the heap.</li>
+            <li>If the size of <code>heap</code> exceeds <code>k</code>, pop from <code>heap</code>.</li>
+        </ul>
+    </li>
+    <li>Return the top of the <code>heap</code>.</li>
+</ol>
+<p><strong>Implementation</strong></p>
+<blockquote>
+    <p>Note: C++ <a href="https://en.cppreference.com/w/cpp/container/priority_queue" target="_blank">std::priority_queue</a>
+        implements a max-heap. To achieve min-heap functionality, we will multiply the values by <code>-1</code> before
+        pushing them onto the heap.</p>
+</blockquote>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int findKthLargest(int[] nums, int k) {
+        PriorityQueue<Integer> heap = new PriorityQueue<>();
+        for (int num: nums) {
+            heap.add(num);
+            if (heap.size() > k) {
+                heap.remove();
+            }
+        }
+
+        return heap.peek();
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int findKthLargest(vector<int>& nums, int k) {
+        priority_queue<int> heap;
+        for (int num: nums) {
+            heap.push(-num);
+            if (heap.size() > k) {
+                heap.pop();
+            }
+        }
+
+        return -heap.top();
+    }
+};
+
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def findKthLargest(self, nums, k):
+        heap = []
+        for num in nums:
+            heapq.heappush(heap, num)
+            if len(heap) > k:
+                heapq.heappop(heap)
+
+        return heap[0]
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<p>Given <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    as the length of <code>nums</code>,</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅log⁡k)O(n \cdot \log k)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                      style="margin-right: 0.1667em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <p>Operations on a heap cost logarithmic time relative to its size. Because our heap is limited to a size of
+            <code>k</code>, operations cost at most <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(log⁡k)O(\log k)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                              style="margin-right: 0.1667em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                    class="mclose">)</span></span></span></span></span>. We iterate over <code>nums</code>, performing
+            one or two heap operations at each iteration.</p>
+        <p>We iterate <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.4306em;"></span><span
+                class="mord mathnormal">n</span></span></span></span></span> times, performing up to <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">log⁡k\log k</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+                class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                          style="margin-right: 0.1667em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.03148em;">k</span></span></span></span></span> work at
+            each iteration, giving us a time complexity of <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(n⋅log⁡k)O(n \cdot \log k)</span><span class="katex-html"
+                                                                                 aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                              style="margin-right: 0.1667em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                    class="mclose">)</span></span></span></span></span>.</p>
+        <p>Because <span class="math math-inline"><span class="katex"><span class="katex-mathml">k≤nk \leq n</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.8304em; vertical-align: -0.136em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span class="mspace"
+                                                                                       style="margin-right: 0.2778em;"></span><span
+                class="mrel">≤</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>,
+            this is an improvement on the previous approach.</p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(k)O(k)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <p>The heap uses <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(k)O(k)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                class="mclose">)</span></span></span></span></span> space.</p>
+    </li>
+</ul>
+<br>
+<hr>
+<h4 id="approach-3-quickselect">Approach 3: Quickselect</h4>
+<p><strong>Intuition</strong></p>
+<blockquote>
+    <p>This is a more advanced/esoteric algorithm. Do not feel discouraged if you are unable to derive it yourself. It
+        is highly unlikely that you would be expected to come up with this solution in an interview without any help
+        from the interviewer.</p>
+</blockquote>
+<p><a href="https://en.wikipedia.org/wiki/Quickselect" target="_blank">Quickselect</a>, also known as <strong>Hoare's
+    selection algorithm</strong>, is an algorithm for finding the <span class="math math-inline"><span
+        class="katex"><span class="katex-mathml">kthk^{th}</span><span class="katex-html" aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.8491em;"></span><span class="mord"><span
+        class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span class="msupsub"><span
+        class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.8491em;"><span
+        style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+        class="mord mathnormal mtight">t</span><span class="mord mathnormal mtight">h</span></span></span></span></span></span></span></span></span></span></span></span></span>
+    smallest element in an unordered list. It is significant because it has an <strong>average</strong> runtime of <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.</p>
+<p>Quickselect uses the same idea as Quicksort. First, we choose a pivot index. The most common way to choose the pivot
+    is randomly. We partition <code>nums</code> into 3 sections: elements equal to the pivot, elements greater than the
+    pivot, and elements less than the pivot.</p>
+<p>Next, we count the elements in each section. Let's denote the sections as follows:</p>
+<ul>
+    <li><code>left</code> is the section with elements less than the pivot</li>
+    <li><code>mid</code> is the section with elements equal to the pivot</li>
+    <li><code>right</code> is the section with elements greater than the pivot</li>
+</ul>
+<p>Quickselect is normally used to find the <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">kthk^{th}</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+        class="strut" style="height: 0.8491em;"></span><span class="mord"><span class="mord mathnormal"
+                                                                                style="margin-right: 0.03148em;">k</span><span
+        class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.8491em;"><span
+        style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+        class="mord mathnormal mtight">t</span><span class="mord mathnormal mtight">h</span></span></span></span></span></span></span></span></span></span></span></span></span>
+    <strong>smallest</strong> element, but we want the <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">kthk^{th}</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.8491em;"></span><span class="mord"><span class="mord mathnormal"
+                                                                                    style="margin-right: 0.03148em;">k</span><span
+            class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                              style="height: 0.8491em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+            class="mord mathnormal mtight">t</span><span
+            class="mord mathnormal mtight">h</span></span></span></span></span></span></span></span></span></span></span></span></span>
+    <strong>largest</strong>. To account for this, we will swap what <code>left</code> and <code>right</code> represent
+    - <code>left</code> will be the section with elements greater than the pivot and <code>right</code> will be the
+    section with elements less than the pivot.</p>
+<p>If the number of elements in <code>left</code> is greater than or equal to <code>k</code>, the answer must be in
+    <code>left</code> - any other element would be less than the <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">kthk^{th}</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.8491em;"></span><span class="mord"><span
+            class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span class="msupsub"><span
+            class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.8491em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+            class="mord mathnormal mtight">t</span><span
+            class="mord mathnormal mtight">h</span></span></span></span></span></span></span></span></span></span></span></span></span>
+    largest element. We restart the process in <code>left</code>.</p>
+<p><img src="2.png" alt="" width="960"> <br></p>
+<p>If the number of elements in <code>left</code> and <code>mid</code> is less than <code>k</code>, the answer must be
+    in <code>right</code> - any element in <code>left</code> or <code>mid</code> would not be large enough to be the
+    <span class="math math-inline"><span class="katex"><span class="katex-mathml">kthk^{th}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.8491em;"></span><span
+            class="mord"><span class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+            class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                              style="height: 0.8491em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+            class="mord mathnormal mtight">t</span><span
+            class="mord mathnormal mtight">h</span></span></span></span></span></span></span></span></span></span></span></span></span>
+    largest element. We restart the process in <code>right</code>.</p>
+<p><img src="3.png" alt="" width="960"> <br></p>
+<p>There's one extra step if the answer is in <code>right</code>. When we go to search in <code>right</code>, we are
+    effectively "deleting" the elements in <code>left</code> and <code>mid</code> (since they will never be considered
+    again). Because the elements in <code>left</code> and <code>mid</code> are greater than the answer, deleting them
+    means we must shift <code>k</code>. Let's say we're looking for the <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">8th8^{th}</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.8491em;"></span><span class="mord"><span
+            class="mord">8</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                                         style="height: 0.8491em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+            class="mord mathnormal mtight">t</span><span
+            class="mord mathnormal mtight">h</span></span></span></span></span></span></span></span></span></span></span></span></span>
+    greatest element, but then we delete the 4 greatest elements. In the remaining data, we would be looking for the
+    <span class="math math-inline"><span class="katex"><span class="katex-mathml">4th4^{th}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.8491em;"></span><span
+            class="mord"><span class="mord">4</span><span class="msupsub"><span class="vlist-t"><span
+            class="vlist-r"><span class="vlist" style="height: 0.8491em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+            class="mord mathnormal mtight">t</span><span
+            class="mord mathnormal mtight">h</span></span></span></span></span></span></span></span></span></span></span></span></span>
+    greatest element, not the <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">8th8^{th}</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.8491em;"></span><span class="mord"><span class="mord">8</span><span
+            class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                              style="height: 0.8491em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+            class="mord mathnormal mtight">t</span><span
+            class="mord mathnormal mtight">h</span></span></span></span></span></span></span></span></span></span></span></span></span>.
+    Therefore, we need to subtract the length of <code>left</code> and <code>mid</code> from <code>k</code> when we
+    search in <code>right</code>.</p>
+<p>We don't need to modify <code>k</code> when we search in <code>left</code> because when we search in
+    <code>left</code>, we delete elements smaller than the answer, which doesn't affect <code>k</code>.</p>
+<p><img src="4.png" alt="" width="960"> <br></p>
+<p>If the answer is in neither <code>left</code> or <code>right</code>, it must be in <code>mid</code>. Since
+    <code>mid</code> only has elements equal to the pivot, the pivot must be the answer.</p>
+<p>The easiest way to implement this repetitive process is by using recursion.</p>
+<p><strong>Algorithm</strong></p>
+<blockquote>
+    <p>Note: the implementation we use here is not a standard Quickselect implementation. We will be using slightly more
+        space (still the same complexity), but in exchange, we will be writing significantly less code.</p>
+</blockquote>
+<ol>
+    <li>
+        <p>Define a <code>quickSelect</code> function that takes arguments <code>nums</code> and <code>k</code>. This
+            function will return the <span class="math math-inline"><span class="katex"><span class="katex-mathml">kthk^{th}</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.8491em;"></span><span
+                    class="mord"><span class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                    class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                      style="height: 0.8491em;"><span
+                    style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                       style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+                    class="mord mathnormal mtight">t</span><span
+                    class="mord mathnormal mtight">h</span></span></span></span></span></span></span></span></span></span></span></span></span>
+            greatest element in <code>nums</code> (the <code>nums</code> and <code>k</code> given to it as input, not
+            the original <code>nums</code> and <code>k</code>).</p>
+        <ul>
+            <li>Select a random element as the <code>pivot</code>.</li>
+            <li>Create <code>left</code>, <code>mid</code>, and <code>right</code> as described above.</li>
+            <li>If <code>k &lt;= left.length</code>, return <code>quickSelect(left, k)</code>.</li>
+            <li>If <code>left.length + mid.length &lt; k</code>, return <code>quickSelect(right, k - left.length -
+                mid.length)</code>.
+            </li>
+            <li>Otherwise, return <code>pivot</code>.</li>
+        </ul>
+    </li>
+    <li>
+        <p>Call <code>quickSelect</code> with the original <code>nums</code> and <code>k</code>, and return the answer.
+        </p>
+    </li>
+</ol>
+<p><strong>Implementation</strong></p>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int findKthLargest(int[] nums, int k) {
+        List<Integer> list = new ArrayList<>();
+        for (int num: nums) {
+            list.add(num);
+        }
+
+        return quickSelect(list, k);
+    }
+
+    public int quickSelect(List<Integer> nums, int k) {
+        int pivotIndex = new Random().nextInt(nums.size());
+        int pivot = nums.get(pivotIndex);
+
+        List<Integer> left = new ArrayList<>();
+        List<Integer> mid = new ArrayList<>();
+        List<Integer> right = new ArrayList<>();
+
+        for (int num: nums) {
+            if (num > pivot) {
+                left.add(num);
+            } else if (num < pivot) {
+                right.add(num);
+            } else {
+                mid.add(num);
+            }
+        }
+
+        if (k <= left.size()) {
+            return quickSelect(left, k);
+        }
+
+        if (left.size() + mid.size() < k) {
+            return quickSelect(right, k - left.size() - mid.size());
+        }
+
+        return pivot;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int findKthLargest(vector<int>& nums, int k) {
+        return quickSelect(nums, k);
+    }
+
+    int quickSelect(vector<int>& nums, int k) {
+        int pivot = nums[rand() % nums.size()];
+
+        vector<int> left;
+        vector<int> mid;
+        vector<int> right;
+
+        for (int num: nums) {
+            if (num > pivot) {
+                left.push_back(num);
+            } else if (num < pivot) {
+                right.push_back(num);
+            } else {
+                mid.push_back(num);
+            }
+        }
+
+        if (k <= left.size()) {
+            return quickSelect(left, k);
+        }
+
+        if (left.size() + mid.size() < k) {
+            return quickSelect(right, k - left.size() - mid.size());
+        }
+
+        return pivot;
+
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def findKthLargest(self, nums, k):
+        def quick_select(nums, k):
+            pivot = random.choice(nums)
+            left, mid, right = [], [], []
+
+            for num in nums:
+                if num > pivot:
+                    left.append(num)
+                elif num < pivot:
+                    right.append(num)
+                else:
+                    mid.append(num)
+
+            if k <= len(left):
+                return quick_select(left, k)
+
+            if len(left) + len(mid) < k:
+                return quick_select(right, k - len(left) - len(mid))
+
+            return pivot
+
+        return quick_select(nums, k)
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<p>Given <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    as the length of <code>nums</code>,</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+            on average, <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n2)O(n^2)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+                    class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                    style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                       style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span
+                    class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                    class="mclose">)</span></span></span></span></span> in the worst case</p>
+        <p>Each call we make to <code>quickSelect</code> will cost <span class="math math-inline"><span
+                class="katex"><span class="katex-mathml">O(n)O(n)</span><span class="katex-html"
+                                                                              aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> since we need
+            to iterate over <code>nums</code> to create <code>left</code>, <code>mid</code>, and <code>right</code>. The
+            number of times we call <code>quickSelect</code> is dependent on how the pivots are chosen. The worst pivots
+            to choose are the extreme (greatest/smallest) ones because they reduce our search space by the least amount.
+            Because we are randomly generating pivots, we may end up calling <code>quickSelect</code> <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> times,
+            leading to a time complexity of <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(n2)O(n^2)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+                    class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                    style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                       style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span
+                    class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                    class="mclose">)</span></span></span></span></span>.</p>
+        <p>However, the algorithm mathematically <a href="https://en.wikipedia.org/wiki/Almost_surely" target="_blank">almost
+            surely</a> has a linear runtime. For any decent size of <code>nums</code>, the probability of the pivots
+            being chosen in a way that we need to call <code>quickSelect</code> <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> times is
+            so low that we can ignore it.</p>
+        <p>On average, the size of <code>nums</code> will decrease by a factor of ~2 on each call. You may think: that
+            means we call <code>quickSelect</code> <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(log⁡n)O(\log n)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                              style="margin-right: 0.1667em;"></span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> times,
+            wouldn't that give us a time complexity of <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(n⋅log⁡n)O(n \cdot \log n)</span><span class="katex-html"
+                                                                                 aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                              style="margin-right: 0.1667em;"></span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>? Well,
+            each successive call to <code>quickSelect</code> would also be on a <code>nums</code> that is a factor of ~2
+            smaller. This recurrence can be analyzed using the <a
+                    href="https://en.wikipedia.org/wiki/Master_theorem_(analysis_of_algorithms)" target="_blank">master
+                theorem</a> with <code>a = 1, b = 2, k = 1</code>:</p>
+        <p><span class="math math-inline"><span class="katex"><span class="katex-mathml">T(n)=T(n2)+O(n)=O(n)\Large{T(n) = T(\frac{n}{2}) + O(n)} = O(n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1.5768em; vertical-align: -0.4968em;"></span><span
+                class="mord sizing reset-size6 size8"><span class="mord mathnormal"
+                                                            style="margin-right: 0.13889em;">T</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span><span
+                class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2778em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.13889em;">T</span><span class="mopen">(</span><span
+                class="mord"><span class="mopen nulldelimiter sizing reset-size8 size6"></span><span class="mfrac"><span
+                class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.693em;"><span
+                style="top: -2.655em;"><span class="pstrut" style="height: 3em;"></span><span
+                class="sizing reset-size8 size6 mtight"><span class="mord mtight"><span
+                class="mord mtight">2</span></span></span></span><span style="top: -3.23em;"><span class="pstrut"
+                                                                                                   style="height: 3em;"></span><span
+                class="frac-line" style="border-bottom-width: 0.04em;"></span></span><span style="top: -3.394em;"><span
+                class="pstrut" style="height: 3em;"></span><span class="sizing reset-size8 size6 mtight"><span
+                class="mord mtight"><span class="mord mathnormal mtight">n</span></span></span></span></span><span
+                class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                           style="height: 0.345em;"><span></span></span></span></span></span><span
+                class="mclose nulldelimiter sizing reset-size8 size6"></span></span><span class="mclose">)</span><span
+                class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span><span class="mspace"
+                                                                                          style="margin-right: 0.2778em;"></span><span
+                class="mrel sizing reset-size6 size8">=</span><span class="mspace"
+                                                                    style="margin-right: 0.2778em;"></span></span><span
+                class="base"><span class="strut" style="height: 1.44em; vertical-align: -0.36em;"></span><span
+                class="mord mathnormal sizing reset-size6 size8" style="margin-right: 0.02778em;">O</span><span
+                class="mopen sizing reset-size6 size8">(</span><span
+                class="mord mathnormal sizing reset-size6 size8">n</span><span
+                class="mclose sizing reset-size6 size8">)</span></span></span></span></span></p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <p>We need <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> space to
+            create <code>left</code>, <code>mid</code>, and <code>right</code>. Other implementations of Quickselect can
+            avoid creating these three in memory, but in the worst-case scenario, those implementations would still
+            require <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> space for
+            the recursion call stack.</p>
+    </li>
+</ul>
+<br>
+<p><strong>Bonus</strong></p>
+<p>When we randomly choose pivots, Quickselect has a worst-case scenario time complexity of <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">O(n2)O(n^2)</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord"><span
+        class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span
+        class="vlist" style="height: 0.8141em;"><span style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                                         style="height: 2.7em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span
+        class="mord mtight">2</span></span></span></span></span></span></span></span><span
+        class="mclose">)</span></span></span></span></span>.</p>
+<p>By using the <a href="https://en.wikipedia.org/wiki/Median_of_medians" target="_blank">median of medians</a>
+    algorithm, we can improve to a worst-case scenario time complexity of <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.</p>
+<p>This approach is way out of scope for an interview, and practically it isn't even worth implementing because there is
+    a large constant factor. As stated above, the random pivot approach will yield a linear runtime with mathematical
+    certainty, so in all practical scenarios, it is sufficient.</p>
+<p>The median of medians approach should only be appreciated for its theoretical beauty. Those who are interested can
+    read more using the link above.</p>
+<hr>
+<h4 id="approach-4-counting-sort">Approach 4: Counting Sort</h4>
+<p><strong>Intuition</strong></p>
+<p><a href="https://en.wikipedia.org/wiki/Counting_sort" target="_blank">Counting sort</a> is a non-comparison sorting
+    algorithm. It can be used to sort an array of positive integers.</p>
+<p>In this approach, we will sort the input using a slightly modified counting sort, and then return the <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">kthk^{th}</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.8491em;"></span><span class="mord"><span
+        class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span class="msupsub"><span
+        class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.8491em;"><span
+        style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+        class="mord mathnormal mtight">t</span><span class="mord mathnormal mtight">h</span></span></span></span></span></span></span></span></span></span></span></span></span>
+    element from the end (just like in the first approach).</p>
+<p>Here is how we will sort the array:</p>
+<ol>
+    <li>First, find the <code>maxValue</code> in the array. Create an array <code>count</code> with size <code>maxValue
+        + 1</code>.
+    </li>
+    <li>Iterate over the array and find the frequency of each element. For each element <code>num</code>, increment
+        <code>count[num]</code>.
+    </li>
+    <li>Now we know the frequency of each element. Each index of <code>count</code> represents a number. Create a new
+        array <code>sortedArr</code> and iterate over <code>count</code>. For each index <code>num</code>, add <code>count[num]</code>
+        copies of <code>num</code> to <code>sortedArr</code>. Because we iterate over the indices in sorted order, we
+        will also add elements to <code>sortedArr</code> in sorted order.
+    </li>
+</ol>
+<p>The following animation demonstrates this process:</p>
+<p>
+<div class="relative mx-auto mb-6 flex flex-col overflow-hidden rounded-lg border-[1px] border-label-1"
+     style="max-width: 960px;">
+    <div class="rounded-lg" style="max-height: 540px;"><img alt="Current"
+                                                            class="object-fit-contain !mb-0 max-h-full max-w-full"
+                                                            src="blob:https://leetcode.com/094d3549-82fe-48a3-8d14-853818050416">
+    </div>
+    <div class="absolute top-[50%] left-[50%] flex h-12 w-12 translate-x-[-50%] translate-y-[-50%] items-center justify-center rounded-full bg-black/30">
+        <div class="flex h-4 w-4 cursor-pointer items-center justify-center text-[35px]">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="h-full w-full text-white">
+                <path fill-rule="evenodd"
+                      d="M18.97 12.871l-12.96 7.29a1 1 0 01-1.49-.87V4.71a1 1 0 011.49-.872l12.96 7.29a1 1 0 010 1.743z"
+                      clip-rule="evenodd"></path>
+            </svg>
+        </div>
+    </div>
+    <div class="relative flex h-8 select-none items-center justify-around bg-black">
+        <div class="flex items-center space-x-7">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M16.091 4.929l-7.057 7.078 7.057 7.064a1 1 0 01-1.414 1.414l-7.764-7.77a1 1 0 010-1.415l7.764-7.785a1 1 0 111.415 1.414z"
+                      clip-rule="evenodd"></path>
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M18.97 12.871l-12.96 7.29a1 1 0 01-1.49-.87V4.71a1 1 0 011.49-.872l12.96 7.29a1 1 0 010 1.743z"
+                      clip-rule="evenodd"></path>
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M7.913 19.071l7.057-7.078-7.057-7.064a1 1 0 011.414-1.414l7.764 7.77a1 1 0 010 1.415l-7.764 7.785a1 1 0 01-1.414-1.414z"
+                      clip-rule="evenodd"></path>
+            </svg>
+        </div>
+        <div class="absolute right-0 mr-5 text-xs font-medium text-white">1 / 10</div>
+    </div>
+</div>
+</p>
+<br>
+<p>There is one problem: as we are associating indices with numbers, this algorithm will not work if negative numbers
+    are in the input. The constraints state that negative numbers can be in the input, so we need to account for
+    this.</p>
+<p>Let's also find <code>minValue</code>, the minimum value in the array. Instead of <code>count</code> having a size of
+    <code>maxValue + 1</code>, we will make it have a size of <code>maxValue - minValue + 1</code> (if <code>minValue
+        &lt; 0</code>, then this will appropriately increase the size of <code>count</code>).</p>
+<p>Now, we can just apply an offset of <code>minValue</code> when mapping numbers to indices and vice-versa. When we
+    populate <code>count</code>, given a <code>num</code> we will increment <code>count[num - minValue]</code>. <code>count[num]</code>
+    will represent the frequency of <code>num + minValue</code>.</p>
+<p><strong>One more small optimization</strong></p>
+<p>Since we don't actually need to sort the array but only need to return the <span class="math math-inline"><span
+        class="katex"><span class="katex-mathml">kthk^{th}</span><span class="katex-html" aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.8491em;"></span><span class="mord"><span
+        class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span class="msupsub"><span
+        class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.8491em;"><span
+        style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+        class="mord mathnormal mtight">t</span><span class="mord mathnormal mtight">h</span></span></span></span></span></span></span></span></span></span></span></span></span>
+    largest value, we will iterate over the indices of <code>count</code> in reverse order (get the larger numbers
+    first). At each number, we will decrement <code>k</code> (or a variable we initialize as <code>remain = k</code> to
+    avoid modifying the input) by the frequency. If <code>remain &lt;= 0</code>, we can return the current number. With
+    this optimization, we don't need to create <code>sortedArr</code>, saving us <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> space.</p>
+<p><strong>Algorithm</strong></p>
+<ol>
+    <li>Find the <code>maxValue</code> and <code>minValue</code> of <code>nums</code>.</li>
+    <li>Create <code>count</code>, an array of size <code>maxValue - minValue + 1</code>.</li>
+    <li>Iterate over <code>nums</code>. For each <code>num</code>, increment <code>count[num - minValue]</code>.</li>
+    <li>Set <code>remain = k</code> and iterate over the indices of <code>count</code> backward. For each index <code>num</code>:
+        <ul>
+            <li>Subtract the frequency of <code>num</code> from <code>remain</code>: <code>remain -= count[num]</code>.
+            </li>
+            <li>If <code>remain &lt;= 0</code>, return the number that the current index represents: <code>num +
+                minValue</code>.
+            </li>
+        </ul>
+    </li>
+    <li>The code should never reach this point. Return any value.</li>
+</ol>
+<p><strong>Implementation</strong></p>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int findKthLargest(int[] nums, int k) {
+        int minValue = Integer.MAX_VALUE;
+        int maxValue = Integer.MIN_VALUE;
+
+        for (int num: nums) {
+            minValue = Math.min(minValue, num);
+            maxValue = Math.max(maxValue, num);
+        }
+
+        int[] count = new int[maxValue - minValue + 1];
+        for (int num: nums) {
+            count[num - minValue]++;
+        }
+
+        int remain = k;
+        for (int num = count.length - 1; num >= 0; num--) {
+            remain -= count[num];
+            if (remain <= 0) {
+                return num + minValue;
+            }
+        }
+
+        return -1;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int findKthLargest(vector<int>& nums, int k) {
+        int minValue = INT_MAX;
+        int maxValue = INT_MIN;
+
+        for (int num: nums) {
+            minValue = min(minValue, num);
+            maxValue = max(maxValue, num);
+        }
+
+        vector<int> count(maxValue - minValue + 1);
+        for (int num: nums) {
+            count[num - minValue]++;
+        }
+
+        int remain = k;
+        for (int num = count.size() - 1; num >= 0; num--) {
+            remain -= count[num];
+            if (remain <= 0) {
+                return num + minValue;
+            }
+        }
+
+        return -1;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def findKthLargest(self, nums: List[int], k: int) -> int:
+        min_value = min(nums)
+        max_value = max(nums)
+        count = [0] * (max_value - min_value + 1)
+
+        for num in nums:
+            count[num - min_value] += 1
+
+        remain = k
+        for num in range(len(count) -1, -1, -1):
+            remain -= count[num]
+            if remain <= 0:
+                return num + min_value
+
+        return -1
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<p>Given <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    as the length of <code>nums</code> and <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">mm</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.4306em;"></span><span
+            class="mord mathnormal">m</span></span></span></span></span> as <code>maxValue - minValue</code>,</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n+m)O(n + m)</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal">m</span><span class="mclose">)</span></span></span></span></span></p>
+        <p>We first find <code>maxValue</code> and <code>minValue</code>, which costs <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.</p>
+        <p>Next, we initialize <code>count</code>, which costs <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(m)O(m)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">m</span><span class="mclose">)</span></span></span></span></span>.
+        </p>
+        <p>Next, we populate <code>count</code>, which costs <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.
+        </p>
+        <p>Finally, we iterate over the indices of <code>count</code>, which costs up to <span class="math math-inline"><span
+                class="katex"><span class="katex-mathml">O(m)O(m)</span><span class="katex-html"
+                                                                              aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">m</span><span class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(m)O(m)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">m</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <p>We create an array <code>count</code> with size <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(m)O(m)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">m</span><span class="mclose">)</span></span></span></span></span>.
+        </p>
+    </li>
+</ul>
+<br>
+<hr>
+</body>
+</html>
