@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sliding Window Maximum - Solution</title>
+</head>
+<body>
+<h2 id="solution">Sliding Window Maximum - Solution</h2>
+<hr>
+<h3 id="overview">Overview</h3>
+<p>We are given an array of integers <code>nums</code> and there is a sliding window of size <code>k</code> which is
+    moving from the left of the array to the right.</p>
+<p>Our task is to return a list of integers that contains the largest element from each window.</p>
+<hr>
+<h3 id="approach-monotonic-deque">Approach: Monotonic Deque</h3>
+<h4 id="intuition">Intuition</h4>
+<p>An intuitive way to solve the problem is to iterate over all windows and then iterate over all the elements in a
+    window to find the largest element. There are a total of <code>n - k + 1</code> (where <code>n</code> is the size of
+    <code>nums</code>) windows and it would take <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">O(k)O(k)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                     style="margin-right: 0.02778em;">O</span><span
+            class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+            class="mclose">)</span></span></span></span></span> to find the largest element from each window. This
+    strategy is too slow and would result in TLE.</p>
+<p>Let's make some observations and reduce the time complexity.</p>
+<p>We may observe that in a window, the elements that come before the largest element will never be selected as the
+    largest element of any future windows. For example, consider a window <code>[1, 2, 3, 4, 1]</code>. Because the
+    window is sliding left to right, any window with the first three elements <code>1</code>, <code>2</code>, and <code>3</code>
+    would also have the <code>4</code>.</p>
+<p>However, we cannot ignore the items that follow the largest element. If we use the above example, we cannot ignore
+    the last element <code>1</code> since there may be a window from the fourth index (0-based indexing) until the
+    eighth index where <code>1</code> is the largest element. The elements at indices <code>3</code> and <code>4</code>
+    are those that will be <strong>"useful"</strong> in the following windows.</p>
+<p>Therefore, we can discard the first three elements and only take into account the elements at indices <code>3</code>
+    and <code>4</code>.</p>
+<p>Now, let's consider the next element and call it <code>x</code>. We need to add <code>x</code> to the window to
+    consider the next window. If <code>x &gt; 1</code>, then we can now discard the <code>1</code> because
+    <code>x</code> will be in any future windows that <code>1</code> is in. If <code>x &gt; 4</code>, we can discard the
+    <code>4</code> as well for the same reason.</p>
+<blockquote>
+    <p>In general, whenever we encounter a new element <code>x</code>, we want to discard all elements that are less
+        than <code>x</code> before adding <code>x</code>. Let's say we currently have <code>[63, 15, 8, 3]</code> and we
+        encounter <code>12</code>. Any future window with <code>8</code> or <code>3</code> will also contain
+        <code>12</code>, so we can discard them. After discarding them and adding <code>12</code>, we have <code>[63,
+            15, 12]</code>. As you can see, we keep elements in descending order.</p>
+</blockquote>
+<p>To perform these operations, we can use a <strong>monotonic queue</strong> as it supports efficient insertion,
+    deletion, and retrieval of elements from the ends of a window. We will implement it with the <strong>deque</strong>
+    data structure.</p>
+<p>A monotonic data structure is one where the elements are always sorted. In our case, we want a monotonic decreasing
+    queue, which means that the elements in the queue are always sorted descending. When we want to add a new element
+    <code>x</code>, we maintain the monotonic property by removing all elements less than <code>x</code> before adding
+    <code>x</code>.</p>
+<p>We initialize a deque of integers <code>dq</code>. It will contain the indices of the "useful" elements in the
+    current window. The reason we need to store the indices instead of the elements themselves is that we need to detect
+    when elements leave the window due to sliding too far to the right.</p>
+<p>We also initialize an array of integers <code>res</code> to store the answer.</p>
+<p>By maintaining the monotonic decreasing property, the largest element in the window must always be the first element
+    in the deque, which is <code>nums[dq[0]]</code>.</p>
+<p>We initialize the first window with the first <code>k</code> elements. Then we iterate over the indices
+    <code>i</code> in the range <code>[k, n - 1]</code>, and for each element, we add its index to <code>dq</code> while
+    maintaining the monotonic property. We also remove the first element in <code>dq</code> if it is too far to the left
+    (<code>dq[0] = i - k</code>). After these operations, <code>dq</code> will correctly hold the indices of all useful
+    elements in the current window in decreasing order. Thus, we can push <code>nums[dq[0]]</code> to the answer.</p>
+<p>Here's an animation visually showing how the approach works:</p>
+<p>
+<div class="relative mx-auto mb-6 flex flex-col overflow-hidden rounded-lg border-[1px] border-label-1"
+     style="max-width: 601px;">
+    <div class="rounded-lg" style="max-height: 301px;"><img alt="Current"
+                                                            class="object-fit-contain !mb-0 max-h-full max-w-full"
+                                                            src="blob:https://leetcode.com/f12f29f3-14c5-4d11-9a0e-d8edef3d5295">
+    </div>
+    <div class="absolute top-[50%] left-[50%] flex h-12 w-12 translate-x-[-50%] translate-y-[-50%] items-center justify-center rounded-full bg-black/30">
+        <div class="flex h-4 w-4 cursor-pointer items-center justify-center text-[35px]">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="h-full w-full text-white">
+                <path fill-rule="evenodd"
+                      d="M18.97 12.871l-12.96 7.29a1 1 0 01-1.49-.87V4.71a1 1 0 011.49-.872l12.96 7.29a1 1 0 010 1.743z"
+                      clip-rule="evenodd"></path>
+            </svg>
+        </div>
+    </div>
+    <div class="relative flex h-8 select-none items-center justify-around bg-black">
+        <div class="flex items-center space-x-7">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M16.091 4.929l-7.057 7.078 7.057 7.064a1 1 0 01-1.414 1.414l-7.764-7.77a1 1 0 010-1.415l7.764-7.785a1 1 0 111.415 1.414z"
+                      clip-rule="evenodd"></path>
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M18.97 12.871l-12.96 7.29a1 1 0 01-1.49-.87V4.71a1 1 0 011.49-.872l12.96 7.29a1 1 0 010 1.743z"
+                      clip-rule="evenodd"></path>
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M7.913 19.071l7.057-7.078-7.057-7.064a1 1 0 011.414-1.414l7.764 7.77a1 1 0 010 1.415l-7.764 7.785a1 1 0 01-1.414-1.414z"
+                      clip-rule="evenodd"></path>
+            </svg>
+        </div>
+        <div class="absolute right-0 mr-5 text-xs font-medium text-white">1 / 8</div>
+    </div>
+</div>
+</p>
+<p>You can see that the deque's size never goes above <code>k</code> at any time. This is because we are only ever
+    taking into account the "useful" elements of the current window.</p>
+<p>There can be <code>k</code> indices in the deque when all the elements of a window are sorted in descending order. If
+    the elements are not sorted, there will be some useless elements and the size of the deque would be less than <code>k</code>.
+</p>
+<p>Since we consistently add the largest index to the end of the deque and remove some other indices that correspond to
+    useless elements, we are essentially storing indices in ascending order. When taking into account a window with the
+    last element at index <code>i</code>, all of the deque's elements are greater than <code>i - k</code>. As a result,
+    the size of deque can never exceed <code>k</code>.</p>
+<h4 id="algorithm">Algorithm</h4>
+<ol>
+    <li>Create a deque <code>dq</code> of integers.</li>
+    <li>Create a list of integers <code>res</code> to store the answer.</li>
+    <li>Iterate over the first <code>k</code> elements from <code>i = 0</code> to <code>k - 1</code> and perform the
+        following:
+        <ul>
+            <li>While <code>dq</code> is not empty and the current element <code>nums[i]</code> is greater or equal to
+                <code>nums[dq.peekLast()]</code>, continue to pop the last element.
+            </li>
+            <li>Push <code>i</code> at the end of <code>dq</code>.</li>
+        </ul>
+    </li>
+    <li>Push the largest element of the first window <code>nums[dq.peekFirst()]</code> to the answer.</li>
+    <li>We iterate over all the remaining elements from <code>i = k</code> to <code>n - 1</code> to move to the next
+        windows. We perform the following in this loop:
+        <ul>
+            <li>Check if the element at the front of <code>dq</code> is equal to <code>i - k</code>. If it is equal to
+                <code>i - k</code>, it cannot be included in the current window. We pop this element.
+            </li>
+            <li>While <code>dq</code> is not empty and the current element <code>nums[i]</code> is greater or equal to
+                <code>nums[dq.back()]</code>, continue to pop the last element.
+            </li>
+            <li>Push <code>i</code> at the end of <code>dq</code>.</li>
+            <li>Push the largest element of the current window <code>nums[dq.peekFirst()]</code> to the answer.</li>
+        </ul>
+    </li>
+    <li>Return <code>res</code>.</li>
+</ol>
+<h4 id="implementation">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int[] maxSlidingWindow(int[] nums, int k) {
+        Deque<Integer> dq = new ArrayDeque<>();
+        List<Integer> res = new ArrayList<>();
+
+        for (int i = 0; i < k; i++) {
+            while (!dq.isEmpty() && nums[i] >= nums[dq.peekLast()]) {
+                dq.pollLast();
+            }
+            dq.offerLast(i);
+        }
+        res.add(nums[dq.peekFirst()]);
+
+        for (int i = k; i < nums.length; i++) {
+            if (dq.peekFirst() == i - k) {
+                dq.pollFirst();
+            }
+            while (!dq.isEmpty() && nums[i] >= nums[dq.peekLast()]) {
+                dq.pollLast();
+            }
+
+            dq.offerLast(i);
+            res.add(nums[dq.peekFirst()]);
+        }
+        // Return the result as an array.
+        return res.stream().mapToInt(i->i).toArray();
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    vector<int> maxSlidingWindow(vector<int>& nums, int k){
+        deque<int> dq;
+        vector<int> res;
+        for (int i = 0; i < k; i++) {
+            while (!dq.empty() && nums[i] >= nums[dq.back()]) {
+                dq.pop_back();
+            }
+            dq.push_back(i);
+        }
+        res.push_back(nums[dq.front()]);
+
+        for (int i = k; i < nums.size(); i++) {
+            if(dq.front() == i - k) {
+                dq.pop_front();
+            }
+            while (!dq.empty() && nums[i] >= nums[dq.back()]) {
+                dq.pop_back();
+            }
+
+            dq.push_back(i);
+            res.push_back(nums[dq.front()]);
+        }
+
+        return res;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def maxSlidingWindow(self, nums: List[int], k: int) -> List[int]:
+        dq = deque()
+        res = []
+
+        for i in range(k):
+            while dq and nums[i] >= nums[dq[-1]]:
+                dq.pop()
+            dq.append(i)
+
+        res.append(nums[dq[0]])
+
+        for i in range(k, len(nums)):
+            if dq and dq[0] == i - k:
+                dq.popleft()
+            while dq and nums[i] >= nums[dq[-1]]:
+                dq.pop()
+
+            dq.append(i)
+            res.append(nums[dq[0]])
+
+        return res
+    </code>
+</pre>
+<h4 id="complexity-analysis">Complexity Analysis</h4>
+<p>Here <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                     aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    is the size of <code>nums</code>.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.
+        </p>
+        <ul>
+            <li>At first glance, it may look like the time complexity of this algorithm should be <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(n2)O(n^2)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+                    class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                    style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                       style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span
+                    class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                    class="mclose">)</span></span></span></span></span>, because there is a nested while loop inside the
+                for loop. However, each element can only be added to the deque once, which means the deque is limited to
+                <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 0.4306em;"></span><span
+                        class="mord mathnormal">n</span></span></span></span></span> pushes. Every iteration of the
+                while loop uses <code>1</code> pop, which means the while loop will not iterate more than <span
+                        class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 0.4306em;"></span><span
+                        class="mord mathnormal">n</span></span></span></span></span> times in total, across all
+                iterations of the for loop.
+            </li>
+            <li>An easier way to think about this is that in the worst case, every element will be pushed and popped
+                once. This gives a time complexity of <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(2⋅n)=O(n)O(2 \cdot n) = O(n)</span><span class="katex-html"
+                                                                                        aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord">2</span><span class="mspace"
+                                                                               style="margin-right: 0.2222em;"></span><span
+                        class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal">n</span><span class="mclose">)</span><span class="mspace"
+                                                                                           style="margin-right: 0.2778em;"></span><span
+                        class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(k)O(k)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                class="mclose">)</span></span></span></span></span>.</p>
+        <ul>
+            <li>The size of the deque can grow a maximum up to a size of <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">kk</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord mathnormal"
+                                                                                            style="margin-right: 0.03148em;">k</span></span></span></span></span>.
+            </li>
+        </ul>
+    </li>
+</ul>
+</body>
+</html>
