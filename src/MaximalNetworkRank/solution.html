@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Maximal Network Rank - Solution</title>
+</head>
+<body>
+<h2 id="solution">Maximal Network Rank - Solution</h2>
+<hr>
+<h3 id="overview">Overview</h3>
+<p>To solve this problem, we can transform it into a graph problem, where cities are represented as nodes and roads as
+    bidirectional edges connecting the nodes.</p>
+<p>The objective is to find the <strong>maximum rank of the given network/graph</strong>, which is the maximum of all
+    network ranks of all pairs of different nodes.<br>
+    The network rank of a pair of nodes is defined as the total number of directly connected edges to either node and if
+    an edge is directly connected to both nodes, it is only counted once.</p>
+<hr>
+<h3 id="approach-finding-the-in-degree-of-nodes">Approach: Finding the in-degree of nodes</h3>
+<h4 id="intuition">Intuition</h4>
+<p>To maximize the network rank, we can iterate over each possible pair of nodes in the graph and calculate their
+    network rank. For each pair, we find the total number of directly connected edges to either node. If an edge
+    connects both nodes, it is counted only once. We store the maximum network rank obtained from all pairs as the
+    answer.</p>
+<p><strong>How do we find the network rank of a pair of nodes?</strong><br>
+    The network rank of a pair of nodes is the sum of the in-degree (number of edges connected to a node) of each node
+    minus the number of common edges between them.</p>
+<p><strong>How do we find the number of common edges between any two nodes?</strong><br>
+    In this problem, it's given that "each pair of cities has at most one road connecting them", thus if these two nodes
+    are directly connected then the common edges between them will be <code>1</code>, otherwise <code>0</code>.</p>
+<p><img src="Slide1.PNG" alt="img1"></p>
+<p>Here are two ways to implement this approach:</p>
+<ol>
+    <li>
+        <p>We can keep an integer array or a hash map to map a <code>node</code> with the count of its edges, i.e. store
+            the in-degree of each node <code>i</code> at <code>indegree[i]</code>.<br>
+            And another boolean matrix in which <code>isConnected[node1][node2]</code> represents if <code>node1</code>
+            and <code>node2</code> are connected or not.</p>
+    </li>
+    <li>
+        <p>We can keep an array or hash map, which maps the <code>node</code> with the hash set of nodes it is connected
+            to. Here, the size of the hash set will give the in-degree of the respective node and we can find if <code>node2</code>
+            exists in the hash set of <code>node1</code> to check if they are directly connected or not.</p>
+    </li>
+</ol>
+<p><img src="Slide2.PNG" alt="img1"></p>
+<p>The worst-case time and space complexity will remain the same in both implementations. Here, we will show you the
+    implementation of the latter one.</p>
+<h4 id="algorithm">Algorithm</h4>
+<ol>
+    <li>Initialize variables:
+        <ul>
+            <li><code>maxRank</code>, a variable to store the maximum network rank found so far.</li>
+            <li><code>adj</code>, a hash map of the hash set to store the nodes in the hash set connected to respective
+                nodes.
+            </li>
+        </ul>
+    </li>
+    <li>Using two nested for-loops iterate on each possible node pair <code>(node1, node2)</code>, and calculate its
+        network rank as discussed earlier.
+        <ul>
+            <li>Thus <code>currentRank</code> will be <code>indegree of node1 + indegree of node2 - (1 if node1 is
+                connected to node2)</code></li>
+            <li>If <code>currentRank</code> is greater than <code>maxRank</code>, then update <code>maxRank</code>.</li>
+        </ul>
+    </li>
+    <li>Return <code>maxRank</code>.</li>
+</ol>
+<h4 id="implementation">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int maximalNetworkRank(int n, int[][] roads) {
+        int maxRank = 0;
+        Map<Integer, Set<Integer>> adj = new HashMap<>();
+        // Construct adjency list 'adj', where adj[node] stores all nodes connected to 'node'.
+        for (int[] road : roads) {
+            adj.computeIfAbsent(road[0], k -> new HashSet<>()).add(road[1]);
+            adj.computeIfAbsent(road[1], k -> new HashSet<>()).add(road[0]);
+        }
+
+        // Iterate on each possible pair of nodes.
+        for (int node1 = 0; node1 < n; ++node1) {
+            for (int node2 = node1 + 1; node2 < n; ++node2) {
+                int currentRank = adj.getOrDefault(node1, Collections.emptySet()).size() +
+                                  adj.getOrDefault(node2, Collections.emptySet()).size();
+
+                // Find the current pair's respective network rank and store if it's maximum till now.
+                if (adj.getOrDefault(node1, Collections.emptySet()).contains(node2)) {
+                    --currentRank;
+                }
+                maxRank = Math.max(maxRank, currentRank);
+            }
+        }
+        // Return the maximum network rank.
+        return maxRank;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int maximalNetworkRank(int n, vector<vector<int>>& roads) {
+        int maxRank = 0;
+        unordered_map<int, unordered_set<int>> adj;
+        // Construct adjency list 'adj', where adj[node] stores all nodes connected to 'node'.
+        for (auto& road : roads) {
+            adj[road[0]].insert(road[1]);
+            adj[road[1]].insert(road[0]);
+        }
+
+        // Iterate on each possible pair of nodes.
+        for (int node1 = 0; node1 < n; ++node1) {
+            for (int node2 = node1 + 1; node2 < n; ++node2) {
+                int currentRank = adj[node1].size() + adj[node2].size();
+                if (adj[node1].find(node2) != adj[node1].end()) {
+                    --currentRank;
+                }
+                // Find the current pair's respective network rank and store if it's maximum till now.
+                maxRank = max(maxRank, currentRank);
+            }
+        }
+        // Return the maximum network rank.
+        return maxRank;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def maximalNetworkRank(self, n: int, roads: List[List[int]]) -> int:
+        maxRank = 0
+        adj = defaultdict(set)
+        # Construct adjency list 'adj', where adj[node] stores all nodes connected to 'node'.
+        for road in roads:
+            adj[road[0]].add(road[1])
+            adj[road[1]].add(road[0])
+
+        # Iterate on each possible pair of nodes.
+        for node1 in range(n):
+            for node2 in range(node1 + 1, n):
+                currentRank = len(adj[node1]) + len(adj[node2])
+                if node2 in adj[node1]:
+                    currentRank -= 1
+                # Find the current pair's respective network rank and store if it's maximum till now.
+                maxRank = max(maxRank, currentRank)
+        # Return the maximum network rank.
+        return maxRank
+    </code>
+    TypeScript
+    <code>
+        function maximalNetworkRank(n: number, roads: number[][]): number {
+    let maxRank = 0;
+    const adj = new Map<number, Set<number>>();
+    // Construct adjency list 'adj', where adj[node] stores all nodes connected to 'node'.
+    for (const [a, b] of roads) {
+        adj.set(a, (adj.get(a) || new Set<number>()).add(b));
+        adj.set(b, (adj.get(b) || new Set<number>()).add(a));
+    }
+
+    // Iterate on each possible pair of nodes.
+    for (let node1 = 0; node1 < n; ++node1) {
+        for (let node2 = node1 + 1; node2 < n; ++node2) {
+            let currentRank = (adj.get(node1)?.size ?? 0) + (adj.get(node2)?.size ?? 0);
+            if (adj.get(node1)?.has(node2)) {
+                --currentRank;
+            }
+            // Find the current pair's respective network rank and store if it's maximum till now.
+            maxRank = Math.max(maxRank, currentRank);
+        }
+    }
+    // Return the maximum network rank.
+    return maxRank;
+};
+    </code>
+    Javascript
+    <code>
+        var maximalNetworkRank = function(n, roads) {
+    let maxRank = 0;
+    let adj = new Map();
+    // Construct adjency list 'adj', where adj[node] stores all nodes connected to 'node'.
+    for (let road of roads) {
+        if (!adj.has(road[0])) {
+            adj.set(road[0], new Set());
+        }
+        if (!adj.has(road[1])) {
+            adj.set(road[1], new Set());
+        }
+        adj.get(road[0]).add(road[1]);
+        adj.get(road[1]).add(road[0]);
+    }
+
+    // Iterate on each possible pair of nodes.
+    for (let node1 = 0; node1 < n; ++node1) {
+        for (let node2 = node1 + 1; node2 < n; ++node2) {
+            let currentRank = (adj.get(node1) || new Set()).size +
+                              (adj.get(node2) || new Set()).size;
+            if ((adj.get(node1) || new Set()).has(node2)) {
+                --currentRank;
+            }
+            // Find the current pair's respective network rank and store if it's maximum till now.
+            maxRank = Math.max(maxRank, currentRank);
+        }
+    }
+    // Return the maximum network rank.
+    return maxRank;
+};
+    </code>
+    Swift
+    <code>
+        class Solution {
+    func maximalNetworkRank(_ n: Int, _ roads: [[Int]]) -> Int {
+        var maxRank = 0
+        var adj = [Int: Set<Int>]()
+        // Construct adjency list 'adj', where adj[node] stores all nodes connected to 'node'.
+        for road in roads {
+            adj[road[0], default: Set<Int>()].insert(road[1])
+            adj[road[1], default: Set<Int>()].insert(road[0])
+        }
+
+        // Iterate on each possible pair of nodes.
+        for node1 in 0..<n {
+                           for node2 in (node1 + 1)..<n {
+                                                        var currentRank = (adj[node1]?.count ?? 0) + (adj[node2]?.count ?? 0)
+                                                        if let set = adj[node1], set.contains(node2) {
+                                                        currentRank -= 1
+                                                        }
+                // Find the current pair's respective network rank and store if it's maximum till now.
+                maxRank = max(maxRank, currentRank)
+            }
+        }
+        // Return the maximum network rank.
+        return maxRank
+    }
+}
+    </code>
+</pre>
+<h4 id="complexity-analysis">Complexity Analysis</h4>
+<p>Here, <span class="math math-inline"><span class="katex"><span class="katex-mathml">EE</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                style="margin-right: 0.05764em;">E</span></span></span></span></span>
+    is the number of edges and <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">VV</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                 style="margin-right: 0.22222em;">V</span></span></span></span></span>
+    is the number of nodes in our graph respectively</p>
+<ul>
+    <li>Time complexity: <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">O(E+V2)O(E + V^2)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                     style="margin-right: 0.02778em;">O</span><span
+            class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.05764em;">E</span><span
+            class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace"
+                                                                                                   style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+            class="mord"><span class="mord mathnormal" style="margin-right: 0.22222em;">V</span><span
+            class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                              style="height: 0.8141em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span
+            class="mord mtight">2</span></span></span></span></span></span></span></span><span
+            class="mclose">)</span></span></span></span></span>
+        <ul>
+            <li>We iterate on each edge and store both its nodes in the hashmap which will take O(1) time. Thus, for
+                <span class="math math-inline"><span class="katex"><span class="katex-mathml">EE</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 0.6833em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.05764em;">E</span></span></span></span></span>
+                edges, it will take us <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(E)O(E)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal"
+                                                    style="margin-right: 0.05764em;">E</span><span
+                        class="mclose">)</span></span></span></span></span> time.
+            </li>
+            <li>Then we iterate on all possible pairs of the nodes and calculate the network rank which will take <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord">1</span><span class="mclose">)</span></span></span></span></span> time. Thus, for <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">V(V−1)/2V (V - 1) / 2</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.22222em;">V</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.22222em;">V</span><span class="mspace"
+                                                                                           style="margin-right: 0.2222em;"></span><span
+                    class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord">1</span><span class="mclose">)</span><span class="mord">/2</span></span></span></span></span>
+                pairs, it will take <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(V2)O(V^2)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord"><span class="mord mathnormal"
+                                                                       style="margin-right: 0.22222em;">V</span><span
+                        class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                          style="height: 0.8141em;"><span
+                        style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                        class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                        class="mclose">)</span></span></span></span></span> time.
+            </li>
+            <li>Thus, overall we take <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(E+V2)O(E + V^2)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.05764em;">E</span><span class="mspace"
+                                                                                           style="margin-right: 0.2222em;"></span><span
+                    class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                    class="mord"><span class="mord mathnormal" style="margin-right: 0.22222em;">V</span><span
+                    class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                      style="height: 0.8141em;"><span
+                    style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                       style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span
+                    class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                    class="mclose">)</span></span></span></span></span> time.
+            </li>
+        </ul>
+    </li>
+    <li>Space complexity: <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">O(E)O(E)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                     style="margin-right: 0.02778em;">O</span><span
+            class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.05764em;">E</span><span
+            class="mclose">)</span></span></span></span></span>
+        <ul>
+            <li>We use a hashmap that stores all the edge's nodes in it which will take <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(E)O(E)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.05764em;">E</span><span
+                    class="mclose">)</span></span></span></span></span> space in a fully connected graph.
+            </li>
+        </ul>
+    </li>
+</ul>
+</body>
+</html>
