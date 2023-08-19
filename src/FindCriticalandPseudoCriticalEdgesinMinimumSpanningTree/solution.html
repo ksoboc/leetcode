@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Find Critical and Pseudo-Critical Edges in Minimum Spanning Tree</title>
+</head>
+<body>
+<h2 id="solution">Solution</h2>
+<hr>
+<h3 id="approach-1-kruskals-algorithm">Approach 1: Kruskal's Algorithm</h3>
+<p>Before attempting this problem, please first solve <a
+        href="https://leetcode.com/problems/connecting-cities-with-minimum-cost/" target="_blank">Connecting Cities With
+    Minimum Cost</a> and <a href="https://leetcode.com/problems/min-cost-to-connect-all-points/" target="_blank">Min
+    Cost to Connect All Points</a>. In this article, we will use Kruskal's algorithm. If you solved these problems, we
+    assume you are familiar with this algorithm.</p>
+<h4 id="intuition">Intuition</h4>
+<p>A graph has exactly one minimum spanning tree (MST) weight, but there could be multiple MSTs with this weight.</p>
+<p>A <em>critical</em> edge is an edge that, if removed from the graph, would increase the MST weight. It means that the
+    edge appears in every MST.</p>
+<p>On the other hand, a <em>pseudo-critical</em> edge is an edge that can appear in some MSTs but not all. It means that
+    the edge isn't necessary to maintain the MST weight, but we can include it without increasing the MST weight.</p>
+<p>Firstly, we need to sort all the edges in increasing order of their weights. It is important because we want to
+    consider the smaller edges first when we're trying to build the MST. We can do this using any standard sorting
+    algorithm.</p>
+<p>Next, we need to implement <a href="https://en.wikipedia.org/wiki/Kruskal%27s_algorithm" target="_blank">Kruskal's
+    algorithm</a> to find the MST weight. Kruskal's algorithm is a simple but powerful method for finding an MST in a
+    graph. It works by repeatedly selecting the smallest edge that doesn't form a cycle with the edges already in the
+    MST. To implement this algorithm, we also need to use a <a
+            href="https://en.wikipedia.org/wiki/Disjoint-set_data_structure" target="_blank">union-find data
+        structure</a> which is a data structure that keeps track of a partition of a set into disjoint subsets.</p>
+<p>Once we've got the weight of the MST, we now need to identify the critical and pseudo-critical edges.</p>
+<p>For each edge, to identify if it's critical, we remove it from the graph and re-calculate the MST weight (again using
+    Kruskal's algorithm). If the MST weight increases or it's impossible to connect all nodes without this edge (i.e.,
+    the graph is not connected), this edge is critical. An important hint toward this approach is that the constraints
+    state <span class="math math-inline"><span class="katex"><span class="katex-mathml">n≤100n \le 100</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.7719em; vertical-align: -0.136em;"></span><span
+            class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+            class="mrel">≤</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span
+            class="mord">100</span></span></span></span></span>, which means performing Kruskal's many times is a
+    feasible strategy.</p>
+<p>To check if an edge is a pseudo-critical edge, we first check that it's not critical. Then, we run Kruskal's while
+    forcing the edge to be part of the tree. If the final weight remains the same as the MST weight, then this edge is
+    part of at least one MST and thus is a pseudo-critical edge.</p>
+<p>We repeat these steps for every edge in the sorted edge list.</p>
+<h4 id="algorithm">Algorithm</h4>
+<ol>
+    <li><strong>Preprocessing.</strong> Create a new version of the edges array that includes the original index of each
+        edge. Sort this new array based on the edge weights.
+    </li>
+    <li><strong>Calculate standard MST weight.</strong> Initialize a union-find data structure, iterate over the sorted
+        edges, and add them to the union-find. Whenever two nodes are united, add the corresponding weight to the total
+        MST weight.
+    </li>
+    <li><strong>Iterate over each edge.</strong> For each edge in the sorted array, perform two operations – ignoring
+        and forcing the edge.
+        <ul>
+            <li><strong>Ignoring the edge.</strong> Calculate the MST weight without this edge. Initialize a new
+                union-find and iterate over the sorted edges (excluding the current one), adding them to the union-find.
+                If the resulting MST is disconnected or the total weight is larger than the standard MST weight, this
+                edge is critical.
+            </li>
+            <li><strong>Forcing the edge.</strong> Calculate the MST weight with this edge included. Initialize a new
+                union-find, add the current edge to it, and then iterate over the remaining edges (excluding the current
+                one), adding them to the union-find. If the total weight of the resulting MST is the same as the
+                standard MST weight, this edge is pseudo-critical. Note that this step is only performed if the edge is
+                not a critical one.
+            </li>
+        </ul>
+    </li>
+    <li><strong>Record results.</strong> Store the indices of the critical and pseudo-critical edges in two separate
+        lists. Return these lists as the final output.
+    </li>
+</ol>
+<h4 id="implementation">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public List<List<Integer>> findCriticalAndPseudoCriticalEdges(int n, int[][] edges) {
+        // Add index to edges for tracking
+        int m = edges.length;
+        int[][] newEdges = new int[m][4];
+
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < 3; j++) {
+                newEdges[i][j] = edges[i][j];
+            }
+            newEdges[i][3] = i;
+        }
+
+        // Sort edges based on weight
+        Arrays.sort(newEdges, Comparator.comparingInt(edge -> edge[2]));
+
+        // Find MST weight using union-find
+        UnionFind ufStd = new UnionFind(n);
+        int stdWeight = 0;
+        for (int[] edge : newEdges) {
+            if (ufStd.union(edge[0], edge[1])) {
+                stdWeight += edge[2];
+            }
+        }
+
+        List<List<Integer>> result = new ArrayList<>();
+        for (int i = 0; i < 2; i++) {
+            result.add(new ArrayList<>());
+        }
+
+        // Check each edge for critical and pseudo-critical
+        for (int i = 0; i < m; i++) {
+            // Ignore this edge and calculate MST weight
+            UnionFind ufIgnore = new UnionFind(n);
+            int ignoreWeight = 0;
+            for (int j = 0; j < m; j++) {
+                if (i != j && ufIgnore.union(newEdges[j][0], newEdges[j][1])) {
+                    ignoreWeight += newEdges[j][2];
+                }
+            }
+            // If the graph is disconnected or the total weight is greater,
+            // the edge is critical
+            if (ufIgnore.maxSize < n || ignoreWeight > stdWeight) {
+                result.get(0).add(newEdges[i][3]);
+            } else {
+                // Force this edge and calculate MST weight
+                UnionFind ufForce = new UnionFind(n);
+                ufForce.union(newEdges[i][0], newEdges[i][1]);
+                int forceWeight = newEdges[i][2];
+                for (int j = 0; j < m; j++) {
+                    if (i != j && ufForce.union(newEdges[j][0], newEdges[j][1])) {
+                        forceWeight += newEdges[j][2];
+                    }
+                }
+                // If total weight is the same, the edge is pseudo-critical
+                if (forceWeight == stdWeight) {
+                    result.get(1).add(newEdges[i][3]);
+                }
+            }
+        }
+
+        return result;
+    }
+
+    class UnionFind {
+        int[] parent;
+        int[] size;
+        int maxSize;
+
+        public UnionFind(int n) {
+            parent = new int[n];
+            size = new int[n];
+            maxSize = 1;
+            for (int i = 0; i < n; i++) {
+                parent[i] = i;
+                size[i] = 1;
+            }
+        }
+
+        public int find(int x) {
+            // Finds the root of x
+            if (x != parent[x]) {
+                parent[x] = find(parent[x]);
+            }
+            return parent[x];
+        }
+
+        public boolean union(int x, int y) {
+            // Connects x and y
+            int rootX = find(x);
+            int rootY = find(y);
+            if (rootX != rootY) {
+                if (size[rootX] < size[rootY]) {
+                    int temp = rootX;
+                    rootX = rootY;
+                    rootY = temp;
+                }
+                parent[rootY] = rootX;
+                size[rootX] += size[rootY];
+                maxSize = Math.max(maxSize, size[rootX]);
+                return true;
+            }
+            return false;
+        }
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    class UnionFind {
+    public:
+        vector<int> parent;
+        vector<int> size;
+        int maxSize;
+
+        UnionFind(int n) {
+            parent.resize(n);
+            size.resize(n, 1);
+            maxSize = 1;
+            for (int i = 0; i < n; i++) {
+                parent[i] = i;
+            }
+        }
+
+        int find(int x) {
+            // Finds the root of x
+            if (x != parent[x]) {
+                parent[x] = find(parent[x]);
+            }
+            return parent[x];
+        }
+
+        bool unite(int x, int y) {
+            // Connects x and y
+            int rootX = find(x);
+            int rootY = find(y);
+            if (rootX != rootY) {
+                if (size[rootX] < size[rootY]) {
+                    swap(rootX, rootY);
+                }
+                parent[rootY] = rootX;
+                size[rootX] += size[rootY];
+                maxSize = max(maxSize, size[rootX]);
+                return true;
+            }
+            return false;
+        }
+    };
+
+    vector<vector<int>> findCriticalAndPseudoCriticalEdges(int n, vector<vector<int>>& edges) {
+        auto newEdges = edges;
+        // Add index to edges for tracking
+        int m = newEdges.size();
+        for (int i = 0; i < m; i++) {
+            newEdges[i].push_back(i);
+        }
+
+        // Sort edges based on weight
+        sort(newEdges.begin(), newEdges.end(), [](auto& a, auto& b) {
+            return a[2] < b[2];
+        });
+
+        // Find MST weight using union-find
+        UnionFind ufStd(n);
+        int stdWeight = 0;
+        for (const auto& edge : newEdges) {
+            if (ufStd.unite(edge[0], edge[1])) {
+                stdWeight += edge[2];
+            }
+        }
+
+        vector<vector<int>> results(2);
+        // Check each edge for critical and pseudo-critical
+        for (int i = 0; i < m; i++) {
+            UnionFind ufIgnore(n);
+            int ignoreWeight = 0;
+            for (int j = 0; j < m; j++) {
+                if (i != j && ufIgnore.unite(newEdges[j][0], newEdges[j][1])) {
+                    ignoreWeight += newEdges[j][2];
+                }
+            }
+
+            // If the graph is disconnected or the total weight is greater,
+            // the edge is critical
+            if (ufIgnore.maxSize < n || ignoreWeight > stdWeight) {
+                results[0].push_back(newEdges[i][3]);
+            } else {
+                // Force this edge and calculate MST weight
+                UnionFind ufForce(n);
+                ufForce.unite(newEdges[i][0], newEdges[i][1]);
+                int forceWeight = newEdges[i][2];
+                for (int j = 0; j < m; j++) {
+                    if (i != j && ufForce.unite(newEdges[j][0], newEdges[j][1])) {
+                        forceWeight += newEdges[j][2];
+                    }
+                }
+
+                // If total weight is the same, the edge is pseudo-critical
+                if (forceWeight == stdWeight) {
+                    results[1].push_back(newEdges[i][3]);
+                }
+            }
+        }
+
+        return results;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+
+    class UnionFind:
+        def __init__(self, n):
+            self.parent = list(range(n))
+            self.size = [1] * n
+            self.max_size = 1
+
+        def find(self, x):
+            # Finds the root of x
+            if x != self.parent[x]:
+                self.parent[x] = self.find(self.parent[x])
+            return self.parent[x]
+
+        def union(self, x, y):
+            # Connects x and y
+            root_x = self.find(x)
+            root_y = self.find(y)
+            if root_x != root_y:
+                if self.size[root_x] < self.size[root_y]:
+                    root_x, root_y = root_y, root_x
+                self.parent[root_y] = root_x
+                self.size[root_x] += self.size[root_y]
+                self.max_size = max(self.max_size, self.size[root_x])
+                return True
+            return False
+
+    def findCriticalAndPseudoCriticalEdges(self, n, edges):
+        new_edges = [edge.copy() for edge in edges]
+        # Add index to edges for tracking
+        for i, edge in enumerate(new_edges):
+            edge.append(i)
+        # Sort edges based on weight
+        new_edges.sort(key=lambda x: x[2])
+
+        # Find MST weight using union-find
+        uf_std = self.UnionFind(n)
+        std_weight = 0
+        for u, v, w, _ in new_edges:
+            if uf_std.union(u, v):
+                std_weight += w
+
+        # Check each edge for critical and pseudo-critical
+        critical = []
+        pseudo_critical = []
+        for (u, v, w, i) in new_edges:
+            # Ignore this edge and calculate MST weight
+            uf_ignore = self.UnionFind(n)
+            ignore_weight = 0
+            for (x, y, w_ignore, j) in new_edges:
+                if i != j and uf_ignore.union(x, y):
+                    ignore_weight += w_ignore
+            # If the graph is disconnected or the total weight is greater,
+            # the edge is critical
+            if uf_ignore.max_size < n or ignore_weight > std_weight:
+                critical.append(i)
+                continue
+
+            # Force this edge and calculate MST weight
+            uf_force = self.UnionFind(n)
+            force_weight = w
+            uf_force.union(u, v)
+            for (x, y, w_force, j) in new_edges:
+                if i != j and uf_force.union(x, y):
+                    force_weight += w_force
+            # If total weight is the same, the edge is pseudo-critical
+            if force_weight == std_weight:
+                pseudo_critical.append(i)
+
+        return [critical, pseudo_critical]
+    </code>
+</pre>
+<h4 id="complexity-analysis">Complexity Analysis</h4>
+<ul>
+    <li>
+        <p>Time complexity of this algorithm is <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(m2⋅α(n))O(m^2 \cdot \alpha(n))</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord"><span class="mord mathnormal">m</span><span class="msupsub"><span class="vlist-t"><span
+                class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mspace"
+                                                                                                   style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.0037em;">α</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mclose">))</span></span></span></span></span>, where <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">mm</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.4306em;"></span><span
+                class="mord mathnormal">m</span></span></span></span></span> is the number of edges, <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.4306em;"></span><span
+                class="mord mathnormal">n</span></span></span></span></span> is the number of nodes and <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">α\alpha</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.4306em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.0037em;">α</span></span></span></span></span> is the
+            inverse Ackermann function.</p>
+        <ul>
+            <li><strong>Sorting the edges.</strong> The first operation in this algorithm is sorting the edges. We
+                perform this operation once in <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(mlog⁡m)O(m \log m)</span><span class="katex-html"
+                                                                              aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">m</span><span class="mspace"
+                                                                                          style="margin-right: 0.1667em;"></span><span
+                        class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                                  style="margin-right: 0.1667em;"></span><span
+                        class="mord mathnormal">m</span><span class="mclose">)</span></span></span></span></span> time.
+            </li>
+            <li><strong>Constructing the MST by ignoring/forcing an edge.</strong> For each edge in our sorted list, we
+                construct two MSTs – one where we force include the edge in the MST and one where we ignore it. To do
+                this, we use the Union-Find data structure, performing union operations to connect the nodes in the
+                graph. The time complexity of these union operations with union by rank and path compression
+                optimization is nearly a constant time operation, represented as <span class="math math-inline"><span
+                        class="katex"><span class="katex-mathml">O(α(n))O(\alpha(n))</span><span class="katex-html"
+                                                                                                 aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal"
+                                                    style="margin-right: 0.0037em;">α</span><span class="mopen">(</span><span
+                        class="mord mathnormal">n</span><span class="mclose">))</span></span></span></span></span>,
+                where <span class="math math-inline"><span class="katex"><span class="katex-mathml">α\alpha</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 0.4306em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.0037em;">α</span></span></span></span></span> is
+                the inverse Ackermann function. You do not have to know what exactly this function is. It suffices to
+                know that this function grows extremely slowly, so much so that for any conceivable practical input, it
+                does not exceed <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">55</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 0.6444em;"></span><span
+                        class="mord">5</span></span></span></span></span>. Hence for each edge, it would take <span
+                        class="math math-inline"><span class="katex"><span class="katex-mathml">O(m⋅α(n))O(m \cdot \alpha(n))</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">m</span><span class="mspace"
+                                                                                          style="margin-right: 0.2222em;"></span><span
+                        class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.0037em;">α</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span
+                        class="mclose">))</span></span></span></span></span> time to construct the MST.
+            </li>
+            <li><strong>Iterating through all edges.</strong> The previous step is repeated for each edge in the graph,
+                meaning we perform it <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">mm</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">m</span></span></span></span></span>
+                times. This results in a total time complexity of <span class="math math-inline"><span
+                        class="katex"><span class="katex-mathml">O(m2⋅α(n))O(m^2 \cdot \alpha(n))</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord"><span class="mord mathnormal">m</span><span
+                        class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                          style="height: 0.8141em;"><span
+                        style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                        class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                        class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span
+                        class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+                        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                                 style="margin-right: 0.0037em;">α</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span
+                        class="mclose">))</span></span></span></span></span> for constructing all the MSTs.
+            </li>
+        </ul>
+    </li>
+</ul>
+<p>Adding these all together, we find that the total time complexity of this algorithm is <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">O(mlog⁡m+m2⋅α(n))O(m \log m + m^2 \cdot \alpha(n))</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+        class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mop">lo<span
+        style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                              style="margin-right: 0.1667em;"></span><span
+        class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+        class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+        class="strut" style="height: 0.8141em;"></span><span class="mord"><span class="mord mathnormal">m</span><span
+        class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+        style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span
+        class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mspace"
+                                                                                           style="margin-right: 0.2222em;"></span><span
+        class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                 style="margin-right: 0.0037em;">α</span><span
+        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">))</span></span></span></span></span>,
+    which simplifies to <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(m2⋅α(n))O(m^2 \cdot \alpha(n))</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord"><span class="mord mathnormal">m</span><span class="msupsub"><span class="vlist-t"><span
+            class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span
+            class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mspace"
+                                                                                               style="margin-right: 0.2222em;"></span><span
+            class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.0037em;">α</span><span class="mopen">(</span><span
+            class="mord mathnormal">n</span><span class="mclose">))</span></span></span></span></span>.</p>
+<ul>
+    <li>
+        <p>Space complexity is <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(m)O(m)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">m</span><span class="mclose">)</span></span></span></span></span>.
+        </p>
+        <ul>
+            <li><strong>Storing the edges.</strong> We need to store all the edges and their information in our program,
+                which requires <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(m)O(m)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">m</span><span class="mclose">)</span></span></span></span></span>
+                space.
+            </li>
+            <li><strong>Union-Find data structure.</strong> The Union-Find data structure uses an array to keep track of
+                the parent of each node and another array to keep track of the size of each tree in the forest. It
+                requires <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+                space, where <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+                is the number of nodes in the graph.
+            </li>
+        </ul>
+    </li>
+</ul>
+<p>When we add these components together, we find that the total space complexity of this algorithm is <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">O(m+n)O(m + n)</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+        class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+        class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal">n</span><span
+        class="mclose">)</span></span></span></span></span>. Since the graph is connected, thus <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">m≥n−1m \ge n - 1</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.7719em; vertical-align: -0.136em;"></span><span
+        class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+        class="mrel">≥</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span
+        class="strut" style="height: 0.6667em; vertical-align: -0.0833em;"></span><span class="mord mathnormal">n</span><span
+        class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">−</span><span class="mspace"
+                                                                                               style="margin-right: 0.2222em;"></span></span><span
+        class="base"><span class="strut" style="height: 0.6444em;"></span><span
+        class="mord">1</span></span></span></span></span> and <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">O(m+n)=O(m)O(m + n) = O(m)</span><span class="katex-html" aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+        class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+        class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal">n</span><span
+        class="mclose">)</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+        class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span
+        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                 style="margin-right: 0.02778em;">O</span><span
+        class="mopen">(</span><span class="mord mathnormal">m</span><span
+        class="mclose">)</span></span></span></span></span>.</p>
+</body>
+</html>
