@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sort Items by Groups Respecting Dependencies - Solution</title>
+</head>
+<body>
+<h2 id="solution">Sort Items by Groups Respecting Dependencies - Solution</h2>
+<hr>
+<h3 id="approach-topological-sorting">Approach: Topological Sorting</h3>
+<h4 id="intuition">Intuition</h4>
+<blockquote>
+    <p>If you are not familiar with topological sorting, please refer to our explore cards <a
+            href="https://leetcode.com/explore/learn/card/graph/623/kahns-algorithm-for-topological-sorting/"
+            target="_blank">Topological Sorting Explore Card</a>. We will focus on the usage in this article and not the
+        underlying principles or implementation details.</p>
+</blockquote>
+<p>Topological sorting is an algorithm used to arrange a set of nodes with directed edges in a linear order, such that
+    for every directed edge <code>(u, v)</code>, node <code>u</code> appears before node <code>v</code> in the ordering.
+</p>
+<p><img src="1.png" alt="img"></p>
+<p>The key idea behind topological sorting is to identify nodes that have no incoming edges (indegree = 0), indicating
+    they have no dependencies on other nodes. These nodes are placed at the beginning of the ordering. Subsequently, we
+    iteratively process the remaining nodes, eliminating their incoming edges and adding them to the order. This process
+    continues until all nodes are placed in the final order.</p>
+<p><img src="2.png" alt="img"></p>
+<p>However, if the number of visited nodes is less than the total number of nodes, it indicates the presence of a cycle
+    in the graph.</p>
+<p><img src="2_2.png" alt="img"></p>
+<br>
+<p>In this problem, we are dealing with a more complex variation of the topological sorting algorithm. The directed
+    edges are described by <code>beforeItems</code>, but we have an additional requirement. Specifically, we need to
+    consider the condition that nodes within the same group must be next to each other. For instance, in the following
+    scenario, there are several nodes belonging to different groups, making it impossible to find a valid arrangement.
+</p>
+<p><img src="3.png" alt="img"></p>
+<p>Since the problem statement specifies that nodes within the same group must be grouped together, during the sorting
+    process, if one of the nodes belongs to a particular group <code>i</code>, it implies that we also have dependencies
+    with all the nodes within the group <code>i</code>.</p>
+<p><img src="4.png" alt="img"></p>
+<p>Therefore, when performing topological sorting, it is crucial to gather all nodes belonging to the same group and
+    ensure their relative order based on their dependencies. A rough example demonstrating this concept is depicted in
+    the diagram below.</p>
+<p><img src="5.png" alt="img"></p>
+<p>Consequently, the objective is to achieve two levels of sorting:</p>
+<ul>
+    <li>sorting the groups based on the group dependencies,</li>
+    <li>sorting the items within each group according to the item dependencies.</li>
+</ul>
+<p>As a preliminary step, it is important to consider items that do not belong to any group (<code>group[i] = -1</code>)
+    as separate groups, each consisting of only a single item.</p>
+<p><img src="6.png" alt="img"></p>
+<br>
+<p>Firstly, we perform a topological sort on the items. The topological sort ensures that items are processed in an
+    order that respects their dependencies, regardless of the groups they belong to.</p>
+<p>It's important to note that this sorted order may <strong>not</strong> always be correct for items that belong to
+    different groups, as depicted by items with red marks, since this topological sort only considers the dependencies
+    of items. For instance, in the picture below, the items belonging to the green group are not interconnected, but we
+    can infer that their order, if connected within the green group, should be <code>I, II, III</code>.</p>
+<p><img src="ig.png" alt="img"></p>
+<p>Afterward, we take into account the dependencies between groups. Whenever we encounter two nodes from different
+    groups, it signifies a precedence relationship between the respective groups. As a result, we sort these groups
+    accordingly, establishing the relationship that determines the order in which they should be processed.</p>
+<p><img src="sg.png" alt="img"></p>
+<p>Finally, let's combine both the sorted groups and sorted items. Note that if the topological sort on either the
+    groups or items detects a cycle, then the task is impossible. This ensures that groups are processed in an order
+    that respects their dependencies, and within each group, the items are processed in an order that respects their
+    dependencies.</p>
+<p><img src="combine.png" alt="img"></p>
+<br>
+<p>To be more specific, when sorting all the items (without group dependencies), we iterate through them and assign each
+    item to its corresponding group. By doing so, at the end of the iteration, the items within each group will be
+    properly ordered based on their dependencies within that particular group.</p>
+<p><img src="cb2.png" alt="img"></p>
+<p>After the iteration, we successfully collect all items in each group with correct order. We then refer to the
+    previously established sorted order of the groups and arrange the items within each group accordingly.</p>
+<p><img src="cb3.png" alt="img"></p>
+<p>Finally, the groups are sorted based on the group dependencies, and items within each group are also sorted based on
+    the their individual dependencies.</p>
+<br>
+<h4 id="algorithm">Algorithm</h4>
+<ol>
+    <li>
+        <p>Initialize <code>group_id</code> as <code>m</code>. Iterate over each item <code>i</code>, if it does not
+            belong to any group, assign it a unique group id <code>group_id</code>, and increment <code>group_id</code>
+            by 1.</p>
+    </li>
+    <li>
+        <p>Construct two adjacency maps <code>item_graph</code> and <code>group_graph</code> for all items and groups,
+            respectively. Build two in degree list <code>item_indegree</code> and <code>group_indegree</code> for all
+            items and groups, respectively.</p>
+    </li>
+    <li>
+        <p>Traverse through <code>beforeItems</code>, add every pair of items dependency <code>(prev, curr)</code> as a
+            dependency to <code>item_graph</code>, and increment the indegree of <code>curr</code> by 1. If two items
+            belong to different groups <code>group[prev]</code> and <code>group[curr]</code>, add the group dependency
+            to <code>group_graph</code>, and increment the indegree of <code>group[curr]</code> by 1.</p>
+    </li>
+    <li>
+        <p>Perform a topological sorting of items according to <code>item_graph</code> and <code>item_indegree</code>.
+            If there is a cycle, the task is impossible.</p>
+    </li>
+    <li>
+        <p>Perform a topological sorting of groups based on <code>group_graph</code> and <code>group_indegree</code>. If
+            there is a cycle, the task is impossible.</p>
+    </li>
+    <li>
+        <p>Create an empty list <code>answer</code> to store the final order and a hash map <code>ordered_groups</code>
+            to store the sorted items within each group.</p>
+    </li>
+    <li>
+        <p>Iterate over the sorted items, and for each item <code>i</code>, add it to <code>ordered_groups</code> while
+            preserving its original order within the group: <code>ordered_groups[group[i]].append(i)</code>.</p>
+    </li>
+    <li>
+        <p>Traverse through the sorted groups, and for each group <code>group_index</code>, add all its items <code>order_groups[group_index]</code>
+            to <code>answer</code> while maintaining their original order.</p>
+    </li>
+</ol>
+<h4 id="implementation">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int[] sortItems(int n, int m, int[] group, List<List<Integer>> beforeItems) {
+        // If an item belongs to zero group, assign it a unique group id.
+        int groupId = m;
+        for (int i = 0; i < n; i++) {
+            if (group[i] == -1) {
+                group[i] = groupId;
+                groupId++;
+            }
+        }
+
+        // Sort all item regardless of group dependencies.
+        Map<Integer, List<Integer>> itemGraph = new HashMap<>();
+        int[] itemIndegree = new int[n];
+        for (int i = 0; i < n; ++i) {
+            itemGraph.put(i, new ArrayList<>());
+        }
+
+        // Sort all groups regardless of item dependencies.
+        Map<Integer, List<Integer>> groupGraph = new HashMap<>();
+        int[] groupIndegree = new int[groupId];
+        for (int i = 0; i < groupId; ++i) {
+            groupGraph.put(i, new ArrayList<>());
+        }
+
+        for (int curr = 0; curr < n; curr++) {
+            for (int prev : beforeItems.get(curr)) {
+                // Each (prev -> curr) represents an edge in the item graph.
+                itemGraph.get(prev).add(curr);
+                itemIndegree[curr]++;
+
+                // If they belong to different groups, add an edge in the group graph.
+                if (group[curr] != group[prev]) {
+                    groupGraph.get(group[prev]).add(group[curr]);
+                    groupIndegree[group[curr]]++;
+                }
+            }
+        }
+
+        // Topological sort nodes in the graph, return an empty array if a cycle exists.
+        List<Integer> itemOrder = topologicalSort(itemGraph, itemIndegree);
+        List<Integer> groupOrder = topologicalSort(groupGraph, groupIndegree);
+
+        if (itemOrder.isEmpty() || groupOrder.isEmpty()) {
+            return new int[0];
+        }
+
+        // Items are sorted regardless of groups, we need to differentiate them by the groups they belong to.
+        Map<Integer, List<Integer>> orderedGroups = new HashMap<>();
+        for (Integer item : itemOrder) {
+            orderedGroups.computeIfAbsent(group[item], k -> new ArrayList<>()).add(item);
+        }
+
+        // Concatenate sorted items in all sorted groups.
+        // [group 1, group 2, ... ] -> [(item 1, item 2, ...), (item 1, item 2, ...), ...]
+        List<Integer> answerList = new ArrayList<>();
+        for (int groupIndex : groupOrder) {
+            answerList.addAll(orderedGroups.getOrDefault(groupIndex, new ArrayList<>()));
+        }
+
+        return answerList.stream().mapToInt(Integer::intValue).toArray();
+    }
+
+    private List<Integer> topologicalSort(Map<Integer, List<Integer>> graph, int[] indegree) {
+        List<Integer> visited = new ArrayList<>();
+        Stack<Integer> stack = new Stack<>();
+        for (Integer key : graph.keySet()) {
+            if (indegree[key] == 0) {
+                stack.add(key);
+            }
+        }
+
+        while (!stack.isEmpty()) {
+            Integer curr = stack.pop();
+            visited.add(curr);
+
+            for (Integer prev : graph.get(curr)) {
+                indegree[prev]--;
+                if (indegree[prev] == 0) {
+                    stack.add(prev);
+                }
+            }
+        }
+
+        return visited.size() == graph.size() ? visited : new ArrayList<>();
+    }
+}
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def sortItems(self, n, m, group, beforeItems):
+        # If an item belongs to zero group, assign it a unique group id.
+        group_id = m
+        for i in range(n):
+            if group[i] == -1:
+                group[i] = group_id
+                group_id += 1
+
+        # Sort all item regardless of group dependencies.
+        item_graph = [[] for _ in range(n)]
+        item_indegree = [0] * n
+
+        # Sort all groups regardless of item dependencies.
+        group_graph = [[] for _ in range(group_id)]
+        group_indegree = [0] * group_id
+
+        for curr in range(n):
+            for prev in beforeItems[curr]:
+                # Each (prev -> curr) represents an edge in the item graph.
+                item_graph[prev].append(curr)
+                item_indegree[curr] += 1
+
+                # If they belong to different groups, add an edge in the group graph.
+                if group[curr] != group[prev]:
+                    group_graph[group[prev]].append(group[curr])
+                    group_indegree[group[curr]] += 1
+
+        # Tologlogical sort nodes in graph, return [] if a cycle exists.
+        def topologicalSort(graph, indegree):
+            visited = []
+            stack = [node for node in range(len(graph)) if indegree[node] == 0]
+            while stack:
+                cur = stack.pop()
+                visited.append(cur)
+                for neib in graph[cur]:
+                    indegree[neib] -= 1
+                    if indegree[neib] == 0:
+                        stack.append(neib)
+            return visited if len(visited) == len(graph) else []
+
+        item_order = topologicalSort(item_graph, item_indegree)
+        group_order = topologicalSort(group_graph, group_indegree)
+
+        if not item_order or not group_order:
+            return []
+
+        # Items are sorted regardless of groups, we need to
+        # differentiate them by the groups they belong to.
+        ordered_groups = collections.defaultdict(list)
+        for item in item_order:
+            ordered_groups[group[item]].append(item)
+
+        # Concatenate sorted items in all sorted groups.
+        # [group 1, group 2, ... ] -> [(item 1, item 2, ...), (item 1, item 2, ...), ...]
+        answer = []
+        for group_index in group_order:
+            answer += ordered_groups[group_index]
+        return answer
+    </code>
+</pre>
+<h4 id="complexity-analysis">Complexity Analysis</h4>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n2)O(n^2)</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+                class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <p>To topological sort <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 0.4306em;"></span><span
+                class="mord mathnormal">n</span></span></span></span></span> items:</p>
+        <ul>
+            <li>We build an adjacency list that contains all item dependencies. There are at most <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(n2)O(n^2)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+                    class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                    style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                       style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span
+                    class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                    class="mclose">)</span></span></span></span></span> distinct item dependencies <code>(prev,
+                curr)</code> stored in <code>beforeItem</code>, which takes <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">O(n2)O(n^2)</span><span class="katex-html"
+                                                                                     aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+                    class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                    style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                       style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span
+                    class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                    class="mclose">)</span></span></span></span></span> time.
+            </li>
+            <li>Next, we repeatedly visit each item with an in degree of zero and decrement the in degree of all items
+                that have this item as a preceding item. In the worst-case scenario, we might visit every vertex in the
+                graph and decrement every outgoing edge once, which takes <span class="math math-inline"><span
+                        class="katex"><span class="katex-mathml">O(n2)O(n^2)</span><span class="katex-html"
+                                                                                         aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord"><span class="mord mathnormal">n</span><span
+                        class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                          style="height: 0.8141em;"><span
+                        style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                        class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                        class="mclose">)</span></span></span></span></span> time.
+            </li>
+        </ul>
+        <p>The maximum number of groups is <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 0.4306em;"></span><span
+                class="mord mathnormal">n</span></span></span></span></span>, so the time complexity of topological
+            sorting the groups is also <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n2)O(n^2)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+                    class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                    style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                       style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span
+                    class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                    class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <ul>
+            <li>Both adjacency lists take <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n2)O(n^2)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+                    class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                    style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                       style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span
+                    class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                    class="mclose">)</span></span></span></span></span> space in the worst-case scenario.
+            </li>
+            <li>Storing the in degree for each item or group requires <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> space.
+            </li>
+            <li>The stack can contain at most <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                    class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+                items or <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 0.4306em;"></span><span
+                        class="mord mathnormal">n</span></span></span></span></span> groups, which takes <span
+                        class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+                space.
+            </li>
+        </ul>
+    </li>
+</ul>
+<br>
+</body>
+</html>
