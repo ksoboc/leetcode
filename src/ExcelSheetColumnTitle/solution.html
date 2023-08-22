@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Excel Sheet Column Title - Solution</title>
+</head>
+<body>
+<h2 id="solution">Excel Sheet Column Title - Solution</h2>
+<hr>
+<h4 id="approach">Approach:</h4>
+<p><strong>Intuition</strong></p>
+<p>In Excel, the columns are letters that correspond to numbers. We start with <code>A = 1</code>. Similarly
+    <code>2</code> corresponds to <code>B</code> until <code>26</code> for <code>Z</code>. Once we run out of letters,
+    we start appending them. <code>27</code> will correspond to <code>AA</code>, <code>28</code> for <code>AB</code>,
+    and so on. In this problem, we are given the integer which is the column number and we need to return the
+    corresponding letters for it.</p>
+<p>At first glance, it might be tempting to say that these numbers are just base 26, but the catch is that in a base 26
+    system, the numbers would start from <code>0</code>. The mapping would be like below:</p>
+<p><img src="168A.png" alt="fig"></p>
+<p>However, in the problem, we have the number starting from <code>1</code>, not <code>0</code>. But we can change them
+    to process them like base 26 numbers. The important point to observe here is that every column title has the
+    corresponding column number as a number in base 26 plus one. For example, let's convert the number <code>2002</code>
+    to the letters <code>BXZ</code> by representing it as a number in base 26. Note that each part will have an extra
+    <code>1</code> added to compensate for the fact that we are starting from <code>1</code> in our system. See the
+    below example for a better understanding of the algorithm:</p>
+<p><code>N = 2002</code> corresponds to <code>BXZ</code>.</p>
+<p>In terms of base 26:</p>
+<p><span class="math math-inline"><span class="katex"><span class="katex-mathml">N=(B+1)⋅262+(X+1)⋅261+(Z+1)∗260N = (B + 1) \cdot 26^2 + (X + 1) \cdot 26^1 + (Z + 1) * 26^0</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.6833em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span class="mspace"
+                                                                               style="margin-right: 0.2778em;"></span><span
+        class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span
+        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mopen">(</span><span
+        class="mord mathnormal" style="margin-right: 0.05017em;">B</span><span class="mspace"
+                                                                               style="margin-right: 0.2222em;"></span><span
+        class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord">1</span><span
+        class="mclose">)</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+        class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+        class="strut" style="height: 0.8974em; vertical-align: -0.0833em;"></span><span class="mord">2</span><span
+        class="mord"><span class="mord">6</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span
+        class="vlist" style="height: 0.8141em;"><span style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                                         style="height: 2.7em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span
+        class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mspace"
+                                                                                           style="margin-right: 0.2222em;"></span><span
+        class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mopen">(</span><span
+        class="mord mathnormal" style="margin-right: 0.07847em;">X</span><span class="mspace"
+                                                                               style="margin-right: 0.2222em;"></span><span
+        class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord">1</span><span
+        class="mclose">)</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+        class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+        class="strut" style="height: 0.8974em; vertical-align: -0.0833em;"></span><span class="mord">2</span><span
+        class="mord"><span class="mord">6</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span
+        class="vlist" style="height: 0.8141em;"><span style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                                         style="height: 2.7em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span
+        class="mord mtight">1</span></span></span></span></span></span></span></span><span class="mspace"
+                                                                                           style="margin-right: 0.2222em;"></span><span
+        class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mopen">(</span><span
+        class="mord mathnormal" style="margin-right: 0.07153em;">Z</span><span class="mspace"
+                                                                               style="margin-right: 0.2222em;"></span><span
+        class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord">1</span><span
+        class="mclose">)</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+        class="mbin">∗</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+        class="strut" style="height: 0.8141em;"></span><span class="mord">2</span><span class="mord"><span class="mord">6</span><span
+        class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+        style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span
+        class="mord mtight">0</span></span></span></span></span></span></span></span></span></span></span></span></p>
+<p><span class="math math-inline"><span class="katex"><span class="katex-mathml">N=(1+1)⋅676+(23+1)⋅26+(25+1)⋅1=2002N = (1 + 1) \cdot 676 + (23 + 1) \cdot 26 + (25 + 1) \cdot 1 = 2002</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.6833em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span class="mspace"
+                                                                               style="margin-right: 0.2778em;"></span><span
+        class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span
+        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mopen">(</span><span
+        class="mord">1</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+        class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord">1</span><span
+        class="mclose">)</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+        class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+        class="strut" style="height: 0.7278em; vertical-align: -0.0833em;"></span><span class="mord">676</span><span
+        class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace"
+                                                                                               style="margin-right: 0.2222em;"></span></span><span
+        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mopen">(</span><span class="mord">23</span><span class="mspace"
+                                                                style="margin-right: 0.2222em;"></span><span
+        class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord">1</span><span
+        class="mclose">)</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+        class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+        class="strut" style="height: 0.7278em; vertical-align: -0.0833em;"></span><span class="mord">26</span><span
+        class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace"
+                                                                                               style="margin-right: 0.2222em;"></span></span><span
+        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mopen">(</span><span class="mord">25</span><span class="mspace"
+                                                                style="margin-right: 0.2222em;"></span><span
+        class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord">1</span><span
+        class="mclose">)</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+        class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+        class="strut" style="height: 0.6444em;"></span><span class="mord">1</span><span class="mspace"
+                                                                                        style="margin-right: 0.2778em;"></span><span
+        class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span
+        class="strut" style="height: 0.6444em;"></span><span class="mord">2002</span></span></span></span></span></p>
+<p>Steps to get the letters:</p>
+<ol>
+    <li>Subtract <code>1</code> from <code>N</code>. Now, <code>N = 2001</code>. Take N modulo 26 and convert the result
+        to the corresponding position in the alphabet. <code>2001 % 26 = 25</code>, which corresponds to <code>Z</code>,
+        since we start with <code>A = 0</code>.
+    </li>
+    <li>Divide <code>N</code> by 26. We have <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">N=200126=76N = \frac{2001}{26} = 76</span><span class="katex-html"
+                                                                                 aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                    style="margin-right: 0.10903em;">N</span><span
+            class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace"
+                                                                                                   style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 1.1901em; vertical-align: -0.345em;"></span><span
+            class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span
+            class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.8451em;"><span
+            style="top: -2.655em;"><span class="pstrut" style="height: 3em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">26</span></span></span></span><span
+            style="top: -3.23em;"><span class="pstrut" style="height: 3em;"></span><span class="frac-line"
+                                                                                         style="border-bottom-width: 0.04em;"></span></span><span
+            style="top: -3.394em;"><span class="pstrut" style="height: 3em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+            class="mord mtight">2001</span></span></span></span></span><span class="vlist-s">​</span></span><span
+            class="vlist-r"><span class="vlist" style="height: 0.345em;"><span></span></span></span></span></span><span
+            class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+            class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">76</span></span></span></span></span>.
+    </li>
+    <li>Repeat the process until <code>N = 0</code>. We subtract <code>1</code>, so now <code>N = 75</code>. Take it
+        modulo 26: <code>75 % 26 = 23</code>. This corresponds to <code>X</code>.
+    </li>
+    <li>Divide <code>N</code> by 26. We have <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">N=7526=2N = \frac{75}{26} = 2</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                    style="margin-right: 0.10903em;">N</span><span
+            class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace"
+                                                                                                   style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 1.1901em; vertical-align: -0.345em;"></span><span
+            class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span
+            class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.8451em;"><span
+            style="top: -2.655em;"><span class="pstrut" style="height: 3em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">26</span></span></span></span><span
+            style="top: -3.23em;"><span class="pstrut" style="height: 3em;"></span><span class="frac-line"
+                                                                                         style="border-bottom-width: 0.04em;"></span></span><span
+            style="top: -3.394em;"><span class="pstrut" style="height: 3em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">75</span></span></span></span></span><span
+            class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                       style="height: 0.345em;"><span></span></span></span></span></span><span
+            class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+            class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">2</span></span></span></span></span>.
+    </li>
+    <li>Subtract <code>1</code>, so now <code>N = 1</code>. Take it modulo 26: <code>1 % 26 = 1</code>. This corresponds
+        to <code>B</code>.
+    </li>
+</ol>
+<p>Finally, we are done, because <span class="math math-inline"><span class="katex"><span class="katex-mathml">N26=0\frac{N}{26} = 0</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1.2173em; vertical-align: -0.345em;"></span><span
+        class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span
+        class="vlist-r"><span class="vlist" style="height: 0.8723em;"><span style="top: -2.655em;"><span class="pstrut"
+                                                                                                         style="height: 3em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+        class="mord mtight">26</span></span></span></span><span style="top: -3.23em;"><span class="pstrut"
+                                                                                            style="height: 3em;"></span><span
+        class="frac-line" style="border-bottom-width: 0.04em;"></span></span><span style="top: -3.394em;"><span
+        class="pstrut" style="height: 3em;"></span><span class="sizing reset-size6 size3 mtight"><span
+        class="mord mtight"><span class="mord mathnormal mtight" style="margin-right: 0.10903em;">N</span></span></span></span></span><span
+        class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.345em;"><span></span></span></span></span></span><span
+        class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+        class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span
+        class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span>. The
+    result is <code>BXZ</code>, the reverse order in which we found the letters.</p>
+<p><strong>Algorithm</strong></p>
+<ol>
+    <li>
+        <p>Initialize an empty string <code>ans</code> which would store the column title.</p>
+    </li>
+    <li>
+        <p>Do the following as long as <code>columnNumber</code> is greater than <code>0</code>:</p>
+        <ol>
+            <li>Subtract <code>1</code> from the <code>columnNumber</code></li>
+            <li>Find the character corresponding to <code>columnNumber % 26</code> and append it to the <code>ans</code>
+                in the end.
+            </li>
+            <li>Assign <code>columnNumber</code> to <code>columnNumber / 26</code>.</li>
+        </ol>
+    </li>
+    <li>
+        <p>Reverse the string <code>columnNumber</code> and return it.</p>
+    </li>
+</ol>
+<p><strong>Implementation</strong></p>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public String convertToTitle(int columnNumber) {
+        StringBuilder ans = new StringBuilder();
+
+        while(columnNumber > 0) {
+            columnNumber--;
+            // Get the last character and append it at the end of the string.
+            ans.append((char)((columnNumber) % 26 + 'A'));
+            columnNumber = (columnNumber) / 26;
+        }
+
+        // Reverse it, as we appended characters in reverse order.
+        return ans.reverse().toString();
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    string convertToTitle(int columnNumber) {
+        string ans;
+
+        while (columnNumber) {
+            columnNumber--;
+            // Get the last character and append it at the end of string.
+            ans = ans + (char)((columnNumber) % 26 + 'A');
+            columnNumber = (columnNumber) / 26;
+        }
+
+        // Reverse it, as we appended characters in reverse order.
+        reverse(ans.begin(), ans.end());
+        return ans;
+    }
+};
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<p>Here, <span class="math math-inline"><span class="katex"><span class="katex-mathml">NN</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                style="margin-right: 0.10903em;">N</span></span></span></span></span>
+    is the column number given in the problem.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡N)O(\log N)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                          style="margin-right: 0.1667em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <p>The number of operations would be equal to the number of while loops iterations. In each iteration, the
+            number <span class="math math-inline"><span class="katex"><span class="katex-mathml">NN</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.6833em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">N</span></span></span></span></span> gets
+            divided by <span class="math math-inline"><span class="katex"><span class="katex-mathml">2626</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.6444em;"></span><span
+                    class="mord">26</span></span></span></span></span>. Hence the time complexity would be <span
+                    class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(log⁡26N)O(\log{_{26}}{N})</span><span class="katex-html"
+                                                                                 aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                              style="margin-right: 0.1667em;"></span><span
+                    class="mord"><span class="mord"><span></span><span class="msupsub"><span
+                    class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.3011em;"><span
+                    style="top: -2.55em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+                    class="mord mtight">26</span></span></span></span></span><span class="vlist-s">​</span></span><span
+                    class="vlist-r"><span class="vlist"
+                                          style="height: 0.15em;"><span></span></span></span></span></span></span></span><span
+                    class="mord"><span class="mord mathnormal" style="margin-right: 0.10903em;">N</span></span><span
+                    class="mclose">)</span></span></span></span></span>. Note that the base of the logarithm is not
+            relevant when it comes to big O, since all logarithms are related by a constant factor.</p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord">1</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <p>We only need one string to store the output, but generally the space to store the output is not considered as
+            part of space complexity and hence the space complexity is constant.<br>
+            <br></p>
+    </li>
+</ul>
+<hr>
+</body>
+</html>
