@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Reorganize String - Solution</title>
+</head>
+<body>
+<h2 id="solution">Reorganize String - Solution</h2>
+<hr>
+<h3 id="overview">Overview</h3>
+<p>The objective of this problem is to find any possible rearrangement of a string such that no two adjacent letters are
+    the same or return an empty string if it is not possible. For example, if the input string is <code>aab</code>, a
+    valid rearrangement could be <code>aba</code> since no adjacent characters are the same. However, if the input
+    string is <code>aaab</code>, it is not possible to rearrange the characters to meet the condition, so the expected
+    output would be an empty string.</p>
+<p>From the second example, it is evident that the limiting factor that determines when the string can be rearranged is
+    the occurrences of the characters in the input string. If there are too many instances of a given character, it
+    becomes impossible to rearrange the characters in a way that satisfies the condition of having no adjacent
+    characters being the same. Therefore, if the count of any character exceeds half the length of the string (i.e. if
+    it appears more than <code>ceil(length/2)</code> times), it is not possible to rearrange the characters, and the
+    function should return an empty string.</p>
+<hr>
+<h3 id="approach-1-counting-and-priority-queue">Approach 1: Counting and Priority Queue</h3>
+<h4 id="intuition">Intuition</h4>
+<p>To rearrange a given string <code>s</code> such that no two adjacent characters are the same we repeatedly place the
+    most frequent characters until all characters are placed in the rearranged string.</p>
+<p>To begin, we need to determine the frequencies of each character in <code>s</code>. This can be achieved by counting
+    the characters using a hashmap or an array of size <code>26</code>, with each index representing a specific
+    character. By obtaining the character counts, we gain insights into the relative frequencies of different
+    characters.</p>
+<p>Once we have the character frequencies, we can proceed with the rearrangement process. The key idea is to repeatedly
+    select the most frequent character that isn't the one previously placed. This ensures that no two adjacent
+    characters in the rearranged string are the same.</p>
+<p>To efficiently identify the most frequent characters and ensure proper ordering, we can use a priority queue. The
+    priority queue allows us to retrieve the character with the highest frequency count in an efficient manner. We can
+    find the most frequent character in <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord">1</span><span class="mclose">)</span></span></span></span></span> and perform updates in <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡k)O(\log k)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                      style="margin-right: 0.1667em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span class="mclose">)</span></span></span></span></span>
+    where <code>k</code> is the size of the priority queue.</p>
+<p>With the priority queue in place, we can now start placing the characters in the rearranged string. We can
+    iteratively select the most frequent character from the priority queue and append it to the rearranged string.
+    However, we need to ensure that the selected character is different from the last character appended, avoiding any
+    adjacent repetitions.</p>
+<p>
+<div class="relative mx-auto mb-6 flex flex-col overflow-hidden rounded-lg border-[1px] border-label-1"
+     style="max-width: 960px;">
+    <div class="rounded-lg" style="max-height: 540px;"><img alt="Current"
+                                                            class="object-fit-contain !mb-0 max-h-full max-w-full"
+                                                            src="blob:https://leetcode.com/694bf41d-b179-4a25-85a5-ee52632bedde">
+    </div>
+    <div class="absolute top-[50%] left-[50%] flex h-12 w-12 translate-x-[-50%] translate-y-[-50%] items-center justify-center rounded-full bg-black/30">
+        <div class="flex h-4 w-4 cursor-pointer items-center justify-center text-[35px]">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="h-full w-full text-white">
+                <path fill-rule="evenodd"
+                      d="M18.97 12.871l-12.96 7.29a1 1 0 01-1.49-.87V4.71a1 1 0 011.49-.872l12.96 7.29a1 1 0 010 1.743z"
+                      clip-rule="evenodd"></path>
+            </svg>
+        </div>
+    </div>
+    <div class="relative flex h-8 select-none items-center justify-around bg-black">
+        <div class="flex items-center space-x-7">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M16.091 4.929l-7.057 7.078 7.057 7.064a1 1 0 01-1.414 1.414l-7.764-7.77a1 1 0 010-1.415l7.764-7.785a1 1 0 111.415 1.414z"
+                      clip-rule="evenodd"></path>
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M18.97 12.871l-12.96 7.29a1 1 0 01-1.49-.87V4.71a1 1 0 011.49-.872l12.96 7.29a1 1 0 010 1.743z"
+                      clip-rule="evenodd"></path>
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M7.913 19.071l7.057-7.078-7.057-7.064a1 1 0 011.414-1.414l7.764 7.77a1 1 0 010 1.415l-7.764 7.785a1 1 0 01-1.414-1.414z"
+                      clip-rule="evenodd"></path>
+            </svg>
+        </div>
+        <div class="absolute right-0 mr-5 text-xs font-medium text-white">1 / 11</div>
+    </div>
+</div>
+</p>
+<h4 id="algorithm">Algorithm</h4>
+<ol>
+    <li>Initialize an empty list <code>ans</code> to store the rearranged characters.</li>
+    <li>Create a priority queue <code>pq</code> using a heap data structure. Each element in <code>pq</code> is a tuple
+        containing the count of a character and the character itself. The priority queue is ordered in a way such that
+        elements with higher counts have higher priority.
+        <ul>
+            <li>Pop the element with the highest priority from <code>pq</code>. Assign its count and character to <code>count_first</code>
+                and <code>char_first</code> respectively.
+            </li>
+            <li>If <code>ans</code> is empty or the current character <code>char_first</code> is different from the last
+                character in <code>ans</code>, append <code>char_first</code> to <code>ans</code>. If the count of
+                <code>char_first</code> is not zero, update its count by decreasing it by one and push it back to <code>pq</code>.
+                Continue to the next iteration.
+            </li>
+            <li>Otherwise, if <code>char_first</code> is the same as the last character in <code>ans</code>, it means we
+                need to choose a different character. If <code>pq</code> is empty, return an empty string as it is
+                impossible to rearrange the characters.
+            </li>
+            <li>Pop the next element from <code>pq</code>, assigning its count and character to
+                <code>count_second</code> and <code>char_second</code> respectively. Append <code>char_second</code> to
+                <code>ans</code>.
+            </li>
+            <li>If the count of <code>char_second</code> is not zero, update its count by decreasing it by one and push
+                it back to <code>pq</code>.
+            </li>
+            <li>Finally, push the original <code>char_first</code> back to <code>pq</code>.</li>
+        </ul>
+    </li>
+    <li>Return the rearranged characters as a string by joining the elements in <code>ans</code>.</li>
+</ol>
+<h4 id="implementation">Implementation</h4>
+<blockquote>
+    <p>Note: Python and Ruby implement min heaps. To emulate a max heap, we will make the frequencies negative.</p>
+</blockquote>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public String reorganizeString(String s) {
+        var charCounts = new int[26];
+        for (char c : s.toCharArray()) {
+            charCounts[c - 'a'] = charCounts[c - 'a'] + 1;
+        }
+
+        // Max heap ordered by character counts
+        var pq = new PriorityQueue<int[]>((a, b) -> Integer.compare(b[1], a[1]));
+        for (int i = 0; i < 26; i++) {
+            if (charCounts[i] > 0) {
+                pq.offer(new int[] {i + 'a', charCounts[i]});
+            }
+        }
+
+        var sb = new StringBuilder();
+        while (!pq.isEmpty()) {
+            var first = pq.poll();
+            if (sb.length() == 0 || first[0] != sb.charAt(sb.length() - 1)) {
+                sb.append((char) first[0]);
+                if (--first[1] > 0) {
+                    pq.offer(first);
+                }
+            } else {
+                if (pq.isEmpty()) {
+                    return "";
+                }
+
+                var second = pq.poll();
+                sb.append((char) second[0]);
+                if (--second[1] > 0) {
+                    pq.offer(second);
+                }
+
+                pq.offer(first);
+            }
+        }
+
+        return sb.toString();
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    string reorganizeString(string s) {
+        vector<int> charCounts(26, 0);
+        for (char c : s) {
+            charCounts[c - 'a'] = charCounts[c - 'a'] + 1;
+        }
+
+        // Max heap ordered by character counts
+        priority_queue<vector<int>> pq;
+        for (int i = 0; i < 26; i++) {
+            if (charCounts[i] > 0) {
+                pq.push(vector<int>{charCounts[i], i + 'a'});
+            }
+        }
+
+        string result;
+        while (!pq.empty()) {
+            auto first = pq.top();
+            pq.pop();
+            if (result.empty() || first[1] != result.back()) {
+                result += char(first[1]);
+                if (--first[0] > 0) {
+                    pq.push(first);
+                }
+            } else {
+                if (pq.empty()) {
+                    return "";
+                }
+                auto second = pq.top();
+                pq.pop();
+                result += char(second[1]);
+                if (--second[0] > 0) {
+                    pq.push(second);
+                }
+                pq.push(first);
+            }
+        }
+
+        return result;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def reorganizeString(self, s: str) -> str:
+        ans = []
+        # Min heap ordered by character counts, so we will use
+        # negative values for count
+        pq = [(-count, char) for char, count in Counter(s).items()]
+        heapify(pq)
+
+        while pq:
+            count_first, char_first = heappop(pq)
+            if not ans or char_first != ans[-1]:
+                ans.append(char_first)
+                if count_first + 1 != 0:
+                    heappush(pq, (count_first + 1, char_first))
+            else:
+                if not pq: return ''
+                count_second, char_second = heappop(pq)
+                ans.append(char_second)
+                if count_second + 1 != 0:
+                    heappush(pq, (count_second + 1, char_second))
+                heappush(pq, (count_first, char_first))
+
+        return ''.join(ans)
+    </code>
+    Ruby
+    <code>
+        def reorganize_string(s)
+    ans = []
+    pq = Heap.new
+    # Min heap ordered by character counts, so we will use
+    # negative values for count
+    s.chars.group_by(&:itself).transform_values(&:size).each do |char, count|
+        pq.push([-count, char])
+    end
+
+    while !pq.empty?
+        count_first, char_first = pq.pop
+
+        if ans.empty? || char_first != ans[-1]
+            ans << char_first
+            pq.push([count_first + 1, char_first]) unless count_first + 1 == 0
+        else
+            return '' if pq.empty?
+
+            count_second, char_second = pq.pop
+            ans << char_second
+            pq.push([count_second + 1, char_second]) unless count_second + 1 == 0
+            pq.push([count_first, char_first])
+        end
+    end
+
+  ans.join('')
+end
+    </code>
+</pre>
+<h4 id="complexity-analysis">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">NN</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                style="margin-right: 0.10903em;">N</span></span></span></span></span>
+    be the total characters in the string.<br>
+    Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">kk</span><span class="katex-html"
+                                                                                                     aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord mathnormal"
+                                                                                    style="margin-right: 0.03148em;">k</span></span></span></span></span>
+    be the total unique characters in the string.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(N⋅log⁡k)O(N \cdot \log k)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span class="mspace"
+                                                                                       style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                      style="margin-right: 0.1667em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                class="mclose">)</span></span></span></span></span>. We add one character to the string per iteration,
+            so there are <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(N)O(N)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                    class="mclose">)</span></span></span></span></span> iterations. In each iteration, we perform a
+            maximum of <span class="math math-inline"><span class="katex"><span class="katex-mathml">33</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.6444em;"></span><span
+                    class="mord">3</span></span></span></span></span> priority queue operations. Each priority queue
+            operation costs <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">log⁡k\log k</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+                    class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                              style="margin-right: 0.1667em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.03148em;">k</span></span></span></span></span>. For
+            this problem, <span class="math math-inline"><span class="katex"><span class="katex-mathml">kk</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.6944em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.03148em;">k</span></span></span></span></span> is
+            bounded by <code>26</code>, so one could argue that the time complexity is actually <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(N)O(N)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                    class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(k)O(k)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                class="mclose">)</span></span></span></span></span>. The counter used to count the number of occurrences
+            will incur a space complexity of <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(k)O(k)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                    class="mclose">)</span></span></span></span></span>. Similarly, the maximum size of the priority
+            queue will also be <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(k)O(k)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                    class="mclose">)</span></span></span></span></span>. Given that <code>k &lt;= 26</code> in this
+            problem, one could argue the space complexity is <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord">1</span><span class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+</ul>
+<hr>
+<h3 id="approach-2-counting-and-oddeven">Approach 2: Counting and Odd/Even</h3>
+<h4 id="intuition-1">Intuition</h4>
+<p>When arranging the string <code>s</code> to avoid adjacent repeated characters, we can adopt a strategy based on
+    organizing the characters into two groups: even and odd indices. By filling all the even indices first, we create a
+    structure where no adjacent characters are the same within this group. Similarly, we proceed to fill the odd
+    indices, ensuring that adjacent characters within this group are also different from each other.</p>
+<p>To begin, we need to determine the frequencies of each character in <code>s</code>, just like we did in the previous
+    approach.</p>
+<p>To guarantee a valid rearrangement, we need to ensure that the frequency of the most frequent letter does not exceed
+    half the length of <code>s</code>, rounded up. If it does, it implies that it is not possible to arrange the string
+    without adjacent repetitions, and we can return an empty string as the result.</p>
+<p>We must start by placing the most frequent character of string <code>s</code> in the even positions (0, 2, 4, ...) to
+    ensure the following case doesn't occur:</p>
+<p>
+<div class="relative mx-auto mb-6 flex flex-col overflow-hidden rounded-lg border-[1px] border-label-1"
+     style="max-width: 960px;">
+    <div class="rounded-lg" style="max-height: 540px;"><img alt="Current"
+                                                            class="object-fit-contain !mb-0 max-h-full max-w-full"
+                                                            src="blob:https://leetcode.com/c53b281d-caaf-43ce-98c6-a2ae77b395db">
+    </div>
+    <div class="absolute top-[50%] left-[50%] flex h-12 w-12 translate-x-[-50%] translate-y-[-50%] items-center justify-center rounded-full bg-black/30">
+        <div class="flex h-4 w-4 cursor-pointer items-center justify-center text-[35px]">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="h-full w-full text-white">
+                <path fill-rule="evenodd"
+                      d="M18.97 12.871l-12.96 7.29a1 1 0 01-1.49-.87V4.71a1 1 0 011.49-.872l12.96 7.29a1 1 0 010 1.743z"
+                      clip-rule="evenodd"></path>
+            </svg>
+        </div>
+    </div>
+    <div class="relative flex h-8 select-none items-center justify-around bg-black">
+        <div class="flex items-center space-x-7">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M16.091 4.929l-7.057 7.078 7.057 7.064a1 1 0 01-1.414 1.414l-7.764-7.77a1 1 0 010-1.415l7.764-7.785a1 1 0 111.415 1.414z"
+                      clip-rule="evenodd"></path>
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M18.97 12.871l-12.96 7.29a1 1 0 01-1.49-.87V4.71a1 1 0 011.49-.872l12.96 7.29a1 1 0 010 1.743z"
+                      clip-rule="evenodd"></path>
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M7.913 19.071l7.057-7.078-7.057-7.064a1 1 0 011.414-1.414l7.764 7.77a1 1 0 010 1.415l-7.764 7.785a1 1 0 01-1.414-1.414z"
+                      clip-rule="evenodd"></path>
+            </svg>
+        </div>
+        <div class="absolute right-0 mr-5 text-xs font-medium text-white">1 / 4</div>
+    </div>
+</div>
+</p>
+<p>After the count for the most frequent character has exhausted we can place the remaining characters in the remaining
+    positions. Once we have finished populating all even indices, we move on to the first odd index and then fill in the
+    odd indices.</p>
+<p>This is how the algorithm will function:</p>
+<p>
+<div class="relative mx-auto mb-6 flex flex-col overflow-hidden rounded-lg border-[1px] border-label-1"
+     style="max-width: 960px;">
+    <div class="rounded-lg" style="max-height: 540px;"><img alt="Current"
+                                                            class="object-fit-contain !mb-0 max-h-full max-w-full"
+                                                            src="blob:https://leetcode.com/e8a32529-a24b-4f9d-a55d-8bd4bfb4cd65">
+    </div>
+    <div class="absolute top-[50%] left-[50%] flex h-12 w-12 translate-x-[-50%] translate-y-[-50%] items-center justify-center rounded-full bg-black/30">
+        <div class="flex h-4 w-4 cursor-pointer items-center justify-center text-[35px]">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="h-full w-full text-white">
+                <path fill-rule="evenodd"
+                      d="M18.97 12.871l-12.96 7.29a1 1 0 01-1.49-.87V4.71a1 1 0 011.49-.872l12.96 7.29a1 1 0 010 1.743z"
+                      clip-rule="evenodd"></path>
+            </svg>
+        </div>
+    </div>
+    <div class="relative flex h-8 select-none items-center justify-around bg-black">
+        <div class="flex items-center space-x-7">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M16.091 4.929l-7.057 7.078 7.057 7.064a1 1 0 01-1.414 1.414l-7.764-7.77a1 1 0 010-1.415l7.764-7.785a1 1 0 111.415 1.414z"
+                      clip-rule="evenodd"></path>
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M18.97 12.871l-12.96 7.29a1 1 0 01-1.49-.87V4.71a1 1 0 011.49-.872l12.96 7.29a1 1 0 010 1.743z"
+                      clip-rule="evenodd"></path>
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M7.913 19.071l7.057-7.078-7.057-7.064a1 1 0 011.414-1.414l7.764 7.77a1 1 0 010 1.415l-7.764 7.785a1 1 0 01-1.414-1.414z"
+                      clip-rule="evenodd"></path>
+            </svg>
+        </div>
+        <div class="absolute right-0 mr-5 text-xs font-medium text-white">1 / 11</div>
+    </div>
+</div>
+</p>
+<h4 id="algorithm-1">Algorithm</h4>
+<ol>
+    <li>Create a counter <code>char_counts</code> to store the counts of each character in the input string
+        <code>s</code>.
+    </li>
+    <li>Find the character with the maximum count (<code>max_count</code>) in <code>char_counts</code>. Set
+        <code>letter</code> as the corresponding character.
+    </li>
+    <li>Check if <code>max_count</code> is greater than half of the length of the string rounded up. If so, it is not
+        possible to rearrange the characters. Return an empty string.
+    </li>
+    <li>Initialize a list <code>ans</code> of length equal to <code>s</code>.</li>
+    <li>Set the starting index <code>index</code> as 0.
+        <ul>
+            <li>Place the most frequent character <code>letter</code> in the <code>ans</code> list at every second index
+                until its count becomes zero. Increment <code>index</code> by 2 for each placement and decrease the
+                count of <code>letter</code> in <code>char_counts</code>.
+            </li>
+        </ul>
+    </li>
+    <li>Iterate through the remaining characters and their counts in <code>char_counts</code>.
+        <ul>
+            <li>While the count is greater than zero:
+                <ul>
+                    <li>If <code>index</code> exceeds the length of <code>s</code>, set <code>index</code> as 1 to place
+                        all future characters at odd indices.
+                    </li>
+                    <li>Place the current character at <code>index</code> in the <code>ans</code> list and increment
+                        <code>index</code> by 2.
+                    </li>
+                    <li>Decrease the count of the character by 1.</li>
+                </ul>
+            </li>
+        </ul>
+    </li>
+    <li>Return the rearranged characters as a string by joining the elements in <code>ans</code>.</li>
+</ol>
+<h4 id="implementation-1">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public String reorganizeString(String s) {
+        var charCounts = new int[26];
+        for (char c : s.toCharArray()) {
+            charCounts[c - 'a']++;
+        }
+        int maxCount = 0, letter = 0;
+        for (int i = 0; i < charCounts.length; i++) {
+            if (charCounts[i] > maxCount) {
+                maxCount = charCounts[i];
+                letter = i;
+            }
+        }
+        if (maxCount > (s.length() + 1) / 2) {
+            return "";
+        }
+        var ans = new char[s.length()];
+        int index = 0;
+
+        // Place the most frequent letter
+        while (charCounts[letter] != 0) {
+            ans[index] = (char) (letter + 'a');
+            index += 2;
+            charCounts[letter]--;
+        }
+
+        // Place rest of the letters in any order
+        for (int i = 0; i < charCounts.length; i++) {
+            while (charCounts[i] > 0) {
+                if (index >= s.length()) {
+                    index = 1;
+                }
+                ans[index] = (char) (i + 'a');
+                index += 2;
+                charCounts[i]--;
+            }
+        }
+
+        return String.valueOf(ans);
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    string reorganizeString(string s) {
+        vector<int> charCounts(26, 0);
+        for (char c : s) {
+            charCounts[c - 'a']++;
+        }
+        int maxCount = 0, letter = 0;
+        for (int i = 0; i < charCounts.size(); i++) {
+            if (charCounts[i] > maxCount) {
+                maxCount = charCounts[i];
+                letter = i;
+            }
+        }
+        if (maxCount > (s.length() + 1) / 2) {
+            return "";
+        }
+        string ans = s;
+        int index = 0;
+
+        // Place the most frequent letter
+        while (charCounts[letter] != 0) {
+            ans[index] = char(letter + 'a');
+            index += 2;
+            charCounts[letter]--;
+        }
+
+        // Place rest of the letters in any order
+        for (int i = 0; i < charCounts.size(); i++) {
+            while (charCounts[i] > 0) {
+                if (index >= s.length()) {
+                    index = 1;
+                }
+                ans[index] = char(i + 'a');
+                index += 2;
+                charCounts[i]--;
+            }
+        }
+
+        return ans;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def reorganizeString(self, s: str) -> str:
+        char_counts = Counter(s)
+        max_count, letter = 0, ''
+        for char, count in char_counts.items():
+            if count > max_count:
+                max_count = count
+                letter = char
+        if max_count > (len(s) + 1) // 2:
+            return ""
+        ans = [''] * len(s)
+        index = 0
+
+        # Place the most frequent letter
+        while char_counts[letter] != 0:
+            ans[index] = letter
+            index += 2
+            char_counts[letter] -= 1
+
+        # Place rest of the letters in any order
+        for char, count in char_counts.items():
+            while count > 0:
+                if index >= len(s):
+                    index = 1
+                ans[index] = char
+                index += 2
+                count -= 1
+
+        return ''.join(ans)
+    </code>
+    Ruby
+    <code>
+        def reorganize_string(s)
+    char_counts = s.chars.tally
+    max_count, letter = 0, ''
+    char_counts.each do |char, count|
+      if count > max_count
+        max_count = count
+        letter = char
+      end
+    end
+    return "" if max_count > (s.length + 1) / 2
+    ans = Array.new(s.length)
+    index = 0
+
+    # Place the most frequent letter
+    while char_counts[letter] != 0
+      ans[index] = letter
+      index += 2
+      char_counts[letter] -= 1
+    end
+
+    # Place rest of the letters in any order
+    char_counts.each do |char, count|
+      while count > 0
+        if index >= s.length
+          index = 1
+        end
+        ans[index] = char
+        index += 2
+        count -= 1
+      end
+    end
+
+    return ans.join('')
+end
+    </code>
+</pre>
+<h4 id="complexity-analysis-1">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">NN</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                style="margin-right: 0.10903em;">N</span></span></span></span></span>
+    be the total characters in the string.<br>
+    Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">kk</span><span class="katex-html"
+                                                                                                     aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord mathnormal"
+                                                                                    style="margin-right: 0.03148em;">k</span></span></span></span></span>
+    be the tota unique characters in the string.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(N)O(N)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                class="mclose">)</span></span></span></span></span>. We will have to iterate over the entire string once
+            to gather the counts of each character. Then, we we place each character in the answer which costs <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(N)O(N)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                    class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(k)O(k)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                class="mclose">)</span></span></span></span></span>. The counter used to count the number of occurrences
+            will incur a space complexity of <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(k)O(k)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                    class="mclose">)</span></span></span></span></span>. Again, one could argue that because <code>k
+                &lt;= 26</code>, the space complexity is constant.</p>
+    </li>
+</ul>
+</body>
+</html>
