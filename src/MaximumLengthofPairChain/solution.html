@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Maximum Length of Pair Chain - Solution</title>
+</head>
+<body>
+<h2 id="solution">Maximum Length of Pair Chain - Solution</h2>
+<hr>
+<h3 id="overview">Overview</h3>
+<p>We are given an array of <code>n</code> pairs <code>pairs</code> where <span class="math math-inline"><span
+        class="katex"><span class="katex-mathml">pairs[i]=[lefti,righti]\text{pairs}[i] = [\text{left}_i, \text{right}_i]</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord text"><span class="mord">pairs</span></span><span class="mopen">[</span><span
+        class="mord mathnormal">i</span><span class="mclose">]</span><span class="mspace"
+                                                                           style="margin-right: 0.2778em;"></span><span
+        class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span
+        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mopen">[</span><span
+        class="mord"><span class="mord text"><span class="mord">left</span></span><span class="msupsub"><span
+        class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.3117em;"><span
+        style="top: -2.55em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span
+        class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                   style="height: 0.15em;"><span></span></span></span></span></span></span><span
+        class="mpunct">,</span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord"><span
+        class="mord text"><span class="mord">right</span></span><span class="msupsub"><span
+        class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.2175em;"><span
+        style="top: -2.4559em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span
+        class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.2441em;"><span></span></span></span></span></span></span><span
+        class="mclose">]</span></span></span></span></span> and <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">lefti&lt;righti\text{left}_i &lt; \text{right}_i</span><span class="katex-html"
+                                                                                          aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.8444em; vertical-align: -0.15em;"></span><span
+        class="mord"><span class="mord text"><span class="mord">left</span></span><span class="msupsub"><span
+        class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.3117em;"><span
+        style="top: -2.55em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span
+        class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                   style="height: 0.15em;"><span></span></span></span></span></span></span><span
+        class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">&lt;</span><span class="mspace"
+                                                                                                  style="margin-right: 0.2778em;"></span></span><span
+        class="base"><span class="strut" style="height: 0.9386em; vertical-align: -0.2441em;"></span><span class="mord"><span
+        class="mord text"><span class="mord">right</span></span><span class="msupsub"><span
+        class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.2175em;"><span
+        style="top: -2.4559em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span
+        class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.2441em;"><span></span></span></span></span></span></span></span></span></span></span>.
+</p>
+<p>A pair <code>p2 = [c, d]</code> follows a pair <code>p1 = [a, b]</code> if <code>b &lt; c</code>. A chain of pairs
+    can be formed in this fashion.</p>
+<p>Our task is to return the length of the longest chain which can be formed.</p>
+<hr>
+<h3 id="approach-1-recursive-dynamic-programming">Approach 1: Recursive Dynamic Programming</h3>
+<h4 id="intuition">Intuition</h4>
+<p>Two pairs can join together to form a chain if the second element of the first pair is less than the first element of
+    the next pair. Since the problem says that we can choose any combination in any order, we can safely sort the input.
+    We can guarantee that all feasible chains can be built iteratively going from the first to the last pair after
+    sorting.</p>
+<p>Following sorting, we have two options for a pair at index <code>i</code>: we may either include this pair in our
+    current chain or we can choose not to include this pair in our current chain.</p>
+<p>If we do not include this pair in the current chain, we may simply skip it and move on to the pair at index <code>i +
+    1</code>. We shall repeat in the range <code>[i + 1, n)</code>. Because we have already sorted the
+    <code>pairs</code>, it means the next potential pair will be located after the present pair.</p>
+<p>Otherwise, if we include this pair, we increase the length of the chain by <code>1</code>. We then need to find the
+    next pair that would follow the one we just added. It will be at an index <code>j</code> in the range of <code>[i +
+        1, n)</code>, and its first element must be greater than the second element of the pair we just added.</p>
+<p>This would solve the problem but the solution is exponential in terms of time complexity.</p>
+<p>Here's how the partial recursion tree would look like for the above approach where <code>recur</code> is the
+    recursive function that takes in the <code>index</code> of the starting pair and recursively finds the longest chain
+    considering the pairs starting from the <code>index</code>:</p>
+<p><img src="646-1.png" alt="img"></p>
+<p>The word <strong>tail</strong> refers to the second element of the most recently selected pair. The next chosen pair
+    should have the first element be greater than the tail.</p>
+<p>We can observe that there are several repeating problems in this solution. Several subproblems, such as <code>recur(2)</code>,
+    <code>recur(3)</code>, etc., are solved multiple times in the partial recursion tree shown above. If we draw the
+    entire recursion tree, we can see that many subproblems are solved repeatedly.</p>
+<p>To avoid this issue, we store the solution of each sub-problem and when we encounter the same subproblem again, we
+    simply refer to the stored result. This is called <strong>memoization</strong>.</p>
+<p>We create an array of integers <code>memo</code> where <code>memo[i]</code> will store the longest length of the
+    chain starting from the <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">ithi^{th}</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.8491em;"></span><span class="mord"><span
+            class="mord mathnormal">i</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span
+            class="vlist" style="height: 0.8491em;"><span style="top: -3.063em; margin-right: 0.05em;"><span
+            class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span
+            class="mord mtight"><span class="mord mathnormal mtight">t</span><span
+            class="mord mathnormal mtight">h</span></span></span></span></span></span></span></span></span></span></span></span></span>
+    pair and including it.</p>
+<p>We can now select every pair as the starting pair one by one.</p>
+<p>For each starting pair <code>i</code>, we try to select all the pairs from the range <code>[i + 1, n)</code> as the
+    next pair one by one.</p>
+<p>We run a loop from <code>j = i + 1</code> to <code>n - 1</code> to check all the potential next pairs. If we can
+    choose the pair at index <code>j</code> (<code>pairs[j][0] &gt; pairs[i][1]</code>), we try using it as the next
+    pair. We want to take the pair that maximizes the final length, so we perform <code>memo[i] = max(memo[i], 1 +
+        recur[j])</code>. We added <code>1</code> as we selected the pair <code>i</code> in the chain and now moved to
+    the next pair at the index <code>j</code>.</p>
+<p>The longest chain starting from each pair is stored in <code>memo</code>, thus the answer is the maximum value in
+    <code>memo</code>. Note that as a base case, any pair forms a chain of length <code>1</code> on its own.</p>
+<h4 id="algorithm">Algorithm</h4>
+<ol>
+    <li>Create an integer variable <code>n</code> to store the number of pairs in <code>pairs</code>.</li>
+    <li>Sort <code>pairs</code> based on the first element (we could sort on the second element as well).</li>
+    <li>Create an integer array <code>memo</code> of size <code>n</code> where <code>memo[i]</code> will store the
+        longest length of the chain starting from the <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">ithi^{th}</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 0.8491em;"></span><span class="mord"><span
+                class="mord mathnormal">i</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span
+                class="vlist" style="height: 0.8491em;"><span style="top: -3.063em; margin-right: 0.05em;"><span
+                class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight"><span class="mord mathnormal mtight">t</span><span
+                class="mord mathnormal mtight">h</span></span></span></span></span></span></span></span></span></span></span></span></span>
+        pair and including it.
+    </li>
+    <li>Create an integer variable <code>ans = 0</code>.</li>
+    <li>Select every pair from <code>i = 0</code> to <code>n - 1</code> as the starting pair of the chain and take the
+        maximum out of it in <code>ans</code>. To find the longest chain starting from the pair at index <code>i</code>,
+        we call the recursive method <code>longestPairChain</code> which takes four parameters: <code>i</code> of the
+        starting pair, <code>pairs</code>, <code>n</code>, and <code>memo</code>. We perform the following in this
+        method:
+        <ul>
+            <li>If we have already computed the length of the longest chain starting from pair at <code>i</code>, we
+                simply return <code>memo[i]</code>.
+            </li>
+            <li>Set <code>memo[i] = 1</code> as the current pair can always be selected as the only pair in the chain.
+            </li>
+            <li>Iterate over all the pairs from <code>j = i + 1</code> to <code>n - 1</code> and recursively find the
+                longest chain that can be formed by going to the <span class="math math-inline"><span
+                        class="katex"><span class="katex-mathml">jthj^{th}</span><span class="katex-html"
+                                                                                       aria-hidden="true"><span
+                        class="base"><span class="strut"
+                                           style="height: 1.0435em; vertical-align: -0.1944em;"></span><span
+                        class="mord"><span class="mord mathnormal" style="margin-right: 0.05724em;">j</span><span
+                        class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                          style="height: 0.8491em;"><span
+                        style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                        class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+                        class="mord mathnormal mtight">t</span><span
+                        class="mord mathnormal mtight">h</span></span></span></span></span></span></span></span></span></span></span></span></span>
+                pair. We perform <code>memo[i] = max(memo[i], 1 + longestPairChain(j, pairs, n, memo))</code> to figure
+                and store the length of the longest chain starting with <span class="math math-inline"><span
+                        class="katex"><span class="katex-mathml">ithi^{th}</span><span class="katex-html"
+                                                                                       aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 0.8491em;"></span><span class="mord"><span
+                        class="mord mathnormal">i</span><span class="msupsub"><span class="vlist-t"><span
+                        class="vlist-r"><span class="vlist" style="height: 0.8491em;"><span
+                        style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                        class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+                        class="mord mathnormal mtight">t</span><span
+                        class="mord mathnormal mtight">h</span></span></span></span></span></span></span></span></span></span></span></span></span>
+                pair.
+            </li>
+        </ul>
+    </li>
+    <li>Return <code>ans</code>.</li>
+</ol>
+<h4 id="implementation">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    private int longestPairChain(int i, int[][] pairs, int n, int[] memo) {
+        if (memo[i] != 0) {
+            return memo[i];
+        }
+        memo[i] = 1;
+        for (int j = i + 1; j < n; j++) {
+            if (pairs[i][1] < pairs[j][0]) {
+                memo[i] = Math.max(memo[i], 1 + longestPairChain(j, pairs, n, memo));
+            }
+        }
+        return memo[i];
+    }
+
+    public int findLongestChain(int[][] pairs) {
+        int n = pairs.length;
+        Arrays.sort(pairs, (a, b) -> a[0] - b[0]);
+        int[] memo = new int[n];
+
+        int ans = 0;
+        for (int i = 0; i < n; i++) {
+            ans = Math.max(ans, longestPairChain(i, pairs, n, memo));
+        }
+        return ans;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int longestPairChain(int i, vector<vector<int>>& pairs, int& n, vector<int>& memo) {
+        if (memo[i] != 0) {
+            return memo[i];
+        }
+        memo[i] = 1;
+        for (int j = i + 1; j < n; i++) {
+            if (pairs[i][1] < pairs[j][0]) {
+                memo[i] = max(memo[i], 1 + longestPairChain(j, pairs, n, memo));
+            }
+        }
+        return memo[i];
+    }
+
+    int findLongestChain(vector<vector<int>>& pairs) {
+        int n = pairs.size();
+        sort(pairs.begin(), pairs.end());
+        vector<int> memo(n);
+
+        int ans = 0;
+        for (int i = 0; i < n; i++) {
+            ans = max(ans, longestPairChain(i, pairs, n, memo));
+        }
+        return ans;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def longestPairChain(self, i: int, pairs: List[List[int]], n: int, memo: List[int]) -> int:
+        if memo[i] != 0:
+            return memo[i]
+        memo[i] = 1
+        for j in range(i + 1, n):
+            if pairs[i][1] < pairs[j][0]:
+                memo[i] = max(memo[i], 1 + self.longestPairChain(j, pairs, n, memo))
+        return memo[i]
+
+    def findLongestChain(self, pairs: List[List[int]]) -> int:
+        n = len(pairs)
+        pairs.sort()
+        memo = [0] * n
+
+        ans = 0
+        for i in range(n):
+            ans = max(ans, self.longestPairChain(i, pairs, n, memo))
+        return ans
+    </code>
+</pre>
+<h4 id="complexity-analysis">Complexity Analysis</h4>
+<p>Here <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                     aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    is the length of <code>pairs</code>.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n2)O(n^2)</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+                class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                class="mclose">)</span></span></span></span></span>.</p>
+        <ul>
+            <li>It takes <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅log⁡n)O(n \cdot \log{n})</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                              style="margin-right: 0.1667em;"></span><span
+                    class="mord"><span class="mord mathnormal">n</span></span><span
+                    class="mclose">)</span></span></span></span></span> time to sort <code>pairs</code>.
+            </li>
+            <li>It further takes <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> time to
+                intialize the <code>memo</code> array.
+            </li>
+            <li>In the recursive method, we iterate from the current pair till the last pair, which takes <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> time for
+                each pair. We compute the length of the longest chain starting from each pair once (due to memoization).
+                Since we have a total of <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 0.4306em;"></span><span
+                        class="mord mathnormal">n</span></span></span></span></span> pairs and it takes <span
+                        class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+                time on average to iterate over all the next pairs, it would take <span class="math math-inline"><span
+                        class="katex"><span class="katex-mathml">O(n2)O(n^2)</span><span class="katex-html"
+                                                                                         aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord"><span class="mord mathnormal">n</span><span
+                        class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                          style="height: 0.8141em;"><span
+                        style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                        class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                        class="mclose">)</span></span></span></span></span> time in total.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.
+        </p>
+        <ul>
+            <li>The recursion stack will grow up to a maximum size of <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 0.4306em;"></span><span
+                    class="mord mathnormal">n</span></span></span></span></span> in the case where all the calls
+                corresponding to all the pairs are in the stack. This will occur when the subsequent pair in the sorted
+                <code>pair</code> always satisfies the condition to be selected as the follow-up pair.
+            </li>
+            <li>The <code>memo</code> array also takes <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> space.
+            </li>
+        </ul>
+    </li>
+</ul>
+<hr>
+<h3 id="approach-2-iterative-dynamic-programming">Approach 2: Iterative Dynamic Programming</h3>
+<h4 id="intuition-1">Intuition</h4>
+<p>We used memoization in the preceding approach to store the answers to subproblems to solve a larger problem. We can
+    also use a bottom-up approach to solve such problems without using recursion. We build answers to subproblems
+    iteratively first, then use them to build answers to larger problems.</p>
+<p>We create a list <code>dp[n]</code> where <code>dp[i]</code> will store the length of the longest chain starting from
+    pair <code>i</code> and selecting it in the chain. Note that <code>dp[i] = memo[i] = longestPairChain(i, pairs, n,
+        memo)</code> from the previous approach.</p>
+<p>We initialize <code>dp[i] = 1</code> for all values of <code>i</code> since a single pair can always form a chain on
+    its own. While moving from bottom to top, this serves as the base case for our solution.</p>
+<p>We iterate from <code>i = n - 1</code> to <code>0</code> in the outer loop. It controls the starting index of the
+    pair. After choosing the <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">ithi^{th}</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.8491em;"></span><span class="mord"><span
+            class="mord mathnormal">i</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span
+            class="vlist" style="height: 0.8491em;"><span style="top: -3.063em; margin-right: 0.05em;"><span
+            class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span
+            class="mord mtight"><span class="mord mathnormal mtight">t</span><span
+            class="mord mathnormal mtight">h</span></span></span></span></span></span></span></span></span></span></span></span></span>
+    pair, we go on to the next pair by executing an inner loop from <code>j = i + 1</code> to <code>n - 1</code>. We
+    determine if the pair at index <code>j</code> can be chosen as the <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">ithi^{th}</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.8491em;"></span><span class="mord"><span
+            class="mord mathnormal">i</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span
+            class="vlist" style="height: 0.8491em;"><span style="top: -3.063em; margin-right: 0.05em;"><span
+            class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span
+            class="mord mtight"><span class="mord mathnormal mtight">t</span><span
+            class="mord mathnormal mtight">h</span></span></span></span></span></span></span></span></span></span></span></span></span>
+    pair's successor.</p>
+<p>If we can choose pair <code>j</code>, we take the maximum from the longest chain we created so far beginning with
+    <code>i</code> (<code>dp[i]</code>) and moving forward by selecting pair <code>j</code> as the next pair to create
+    the longest chain possible. Basically, <code>dp[i] = max(dp[i], 1 + dp[j])</code> is what we perform. We would
+    already know the solution to <code>dp[j]</code> as we are going from the end to the beginning.</p>
+<p>The maximum value in the <code>dp</code> array is the answer.</p>
+<p>You may realize that we could also fill the <code>dp</code> table by moving from the start to the end. We can use an
+    outer loop from <code>i = 1</code> to <code>n - 1</code> and an inner loop from <code>j = 0</code> to <code>i -
+        1</code> to fill the <code>dp</code> table from the start.</p>
+<h4 id="algorithm-1">Algorithm</h4>
+<ol>
+    <li>Create an integer variable <code>n</code> to store the number of pairs in <code>pairs</code>.</li>
+    <li>Sort <code>pairs</code> based on the first element (we could sort on the second element as well).</li>
+    <li>Create an integer array <code>dp</code> of size <code>n</code> where <code>dp[i]</code> will store the longest
+        length of the chain starting from the <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">ithi^{th}</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 0.8491em;"></span><span class="mord"><span
+                class="mord mathnormal">i</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span
+                class="vlist" style="height: 0.8491em;"><span style="top: -3.063em; margin-right: 0.05em;"><span
+                class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight"><span class="mord mathnormal mtight">t</span><span
+                class="mord mathnormal mtight">h</span></span></span></span></span></span></span></span></span></span></span></span></span>
+        pair and including it. We initialize all the elements in <code>dp</code> to <code>1</code>.
+    </li>
+    <li>Create an integer variable <code>ans = 1</code> that stores the answer to the problem. As we have at least one
+        pair in the input, we initialize it to <code>1</code>.
+    </li>
+    <li>We iterate using two loops. The outer loops run from <code>i = n - 1</code> to <code>0</code> and the inner loop
+        runs from <code>j = i + 1</code> to <code>n - 1</code>:
+        <ul>
+            <li>If <span class="math math-inline"><span class="katex"><span class="katex-mathml">jthj^{th}</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1.0435em; vertical-align: -0.1944em;"></span><span
+                    class="mord"><span class="mord mathnormal" style="margin-right: 0.05724em;">j</span><span
+                    class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                      style="height: 0.8491em;"><span
+                    style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                       style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+                    class="mord mathnormal mtight">t</span><span
+                    class="mord mathnormal mtight">h</span></span></span></span></span></span></span></span></span></span></span></span></span>
+                pair can be selected as the next pair after <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">ithi^{th}</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 0.8491em;"></span><span class="mord"><span
+                        class="mord mathnormal">i</span><span class="msupsub"><span class="vlist-t"><span
+                        class="vlist-r"><span class="vlist" style="height: 0.8491em;"><span
+                        style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                        class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+                        class="mord mathnormal mtight">t</span><span
+                        class="mord mathnormal mtight">h</span></span></span></span></span></span></span></span></span></span></span></span></span>
+                pair, i.e., <code>pairs[i][1] &lt; pairs[j][0]</code>, we update <code>dp[i] = max(dp[i], 1 +
+                    dp[j])</code>.
+            </li>
+            <li>After the completion of the inner loop, we update our answer with <code>ans = max(ans, dp[i])</code>.
+            </li>
+        </ul>
+    </li>
+    <li>Return <code>ans</code>.</li>
+</ol>
+<h4 id="implementation-1">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int findLongestChain(int[][] pairs) {
+        int n = pairs.length;
+        Arrays.sort(pairs, (a, b) -> a[0] - b[0]);
+        int[] dp = new int[n];
+        Arrays.fill(dp, 1);
+        int ans = 1;
+
+        for (int i = n - 1; i >= 0; i--) {
+            for (int j = i + 1; j < n; j++) {
+                if (pairs[i][1] < pairs[j][0]) {
+                    dp[i] = Math.max(dp[i], 1 + dp[j]);
+                }
+            }
+            ans = Math.max(ans, dp[i]);
+        }
+        return ans;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int findLongestChain(vector<vector<int>>& pairs) {
+        int n = pairs.size();
+        sort(pairs.begin(), pairs.end());
+        vector<int> dp(n, 1);
+        int ans = 1;
+
+        for (int i = n - 1; i >= 0; i--) {
+            for (int j = i + 1; j < n; j++) {
+                if (pairs[i][1] < pairs[j][0]) {
+                    dp[i] = max(dp[i], 1 + dp[j]);
+                }
+            }
+            ans = max(ans, dp[i]);
+        }
+        return ans;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def findLongestChain(self, pairs: List[List[int]]) -> int:
+        n = len(pairs)
+        pairs.sort()
+        dp = [1] * n
+        ans = 1
+
+        for i in range(n - 1, -1, -1):
+            for j in range(i + 1, n):
+                if pairs[i][1] < pairs[j][0]:
+                    dp[i] = max(dp[i], 1 + dp[j])
+            ans = max(ans, dp[i])
+        return ans
+    </code>
+</pre>
+<h4 id="complexity-analysis-1">Complexity Analysis</h4>
+<p>Here <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                     aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    is the length of <code>pairs</code>.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n2)O(n^2)</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+                class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                class="mclose">)</span></span></span></span></span>.</p>
+        <ul>
+            <li>We sort <code>pairs</code> which takes <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(n⋅log⁡n)O(n \cdot \log{n})</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                              style="margin-right: 0.1667em;"></span><span
+                    class="mord"><span class="mord mathnormal">n</span></span><span
+                    class="mclose">)</span></span></span></span></span> time.
+            </li>
+            <li>We run two nested loops which consume <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(n2)O(n^2)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+                    class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                    style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                       style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span
+                    class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                    class="mclose">)</span></span></span></span></span> time.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.
+        </p>
+        <ul>
+            <li>The <code>dp</code> array takes <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> space.
+            </li>
+        </ul>
+    </li>
+</ul>
+<hr>
+<h3 id="approach-3-greedy">Approach 3: Greedy</h3>
+<h4 id="intuition-2">Intuition</h4>
+<p>In the first two methods, we used dynamic programming to construct the solution to a larger problem by solving
+    smaller subproblems. Let's think if we can solve the problem using a greedy approach.</p>
+<p>We must think about sorting <code>pairs</code> if we want to solve the problem using a greedy strategy, which
+    involves picking up pairs on the fly from the beginning to the end whenever we can.</p>
+<p>Let's see what happens if we order the "pairs" based on the first element and then pick pairs whenever we can in
+    order. Take the pairs <code>[1, 10], [2, 4], [5, 8], [9, 11]</code> as an example. They are ordered according to the
+    first element.</p>
+<p>An incorrect answer of <code>1</code> will be returned if we choose the first element and keep choosing the pairs as
+    we go. The correct answer is <code>3</code>.</p>
+<p>This suggests that sorting based on the first element wouldn't be effective because the second element of a selected
+    pair might be large enough to prevent the addition of numerous additional pairs.</p>
+<p>Note that sorting based on the first element worked with the earlier methods because we built the solution optimally
+    for the length of all feasible chains, rather than just greedily choosing the first pair.</p>
+<p>Let's check out what happens if we sort the above list of pairs now using the second element. The above example would
+    be changed to <code>[2, 4], [5, 8], [1, 10], [9, 11]</code>. If we begin by greedily choosing the pairs, we will
+    choose <code>[2, 4], [5, 8], [9, 11]</code>, yielding the answer <code>3</code>, which is the right answer.</p>
+<p>Will this always work?</p>
+<p>Consider <code>pairA</code> and <code>pairB</code>, where <code>pairA</code> appears before <code>pairB</code> in the
+    sorted pairs based on the second element. We want to figure out if it is always correct to pick <code>pairA</code>
+    first if it comes before any other pair <code>pairB</code>.</p>
+<p>Since <code>pairA</code> comes before <code>pairB</code> in the sorted list, it implies that <code>pairA[1] &lt;=
+    pairB[1]</code>. There are no guarantees on <code>pairA[0]</code> and <code>pairB[0]</code>.</p>
+<p>Now, if <code>pairA[1] &lt; pairB[0]</code>, it's obvious that we should append <code>pairA</code> first. This is
+    because after picking <code>pairA</code> we can still pick <code>pairB</code>.</p>
+<p>When <code>pairA[1] &gt;= pairB[0]</code>, we have to choose carefully. It means that either we only append <code>pairA</code>
+    to the chain, or we only append <code>pairB</code> to the chain. Appending either <code>pairA</code> or
+    <code>pairB</code> will increment the length of the chain by <code>1</code> but will affect the next pair we can
+    pick.</p>
+<p>The tail of the current chain would be <code>pairA[1]</code> if we choose <code>pairA</code> and would be <code>pairB[1]</code>
+    if choose <code>pairB</code>. Since <code>pairA[1] &lt; pairB[1]</code> (due to sorting), it is better to choose
+    <code>pairA</code> first because that way we expose a smaller tail which has a better opportunity to append more
+    future pairs.</p>
+<p>As you can see, in both cases, it is better to pick <code>pairA</code>. So, this greedy approach of sorting <code>pairs</code>
+    based on the second element and then greedily picking pairs whenever we can starting from the first pair will always
+    give the length of the longest chain.</p>
+<h4 id="algorithm-2">Algorithm</h4>
+<ol>
+    <li>Sort <code>pairs</code> based on the second element.</li>
+    <li>Create an integer variable <code>curr</code> to store the tail of the current chain (second element of the most
+        recently selected pair). We initialize it to a large negative value.
+    </li>
+    <li>Create an integer variable <code>ans = 0</code> that stores the answer to the problem.</li>
+    <li>Iterate over all the pairs in <code>pairs</code> from the start. For each <code>pair</code> in
+        <code>pairs</code>, we perform the following:
+        <ul>
+            <li>If <code>pair[0] &gt; curr</code>, i.e., starting of <code>pair</code> is greater than the current tail
+                of the chain <code>curr</code>, we increment <code>ans</code> by <code>1</code> and update <code>curr =
+                    pair[1]</code>.
+            </li>
+        </ul>
+    </li>
+    <li>Return <code>ans</code>.</li>
+</ol>
+<h4 id="implementation-2">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int findLongestChain(int[][] pairs) {
+        // Sort pairs in ascending order based on the second element.
+        Arrays.sort(pairs, (a, b) -> a[1] - b[1]);
+        int curr = Integer.MIN_VALUE;
+        int ans = 0;
+
+        for (int[] pair : pairs) {
+            if (pair[0] > curr) {
+                ans++;
+                curr = pair[1];
+            }
+        }
+        return ans;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int findLongestChain(vector<vector<int>>& pairs) {
+        // Sort pairs in ascending order based on the second element.
+        sort(pairs.begin(), pairs.end(),
+             [](const vector<int>& a, const vector<int>& b) { return a[1] < b[1]; });
+        int curr = INT_MIN, ans = 0;
+
+        for (const auto& pair : pairs) {
+            if (pair[0] > curr) {
+                ans++;
+                curr = pair[1];
+            }
+        }
+        return ans;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def findLongestChain(self, pairs: List[List[int]]) -> int:
+        # Sort pairs in ascending order based on the second element.
+        pairs.sort(key=lambda x: x[1])
+        curr = float('-inf')
+        ans = 0
+
+        for pair in pairs:
+            if pair[0] > curr:
+                ans += 1
+                curr = pair[1]
+        return ans
+    </code>
+</pre>
+<h4 id="complexity-analysis-2">Complexity Analysis</h4>
+<p>Here <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                     aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    is the length of <code>pairs</code>.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅log⁡n)O(n \cdot \log{n})</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                      style="margin-right: 0.1667em;"></span><span
+                class="mord"><span class="mord mathnormal">n</span></span><span
+                class="mclose">)</span></span></span></span></span>.</p>
+        <ul>
+            <li>We sort <code>pairs</code> based on the second element which takes <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">O(n⋅log⁡n)O(n \cdot \log{n})</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                              style="margin-right: 0.1667em;"></span><span
+                    class="mord"><span class="mord mathnormal">n</span></span><span
+                    class="mclose">)</span></span></span></span></span> time.
+            </li>
+            <li>We then iterate over <code>pairs</code> which takes <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord">1</span><span
+                class="mclose">)</span></span></span></span></span>.</p>
+        <ul>
+            <li>Except for using few variables that use constant space, we don't consume any space.</li>
+        </ul>
+    </li>
+</ul>
+</body>
+</html>
