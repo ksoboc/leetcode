@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Implement Stack using Queues - Solution</title>
+</head>
+<body>
+<h2 id="summary">Summary</h2>
+<p>This article is for beginners. It introduces the following ideas:<br>
+    Stack, Queue.</p>
+<h2 id="solution">Implement Stack using Queues - Solution</h2>
+<hr>
+<h4 id="approach-1-two-queues-push---o1o1o1-pop-ononon-">Approach #1 (Two Queues, push - <span class="math math-inline"><span
+        class="katex"><span class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord">1</span><span
+        class="mclose">)</span></span></span></span></span>, pop <span class="math math-inline"><span
+        class="katex"><span class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+        class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> )</h4>
+<p><strong>Intuition</strong></p>
+<p>Stack is <strong>LIFO</strong> (last in - first out) data structure, in which elements are added and removed from the
+    same end, called <code>top</code>.<br>
+    In general stack is implemented using array or linked list, but in the current article we will review a different
+    approach for implementing stack using queues. In contrast queue is <strong>FIFO</strong> (first in - first out) data
+    structure, in which elements are added only from the one side - <code>rear</code> and removed from the other -
+    <code>front</code>. In order to implement stack using queues, we need to maintain two queues <code>q1</code> and
+    <code>q2</code>. Also we will keep top stack element in a constant memory.</p>
+<p><strong>Algorithm</strong></p>
+<p><strong>Push</strong></p>
+<p>The new element is always added to the rear of queue <code>q1</code> and it is kept as <code>top</code> stack element
+</p>
+<p><img src="225_stack_using_queues_pushA.png" alt="Push an element in stack"
+        style="width: 539px;"></p>
+<p><em>Figure 1. Push an element in stack</em></p>
+<pre>
+    Java
+    <code>
+        private Queue<Integer> q1 = new LinkedList<>();
+private Queue<Integer> q2 = new LinkedList<>();
+private int top;
+
+// Push element x onto stack.
+public void push(int x) {
+    q1.add(x);
+    top = x;
+}
+    </code>
+</pre>
+**Complexity Analysis**
+<ul>
+    <li>
+        <p>Time complexity : <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord">1</span><span
+                class="mclose">)</span></span></span></span></span>. Queue is implemented as linked list and
+            <code>add</code> operation has <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord">1</span><span class="mclose">)</span></span></span></span></span> time complexity.</p>
+    </li>
+    <li>
+        <p>Space complexity : <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord">1</span><span
+                class="mclose">)</span></span></span></span></span></p>
+    </li>
+</ul>
+<p><strong>Pop</strong></p>
+<p>We need to remove the element from the top of the stack. This is the last inserted element in <code>q1</code>.<br>
+    Because queue is FIFO (first in - first out) data structure, the last inserted element could be removed only after
+    all elements, except it, have been removed. For this reason we need to maintain additional queue <code>q2</code>,
+    which will serve as a temporary storage to enqueue the removed elements from q1. The last inserted element in <code>q2</code>
+    is kept as top. Then the algorithm removes the last element in <code>q1</code>. We swap <code>q1</code> with <code>q2</code>
+    to avoid copying all elements from <code>q2</code> to <code>q1</code>.</p>
+<p><img src="225_stack_using_queues_popA.png" alt="Pop an element from stack"
+        style="width: 539px;"></p>
+<p><em>Figure 2. Pop an element from stack</em></p>
+<pre>
+    Java
+    <code>
+        // Removes the element on top of the stack.
+public void pop() {
+    while (q1.size() > 1) {
+        top = q1.remove();
+        q2.add(top);
+    }
+    q1.remove();
+    Queue<Integer> temp = q1;
+    q1 = q2;
+    q2 = temp;
+}
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<ul>
+    <li>Time complexity : <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                     style="margin-right: 0.02778em;">O</span><span
+            class="mopen">(</span><span class="mord mathnormal">n</span><span
+            class="mclose">)</span></span></span></span></span>. The algorithm dequeues n elements from <code>q1</code>
+        and enqueues <span class="math math-inline"><span class="katex"><span class="katex-mathml">n−1n - 1</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.6444em;"></span><span
+                class="mord">1</span></span></span></span></span> elements to <code>q2</code>, where <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.4306em;"></span><span
+                class="mord mathnormal">n</span></span></span></span></span> is the stack size. This gives <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">2n−12n - 1</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.7278em; vertical-align: -0.0833em;"></span><span
+                class="mord">2</span><span class="mord mathnormal">n</span><span class="mspace"
+                                                                                 style="margin-right: 0.2222em;"></span><span
+                class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.6444em;"></span><span
+                class="mord">1</span></span></span></span></span> operations.
+    </li>
+    <li>Space complexity : <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord">1</span><span class="mclose">)</span></span></span></span></span>.
+    </li>
+</ul>
+<hr>
+<h4 id="approach-2-two-queues-push---ononon-pop-o1o1o1-">Approach #2 (Two Queues, push - <span class="math math-inline"><span
+        class="katex"><span class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+        class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>, pop <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span class="katex-html"
+                                                                                                     aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord">1</span><span
+        class="mclose">)</span></span></span></span></span> )</h4>
+<p><strong>Algorithm</strong></p>
+<p><strong>Push</strong></p>
+<p>The algorithm inserts each new element to queue <code>q2</code> and keep it as the <code>top</code> element. In case
+    queue <code>q1</code> is not empty (there are elements in the stack), we remove all elements from <code>q1</code>
+    and add them to <code>q2</code>. In this way the new inserted element (<code>top</code> element in the stack) will
+    be always positioned at the front of <code>q2</code>. We swap <code>q1</code> with <code>q2</code> to avoid copying
+    all elements from <code>q2</code> to <code>q1</code>.</p>
+<p><img src="225_stack_using_queues_pushB.png" alt="Push an element in stack"
+        style="width: 539px;"></p>
+<p><em>Figure 3. Push an element in stack</em></p>
+<pre>
+    Java
+    <code>
+        public void push(int x) {
+    q2.add(x);
+    top = x;
+    while (!q1.isEmpty()) {
+        q2.add(q1.remove());
+    }
+    Queue<Integer> temp = q1;
+    q1 = q2;
+    q2 = temp;
+}
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<ul>
+    <li>
+        <p>Time complexity : <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.
+            The algorithm removes n elements from <code>q1</code> and inserts <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">n+1n + 1</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+                    class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span>
+            elements to <code>q2</code>, where n is the stack size. This gives <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">2n+12n + 1</span><span class="katex-html"
+                                                                                    aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 0.7278em; vertical-align: -0.0833em;"></span><span
+                    class="mord">2</span><span class="mord mathnormal">n</span><span class="mspace"
+                                                                                     style="margin-right: 0.2222em;"></span><span
+                    class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span>
+            operations. The operations <code>add</code> and <code>remove</code> in linked lists has <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord">1</span><span class="mclose">)</span></span></span></span></span> complexity.</p>
+    </li>
+    <li>
+        <p>Space complexity : <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord">1</span><span
+                class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+</ul>
+<p><strong>Pop</strong></p>
+<p>The algorithm dequeues an element from queue <code>q1</code> and keeps front element of <code>q1</code> as
+    <code>top</code>.</p>
+<p><img src="225_stack_using_queues_popB.png" alt="Pop an element from stack"
+        style="width: 539px;"></p>
+<p><em>Figure 4. Pop an element from stack</em></p>
+<pre>
+    Java
+    <code>
+        // Removes the element on top of the stack.
+public void pop() {
+    q1.remove();
+    if (!q1.isEmpty()) {
+    	top = q1.peek();
+    }
+}
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<ul>
+    <li>Time complexity : <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                     style="margin-right: 0.02778em;">O</span><span
+            class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span></span>.
+    </li>
+    <li>Space complexity : <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord">1</span><span class="mclose">)</span></span></span></span></span>.
+    </li>
+</ul>
+<p>In both approaches <code>empty</code> and <code>top</code> operations have the same implementation.</p>
+<p><strong>Empty</strong></p>
+<p>Queue <code>q1</code> always contains all stack elements, so the algorithm checks <code>q1</code> size to return if
+    the stack is empty.</p>
+<pre>
+    Java
+    <code>
+        // Return whether the stack is empty.
+public boolean empty() {
+    return q1.isEmpty();
+}
+    </code>
+</pre>
+<p>Time complexity : <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord">1</span><span
+        class="mclose">)</span></span></span></span></span>.</p>
+<p>Space complexity : <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord">1</span><span
+        class="mclose">)</span></span></span></span></span>.</p>
+<p><strong>Top</strong></p>
+<p>The <code>top</code> element is kept in constant memory and is modified each time when we push or pop an element.</p>
+<pre>
+    Java
+    <code>
+        // Get the top element.
+public int top() {
+    return top;
+}
+    </code>
+</pre>
+<p>Time complexity : <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord">1</span><span
+        class="mclose">)</span></span></span></span></span>.<br>
+    The <code>top</code> element has been calculated in advance and only returned in <code>top</code> operation.</p>
+<p>Space complexity : <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord">1</span><span
+        class="mclose">)</span></span></span></span></span>.</p>
+<hr>
+<h4 id="approach-3-one-queue-push---ononon-pop-o1o1o1-">Approach #3 (One Queue, push - <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span class="katex-html"
+                                                                                                     aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+        class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>, pop <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span class="katex-html"
+                                                                                                     aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord">1</span><span
+        class="mclose">)</span></span></span></span></span> )</h4>
+<p>The mentioned above two approaches have one weakness, they use two queues. This could be optimized as we use only one
+    queue, instead of two.</p>
+<p><strong>Algorithm</strong></p>
+<p><strong>Push</strong></p>
+<p>When we push an element into a queue, it will be stored at back of the queue due to queue's properties.<br>
+    But we need to implement a stack, where last inserted element should be in the front of the queue, not at the back.
+    To achieve this we can invert the order of queue elements when pushing a new element.</p>
+<p><img src="225_stack_using_queues_pushC.png" alt="Push an element in stack"
+        style="width: 539px;"></p>
+<p><em>Figure 5. Push an element in stack</em></p>
+<pre>
+    Java
+    <code>
+        private LinkedList<Integer> q1 = new LinkedList<>();
+
+// Push element x onto stack.
+public void push(int x) {
+    q1.add(x);
+    int sz = q1.size();
+    while (sz > 1) {
+        q1.add(q1.remove());
+        sz--;
+    }
+}
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<ul>
+    <li>
+        <p>Time complexity : <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.
+            The algorithm removes n elements and inserts <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">n+1n + 1</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+                    class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span>
+            elements to <code>q1</code> , where n is the stack size. This gives <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">2n+12n + 1</span><span class="katex-html"
+                                                                                    aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 0.7278em; vertical-align: -0.0833em;"></span><span
+                    class="mord">2</span><span class="mord mathnormal">n</span><span class="mspace"
+                                                                                     style="margin-right: 0.2222em;"></span><span
+                    class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span>
+            operations. The operations <code>add</code> and <code>remove</code> in linked lists has <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord">1</span><span class="mclose">)</span></span></span></span></span> complexity.</p>
+    </li>
+    <li>
+        <p>Space complexity : <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord">1</span><span
+                class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+</ul>
+<p><strong>Pop</strong></p>
+<p>The last inserted element is always stored at the front of <code>q1</code> and we can pop it for constant time.</p>
+<pre>
+    Java
+    <code>
+        // Removes the element on top of the stack.
+public void pop() {
+    q1.remove();
+}
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<ul>
+    <li>Time complexity : <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                     style="margin-right: 0.02778em;">O</span><span
+            class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span></span>.
+    </li>
+    <li>Space complexity : <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord">1</span><span class="mclose">)</span></span></span></span></span>.
+    </li>
+</ul>
+<p><strong>Empty</strong></p>
+<p>Queue <code>q1</code> contains all stack elements, so the algorithm checks if <code>q1</code> is empty.</p>
+<pre>
+    Java
+    <code>
+        // Return whether the stack is empty.
+public boolean empty() {
+    return q1.isEmpty();
+}
+    </code>
+</pre>
+<p>Time complexity : <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord">1</span><span
+        class="mclose">)</span></span></span></span></span>.<br>
+    Space complexity : <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                     style="margin-right: 0.02778em;">O</span><span
+            class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span></span>.
+</p>
+<p><strong>Top</strong></p>
+<p>The <code>top</code> element is always positioned at the front of <code>q1</code>. Algorithm return it.</p>
+<pre>
+    Java
+    <code>
+        // Get the top element.
+public int top() {
+    return q1.peek();
+}
+    </code>
+</pre>
+<p>Time complexity : <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord">1</span><span
+        class="mclose">)</span></span></span></span></span>.<br>
+    Space complexity : <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                     style="margin-right: 0.02778em;">O</span><span
+            class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span></span>.
+</p>
+<p>Analysis written by: @elmirap.</p>
+</body>
+</html>
