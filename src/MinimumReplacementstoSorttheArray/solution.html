@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Minimum Replacements to Sort the Array - Solution</title>
+</head>
+<body>
+<h2 id="solution">Minimum Replacements to Sort the Array - Solution</h2>
+<hr>
+<h3 id="approach-greedy">Approach: Greedy</h3>
+<h4 id="intuition">Intuition</h4>
+<p>If <code>nums</code> is not sorted, there exists at least one adjacent pair <code>nums[i], nums[i + 1]</code> where
+    <code>nums[i] &gt; nums[i + 1]</code>. How should we handle this pair of numbers that don't adhere to the sorted
+    order? Should we break down the larger <code>nums[i]</code> using replacement operations or the smaller <code>nums[i
+        + 1]</code>? To minimize the number of steps, it is unnecessary to break down the smaller number because it
+    would only increase the number of replacement operations.</p>
+<p><img src="../Figures/2366/1.png" alt="img"></p>
+<p>Now that we understand the logic for handling adjacent unsorted pairs, the next question is the order in which we
+    process <code>nums</code>. Here, we need to traverse in <strong>reverse</strong> order. The reason is that our
+    replacement operations will only make the current <code>nums[i]</code> become two (or more) smaller numbers.</p>
+<p>If we start from the end and move toward the beginning, we can ensure that the suffix array always remains sorted.
+    This is because we are replacing <code>nums[i]</code> with smaller elements, which will not disrupt the sorting
+    structure of the suffix array (elements at indices <code>i + 1, i + 2</code>, etc. that are already sorted).</p>
+<p><img src="2.png" alt="img"></p>
+<p>On the contrary, if we start from the beginning and replace a larger element with smaller elements, it may disrupt
+    the sorted order of the previously processed elements on the left, and we'll end up needing more operations to sort
+    the processed subarray again, as shown in the picture below.</p>
+<p><img src="forward.png" alt="img"></p>
+<p>Now that we know the traversal order, the next step is to minimize the number of operations. When we reach <code>nums[i]</code>
+    during the reverse traversal, if <code>nums[i] &gt; nums[i + 1]</code>, how many smaller numbers should we break
+    <code>nums[i]</code> into? Here are a few options:</p>
+<ul>
+    <li>Breaking <code>nums[i]</code> into many 1s, which would require too many operations.</li>
+    <li>Breaking <code>nums[i]</code> according to the value of <code>nums[i + 1]</code>, with the remainder of <code>nums[i]</code>
+        divided by <code>nums[i + 1]</code> becoming the new <code>nums[i]</code>. However, in some cases, this method
+        can result in a very small <code>nums[i]</code>. For example, <code>[7]</code> will be replaced by <code>[1, 3,
+            3]</code>, thus all the previous elements must be replaced by 1s.
+    </li>
+    <li>Any better method?</li>
+</ul>
+<p><img src="3.png" alt="img"></p>
+<p>We can use a method similar to option 2:</p>
+<ul>
+    <li>If <code>nums[i]</code> is divisible by <code>nums[i + 1]</code>, we break <code>nums[i]</code> into multiple
+        elements of value <code>nums[i + 1]</code>.
+    </li>
+    <li>If <code>nums[i]</code> is not divisible by <code>nums[i + 1]</code>, we break <code>nums[i]</code> into <code>(nums[i]
+        / nums[i + 1] + 1)</code> sorted elements, with the largest element being <code>nums[i + 1]</code> and the
+        smallest element being <code>nums[i + 1] - 1</code>. For example, if <code>nums[i] = 7</code> and <code>nums[i +
+            1] = 3</code>, we replace <code>[7]</code> with <code>[2, 2, 3]</code> by two replacement operations.
+    </li>
+</ul>
+<p><img src="4.png" alt="img"></p>
+<p>The reason that <code>[2, 2, 3]</code> is a better split than <code>[1, 3, 3]</code> is that all future elements on
+    the left will need to be less than or equal to the elements we split into here. Thus, we would prefer the larger
+    <code>2</code> over the smaller <code>1</code>, so we have more options for future splits.</p>
+<p>In summary, we traverse <code>nums</code> in reverse and break down each <code>nums[i]</code> that violates the
+    sorting order according to the approach mentioned above. We also accumulate the number of replacement operations. It
+    is important to note that when we break <code>nums[i]</code> into <code>n</code> elements, it actually requires
+    <code>n - 1</code> steps.</p>
+<p>Please refer to the picture below as a detailed example:</p>
+<p><img src="5.png" alt="img"></p>
+<blockquote>
+    <p>In the previous paragraph, we discussed two cases for calculating <code>num_elements</code>, which can be
+        simplified by <code>nums_elements = (nums[i] + nums[i + 1] - 1) / nums[i + 1]</code>. Regardless of whether
+        <code>nums[i]</code> is divisible as <code>nums[i + 1]</code> or not, we will always obtain the correct result.
+    </p>
+</blockquote>
+<br>
+<h4 id="algorithm">Algorithm</h4>
+<ol>
+    <li>
+        <p>Set <code>answer</code> as 0, and set <code>n</code> as the length of <code>nums</code>.</p>
+    </li>
+    <li>
+        <p>Iterate over <code>nums</code> backward from <code>nums[n - 2]</code>, as we don't need to replace <code>nums[n
+            - 1]</code>.</p>
+        <ul>
+            <li>If <code>nums[i] &lt;= nums[i + 1]</code>, move on to the next element <code>nums[i - 1]</code>.</li>
+            <li>If <code>nums[i]</code> is divisible by <code>nums[i + 1]</code>, break <code>nums[i]</code> into <code>nums_elements
+                = num[i] / nums[i + 1]</code> elements, otherwise, break <code>num[i]</code> into <code>nums_elements =
+                nums[i] / nums[i + 1] + 1</code> elements. This requires <code>num_elements - 1</code> replacement
+                operations. Hence, we increment <code>answer</code> by <code>num_elements - 1</code>.
+            </li>
+            <li>The largest possible <code>nums[i]</code> after the operations is <code>nums[i] / num_elements</code>,
+                update <code>nums[i]</code> as <code>nums[i] / num_elements</code>.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Reeturn <code>answer</code> once the iteration is complete.</p>
+    </li>
+</ol>
+<h4 id="implementation">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public long minimumReplacement(int[] nums) {
+        long answer = 0;
+        int n = nums.length;
+
+        // Start from the second last element, as the last one is always sorted.
+        for (int i = n - 2; i >= 0; i--) {
+            // No need to break if they are already in order.
+            if (nums[i] <= nums[i + 1]) {
+                continue;
+            }
+
+            // Count how many elements are made from breaking nums[i].
+            long numElements = (long)(nums[i] + nums[i + 1] - 1) / (long)nums[i + 1];
+
+            // It requires numElements - 1 replacement operations.
+            answer += numElements - 1;
+
+            // Maximize nums[i] after replacement.
+            nums[i] = nums[i] / (int)numElements;
+        }
+
+        return answer;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    long long minimumReplacement(vector<int>& nums) {
+        long long answer = 0;
+        int n = nums.size();
+
+        // Start from the second last element, as the last one is always sorted.
+        for (int i = n - 2; i >= 0; i--) {
+            // No need to break if they are already in order.
+            if (nums[i] <= nums[i + 1]) {
+                continue;
+            }
+
+            // Count how many elements are made from breaking nums[i].
+            long long numElements = ceil((nums[i] + nums[i + 1] - 1LL) / (nums[i + 1]));
+
+            // It requires numElements - 1 replacement operations.
+            answer += numElements - 1;
+
+            // Maximize nums[i] after replacement.
+            nums[i] = nums[i] / numElements;
+        }
+
+        return answer;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def minimumReplacement(self, nums: List[int]) -> int:
+        answer = 0
+        n = len(nums)
+
+        # Start from the second last element, as the last one is always sorted.
+        for i in range(n - 2, -1, -1):
+            # No need to break if they are already in order.
+            if nums[i] <= nums[i + 1]:
+                continue
+
+            # Count how many elements are made from breaking nums[i].
+            num_elements = (nums[i] + nums[i + 1] - 1) // nums[i + 1]
+
+            # It requires numElements - 1 replacement operations.
+            answer += num_elements - 1
+
+            # Maximize nums[i] after replacement.
+            nums[i] = nums[i] // num_elements
+
+        return answer
+    </code>
+</pre>
+<h4 id="complexity-analysis">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    be the size of <code>nums</code>.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <ul>
+            <li>We iterate over <code>nums</code> once in reverse.</li>
+            <li>At each step, we calculate <code>num_elements</code>, <code>answer</code> and <code>nums[i]</code>,
+                which takes <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord">1</span><span
+                        class="mclose">)</span></span></span></span></span> time.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord">1</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>We're modifying <code>nums</code> in place and not using any additional data structures that scale with
+                the size of the input.
+            </li>
+            <li>Note that some interviewers might not want you to modify the input as it is not considered good practice
+                in real-world coding. If that's the case, you could slightly modify the algorithm to use an integer to
+                track the most recently split numbers.
+            </li>
+        </ul>
+    </li>
+</ul>
+<br>
+</body>
+</html>
