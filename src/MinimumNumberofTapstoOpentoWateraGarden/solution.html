@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Minimum Number of Taps to Open to Water a Garden - Solution</title>
+</head>
+<body>
+<h2 id="solution">Minimum Number of Taps to Open to Water a Garden - Solution</h2>
+<hr>
+<h3 id="approach-1-dynamic-programming">Approach 1: Dynamic Programming</h3>
+<blockquote>
+    <p><strong>Note.</strong> For this approach, we assume that you already know the fundamentals of dynamic programming
+        and are figuring out how to apply it to a wide range of problems, such as this one. If you are not yet at this
+        stage, we recommend checking out our relevant <a
+                href="https://leetcode.com/explore/featured/card/dynamic-programming/" target="_blank">Explore Card
+            content on dynamic programming</a> before coming back to this approach.</p>
+</blockquote>
+<h4 id="intuition">Intuition</h4>
+<p>To solve the problem of determining the minimum number of taps needed to water the entire garden, we can employ a
+    dynamic programming (DP) approach.</p>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">dp\text{dp}</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+        class="mord text"><span class="mord">dp</span></span></span></span></span></span> be an array of length <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">n+1n + 1</span><span class="katex-html"
+                                                                                                     aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+        class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+        class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+        class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span>, where
+    <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                 aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.4306em;"></span><span
+            class="mord mathnormal">n</span></span></span></span></span> is the length of the garden. The value <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">dp[i]\text{dp}[i]</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+            class="mord mathnormal">i</span><span class="mclose">]</span></span></span></span></span> represents the
+    minimum number of taps needed to water the garden from position <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">00</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span>
+    to position <span class="math math-inline"><span class="katex"><span class="katex-mathml">ii</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.6595em;"></span><span
+            class="mord mathnormal">i</span></span></span></span></span>.</p>
+<p>We initialize this array with a large value like infinity for each position. By doing so, we indicate that no taps
+    have been applied yet, and we can consider these positions as "unreachable" until we find a tap that can water
+    them.</p>
+<p><strong>Base case</strong></p>
+<p>The first step in calculating every DP is finding the base cases.</p>
+<p>In this DP, we have a base case <span class="math math-inline"><span class="katex"><span class="katex-mathml">dp[0]\text{dp}[0]</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+        class="mord">0</span><span class="mclose">]</span></span></span></span></span>. We set <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">i=0i = 0</span><span class="katex-html"
+                                                                                                     aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.6595em;"></span><span class="mord mathnormal">i</span><span
+        class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace"
+                                                                                               style="margin-right: 0.2778em;"></span></span><span
+        class="base"><span class="strut" style="height: 0.6444em;"></span><span
+        class="mord">0</span></span></span></span></span> in the DP definition and obtain that <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">dp[0]\text{dp}[0]</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+        class="mord">0</span><span class="mclose">]</span></span></span></span></span> is the minimum number of taps
+    needed to water the garden from position <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">00</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span> to
+    position <span class="math math-inline"><span class="katex"><span class="katex-mathml">00</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.6444em;"></span><span
+            class="mord">0</span></span></span></span></span> (the part of garden of zero length). Since we do not have
+    to open any taps to water a part of zero length, thus <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">dp[0]=0\text{dp}[0] = 0</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span class="mord">0</span><span
+            class="mclose">]</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+            class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span>.
+</p>
+<p>By setting the value of <span class="math math-inline"><span class="katex"><span class="katex-mathml">dp[0]\text{dp}[0]</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+        class="mord">0</span><span class="mclose">]</span></span></span></span></span> to <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">00</span><span class="katex-html"
+                                                                                               aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.6444em;"></span><span
+        class="mord">0</span></span></span></span></span>, we establish the base case of our dynamic programming
+    solution.</p>
+<p><strong>DP transitions</strong></p>
+<p>Now, we iterate through each tap, one by one. For each tap, we identify its leftmost and rightmost positions that can
+    be reached and watered. The leftmost position of the <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">ithi^\text{th}</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.8491em;"></span><span class="mord"><span
+            class="mord mathnormal">i</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span
+            class="vlist" style="height: 0.8491em;"><span style="top: -3.063em; margin-right: 0.05em;"><span
+            class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span
+            class="mord text mtight"><span
+            class="mord mtight">th</span></span></span></span></span></span></span></span></span></span></span></span></span>
+    tap is <span class="math math-inline"><span class="katex"><span class="katex-mathml">tap_start=max⁡(0,i−ranges[i])\text{tap\_start} = \max (0, i - \text{ranges}[i])</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.9251em; vertical-align: -0.31em;"></span><span
+            class="mord text"><span class="mord">tap_start</span></span><span class="mspace"
+                                                                              style="margin-right: 0.2778em;"></span><span
+            class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mop">max</span><span class="mopen">(</span><span class="mord">0</span><span
+            class="mpunct">,</span><span class="mspace" style="margin-right: 0.1667em;"></span><span
+            class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">ranges</span></span><span class="mopen">[</span><span
+            class="mord mathnormal">i</span><span class="mclose">])</span></span></span></span></span> and the rightmost
+    one is <span class="math math-inline"><span class="katex"><span class="katex-mathml">tap_end=min⁡(n,i+ranges[i])\text{tap\_end} = \min (n, i + \text{ranges}[i])</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1.0044em; vertical-align: -0.31em;"></span><span
+            class="mord text"><span class="mord">tap_end</span></span><span class="mspace"
+                                                                            style="margin-right: 0.2778em;"></span><span
+            class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mop">min</span><span class="mopen">(</span><span class="mord mathnormal">n</span><span
+            class="mpunct">,</span><span class="mspace" style="margin-right: 0.1667em;"></span><span
+            class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">ranges</span></span><span class="mopen">[</span><span
+            class="mord mathnormal">i</span><span class="mclose">])</span></span></span></span></span>.</p>
+<p>Consider an arbitrary position <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">jj</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                                           style="height: 0.854em; vertical-align: -0.1944em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.05724em;">j</span></span></span></span></span> inside the range
+    of the <span class="math math-inline"><span class="katex"><span class="katex-mathml">ithi^\text{th}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.8491em;"></span><span
+            class="mord"><span class="mord mathnormal">i</span><span class="msupsub"><span class="vlist-t"><span
+            class="vlist-r"><span class="vlist" style="height: 0.8491em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span
+            class="mord mtight">th</span></span></span></span></span></span></span></span></span></span></span></span></span>
+    tap. By DP definition, we need <span class="math math-inline"><span class="katex"><span class="katex-mathml">dp[j]\text{dp}[j]</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+            class="mord mathnormal" style="margin-right: 0.05724em;">j</span><span class="mclose">]</span></span></span></span></span>
+    taps to water the part of the garden from position <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">00</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span> to
+    position <span class="math math-inline"><span class="katex"><span class="katex-mathml">jj</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.854em; vertical-align: -0.1944em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.05724em;">j</span></span></span></span></span>.</p>
+<p>Thus if we open these <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">dp[j]\text{dp}[j]</span><span class="katex-html" aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span class="mord mathnormal"
+                                                                                               style="margin-right: 0.05724em;">j</span><span
+        class="mclose">]</span></span></span></span></span> taps and the <span class="math math-inline"><span
+        class="katex"><span class="katex-mathml">ithi^\text{th}</span><span class="katex-html" aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.8491em;"></span><span class="mord"><span
+        class="mord mathnormal">i</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span
+        class="vlist" style="height: 0.8491em;"><span style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                                         style="height: 2.7em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span
+        class="mord mtight">th</span></span></span></span></span></span></span></span></span></span></span></span></span>
+    tap (<span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">dp[j]+1\text{dp}[j] + 1</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+            class="mord mathnormal" style="margin-right: 0.05724em;">j</span><span class="mclose">]</span><span
+            class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace"
+                                                                                                   style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span>
+    taps in total), we will water the part of the garden from position <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">00</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span>
+    to position <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">tap_end\text{tap\_end}</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1.0044em; vertical-align: -0.31em;"></span><span
+            class="mord text"><span class="mord">tap_end</span></span></span></span></span></span>. It means that we can
+    update <span class="math math-inline"><span class="katex"><span class="katex-mathml">dp[tap_end]\text{dp}[\text{tap\_end}]</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1.06em; vertical-align: -0.31em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+            class="mord text"><span class="mord">tap_end</span></span><span class="mclose">]</span></span></span></span></span>
+    with <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">dp[j]+1\text{dp}[j] + 1</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+            class="mord mathnormal" style="margin-right: 0.05724em;">j</span><span class="mclose">]</span><span
+            class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace"
+                                                                                                   style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span>.
+</p>
+<p>In particular, when position <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">00</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                                           style="height: 0.6444em;"></span><span
+        class="mord">0</span></span></span></span></span> is inside the range of the <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">ithi^\text{th}</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.8491em;"></span><span
+        class="mord"><span class="mord mathnormal">i</span><span class="msupsub"><span class="vlist-t"><span
+        class="vlist-r"><span class="vlist" style="height: 0.8491em;"><span
+        style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span
+        class="mord mtight">th</span></span></span></span></span></span></span></span></span></span></span></span></span>
+    tap, this one tap is sufficient to water the garden from position <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">00</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span>
+    to position <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">tap_end\text{tap\_end}</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1.0044em; vertical-align: -0.31em;"></span><span
+            class="mord text"><span class="mord">tap_end</span></span></span></span></span></span>, and thus <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">dp[i]=1\text{dp}[i] = 1</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+            class="mord mathnormal">i</span><span class="mclose">]</span><span class="mspace"
+                                                                               style="margin-right: 0.2778em;"></span><span
+            class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span>.
+    How does our DP "know" that <span class="math math-inline"><span class="katex"><span class="katex-mathml">dp[i]\text{dp}[i]</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+            class="mord mathnormal">i</span><span class="mclose">]</span></span></span></span></span> must be <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">11</span><span class="katex-html"
+                                                                                                   aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span>?
+    When considering <span class="math math-inline"><span class="katex"><span class="katex-mathml">j=0j = 0</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.854em; vertical-align: -0.1944em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.05724em;">j</span><span class="mspace"
+                                                                                   style="margin-right: 0.2778em;"></span><span
+            class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span>,
+    we will update <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">dp[i]\text{dp}[i]</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord text"><span
+            class="mord">dp</span></span><span class="mopen">[</span><span class="mord mathnormal">i</span><span
+            class="mclose">]</span></span></span></span></span> with <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">dp[0]+1=1\text{dp}[0] + 1 = 1</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span class="mord">0</span><span
+            class="mclose">]</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">1</span><span
+            class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace"
+                                                                                                   style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span>.
+    This is how we make use of our base case <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">dp[0]=0\text{dp}[0] = 0</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span class="mord">0</span><span
+            class="mclose">]</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+            class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span>.
+</p>
+<p>So we will iterate through the positions within the tap's range, from left to right. At each position <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">jj</span><span class="katex-html"
+                                                                                               aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.854em; vertical-align: -0.1944em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.05724em;">j</span></span></span></span></span>, we compare <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">dp[j]+1\text{dp}[j] + 1</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span class="mord mathnormal"
+                                                                                               style="margin-right: 0.05724em;">j</span><span
+        class="mclose">]</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+        class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+        class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span> (the
+    minimum number of taps needed at <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">jj</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.854em; vertical-align: -0.1944em;"></span><span class="mord mathnormal"
+                                                                                           style="margin-right: 0.05724em;">j</span></span></span></span></span>
+    plus one) with the current value of <span class="math math-inline"><span class="katex"><span class="katex-mathml">dp[tap_end]\text{dp}[\text{tap\_end}]</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1.06em; vertical-align: -0.31em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+            class="mord text"><span class="mord">tap_end</span></span><span class="mclose">]</span></span></span></span></span>.
+    If <span class="math math-inline"><span class="katex"><span class="katex-mathml">dp[j]+1\text{dp}[j] + 1</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+            class="mord mathnormal" style="margin-right: 0.05724em;">j</span><span class="mclose">]</span><span
+            class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace"
+                                                                                                   style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span>
+    is smaller than <span class="math math-inline"><span class="katex"><span class="katex-mathml">dp[tap_end]\text{dp}[\text{tap\_end}]</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1.06em; vertical-align: -0.31em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+            class="mord text"><span class="mord">tap_end</span></span><span class="mclose">]</span></span></span></span></span>,
+    we update <span class="math math-inline"><span class="katex"><span class="katex-mathml">dp[tap_end]\text{dp}[\text{tap\_end}]</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1.06em; vertical-align: -0.31em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+            class="mord text"><span class="mord">tap_end</span></span><span class="mclose">]</span></span></span></span></span>
+    with <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">dp[j]+1\text{dp}[j] + 1</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+            class="mord mathnormal" style="margin-right: 0.05724em;">j</span><span class="mclose">]</span><span
+            class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace"
+                                                                                                   style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span>.
+    By doing so, we ensure that <span class="math math-inline"><span class="katex"><span class="katex-mathml">dp[tap_end]\text{dp}[\text{tap\_end}]</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1.06em; vertical-align: -0.31em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+            class="mord text"><span class="mord">tap_end</span></span><span class="mclose">]</span></span></span></span></span>
+    holds the optimal minimum number of taps needed to reach <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">tap_end\text{tap\_end}</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1.0044em; vertical-align: -0.31em;"></span><span
+            class="mord text"><span class="mord">tap_end</span></span></span></span></span></span> from the previous
+    positions.</p>
+<p>After processing all the taps, we check the number of taps needed at the last position of the garden. If the value is
+    still infinity, it means that the garden cannot be watered, and we return <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">−1-1</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.7278em; vertical-align: -0.0833em;"></span><span
+            class="mord">−</span><span class="mord">1</span></span></span></span></span> to indicate this. Otherwise, if
+    the value is a finite number, we return it as the minimum number of taps needed to water the entire garden.</p>
+<h4 id="algorithm">Algorithm</h4>
+<ol>
+    <li>Declare an array <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">dp\text{dp}</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.8889em; vertical-align: -0.1944em;"></span><span class="mord text"><span
+            class="mord">dp</span></span></span></span></span></span> of size <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">n+1n + 1</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+            class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span>.
+        Initialize it with infinite values (in code, we use a large number <span class="math math-inline"><span
+                class="katex"><span class="katex-mathml">10910^9</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 0.8141em;"></span><span class="mord">1</span><span
+                class="mord"><span class="mord">0</span><span class="msupsub"><span class="vlist-t"><span
+                class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight">9</span></span></span></span></span></span></span></span></span></span></span></span>
+        to represent infinity).
+    </li>
+    <li>Set <span class="math math-inline"><span class="katex"><span class="katex-mathml">dp[0]\text{dp}[0]</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span class="mord">0</span><span
+            class="mclose">]</span></span></span></span></span> to <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">00</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span>
+        (the base case of the DP).
+    </li>
+    <li>Iterate <span class="math math-inline"><span class="katex"><span class="katex-mathml">ii</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.6595em;"></span><span
+            class="mord mathnormal">i</span></span></span></span></span> from <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">00</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span>
+        to <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.4306em;"></span><span
+                class="mord mathnormal">n</span></span></span></span></span> (through each tap from left to right).
+        <ul>
+            <li>Calculate the leftmost position reachable by the current tap as <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">tap_start=max⁡(0,i−ranges[i])\text{tap\_start} = \max (0, i - \text{ranges}[i])</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.9251em; vertical-align: -0.31em;"></span><span
+                    class="mord text"><span class="mord">tap_start</span></span><span class="mspace"
+                                                                                      style="margin-right: 0.2778em;"></span><span
+                    class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mop">max</span><span class="mopen">(</span><span class="mord">0</span><span
+                    class="mpunct">,</span><span class="mspace" style="margin-right: 0.1667em;"></span><span
+                    class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord text"><span class="mord">ranges</span></span><span class="mopen">[</span><span
+                    class="mord mathnormal">i</span><span class="mclose">])</span></span></span></span></span>.
+            </li>
+            <li>And the rightmost position <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">tap_end=min⁡(n,i+ranges[i])\text{tap\_end} = \min (n, i + \text{ranges}[i])</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1.0044em; vertical-align: -0.31em;"></span><span
+                    class="mord text"><span class="mord">tap_end</span></span><span class="mspace"
+                                                                                    style="margin-right: 0.2778em;"></span><span
+                    class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mop">min</span><span class="mopen">(</span><span class="mord mathnormal">n</span><span
+                    class="mpunct">,</span><span class="mspace" style="margin-right: 0.1667em;"></span><span
+                    class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord text"><span class="mord">ranges</span></span><span class="mopen">[</span><span
+                    class="mord mathnormal">i</span><span class="mclose">])</span></span></span></span></span>.
+            </li>
+            <li>Iterate through the positions <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">jj</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                    class="strut" style="height: 0.854em; vertical-align: -0.1944em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.05724em;">j</span></span></span></span></span> from
+                <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">tap_start\text{tap\_start}</span><span class="katex-html"
+                                                                                    aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 0.9251em; vertical-align: -0.31em;"></span><span
+                        class="mord text"><span class="mord">tap_start</span></span></span></span></span></span> to
+                <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">tap_end\text{tap\_end}</span><span class="katex-html"
+                                                                                aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1.0044em; vertical-align: -0.31em;"></span><span
+                        class="mord text"><span class="mord">tap_end</span></span></span></span></span></span> (within
+                the tap's reach).
+                <ul>
+                    <li>Update <span class="math math-inline"><span class="katex"><span class="katex-mathml">dp[tap_end]\text{dp}[\text{tap\_end}]</span><span
+                            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                           style="height: 1.06em; vertical-align: -0.31em;"></span><span
+                            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+                            class="mord text"><span class="mord">tap_end</span></span><span
+                            class="mclose">]</span></span></span></span></span> with <span
+                            class="math math-inline"><span class="katex"><span class="katex-mathml">dp[j]+1\text{dp}[j] + 1</span><span
+                            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+                            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+                            class="mord mathnormal" style="margin-right: 0.05724em;">j</span><span
+                            class="mclose">]</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                            class="mbin">+</span><span class="mspace"
+                                                       style="margin-right: 0.2222em;"></span></span><span class="base"><span
+                            class="strut" style="height: 0.6444em;"></span><span
+                            class="mord">1</span></span></span></span></span> if it's smaller.
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </li>
+    <li>If <span class="math math-inline"><span class="katex"><span class="katex-mathml">dp[n]\text{dp}[n]</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord text"><span class="mord">dp</span></span><span class="mopen">[</span><span
+            class="mord mathnormal">n</span><span class="mclose">]</span></span></span></span></span> is infinite, it
+        means that it's impossible to water the entire garden and we return <span class="math math-inline"><span
+                class="katex"><span class="katex-mathml">−1-1</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 0.7278em; vertical-align: -0.0833em;"></span><span
+                class="mord">−</span><span class="mord">1</span></span></span></span></span>.
+    </li>
+    <li>Return <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">dp[n]\text{dp}[n]</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord text"><span
+            class="mord">dp</span></span><span class="mopen">[</span><span class="mord mathnormal">n</span><span
+            class="mclose">]</span></span></span></span></span>.
+    </li>
+</ol>
+<h4 id="implementation">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int minTaps(int n, int[] ranges) {
+        // Define an infinite value
+        final int INF = (int) 1e9;
+
+        // Create an array to store the minimum number of taps needed for each position
+        int[] dp = new int[n + 1];
+        Arrays.fill(dp, INF);
+
+        // Initialize the starting position of the garden
+        dp[0] = 0;
+
+        for (int i = 0; i <= n; i++) {
+            // Calculate the leftmost position reachable by the current tap
+            int tapStart = Math.max(0, i - ranges[i]);
+            // Calculate the rightmost position reachable by the current tap
+            int tapEnd = Math.min(n, i + ranges[i]);
+
+            for (int j = tapStart; j <= tapEnd; j++) {
+                // Update with the minimum number of taps
+                dp[tapEnd] = Math.min(dp[tapEnd], dp[j] + 1);
+            }
+        }
+
+        // Check if the garden can be watered completely
+        if (dp[n] == INF) {
+            // Garden cannot be watered
+            return -1;
+        }
+
+        // Return the minimum number of taps needed to water the entire garden
+        return dp[n];
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int minTaps(int n, vector<int>& ranges) {
+        // Define an infinite value
+        const int INF = 1e9;
+        // Create a vector to store the minimum number of taps needed for each position
+        vector<int> dp(n + 1, INF);
+
+        // Initialize the starting position of the garden
+        dp[0] = 0;
+
+        for (int i = 0; i <= n; i++) {
+            // Calculate the leftmost position reachable by the current tap
+            int tapStart = max(0, i - ranges[i]);
+            // Calculate the rightmost position reachable by the current tap
+            int tapEnd = min(n, i + ranges[i]);
+
+            for (int j = tapStart; j <= tapEnd; j++) {
+                // Update with the minimum number of taps
+                dp[tapEnd] = min(dp[tapEnd], dp[j] + 1);
+            }
+        }
+
+        // Check if the garden can be watered completely
+        if (dp[n] == INF) {
+            // Garden cannot be watered
+            return -1;
+        }
+
+        // Return the minimum number of taps needed to water the entire garden
+        return dp[n];
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def minTaps(self, n: int, ranges: List[int]) -> int:
+        # Define an infinite value
+        INF = int(1e9)
+
+        # Create a list to store the minimum number of taps needed for each position
+        dp = [INF] * (n + 1)
+
+        # Initialize the starting position of the garden
+        dp[0] = 0
+
+        for i in range(n + 1):
+            # Calculate the leftmost position reachable by the current tap
+            tap_start = max(0, i - ranges[i])
+            # Calculate the rightmost position reachable by the current tap
+            tap_end = min(n, i + ranges[i])
+
+            for j in range(tap_start, tap_end + 1):
+                # Update with the minimum number of taps
+                dp[tap_end] = min(dp[tap_end], dp[j] + 1)
+
+        # Check if the garden can be watered completely
+        if dp[n] == INF:
+            # Garden cannot be watered
+            return -1
+
+        # Return the minimum number of taps needed to water the entire garden
+        return dp[n]
+    </code>
+</pre>
+<h4 id="complexity-analysis">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">mm</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">m</span></span></span></span></span>
+    be the average range of the taps.</p>
+<ul>
+    <li>Time Complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅m)O(n \cdot m)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal">m</span><span class="mclose">)</span></span></span></span></span>.
+    </li>
+</ul>
+<p>Iterating through each tap and updating the minimum number of taps for each position within its range requires nested
+    loops. The outer loop iterates through each of the <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">n+1n + 1</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+            class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span>
+    taps. The inner loop iterates through the positions within the range of each tap. The number of iterations for the
+    inner loop is <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(m)O(m)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord mathnormal">m</span><span class="mclose">)</span></span></span></span></span>.</p>
+<p>Overall, the time complexity of the solution is <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">O(n⋅m)O(n \cdot m)</span><span class="katex-html" aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+        class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+        class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal">m</span><span
+        class="mclose">)</span></span></span></span></span>.</p>
+<ul>
+    <li>Space Complexity: <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                     style="margin-right: 0.02778em;">O</span><span
+            class="mopen">(</span><span class="mord mathnormal">n</span><span
+            class="mclose">)</span></span></span></span></span>.
+    </li>
+</ul>
+<p>The space complexity is determined by the additional memory used to store the DP array. The size of the DP array is
+    <span class="math math-inline"><span class="katex"><span class="katex-mathml">n+1n + 1</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+            class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span>.
+</p>
+<p>Therefore, the space complexity is <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+        class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.</p>
+<hr>
+<h3 id="approach-2-greedy">Approach 2: Greedy</h3>
+<blockquote>
+    <p>We highly recommend you to solve the problem <a href="https://leetcode.com/problems/jump-game-ii/"
+                                                       target="_blank">Jump Game II</a> before reading this approach.
+    </p>
+</blockquote>
+<h4 id="intuition-1">Intuition</h4>
+<p>Let the leftmost position of the tap's range be <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">start\text{start}</span><span class="katex-html" aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.6151em;"></span><span class="mord text"><span class="mord">start</span></span></span></span></span></span>
+    and the rightmost position be <span class="math math-inline"><span class="katex"><span class="katex-mathml">end\text{end}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.6944em;"></span><span
+            class="mord text"><span class="mord">end</span></span></span></span></span></span>.</p>
+<p>First, we compute an auxiliary array <span class="math math-inline"><span class="katex"><span class="katex-mathml">max_reach\text{max\_reach}</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1.0044em; vertical-align: -0.31em;"></span><span
+        class="mord text"><span class="mord">max_reach</span></span></span></span></span></span>. Let <span
+        class="math math-inline"><span class="katex"><span
+        class="katex-mathml">max_reach[i]\text{max\_reach}[i]</span><span class="katex-html" aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 1.06em; vertical-align: -0.31em;"></span><span
+        class="mord text"><span class="mord">max_reach</span></span><span class="mopen">[</span><span
+        class="mord mathnormal">i</span><span class="mclose">]</span></span></span></span></span> be the maximum <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">end\text{end}</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.6944em;"></span><span
+        class="mord text"><span class="mord">end</span></span></span></span></span></span> over all taps having <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">start=i\text{start} = i</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.6151em;"></span><span
+        class="mord text"><span class="mord">start</span></span><span class="mspace"
+                                                                      style="margin-right: 0.2778em;"></span><span
+        class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span
+        class="strut" style="height: 0.6595em;"></span><span
+        class="mord mathnormal">i</span></span></span></span></span>. We will use this array in our algorithm.</p>
+<blockquote>
+    <p>Let's reformulate our problem in a slightly different manner.<br>
+        You start at the position <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">00</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span>.
+        You can jump from position <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">ii</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 0.6595em;"></span><span
+                class="mord mathnormal">i</span></span></span></span></span> to the right but not further that <span
+                class="math math-inline"><span class="katex"><span
+                class="katex-mathml">max_reach[i]\text{max\_reach}[i]</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1.06em; vertical-align: -0.31em;"></span><span
+                class="mord text"><span class="mord">max_reach</span></span><span class="mopen">[</span><span
+                class="mord mathnormal">i</span><span class="mclose">]</span></span></span></span></span>. What is the
+        minimum number of jumps to reach position <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 0.4306em;"></span><span
+                class="mord mathnormal">n</span></span></span></span></span>?<br>
+        In this way, we reduce our problem to <a href="https://leetcode.com/problems/jump-game-ii/" target="_blank">Jump
+            Game II</a>.</p>
+</blockquote>
+<p>In the greedy approach, we follow an intuitive strategy. We start with <span class="math math-inline"><span
+        class="katex"><span class="katex-mathml">taps=0\text{taps} = 0</span><span class="katex-html"
+                                                                                   aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.8095em; vertical-align: -0.1944em;"></span><span
+        class="mord text"><span class="mord">taps</span></span><span class="mspace"
+                                                                     style="margin-right: 0.2778em;"></span><span
+        class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span
+        class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span> and a
+    pointer <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">curr_end\text{curr\_end}</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1.0044em; vertical-align: -0.31em;"></span><span
+            class="mord text"><span class="mord">curr_end</span></span></span></span></span></span>. <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">taps\text{taps}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.8095em; vertical-align: -0.1944em;"></span><span
+            class="mord text"><span class="mord">taps</span></span></span></span></span></span> represents the number of
+    taps used. The pointer <span class="math math-inline"><span class="katex"><span class="katex-mathml">curr_end\text{curr\_end}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1.0044em; vertical-align: -0.31em;"></span><span
+            class="mord text"><span class="mord">curr_end</span></span></span></span></span></span> represents the
+    position such that we have currently watered the part of the garden from position <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">00</span><span class="katex-html"
+                                                                                                   aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span>
+    to <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">curr_end\text{curr\_end}</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1.0044em; vertical-align: -0.31em;"></span><span
+            class="mord text"><span class="mord">curr_end</span></span></span></span></span></span>. Initially <span
+            class="math math-inline"><span class="katex"><span
+            class="katex-mathml">curr_end=0\text{curr\_end} = 0</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1.0044em; vertical-align: -0.31em;"></span><span
+            class="mord text"><span class="mord">curr_end</span></span><span class="mspace"
+                                                                             style="margin-right: 0.2778em;"></span><span
+            class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span>
+    points to the start of the garden since we have not watered anything yet.</p>
+<p>At each step, we select the tap that can water the <em>furthest right</em> in the garden (we denote this position as
+    <span class="math math-inline"><span class="katex"><span class="katex-mathml">next_end\text{next\_end}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1.0044em; vertical-align: -0.31em;"></span><span
+            class="mord text"><span class="mord">next_end</span></span></span></span></span></span>) among the taps that
+    can reach <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">curr_end\text{curr\_end}</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1.0044em; vertical-align: -0.31em;"></span><span
+            class="mord text"><span class="mord">curr_end</span></span></span></span></span></span>. Then we set <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">curr_end\text{curr\_end}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1.0044em; vertical-align: -0.31em;"></span><span
+            class="mord text"><span class="mord">curr_end</span></span></span></span></span></span> to <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">next_end\text{next\_end}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1.0044em; vertical-align: -0.31em;"></span><span
+            class="mord text"><span class="mord">next_end</span></span></span></span></span></span> and continue the
+    process.</p>
+<p>We can formulate the <em>subproblem</em> as follows: find <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">next_end\text{next\_end}</span><span class="katex-html" aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 1.0044em; vertical-align: -0.31em;"></span><span
+        class="mord text"><span class="mord">next_end</span></span></span></span></span></span> – the maximum <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">end\text{end}</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.6944em;"></span><span
+        class="mord text"><span class="mord">end</span></span></span></span></span></span> over the taps having <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">start≤curr_end\text{start} \le \text{curr\_end}</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.7719em; vertical-align: -0.136em;"></span><span
+        class="mord text"><span class="mord">start</span></span><span class="mspace"
+                                                                      style="margin-right: 0.2778em;"></span><span
+        class="mrel">≤</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span
+        class="strut" style="height: 1.0044em; vertical-align: -0.31em;"></span><span class="mord text"><span
+        class="mord">curr_end</span></span></span></span></span></span> (covering the position <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">curr_end\text{curr\_end}</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1.0044em; vertical-align: -0.31em;"></span><span
+        class="mord text"><span class="mord">curr_end</span></span></span></span></span></span>).</p>
+<p>The tap is interesting only if <span class="math math-inline"><span class="katex"><span class="katex-mathml">max_reach[start]=end\text{max\_reach}[\text{start}] = \text{end}</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1.06em; vertical-align: -0.31em;"></span><span
+        class="mord text"><span class="mord">max_reach</span></span><span class="mopen">[</span><span class="mord text"><span
+        class="mord">start</span></span><span class="mclose">]</span><span class="mspace"
+                                                                           style="margin-right: 0.2778em;"></span><span
+        class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span
+        class="strut" style="height: 0.6944em;"></span><span class="mord text"><span
+        class="mord">end</span></span></span></span></span></span> because otherwise there exists another tap with the
+    same <span class="math math-inline"><span class="katex"><span class="katex-mathml">start\text{start}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.6151em;"></span><span
+            class="mord text"><span class="mord">start</span></span></span></span></span></span> but with greater <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">end\text{end}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.6944em;"></span><span
+            class="mord text"><span class="mord">end</span></span></span></span></span></span> and it covers a bigger
+    range.</p>
+<p>How can we rewrite the subproblem in terms of <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">max_reach\text{max\_reach}</span><span class="katex-html" aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 1.0044em; vertical-align: -0.31em;"></span><span
+        class="mord text"><span class="mord">max_reach</span></span></span></span></span></span>? We replace <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">start\text{start}</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.6151em;"></span><span
+        class="mord text"><span class="mord">start</span></span></span></span></span></span> with <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">ii</span><span class="katex-html"
+                                                                                               aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.6595em;"></span><span class="mord mathnormal">i</span></span></span></span></span>
+    and <span class="math math-inline"><span class="katex"><span class="katex-mathml">end\text{end}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.6944em;"></span><span
+            class="mord text"><span class="mord">end</span></span></span></span></span></span> with <span
+            class="math math-inline"><span class="katex"><span
+            class="katex-mathml">max_reach[i]\text{max\_reach}[i]</span><span class="katex-html"
+                                                                              aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1.06em; vertical-align: -0.31em;"></span><span
+            class="mord text"><span class="mord">max_reach</span></span><span class="mopen">[</span><span
+            class="mord mathnormal">i</span><span class="mclose">]</span></span></span></span></span> and obtain: find
+    <span class="math math-inline"><span class="katex"><span class="katex-mathml">next_end\text{next\_end}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1.0044em; vertical-align: -0.31em;"></span><span
+            class="mord text"><span class="mord">next_end</span></span></span></span></span></span> – the maximum <span
+            class="math math-inline"><span class="katex"><span
+            class="katex-mathml">max_reach[i]\text{max\_reach}[i]</span><span class="katex-html"
+                                                                              aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1.06em; vertical-align: -0.31em;"></span><span
+            class="mord text"><span class="mord">max_reach</span></span><span class="mopen">[</span><span
+            class="mord mathnormal">i</span><span class="mclose">]</span></span></span></span></span> over the positions
+    <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">i≤curr_endi \le \text{curr\_end}</span><span class="katex-html"
+                                                                              aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.7955em; vertical-align: -0.136em;"></span><span
+            class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+            class="mrel">≤</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 1.0044em; vertical-align: -0.31em;"></span><span
+            class="mord text"><span class="mord">curr_end</span></span></span></span></span></span>.</p>
+<p>After finding <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">next_end\text{next\_end}</span><span class="katex-html" aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 1.0044em; vertical-align: -0.31em;"></span><span
+        class="mord text"><span class="mord">next_end</span></span></span></span></span></span>, we treat it as our new
+    current position in the garden and assign <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">curr_end=next_end\text{curr\_end} = \text{next\_end}</span><span class="katex-html"
+                                                                                                  aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1.0044em; vertical-align: -0.31em;"></span><span
+            class="mord text"><span class="mord">curr_end</span></span><span class="mspace"
+                                                                             style="margin-right: 0.2778em;"></span><span
+            class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 1.0044em; vertical-align: -0.31em;"></span><span
+            class="mord text"><span class="mord">next_end</span></span></span></span></span></span>. This allows us to
+    move forward and continue the iteration. We also increment <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">taps\text{taps}</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.8095em; vertical-align: -0.1944em;"></span><span
+            class="mord text"><span class="mord">taps</span></span></span></span></span></span>, since we open one more
+    tap ending at the position <span class="math math-inline"><span class="katex"><span class="katex-mathml">next_end\text{next\_end}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1.0044em; vertical-align: -0.31em;"></span><span
+            class="mord text"><span class="mord">next_end</span></span></span></span></span></span>.</p>
+<p>By iterating through the taps in this manner and selecting the tap with the furthest reach at each step, we aim to
+    maximize the coverage of the garden with each tap selection. This strategy helps ensure that we efficiently water as
+    much of the garden as possible with the minimum number of taps.</p>
+<p>This process continues until we reach the end of the garden. At that point, if we have successfully selected taps
+    that cover the entire garden, we return the count of chosen taps as the minimum number required. However, if it is
+    not possible to water the entire garden, we return <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">−1-1</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.7278em; vertical-align: -0.0833em;"></span><span class="mord">−</span><span
+            class="mord">1</span></span></span></span></span> to indicate that it cannot be achieved.</p>
+<h4 id="algorithm-1">Algorithm</h4>
+<ol>
+    <li>Declare the array <span class="math math-inline"><span class="katex"><span class="katex-mathml">max_reach\text{max\_reach}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1.0044em; vertical-align: -0.31em;"></span><span
+            class="mord text"><span class="mord">max_reach</span></span></span></span></span></span>.
+    </li>
+    <li>Iterate <span class="math math-inline"><span class="katex"><span class="katex-mathml">ii</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.6595em;"></span><span
+            class="mord mathnormal">i</span></span></span></span></span> from <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">00</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span>
+        to <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.4306em;"></span><span
+                class="mord mathnormal">n</span></span></span></span></span> (over the taps).
+        <ul>
+            <li>Calculate <span class="math math-inline"><span class="katex"><span class="katex-mathml">start\text{start}</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.6151em;"></span><span
+                    class="mord text"><span class="mord">start</span></span></span></span></span></span> – the leftmost
+                and <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">end\text{end}</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord text"><span
+                        class="mord">end</span></span></span></span></span></span> – the rightmost positions the tap can
+                reach.
+            </li>
+            <li>Update <span class="math math-inline"><span class="katex"><span class="katex-mathml">max_reach[start]\text{max\_reach}[\text{start}]</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1.06em; vertical-align: -0.31em;"></span><span
+                    class="mord text"><span class="mord">max_reach</span></span><span class="mopen">[</span><span
+                    class="mord text"><span class="mord">start</span></span><span class="mclose">]</span></span></span></span></span>
+                with <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">end\text{end}</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord text"><span
+                        class="mord">end</span></span></span></span></span></span> if it is larger.
+            </li>
+        </ul>
+    </li>
+    <li>Declare the variables <span class="math math-inline"><span class="katex"><span class="katex-mathml">taps\text{taps}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.8095em; vertical-align: -0.1944em;"></span><span
+            class="mord text"><span class="mord">taps</span></span></span></span></span></span> – number of taps used,
+        <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">curr_end\text{curr\_end}</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1.0044em; vertical-align: -0.31em;"></span><span
+                class="mord text"><span class="mord">curr_end</span></span></span></span></span></span> – current
+        rightmost position reached, <span class="math math-inline"><span class="katex"><span class="katex-mathml">next_end\text{next\_end}</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1.0044em; vertical-align: -0.31em;"></span><span
+                class="mord text"><span class="mord">next_end</span></span></span></span></span></span> – next rightmost
+        position that can be reached. Initialize <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">taps=0\text{taps} = 0</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 0.8095em; vertical-align: -0.1944em;"></span><span
+                class="mord text"><span class="mord">taps</span></span><span class="mspace"
+                                                                             style="margin-right: 0.2778em;"></span><span
+                class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.6444em;"></span><span
+                class="mord">0</span></span></span></span></span>, <span class="math math-inline"><span
+                class="katex"><span class="katex-mathml">curr_end=0\text{curr\_end} = 0</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1.0044em; vertical-align: -0.31em;"></span><span
+                class="mord text"><span class="mord">curr_end</span></span><span class="mspace"
+                                                                                 style="margin-right: 0.2778em;"></span><span
+                class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.6444em;"></span><span
+                class="mord">0</span></span></span></span></span>, <span class="math math-inline"><span
+                class="katex"><span class="katex-mathml">next_end=0\text{next\_end} = 0</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1.0044em; vertical-align: -0.31em;"></span><span
+                class="mord text"><span class="mord">next_end</span></span><span class="mspace"
+                                                                                 style="margin-right: 0.2778em;"></span><span
+                class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.6444em;"></span><span
+                class="mord">0</span></span></span></span></span>.
+    </li>
+    <li>Iterate <span class="math math-inline"><span class="katex"><span class="katex-mathml">ii</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.6595em;"></span><span
+            class="mord mathnormal">i</span></span></span></span></span> from <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">00</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span>
+        to <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.4306em;"></span><span
+                class="mord mathnormal">n</span></span></span></span></span> through the garden.
+        <ul>
+            <li>If <span class="math math-inline"><span class="katex"><span class="katex-mathml">i&gt;next_endi &gt; \text{next\_end}</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.6986em; vertical-align: -0.0391em;"></span><span
+                    class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+                    class="mrel">&gt;</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1.0044em; vertical-align: -0.31em;"></span><span
+                    class="mord text"><span class="mord">next_end</span></span></span></span></span></span>, it means
+                that the current position cannot be reached and we return <span class="math math-inline"><span
+                        class="katex"><span class="katex-mathml">−1-1</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut"
+                                           style="height: 0.7278em; vertical-align: -0.0833em;"></span><span
+                        class="mord">−</span><span class="mord">1</span></span></span></span></span>.
+            </li>
+            <li>If <span class="math math-inline"><span class="katex"><span class="katex-mathml">i&gt;curr_endi &gt; \text{curr\_end}</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.6986em; vertical-align: -0.0391em;"></span><span
+                    class="mord mathnormal">i</span><span class="mspace" style="margin-right: 0.2778em;"></span><span
+                    class="mrel">&gt;</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1.0044em; vertical-align: -0.31em;"></span><span
+                    class="mord text"><span class="mord">curr_end</span></span></span></span></span></span>, it means
+                that we have to open a new tap ending at the position <span class="math math-inline"><span
+                        class="katex"><span class="katex-mathml">next_end\text{next\_end}</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1.0044em; vertical-align: -0.31em;"></span><span
+                        class="mord text"><span class="mord">next_end</span></span></span></span></span></span>.
+                <ul>
+                    <li>Increment <span class="math math-inline"><span class="katex"><span class="katex-mathml">taps\text{taps}</span><span
+                            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                           style="height: 0.8095em; vertical-align: -0.1944em;"></span><span
+                            class="mord text"><span class="mord">taps</span></span></span></span></span></span>.
+                    </li>
+                    <li>Set <span class="math math-inline"><span class="katex"><span class="katex-mathml">curr_end\text{curr\_end}</span><span
+                            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                           style="height: 1.0044em; vertical-align: -0.31em;"></span><span
+                            class="mord text"><span class="mord">curr_end</span></span></span></span></span></span> to
+                        <span class="math math-inline"><span class="katex"><span class="katex-mathml">next_end\text{next\_end}</span><span
+                                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                               style="height: 1.0044em; vertical-align: -0.31em;"></span><span
+                                class="mord text"><span class="mord">next_end</span></span></span></span></span></span>.
+                    </li>
+                </ul>
+            </li>
+            <li>Update <span class="math math-inline"><span class="katex"><span class="katex-mathml">next_end\text{next\_end}</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1.0044em; vertical-align: -0.31em;"></span><span
+                    class="mord text"><span class="mord">next_end</span></span></span></span></span></span> with <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">max_reach[i]\text{max\_reach}[i]</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1.06em; vertical-align: -0.31em;"></span><span
+                    class="mord text"><span class="mord">max_reach</span></span><span class="mopen">[</span><span
+                    class="mord mathnormal">i</span><span class="mclose">]</span></span></span></span></span> if it is
+                larger.
+            </li>
+        </ul>
+    </li>
+    <li>Return <span class="math math-inline"><span class="katex"><span class="katex-mathml">taps\text{taps}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.8095em; vertical-align: -0.1944em;"></span><span
+            class="mord text"><span class="mord">taps</span></span></span></span></span></span>.
+    </li>
+</ol>
+<h4 id="implementation-1">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int minTaps(int n, int[] ranges) {
+        // Create an array to track the maximum reach for each position
+        int[] maxReach = new int[n + 1];
+
+        // Calculate the maximum reach for each tap
+        for (int i = 0; i < ranges.length; i++) {
+            // Calculate the leftmost position the tap can reach
+            int start = Math.max(0, i - ranges[i]);
+            // Calculate the rightmost position the tap can reach
+            int end = Math.min(n, i + ranges[i]);
+
+            // Update the maximum reach for the leftmost position
+            maxReach[start] = Math.max(maxReach[start], end);
+        }
+
+        // Number of taps used
+        int taps = 0;
+        // Current rightmost position reached
+        int currEnd = 0;
+        // Next rightmost position that can be reached
+        int nextEnd = 0;
+
+        // Iterate through the garden
+        for (int i = 0; i <= n; i++) {
+            // Current position cannot be reached
+            if (i > nextEnd) {
+                return -1;
+            }
+
+            // Increment taps when moving to a new tap
+            if (i > currEnd) {
+                taps++;
+                // Move to the rightmost position that can be reached
+                currEnd = nextEnd;
+            }
+
+            // Update the next rightmost position that can be reached
+            nextEnd = Math.max(nextEnd, maxReach[i]);
+        }
+
+        // Return the minimum number of taps used
+        return taps;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int minTaps(int n, vector<int>& ranges) {
+        // Create a vector to track the maximum reach for each position
+        vector<int> maxReach(n + 1);
+
+        // Calculate the maximum reach for each tap
+        for (int i = 0; i < ranges.size(); i++) {
+            // Calculate the leftmost position the tap can reach
+            int start = max(0, i - ranges[i]);
+            // Calculate the rightmost position the tap can reach
+            int end = min(n, i + ranges[i]);
+
+            // Update the maximum reach for the leftmost position
+            maxReach[start] = max(maxReach[start], end);
+        }
+
+        // Number of taps used
+        int taps = 0;
+        // Current rightmost position reached
+        int currEnd = 0;
+        // Next rightmost position that can be reached
+        int nextEnd = 0;
+
+        // Iterate through the garden
+        for (int i = 0; i <= n; i++) {
+            // Current position cannot be reached
+            if (i > nextEnd) {
+                return -1;
+            }
+
+            // Increment taps when moving to a new tap
+            if (i > currEnd) {
+                taps++;
+                // Move to the rightmost position that can be reached
+                currEnd = nextEnd;
+            }
+
+            // Update the next rightmost position that can be reached
+            nextEnd = max(nextEnd, maxReach[i]);
+        }
+
+        // Return the minimum number of taps used
+        return taps;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def minTaps(self, n: int, ranges: List[int]) -> int:
+        # Create a list to track the maximum reach for each position
+        max_reach = [0] * (n + 1)
+
+        # Calculate the maximum reach for each tap
+        for i in range(len(ranges)):
+            # Calculate the leftmost position the tap can reach
+            start = max(0, i - ranges[i])
+            # Calculate the rightmost position the tap can reach
+            end = min(n, i + ranges[i])
+
+            # Update the maximum reach for the leftmost position
+            max_reach[start] = max(max_reach[start], end)
+
+        # Number of taps used
+        taps = 0
+        # Current rightmost position reached
+        curr_end = 0
+        # Next rightmost position that can be reached
+        next_end = 0
+
+        # Iterate through the garden
+        for i in range(n + 1):
+            if i > next_end:
+                # Current position cannot be reached
+                return -1
+
+            if i > curr_end:
+                # Increment taps when moving to a new tap
+                taps += 1
+                # Move to the rightmost position that can be reached
+                curr_end = next_end
+
+            # Update the next rightmost position that can be reached
+            next_end = max(next_end, max_reach[i])
+
+        # Return the minimum number of taps used
+        return taps
+    </code>
+</pre>
+<h4 id="complexity-analysis-1">Complexity Analysis</h4>
+<ul>
+    <li>Time Complexity: <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                     style="margin-right: 0.02778em;">O</span><span
+            class="mopen">(</span><span class="mord mathnormal">n</span><span
+            class="mclose">)</span></span></span></span></span>.
+    </li>
+</ul>
+<p>We iterate through the garden once to calculate the maximum reach for each position, and then iterate through the
+    garden again to choose the taps and determine the minimum number of taps required. The iteration involves visiting
+    each position in the garden once, resulting in a linear time complexity.</p>
+<ul>
+    <li>Space Complexity: <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                     style="margin-right: 0.02778em;">O</span><span
+            class="mopen">(</span><span class="mord mathnormal">n</span><span
+            class="mclose">)</span></span></span></span></span>.
+    </li>
+</ul>
+<p>We use additional space to store the <span class="math math-inline"><span class="katex"><span class="katex-mathml">max_reach\text{max\_reach}</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1.0044em; vertical-align: -0.31em;"></span><span
+        class="mord text"><span class="mord">max_reach</span></span></span></span></span></span> array of size <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">n+1n + 1</span><span class="katex-html"
+                                                                                                     aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+        class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+        class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+        class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span>.
+    Therefore, the space complexity is linear with respect to the size of the garden.</p>
+</body>
+</html>
