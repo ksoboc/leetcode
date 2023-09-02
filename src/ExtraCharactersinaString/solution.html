@@ -1,0 +1,1282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Extra Characters in a String</title>
+</head>
+<body>
+<h2 id="solution">Solution</h2>
+<hr>
+<h3 id="overview">Overview</h3>
+<p>The problem is about breaking a given string, <code>s</code> of length <code>n</code>, into non-overlapping
+    substrings such that each substring is present in a given <code>dictionary</code> of words. The objective is to
+    minimize the number of extra characters left over after the string is broken up optimally. The maximum number of
+    characters that could possibly be left over after breaking up the string is <code>n</code>. This is the case where
+    we find no match in the <code>dictionary</code> and all the characters must be removed. In the best-case scenario,
+    no characters need to be removed (i.e. we can match every character to a non overlapping substring)</p>
+<hr>
+<h3 id="approach-1-top-down-dynamic-programming-with-substring-method">Approach 1: Top Down Dynamic Programming with
+    Substring Method</h3>
+<h4 id="intuition">Intuition</h4>
+<p>We will consider breaking the given string into non-overlapping substrings that exist in the dictionary while
+    minimizing the number of extra characters left over.</p>
+<p>To solve this problem, we can utilize a recursive approach with memoization. We define a recursive function
+    <code>dp</code> that takes an index <code>start</code> as a parameter. This index represents the current position in
+    the string where we are considering adding characters to form a valid word. The function <code>dp</code> returns the
+    minimum number of extra characters needed to form a valid concatenation of words starting from the
+    <code>start</code> index.</p>
+<p>The <code>dp</code> function represents the dynamic programming approach used to solve the problem. It takes a single
+    argument, <code>start</code>, which represents the index in the string <code>s</code> that we are currently
+    considering. We will try to find a word in <code>dictionary</code> that <strong>starts</strong> at this index.</p>
+<p>The function <code>dp</code> returns the minimum number of extra characters needed to form a valid concatenation of
+    words starting from the <code>start</code> index.</p>
+<p>The recurrence relation in the <code>dp</code> function is as follows:</p>
+<ul>
+    <li>If the <code>start</code> index reaches the end of the string (<code>start == n</code>), indicating that we have
+        considered all characters in <code>s</code>, the function returns 0, as no extra characters are needed.
+    </li>
+    <li>If the <code>start</code> index is not at the end of the string, the function considers two possibilities:
+        <ol>
+            <li>Counting the current character at <code>start</code> as an extra character by recursively calling <code>dp</code>
+                with the next index (<code>start + 1</code>). This corresponds to the case where the current character
+                is not part of any valid word in the dictionary. The result is incremented by 1, as we are counting the
+                current character as an extra.
+            </li>
+            <li>Iterating over all possible <code>end</code> indices from <code>start</code> to the end of the string.
+                For each <code>end</code>, the function checks if the substring <code>s[start:end+1]</code> exists in
+                <code>dictionary</code>. We can convert <code>dictionary</code> to a set before starting the DP to make
+                these checks more efficient. If it does, the function recursively calls <code>dp</code> with the next
+                index after the valid word's end index, <code>end + 1</code>. The result is updated to the minimum value
+                between the current minimum and the value returned from the recursive call.
+            </li>
+        </ol>
+    </li>
+</ul>
+<p>For each recursive call, we keep track of the minimum number of extra characters needed to form a valid
+    concatenation. We update this minimum by considering both possibilities and selecting the option with the minimum
+    number of extra characters.</p>
+<p>To optimize the solution, we use memoization, which allows us to avoid redundant calculations. By caching the results
+    of previously computed recursive calls, we can retrieve them directly instead of recomputing them, which
+    significantly improves the efficiency of the algorithm.</p>
+<p>The initial call to the recursive function is made with <code>start</code> set to 0, indicating that we start from
+    the beginning of the string. The result of the function is the minimum number of extra characters needed to form a
+    valid concatenation of words from the dictionary.</p>
+<p>Here's how this algorithm will work for the string s <code>"LTSCD"</code> and dictionary <code>["LT", "CD"]</code>:
+</p>
+<p><img src="FigA.png" alt="figA"></p>
+<h4 id="algorithm">Algorithm</h4>
+<ol>
+    <li>To achieve <code>O(1)</code> lookups, convert the list of strings in the dictionary to a set.</li>
+    <li>Define a recursive function called <code>dp</code> that takes the starting index of the substring as a
+        parameter.
+    </li>
+    <li>At each recursive call of <code>dp</code> check if the starting index <code>start</code> has reached the end of
+        the string <code>s</code>. If so, return 0.
+    </li>
+    <li>Set <code>ans</code>, the answer for the current state, to <code>dp(start + 1) + 1</code>.</li>
+    <li>If the starting index is not at the end of the string, explore all possible substrings starting from the current
+        index <code>start</code>.
+    </li>
+    <li>For each possible substring, checks if it exists in the <code>dictionary</code>. If it does, recursively
+        calculate the minimum number of extra characters starting from the next index <code>dp(end + 1)</code>.
+    </li>
+    <li>Keep track of the minimum number of extra characters encountered so far (<code>ans</code>) and update it
+        whenever a lower value is found.
+    </li>
+    <li>To optimize the solution and avoid redundant computations, utilize memoization. Store the results of previously
+        computed subproblems in a separate data structure.
+    </li>
+    <li>Finally, call the <code>dp</code> function with the starting index set to 0.</li>
+</ol>
+<h4 id="implementation">Implementation</h4>
+<blockquote>
+    <p>Note: In Python, we are using <code>@functools.cache</code> to perform the memoization.</p>
+</blockquote>
+<pre>
+    Java
+    <code>
+        class Solution {
+    Integer[] memo;
+    HashSet<String> dictionarySet;
+    public int minExtraChar(String s, String[] dictionary) {
+        int n = s.length();
+        memo = new Integer[n];
+        dictionarySet = new HashSet<>(Arrays.asList(dictionary));
+        return dp(0, n, s);
+    }
+    private int dp(int start, int n, String s) {
+        if (start == n) {
+            return 0;
+        }
+        if (memo[start] != null) {
+            return memo[start];
+        }
+        // To count this character as a left over character
+        // move to index 'start + 1'
+        int ans = dp(start + 1, n, s) + 1;
+        for (int end = start; end < n; end++) {
+            var curr = s.substring(start, end + 1);
+            if (dictionarySet.contains(curr)) {
+                ans = Math.min(ans, dp(end + 1, n, s));
+            }
+        }
+
+        return memo[start] = ans;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int minExtraChar(string s, vector<string> dictionary) {
+        int n = s.length();
+        unordered_set<string> dictionarySet(dictionary.begin(), dictionary.end());
+        unordered_map<int, int> memo;
+
+        function<int(int)> dp = [&](int start) {
+            if (start == n) {
+                return 0;
+            }
+            if (memo.count(start)) {
+                return memo[start];
+            }
+            // To count this character as a left over character
+            // move to index 'start + 1'
+            int ans = dp(start + 1) + 1;
+            for (int end = start; end < n; end++) {
+                auto curr = s.substr(start, end - start + 1);
+                if (dictionarySet.count(curr)) {
+                    ans = min(ans, dp(end + 1));
+                }
+            }
+
+            return memo[start] = ans;
+        };
+
+        return dp(0);
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def minExtraChar(self, s: str, dictionary: List[str]) -> int:
+        n, dictionary_set = len(s), set(dictionary)
+        @cache
+        def dp(start):
+            if start == n:
+                return 0
+            # To count this character as a left over character
+            # move to index 'start + 1'
+            ans = dp(start + 1) + 1
+            for end in range(start, n):
+                curr = s[start: end + 1]
+                if curr in dictionary_set:
+                    ans = min(ans, dp(end + 1))
+            return ans
+
+        return dp(0)
+    </code>
+    Javascript
+    <code>
+        var minExtraChar = function(s, dictionary) {
+    const n = s.length;
+    const dictionarySet = new Set(dictionary);
+    const memo = new Map();
+
+    const dp = function(start) {
+        if (start === n) {
+            return 0;
+        }
+        if (memo.has(start)) {
+            return memo.get(start);
+        }
+        // To count this character as a left over character
+        // move to index 'start + 1'
+        let ans = dp(start + 1) + 1;
+        for (let end = start; end < n; end++) {
+            const curr = s.slice(start, end + 1);
+            if (dictionarySet.has(curr)) {
+                ans = Math.min(ans, dp(end + 1));
+            }
+        }
+        memo.set(start, ans);
+        return ans
+    };
+
+    return dp(0);
+};
+    </code>
+    Ruby
+    <code>
+        def min_extra_char(s, dictionary)
+  n = s.length
+  dictionary_set = dictionary.to_set
+  memo = {}
+
+  dp = lambda do |start|
+    return memo[start] if memo.key?(start)
+    return 0 if start == n
+    # To count this character as a left over character
+    # move to index 'start + 1'
+    ans = dp.call(start + 1) + 1
+    (start..n - 1).each do |last|
+      curr = s[start...last + 1]
+      if dictionary_set.include?(curr)
+        ans = [ans, dp.call(last + 1)].min
+      end
+    end
+    memo[start] = ans
+  end
+
+  dp.call(0)
+end
+    </code>
+</pre>
+<h4 id="complexity-analysis">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">NN</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                style="margin-right: 0.10903em;">N</span></span></span></span></span>
+    be the total characters in the string.<br>
+    Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">MM</span><span class="katex-html"
+                                                                                                     aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                    style="margin-right: 0.10903em;">M</span></span></span></span></span>
+    be the average length of the strings in <code>dictionary</code>.<br>
+    Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">KK</span><span class="katex-html"
+                                                                                                     aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                    style="margin-right: 0.07153em;">K</span></span></span></span></span>
+    be the length of the <code>dictionary</code>.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(N3)O(N^3)</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord"><span class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                  style="height: 0.8141em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight">3</span></span></span></span></span></span></span></span><span
+                class="mclose">)</span></span></span></span></span>. There can be <span class="math math-inline"><span
+                class="katex"><span class="katex-mathml">N+1N + 1</span><span class="katex-html"
+                                                                              aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 0.7667em; vertical-align: -0.0833em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span class="mspace"
+                                                                                       style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.6444em;"></span><span
+                class="mord">1</span></span></span></span></span> unique states of the <code>dp</code> method. In each
+            state of <code>dp</code>, we iterate over <code>end</code>, which is <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">O(N)O(N)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                    class="mclose">)</span></span></span></span></span> iterations. In each of these iterations, we
+            create a substring, which costs <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(N)O(N)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                    class="mclose">)</span></span></span></span></span>. Hence, the overall cost of the <code>dp</code>
+            method is <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(N3)O(N^3)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord"><span class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                    class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                      style="height: 0.8141em;"><span
+                    style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                       style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span
+                    class="mord mtight">3</span></span></span></span></span></span></span></span><span
+                    class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(N+M⋅K)O(N + M \cdot K)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span class="mspace"
+                                                                                       style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                        style="margin-right: 0.10903em;">M</span><span
+                class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.07153em;">K</span><span
+                class="mclose">)</span></span></span></span></span>. The HashSet used to store the strings in the <code>dictionary</code>
+            will incur a cost of <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(M⋅K)O(M \cdot K)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">M</span><span class="mspace"
+                                                                                           style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.07153em;">K</span><span
+                    class="mclose">)</span></span></span></span></span>. Additionally, the <code>dp</code> method will
+            consume stack space and traverse to a depth of <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">NN</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                    class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                         style="margin-right: 0.10903em;">N</span></span></span></span></span>
+            in the worst case scenario, resulting in a cost of <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(N)O(N)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                    class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+</ul>
+<hr>
+<h3 id="approach-2-bottom-up-dynamic-programming-with-substring-method">Approach 2: Bottom Up Dynamic Programming with
+    Substring Method</h3>
+<h4 id="intuition-1">Intuition</h4>
+<p>As shown in the first approach to solve this problem, we can utilize a dynamic programming approach. But this time
+    bottom up. This solution converts the top down approach used above to a bottom up approach. We start by initializing
+    a dynamic programming table <code>dp</code> with values corresponding to the minimum number of extra characters at
+    each position in the string. Notice that here, <code>dp[start]</code> is equal to <code>dp(start)</code> from the
+    previous approach.</p>
+<p>With bottom up, we need to start from the base case. The base case we defined above is when <code>start = n</code>.
+    Thus, we iterate through the string backward (starting from <code>n - 1</code>), considering each position as a
+    potential starting point for a substring. For each position, we can apply the same recurrence from the previous
+    approach - explore all possible substrings starting from that point and calculate the minimum number of extra
+    characters associated with each substring. We update the dynamic programming table accordingly.</p>
+<p>By the end of the iteration, the value at the first position of the dynamic programming table represents the minimum
+    number of extra characters left over after breaking the string optimally. This value is our desired result, which we
+    return as the output.</p>
+<h4 id="algorithm-1">Algorithm</h4>
+<ol>
+    <li>To achieve <code>O(1)</code> lookups, convert the list of strings in the dictionary to a set.</li>
+    <li>Create a dynamic programming array <code>dp</code> of size <code>n + 1</code>.</li>
+    <li>Iterate over the string <code>s</code> from right to left, starting from last character (<code>n - 1</code>)
+        down to the first character (<code>0</code>).
+    </li>
+    <li>Initialize <code>dp[start]</code> by <code>dp[start] + 1</code> to consider the case where the character at
+        index <code>start</code> is an extra character.
+    </li>
+    <li>For each starting index <code>start</code>, consider all possible substrings starting from <code>start</code>
+        and ending at various indices <code>end</code> from <code>start</code> to <code>n - 1</code>.
+    </li>
+    <li>If the substring from <code>start</code> to <code>end</code> is found in the <code>dictionary</code> set, update
+        <code>dp[start]</code> by taking the minimum of its current value and <code>dp[end + 1]</code>.
+    </li>
+    <li>Finally, return the value at <code>dp[0]</code>.</li>
+</ol>
+<h4 id="implementation-1">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int minExtraChar(String s, String[] dictionary) {
+        int n = s.length();
+        var dictionarySet = new HashSet<>(Arrays.asList(dictionary));
+        var dp = new int[n + 1];
+
+        for (int start = n - 1; start >= 0; start--) {
+            dp[start] = dp[start + 1] + 1;
+            for (int end = start; end < n; end++) {
+                var curr = s.substring(start, end + 1);
+                if (dictionarySet.contains(curr)) {
+                    dp[start] = Math.min(dp[start], dp[end + 1]);
+                }
+            }
+        }
+
+        return dp[0];
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int minExtraChar(string s, vector<string> dictionary) {
+        int n = s.length();
+        unordered_set<string> dictionarySet(dictionary.begin(), dictionary.end());
+        vector<int> dp(n + 1, 0);
+
+        for (int start = n - 1; start >= 0; start--) {
+            dp[start] = dp[start + 1] + 1;
+            for (int end = start; end < n; end++) {
+                auto curr = s.substr(start, end - start + 1);
+                if (dictionarySet.count(curr)) {
+                    dp[start] = min(dp[start], dp[end + 1]);
+                }
+            }
+        }
+
+        return dp[0];
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def minExtraChar(self, s: str, dictionary: List[str]) -> int:
+        n = len(s)
+        dictionary_set = set(dictionary)
+        dp = [0] * (len(s) + 1)
+
+        for start in range(n - 1, -1, -1):
+            dp[start] = 1 + dp[start + 1]
+            for end in range(start, n):
+                curr = s[start: end + 1]
+                if curr in dictionary_set:
+                    dp[start] = min(dp[start], dp[end + 1])
+
+        return dp[0]
+    </code>
+    Javascript
+    <code>
+        var minExtraChar = function(s, dictionary) {
+    const n = s.length;
+    const dictionarySet = new Set(dictionary);
+    const dp = Array(n + 1).fill(0);
+
+    for (let start = n - 1; start >= 0; start--) {
+        dp[start] = dp[start + 1] + 1;
+        for (let end = start; end < n; end++) {
+            const curr = s.substring(start, end + 1);
+            if (dictionarySet.has(curr)) {
+                dp[start] = Math.min(dp[start], dp[end + 1]);
+            }
+        }
+    }
+
+    return dp[0];
+};
+    </code>
+    Ruby
+    <code>
+        def min_extra_char(s, dictionary)
+  n = s.length
+  dictionary_set = dictionary.to_set
+  dp = Array.new(n + 1, 0)
+
+  (n - 1).downto(0) do |start|
+    dp[start] = dp[start + 1] + 1
+    (start..n - 1).each do |last|
+      curr = s[start...last + 1]
+      if dictionary_set.include?(curr)
+        dp[start] = [dp[start], dp[last + 1]].min
+      end
+    end
+  end
+
+  dp[0]
+end
+    </code>
+</pre>
+<h4 id="complexity-analysis-1">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">NN</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                style="margin-right: 0.10903em;">N</span></span></span></span></span>
+    be the total characters in the string.<br>
+    Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">MM</span><span class="katex-html"
+                                                                                                     aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                    style="margin-right: 0.10903em;">M</span></span></span></span></span>
+    be the average length of the strings in <code>dictionary</code>.<br>
+    Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">KK</span><span class="katex-html"
+                                                                                                     aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                    style="margin-right: 0.07153em;">K</span></span></span></span></span>
+    be the length of the <code>dictionary</code>.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(N3)O(N^3)</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord"><span class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                  style="height: 0.8141em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight">3</span></span></span></span></span></span></span></span><span
+                class="mclose">)</span></span></span></span></span>. The two nested loops used to perform the dynamic
+            programming operation cost <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(N2)O(N^2)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord"><span class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                    class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                      style="height: 0.8141em;"><span
+                    style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                       style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span
+                    class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                    class="mclose">)</span></span></span></span></span>. The substring method inside the inner loop
+            costs another <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(N)O(N)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                    class="mclose">)</span></span></span></span></span>. Hence, the overall time complexity is <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(N3)O(N^3)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord"><span class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                    class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                      style="height: 0.8141em;"><span
+                    style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                       style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span
+                    class="mord mtight">3</span></span></span></span></span></span></span></span><span
+                    class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(N+M⋅K)O(N + M \cdot K)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span class="mspace"
+                                                                                       style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                        style="margin-right: 0.10903em;">M</span><span
+                class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.07153em;">K</span><span
+                class="mclose">)</span></span></span></span></span>. The HashSet used to store the strings in the <code>dictionary</code>
+            will incur a cost of <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(M⋅K)O(M \cdot K)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">M</span><span class="mspace"
+                                                                                           style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.07153em;">K</span><span
+                    class="mclose">)</span></span></span></span></span>. The <code>dp</code> array will incur a cost of
+            <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(N)O(N)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                    class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+</ul>
+<hr>
+<h3 id="approach-3-top-down-dynamic-programming-with-trie">Approach 3: Top Down Dynamic Programming with Trie</h3>
+<h4 id="intuition-2">Intuition</h4>
+<p>To optimize the top down dynamic programming approach shared earlier we can try to get rid of the
+    <code>substring</code> method. If we can get rid of the <code>substring</code> method we can reduce the time
+    complexity to <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(N2)O(N^2)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord"><span class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+            class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                              style="height: 0.8141em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span
+            class="mord mtight">2</span></span></span></span></span></span></span></span><span
+            class="mclose">)</span></span></span></span></span>. We can use the <a
+            href="https://en.wikipedia.org/wiki/Trie" target="_blank">trie</a> data structure to reduce the time
+    complexity of the algorithm. If you are not familiar with tries, we highly recommend you solve <a
+            href="https://leetcode.com/problems/implement-trie-prefix-tree/" target="_blank">this problem</a> first. In
+    this article, we will assume you are already familiar with tries.</p>
+<p>First, we create a trie data structure by building a trie from the given dictionary of words. Each
+    <code>TrieNode</code> represents a character, and we connect the nodes to form a hierarchical structure based on the
+    characters in the words. We mark the nodes that correspond to the end of a word.</p>
+<p>To find the minimum number of extra characters, we use the same recursive function <code>dp</code> from the first
+    approach, with a few modifications. It takes an index representing the starting position in the string.</p>
+<p>Like in the first approach, we initialize the answer for a given <code>start</code> index as <code>dp(start + 1) +
+    1</code>. Then we try all possible <code>end</code> positions by iteration over the string starting from <code>end =
+    start</code>. As we iterate, we traverse the Trie data structure to check if the characters in the string exist in
+    the trie.</p>
+<p>If we encounter a TrieNode marked as the end of a word, we update the minimum count by recursively calling
+    <code>dp</code> on the next index without adding any extra characters. If we find that no TrieNode exists at all for
+    a character, we can immediately break since no words will exist beyond this point.</p>
+<h4 id="algorithm-2">Algorithm</h4>
+<ol>
+    <li>Start by defining a <code>TrieNode</code> class with <code>children</code> and <code>is_word</code> attributes.
+        Each node represents a character in the trie.
+    </li>
+    <li>The <code>buildTrie</code> function is used to construct the trie by iterating through each word in the
+        dictionary and adding it to the trie character by character.
+    </li>
+    <li>Define a recursive helper function called <code>dp</code>.</li>
+    <li>At each recursive call of <code>dp</code> check if the starting index <code>start</code> has reached the end of
+        the string <code>s</code>. If so, return 0.
+    </li>
+    <li>The base case of the recursion is when the starting index reaches the end of the string, in which case it
+        returns 0.
+    </li>
+    <li>Traverse the trie starting from the root and follow the characters of the substring, checking if each character
+        exists in the trie.
+    </li>
+    <li>If a character is not found in the trie, break out of the loop.</li>
+    <li>If a valid substring is found in the trie (<code>node.is_word == true</code>), call <code>dp(end + 1)</code>.
+    </li>
+    <li>Track the minimum number of extra characters encountered so far(<code>ans</code>) and update it whenever a lower
+        value is found.
+    </li>
+    <li>To optimize the solution, apply memoization. Store the results of previously computed subproblems in a separate
+        data structure.
+    </li>
+    <li>Finally, call <code>dp</code> with the starting index set to 0.</li>
+</ol>
+<h4 id="implementation-2">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class TrieNode {
+    Map<Character, TrieNode> children = new HashMap();
+    boolean is_word = false;
+}
+
+class Solution {
+    TrieNode root;
+    Integer[] memo;
+    public int minExtraChar(String s, String[] dictionary) {
+        int n = s.length();
+        root = buildTrie(dictionary);
+        memo = new Integer[n + 1];
+        return dp(0, n, s);
+    }
+
+    private int dp(int start, int n, String s) {
+        if (start == n) {
+            return 0;
+        }
+        if (memo[start] != null) {
+            return memo[start];
+        }
+
+        TrieNode node = root;
+        // To count this character as a left over character
+        // move to index 'start + 1'
+        int ans = dp(start + 1, n, s) + 1;
+        for (int end = start; end < n; end++) {
+            char c = s.charAt(end);
+            if (!node.children.containsKey(c)) {
+                break;
+            }
+            node = node.children.get(c);
+            if (node.is_word) {
+                ans = Math.min(ans, dp(end + 1, n, s));
+            }
+        }
+
+        return memo[start] = ans;
+    }
+
+    private TrieNode buildTrie(String[] dictionary) {
+        TrieNode root = new TrieNode();
+        for (String word : dictionary) {
+            TrieNode node = root;
+            for (char c : word.toCharArray()) {
+                node.children.putIfAbsent(c, new TrieNode());
+                node = node.children.get(c);
+            }
+            node.is_word = true;
+        }
+        return root;
+    }
+}
+    </code>
+    C++
+    <code>
+        class TrieNode {
+public:
+    unordered_map<char, TrieNode*> children;
+    bool is_word;
+};
+
+class Solution {
+public:
+    int minExtraChar(string s, vector<string>& dictionary) {
+        int n = s.length();
+        auto root = buildTrie(dictionary);
+        unordered_map<int, int> memo;
+
+        function<int(int)> dp = [&](int start) {
+            if (start == n) {
+                return 0;
+            }
+            if (memo.count(start)) {
+                return memo[start];
+            }
+            // To count this character as a left over character
+            // move to index 'start + 1'
+            int ans = dp(start + 1) + 1;
+            TrieNode* node = root;
+            for (int end = start; end < n; end++) {
+                char c = s[end];
+                if (node->children.find(c) == node->children.end()) {
+                    break;
+                }
+                node = node->children[c];
+                if (node->is_word) {
+                    ans = min(ans, dp(end + 1));
+                }
+            }
+
+            return memo[start] = ans;
+        };
+
+        return dp(0);
+    }
+
+    TrieNode* buildTrie(vector<string>& dictionary) {
+        auto root = new TrieNode();
+        for (auto& word : dictionary) {
+            auto node = root;
+            for (auto& c : word) {
+                if (node->children.find(c) == node->children.end()) {
+                    node->children[c] = new TrieNode();
+                }
+                node = node->children[c];
+            }
+            node->is_word = true;
+        }
+        return root;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class TrieNode:
+    def __init__(self):
+        self.children = {}
+        self.is_word = False
+
+class Solution:
+    def minExtraChar(self, s: str, dictionary: List[str]) -> int:
+        n = len(s)
+        root = self.buildTrie(dictionary)
+
+        @cache
+        def dp(start):
+            if start == n:
+                return 0
+            # To count this character as a left over character
+            # move to index 'start + 1'
+            ans = dp(start + 1) + 1
+            node = root
+            for end in range(start, n):
+                if s[end] not in node.children:
+                    break
+                node = node.children[s[end]]
+                if node.is_word:
+                    ans = min(ans, dp(end + 1))
+            return ans
+
+        return dp(0)
+
+    def buildTrie(self, dictionary):
+        root = TrieNode()
+        for word in dictionary:
+            node = root
+            for char in word:
+                if char not in node.children:
+                    node.children[char] = TrieNode()
+                node = node.children[char]
+            node.is_word = True
+        return root
+    </code>
+    Ruby
+    <code>
+        class TrieNode
+  attr_accessor :children, :is_word
+
+  def initialize
+    @children = {}
+    @is_word = false
+  end
+end
+
+def min_extra_char(s, dictionary)
+  n = s.length
+  root = build_trie(dictionary)
+  memo = {}
+
+  dp = lambda do |start|
+    return 0 if start == n
+    return memo[start] if memo.key?(start)
+    # To count this character as a left over character
+    # move to index 'start + 1'
+    ans = dp.call(start + 1) + 1
+    node = root
+    (start...n).each do |last|
+      unless node.children.key?(s[last])
+        break
+      end
+      node = node.children[s[last]]
+      if node.is_word
+        ans = [ans, dp.call(last + 1)].min
+      end
+    end
+
+    memo[start] = ans
+  end
+
+  dp.call(0)
+end
+
+def build_trie(dictionary)
+  root = TrieNode.new
+  dictionary.each do |word|
+    node = root
+    word.each_char do |char|
+      node.children[char] ||= TrieNode.new
+      node = node.children[char]
+    end
+    node.is_word = true
+  end
+  root
+end
+    </code>
+</pre>
+<h4 id="complexity-analysis-2">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">NN</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                style="margin-right: 0.10903em;">N</span></span></span></span></span>
+    be the total characters in the string.<br>
+    Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">MM</span><span class="katex-html"
+                                                                                                     aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                    style="margin-right: 0.10903em;">M</span></span></span></span></span>
+    be the average length of the strings in <code>dictionary</code>.<br>
+    Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">KK</span><span class="katex-html"
+                                                                                                     aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                    style="margin-right: 0.07153em;">K</span></span></span></span></span>
+    be the length of the <code>dictionary</code>.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(N2+M⋅K)O(N^2 + M \cdot K)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord"><span class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                  style="height: 0.8141em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mspace"
+                                                                                                   style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                        style="margin-right: 0.10903em;">M</span><span
+                class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.07153em;">K</span><span
+                class="mclose">)</span></span></span></span></span>. There can be <span class="math math-inline"><span
+                class="katex"><span class="katex-mathml">N+1N + 1</span><span class="katex-html"
+                                                                              aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 0.7667em; vertical-align: -0.0833em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span class="mspace"
+                                                                                       style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.6444em;"></span><span
+                class="mord">1</span></span></span></span></span> unique states of the <code>dp</code> method. Each
+            state of the <code>dp</code> method costs <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(N)O(N)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                    class="mclose">)</span></span></span></span></span> to compute. Hence, the overall cost of the
+            <code>dp</code> method is <span class="math math-inline"><span class="katex"><span class="katex-mathml">O((N+1)⋅N)O((N + 1) \cdot N)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">((</span><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span class="mspace"
+                                                                                           style="margin-right: 0.2222em;"></span><span
+                    class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord">1</span><span class="mclose">)</span><span class="mspace"
+                                                                            style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                    class="mclose">)</span></span></span></span></span> or simply <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">O(N2)O(N^2)</span><span class="katex-html"
+                                                                                     aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord"><span class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                    class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                      style="height: 0.8141em;"><span
+                    style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                       style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span
+                    class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                    class="mclose">)</span></span></span></span></span>. Building the trie costs <span
+                    class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(M⋅K)O(M \cdot K)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">M</span><span class="mspace"
+                                                                                           style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.07153em;">K</span><span
+                    class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(N+M⋅K)O(N + M \cdot K)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span class="mspace"
+                                                                                       style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                        style="margin-right: 0.10903em;">M</span><span
+                class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.07153em;">K</span><span
+                class="mclose">)</span></span></span></span></span>. The Trie used to store the strings in the <code>dictionary</code>
+            will incur a cost of <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(M⋅K)O(M \cdot K)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">M</span><span class="mspace"
+                                                                                           style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.07153em;">K</span><span
+                    class="mclose">)</span></span></span></span></span>. Additionally, the <code>dp</code> method will
+            consume stack space and traverse to a depth of <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">NN</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                    class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                         style="margin-right: 0.10903em;">N</span></span></span></span></span>,
+            resulting in a cost of <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(N)O(N)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                    class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+</ul>
+<hr>
+<h3 id="approach-4-bottom-up-dynamic-programming-with-trie">Approach 4: Bottom Up Dynamic Programming with Trie</h3>
+<h4 id="intuition-3">Intuition</h4>
+<p>We can optimize the bottom up approach the same way we optimized the top down approach, by using a Trie to avoid
+    needing to create substrings.</p>
+<p>We initialize a dynamic programming table, <code>dp</code>, where each position represents the minimum number of
+    extra characters starting from that index. This is the same table as the one from approach 2.</p>
+<p>For each index <code>start</code>, we initialize <code>dp[start] = dp[start + 1] + 1</code> as the base case. Then we
+    iterate backward through the string, starting from the last index. For each index, we update the corresponding value
+    in the <code>dp</code> table by considering all possible substrings starting from that position. We traverse the
+    Trie data structure, checking if the characters in the string exist in the Trie. If a character doesn't exist in the
+    Trie, we can immediately break.</p>
+<p>If we encounter a TrieNode marked as the end of a word during traversal, we update the <code>dp</code> value at the
+    start index by taking the minimum between the current value and the value at the end index without adding any extra
+    characters.</p>
+<h4 id="algorithm-3">Algorithm</h4>
+<p>The algorithm used in the solution can be explained in the following short points:</p>
+<ol>
+    <li>Define a <code>TrieNode</code> class with <code>children</code> and <code>is_word</code> attributes. Each node
+        represents a character in the trie.
+    </li>
+    <li>The <code>buildTrie</code> function is used to construct the trie by iterating through each word in the
+        dictionary and adding it to the trie character by character.
+    </li>
+    <li>Initialize the root of the trie, the length of the input string, and a dynamic programming array <code>dp</code>
+        of size <code>n + 1</code>.
+    </li>
+    <li>Iterate over the string <code>s</code> from right to left, starting from the last character down to the first
+        character.
+    </li>
+    <li>For each starting index <code>start</code>, calculate the minimum number of extra characters needed to break
+        down the substring from <code>start</code> to the end of the string.
+    </li>
+    <li>Initialize <code>dp[start]</code> with <code>dp[start + 1] + 1</code>.</li>
+    <li>Traverse the trie starting from the root and follow the characters of the substring, checking if each character
+        exists in the trie.
+    </li>
+    <li>If a character is not found in the trie, break out of the for loop.</li>
+    <li>If a valid substring is found in the trie (<code>node.is_word == true</code>), update <code>dp[start]</code> by
+        taking the minimum of its current value and <code>dp[end + 1]</code>.
+    </li>
+    <li>Finally, return the value at <code>dp[0]</code>.</li>
+</ol>
+<h4 id="implementation-3">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class TrieNode {
+    Map<Character, TrieNode> children = new HashMap();
+    boolean isWord = false;
+}
+
+class Solution {
+    public int minExtraChar(String s, String[] dictionary) {
+        int n = s.length();
+        var root = buildTrie(dictionary);
+        var dp = new int[n + 1];
+
+        for (int start = n - 1; start >= 0; start--) {
+            dp[start] = dp[start + 1] + 1;
+            var node = root;
+            for (int end = start; end < n; end++) {
+                if (!node.children.containsKey(s.charAt(end))) {
+                    break;
+                }
+                node = node.children.get(s.charAt(end));
+                if (node.isWord) {
+                    dp[start] = Math.min(dp[start], dp[end + 1]);
+                }
+            }
+        }
+
+        return dp[0];
+    }
+
+    private TrieNode buildTrie(String[] dictionary) {
+        var root = new TrieNode();
+        for (var word : dictionary) {
+            var node = root;
+            for (var c : word.toCharArray()) {
+                node.children.putIfAbsent(c, new TrieNode());
+                node = node.children.get(c);
+            }
+            node.isWord = true;
+        }
+        return root;
+    }
+}
+    </code>
+    C++
+    <code>
+        class TrieNode {
+public:
+    unordered_map<char, TrieNode*> children;
+    bool is_word;
+};
+
+class Solution {
+public:
+    int minExtraChar(string s, vector<string>& dictionary) {
+        int n = s.length();
+        auto root = buildTrie(dictionary);
+        vector<int> dp(n + 1, 0);
+
+        for (int start = n - 1; start >= 0; start--) {
+            dp[start] = dp[start + 1] + 1;
+            auto node = root;
+            for (int end = start; end < n; end++) {
+                if (node->children.find(s[end]) == node->children.end()) {
+                    break;
+                }
+                node = node->children[s[end]];
+                if (node->is_word) {
+                    dp[start] = min(dp[start], dp[end + 1]);
+                }
+            }
+        }
+
+        return dp[0];
+    }
+
+    TrieNode* buildTrie(vector<string>& dictionary) {
+        auto root = new TrieNode();
+        for (auto& word : dictionary) {
+            auto node = root;
+            for (auto& c : word) {
+                if (node->children.find(c) == node->children.end()) {
+                    node->children[c] = new TrieNode();
+                }
+                node = node->children[c];
+            }
+            node->is_word = true;
+        }
+        return root;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class TrieNode:
+    def __init__(self):
+        self.children = {}
+        self.is_word = False
+
+class Solution:
+    def minExtraChar(self, s: str, dictionary: List[str]) -> int:
+        n = len(s)
+        root = self.buildTrie(dictionary)
+        dp = [0] * (n + 1)
+
+        for start in range(n - 1, -1, -1):
+            dp[start] = dp[start + 1] + 1
+            node = root
+            for end in range(start, n):
+                if s[end] not in node.children:
+                    break
+                node = node.children[s[end]]
+                if node.is_word:
+                    dp[start] = min(dp[start], dp[end + 1])
+
+        return dp[0]
+
+    def buildTrie(self, dictionary):
+        root = TrieNode()
+        for word in dictionary:
+            node = root
+            for char in word:
+                if char not in node.children:
+                    node.children[char] = TrieNode()
+                node = node.children[char]
+            node.is_word = True
+        return root
+    </code>
+    Ruby
+    <code>
+        class TrieNode
+  attr_accessor :children, :is_word
+
+  def initialize
+    @children = {}
+    @is_word = false
+  end
+end
+
+def min_extra_char(s, dictionary)
+  n = s.length
+  root = build_trie(dictionary)
+  dp = Array.new(n + 1, 0)
+
+  (n - 1).downto(0) do |start|
+    dp[start] = dp[start + 1] + 1
+    node = root
+    start.upto(n - 1) do |last|
+      unless node.children.key?(s[last])
+        break
+      end
+      node = node.children[s[last]]
+      if node.is_word
+        dp[start] = [dp[start], dp[last + 1]].min
+      end
+    end
+  end
+
+  dp[0]
+end
+
+def build_trie(dictionary)
+  root = TrieNode.new
+  dictionary.each do |word|
+    node = root
+    word.each_char do |char|
+      node.children[char] ||= TrieNode.new
+      node = node.children[char]
+    end
+    node.is_word = true
+  end
+  root
+end
+    </code>
+</pre>
+<h4 id="complexity-analysis-3">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">NN</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                style="margin-right: 0.10903em;">N</span></span></span></span></span>
+    be the total characters in the string.<br>
+    Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">MM</span><span class="katex-html"
+                                                                                                     aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                    style="margin-right: 0.10903em;">M</span></span></span></span></span>
+    be the average length of the strings in <code>dictionary</code>.<br>
+    Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">KK</span><span class="katex-html"
+                                                                                                     aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                    style="margin-right: 0.07153em;">K</span></span></span></span></span>
+    be the length of the <code>dictionary</code>.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(N2+M⋅K)O(N^2 + M \cdot K)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord"><span class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                  style="height: 0.8141em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mspace"
+                                                                                                   style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                        style="margin-right: 0.10903em;">M</span><span
+                class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.07153em;">K</span><span
+                class="mclose">)</span></span></span></span></span>. The two nested for loops that are being used for
+            the dynamic programming operation cost <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(N2)O(N^2)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord"><span class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                    class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                      style="height: 0.8141em;"><span
+                    style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                       style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span
+                    class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                    class="mclose">)</span></span></span></span></span>. Building the trie costs <span
+                    class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(M⋅K)O(M \cdot K)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">M</span><span class="mspace"
+                                                                                           style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.07153em;">K</span><span
+                    class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(N+M⋅K)O(N + M \cdot K)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span class="mspace"
+                                                                                       style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                        style="margin-right: 0.10903em;">M</span><span
+                class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.07153em;">K</span><span
+                class="mclose">)</span></span></span></span></span>. The Trie used to store the strings in <code>dictionary</code>
+            will incur a cost of <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(M⋅K)O(M \cdot K)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">M</span><span class="mspace"
+                                                                                           style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.07153em;">K</span><span
+                    class="mclose">)</span></span></span></span></span>. The <code>dp</code> array will incur a cost of
+            <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(N)O(N)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                    class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+</ul>
+<hr>
+</body>
+</html>
