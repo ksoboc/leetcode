@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Split Linked List in Parts - Solution</title>
+</head>
+<body>
+<h4 id="approach-1-create-new-lists-accepted">Approach #1: Create New Lists [Accepted]</h4>
+<p><strong>Intuition and Algorithm</strong></p>
+<p>If there are <span class="math math-inline"><span class="katex"><span class="katex-mathml">NN</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.6833em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.10903em;">N</span></span></span></span></span> nodes in the
+    linked list <code>root</code>, then there are <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">N/kN / k</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                     style="margin-right: 0.10903em;">N</span><span
+            class="mord">/</span><span class="mord mathnormal"
+                                       style="margin-right: 0.03148em;">k</span></span></span></span></span> items in
+    each part, plus the first <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">N%kN \% k</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.8056em; vertical-align: -0.0556em;"></span><span class="mord mathnormal"
+                                                                                            style="margin-right: 0.10903em;">N</span><span
+            class="mord">%</span><span class="mord mathnormal"
+                                       style="margin-right: 0.03148em;">k</span></span></span></span></span> parts have
+    an extra item. We can count <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">NN</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                 style="margin-right: 0.10903em;">N</span></span></span></span></span>
+    with a simple loop.</p>
+<p>Now for each part, we have calculated how many nodes that part will have: <code>width + (i &lt; remainder ? 1 :
+    0)</code>. We create a new list and write the part to that list.</p>
+<p>Our solution showcases constructs of the form <code>a = b = c</code>. Note that this syntax behaves differently for
+    different languages.</p>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public ListNode[] splitListToParts(ListNode root, int k) {
+        ListNode cur = root;
+        int N = 0;
+        while (cur != null) {
+            cur = cur.next;
+            N++;
+        }
+
+        int width = N / k, rem = N % k;
+
+        ListNode[] ans = new ListNode[k];
+        cur = root;
+        for (int i = 0; i < k; ++i) {
+            ListNode head = new ListNode(0), write = head;
+            for (int j = 0; j < width + (i < rem ? 1 : 0); ++j) {
+                write = write.next = new ListNode(cur.val);
+                if (cur != null) cur = cur.next;
+            }
+            ans[i] = head.next;
+        }
+        return ans;
+    }
+}
+    </code>
+    Python
+    <code>
+        class Solution(object):
+    def splitListToParts(self, root, k):
+        cur = root
+        for N in xrange(1001):
+            if not cur: break
+            cur = cur.next
+        width, remainder = divmod(N, k)
+
+        ans = []
+        cur = root
+        for i in xrange(k):
+            head = write = ListNode(None)
+            for j in xrange(width + (i < remainder)):
+                write.next = write = ListNode(cur.val)
+                if cur: cur = cur.next
+            ans.append(head.next)
+        return ans
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<ul>
+    <li>
+        <p>Time Complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(N+k)O(N + k)</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span class="mspace"
+                                                                                       style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                class="mclose">)</span></span></span></span></span>, where <span class="math math-inline"><span
+                class="katex"><span class="katex-mathml">NN</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                        style="margin-right: 0.10903em;">N</span></span></span></span></span>
+            is the number of nodes in the given list. If <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">kk</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                    class="strut" style="height: 0.6944em;"></span><span class="mord mathnormal"
+                                                                         style="margin-right: 0.03148em;">k</span></span></span></span></span>
+            is large, it could still require creating many new empty lists.</p>
+    </li>
+    <li>
+        <p>Space Complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(max(N,k))O(max(N, k))</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">ma</span><span class="mord mathnormal">x</span><span class="mopen">(</span><span
+                class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span class="mpunct">,</span><span
+                class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal"
+                                                                            style="margin-right: 0.03148em;">k</span><span
+                class="mclose">))</span></span></span></span></span>, the space used in writing the answer.</p>
+    </li>
+</ul>
+<hr>
+<h4 id="approach-2-split-input-list-accepted">Approach #2: Split Input List [Accepted]</h4>
+<p><strong>Intuition and Algorithm</strong></p>
+<p>As in <em>Approach #1</em>, we know the size of each part. Instead of creating new lists, we will split the input
+    list directly and return a list of pointers to nodes in the original list as appropriate.</p>
+<p>Our solution proceeds similarly. For a part of size <code>L = width + (i &lt; remainder ? 1 : 0)</code>, instead of
+    stepping <code>L</code> times, we will step <code>L-1</code> times, and our final time will also sever the link
+    between the last node from the previous part and the first node from the next part.</p>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public ListNode[] splitListToParts(ListNode root, int k) {
+        ListNode cur = root;
+        int N = 0;
+        while (cur != null) {
+            cur = cur.next;
+            N++;
+        }
+
+        int width = N / k, rem = N % k;
+
+        ListNode[] ans = new ListNode[k];
+        cur = root;
+        for (int i = 0; i < k; ++i) {
+            ListNode head = cur;
+            for (int j = 0; j < width + (i < rem ? 1 : 0) - 1; ++j) {
+                if (cur != null) cur = cur.next;
+            }
+            if (cur != null) {
+                ListNode prev = cur;
+                cur = cur.next;
+                prev.next = null;
+            }
+            ans[i] = head;
+        }
+        return ans;
+    }
+}
+    </code>
+    Python
+    <code>
+        class Solution(object):
+    def splitListToParts(self, root, k):
+        cur = root
+        for N in xrange(1001):
+            if not cur: break
+            cur = cur.next
+        width, remainder = divmod(N, k)
+
+        ans = []
+        cur = root
+        for i in xrange(k):
+            head = cur
+            for j in xrange(width + (i < remainder) - 1):
+                if cur: cur = cur.next
+            if cur:
+                cur.next, cur = None, cur.next
+            ans.append(head)
+        return ans
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<ul>
+    <li>
+        <p>Time Complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(N+k)O(N + k)</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span class="mspace"
+                                                                                       style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                class="mclose">)</span></span></span></span></span>, where <span class="math math-inline"><span
+                class="katex"><span class="katex-mathml">NN</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                        style="margin-right: 0.10903em;">N</span></span></span></span></span>
+            is the number of nodes in the given list. If <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">kk</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                    class="strut" style="height: 0.6944em;"></span><span class="mord mathnormal"
+                                                                         style="margin-right: 0.03148em;">k</span></span></span></span></span>
+            is large, it could still require creating many new empty lists.</p>
+    </li>
+    <li>
+        <p>Space Complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(k)O(k)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                class="mclose">)</span></span></span></span></span>, the additional space used in writing the answer.
+        </p>
+    </li>
+</ul>
+</body>
+</html>
