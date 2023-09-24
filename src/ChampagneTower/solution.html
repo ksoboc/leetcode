@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Champagne Tower - Solution</title>
+</head>
+<body>
+<hr>
+<h4 id="approach-1-simulation-accepted">Approach #1: Simulation [Accepted]</h4>
+<p><strong>Intuition</strong></p>
+<p>Instead of keeping track of how much champagne should end up in a glass, keep track of the total amount of champagne
+    that flows through a glass. For example, if <code>poured = 10</code> cups are poured at the top, then the total
+    flow-through of the top glass is <code>10</code>; the total flow-through of each glass in the second row is <code>4.5</code>,
+    and so on.</p>
+<p><strong>Algorithm</strong></p>
+<p>In general, if a glass has flow-through <code>X</code>, then <code>Q = (X - 1.0) / 2.0</code> quantity of champagne
+    will equally flow left and right. We can simulate the entire pour for 100 rows of glasses. A glass at <code>(r,
+        c)</code> will have excess champagne flow towards <code>(r+1, c)</code> and <code>(r+1, c+1)</code>.</p>
+<iframe src="https://leetcode.com/playground/tBELYQkj/shared" name="user-content-tBELYQkj" allowfullscreen=""
+        translate="no" data-ruffle-polyfilled="" width="100%" height="344"></iframe>
+<p><strong>Complexity Analysis</strong></p>
+<ul>
+    <li>
+        <p>Time Complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(R2)O(R^2)</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord"><span class="mord mathnormal" style="margin-right: 0.00773em;">R</span><span
+                class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                  style="height: 0.8141em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                class="mclose">)</span></span></span></span></span>, where <span class="math math-inline"><span
+                class="katex"><span class="katex-mathml">RR</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                        style="margin-right: 0.00773em;">R</span></span></span></span></span>
+            is the number of rows. As this is fixed, we can consider this complexity to be <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord">1</span><span class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+    <li>
+        <p>Space Complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(R2)O(R^2)</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord"><span class="mord mathnormal" style="margin-right: 0.00773em;">R</span><span
+                class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                  style="height: 0.8141em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                class="mclose">)</span></span></span></span></span>, or <span class="math math-inline"><span
+                class="katex"><span class="katex-mathml">O(1)O(1)</span><span class="katex-html"
+                                                                              aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord">1</span><span class="mclose">)</span></span></span></span></span> by the reasoning above.
+        </p>
+    </li>
+</ul>
+</body>
+</html>
