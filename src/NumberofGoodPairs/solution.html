@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Number of Good Pairs - Solution</title>
+</head>
+<body>
+<h2 id="solution">Number of Good Pairs - Solution</h2>
+<hr>
+<h4 id="approach-1-check-all-pairs">Approach 1: Check All Pairs</h4>
+<p><strong>Intuition</strong></p>
+<p>The problem description defines a pair <code>(i, j)</code> as needing to have <code>i &lt; j</code>. We can simply
+    check all these pairs and count the number of pairs where <code>nums[i] == nums[j]</code>.</p>
+<p>Iterate <code>i</code> over the indices of <code>nums</code>. For each <code>i</code>, iterate over all
+    <code>j</code> greater than <code>i</code>. If the numbers at the indices match, increment the answer.</p>
+<p><strong>Algorithm</strong></p>
+<ol>
+    <li>Initialize <code>ans = 0</code>.</li>
+    <li>Iterate <code>i</code> from <code>0</code> until <code>nums.length</code>:
+        <ul>
+            <li>Iterate <code>j</code> from <code>i + 1</code> until <code>nums.length</code>:
+                <ul>
+                    <li>If <code>nums[i] == nums[j]</code>, increment <code>ans</code>.</li>
+                </ul>
+            </li>
+        </ul>
+    </li>
+    <li>Return <code>ans</code>.</li>
+</ol>
+<p><strong>Implementation</strong></p>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int numIdenticalPairs(int[] nums) {
+        Map<Integer, Integer> counts = new HashMap<>();
+        int ans = 0;
+
+        for (int num: nums) {
+            ans += counts.getOrDefault(num, 0);
+            counts.put(num, counts.getOrDefault(num, 0) + 1);
+        }
+
+        return ans;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int numIdenticalPairs(vector<int>& nums) {
+        unordered_map<int, int> counts;
+        int ans = 0;
+
+        for (int num: nums) {
+            ans += counts[num];
+            counts[num]++;
+        }
+
+        return ans;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def numIdenticalPairs(self, nums: List[int]) -> int:
+        counts = defaultdict(int)
+        ans = 0
+
+        for num in nums:
+            ans += counts[num]
+            counts[num] += 1
+
+        return ans
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<p>Given <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    as the length of <code>nums</code>,</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n2)O(n^2)</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+                class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <p>We have a nested loop over the length of the input. The total iterations is 1 + 2 + 3 + 4 + ... + n, which is
+            the partial sum of <a href="https://en.wikipedia.org/wiki/1_%2B_2_%2B_3_%2B_4_%2B_%E2%8B%AF#Partial_sums"
+                                  target="_blank">this series</a>, which is equal to <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">n⋅(n+1)2\frac{n \cdot (n + 1)}{2}</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1.355em; vertical-align: -0.345em;"></span><span
+                    class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span
+                    class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 1.01em;"><span
+                    style="top: -2.655em;"><span class="pstrut" style="height: 3em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">2</span></span></span></span><span
+                    style="top: -3.23em;"><span class="pstrut" style="height: 3em;"></span><span class="frac-line"
+                                                                                                 style="border-bottom-width: 0.04em;"></span></span><span
+                    style="top: -3.485em;"><span class="pstrut" style="height: 3em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+                    class="mord mathnormal mtight">n</span><span class="mbin mtight">⋅</span><span class="mopen mtight">(</span><span
+                    class="mord mathnormal mtight">n</span><span class="mbin mtight">+</span><span
+                    class="mord mtight">1</span><span class="mclose mtight">)</span></span></span></span></span><span
+                    class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                               style="height: 0.345em;"><span></span></span></span></span></span><span
+                    class="mclose nulldelimiter"></span></span></span></span></span></span> = <span
+                    class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">n2+n2\frac{n^2 + n}{2}</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1.3629em; vertical-align: -0.345em;"></span><span
+                    class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span
+                    class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 1.0179em;"><span
+                    style="top: -2.655em;"><span class="pstrut" style="height: 3em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">2</span></span></span></span><span
+                    style="top: -3.23em;"><span class="pstrut" style="height: 3em;"></span><span class="frac-line"
+                                                                                                 style="border-bottom-width: 0.04em;"></span></span><span
+                    style="top: -3.394em;"><span class="pstrut" style="height: 3em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span
+                    class="mord mathnormal mtight">n</span><span class="msupsub"><span class="vlist-t"><span
+                    class="vlist-r"><span class="vlist" style="height: 0.8913em;"><span
+                    style="top: -2.931em; margin-right: 0.0714em;"><span class="pstrut"
+                                                                         style="height: 2.5em;"></span><span
+                    class="sizing reset-size3 size1 mtight"><span
+                    class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                    class="mbin mtight">+</span><span
+                    class="mord mathnormal mtight">n</span></span></span></span></span><span
+                    class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                               style="height: 0.345em;"><span></span></span></span></span></span><span
+                    class="mclose nulldelimiter"></span></span></span></span></span></span>. In big O, this is <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(n2)O(n^2)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+                    class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                    style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                       style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span
+                    class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                    class="mclose">)</span></span></span></span></span> because the addition term in the numerator and
+            the constant term in the denominator are both ignored.</p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord">1</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <p>We aren't using any extra space except for a few integers.</p>
+    </li>
+</ul>
+<br>
+<hr>
+<h4 id="approach-2-hash-map">Approach 2: Hash Map</h4>
+<p><strong>Intuition</strong></p>
+<p>We can improve our performance by using a hash map to count the frequency of the encountered numbers during the
+    traversal.</p>
+<p>Let's say that we are iterating over the input, and we encounter a number <code>x = 6</code>. We also know that we
+    have seen <code>6</code> three times before the current index. The current <code>6</code> could pair with any of the
+    previous three to form a good pair.</p>
+<p>In general, whenever we encounter a number, it can form <code>k</code> good pairs with previously traversed numbers,
+    where <code>k</code> is the number of times we have seen the number previously.</p>
+<p>Different from approach 1, while this approach doesn't track the indices of each number, we keep a count of their
+    occurrences. This ensures that all good pairs are considered, and because the counts of each number are accumulated
+    as it's traversed, it guarantees that good pairs are counted only once. This way, we avoid both undercounting and
+    overcounting.</p>
+<p><img src="1.png" alt="example"><br>
+    <br></p>
+<p><strong>Algorithm</strong></p>
+<ol>
+    <li>Initialize <code>ans = 0</code> and a hash map <code>counts</code>.</li>
+    <li>Iterate over the input. For each <code>num</code>:
+        <ul>
+            <li>Increment <code>ans</code> by <code>counts[num]</code>.</li>
+            <li>Increment <code>counts[num]</code>.</li>
+        </ul>
+    </li>
+    <li>Return <code>ans</code>.</li>
+</ol>
+<p><strong>Implementation</strong></p>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int numIdenticalPairs(int[] nums) {
+        int ans = 0;
+        for (int i = 0; i < nums.length; i++) {
+            for (int j = i + 1; j < nums.length; j++) {
+                if (nums[i] == nums[j]) {
+                    ans++;
+                }
+            }
+        }
+
+        return ans;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int numIdenticalPairs(vector<int>& nums) {
+        int ans = 0;
+        for (int i = 0; i < nums.size(); i++) {
+            for (int j = i + 1; j < nums.size(); j++) {
+                if (nums[i] == nums[j]) {
+                    ans++;
+                }
+            }
+        }
+
+        return ans;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def numIdenticalPairs(self, nums: List[int]) -> int:
+        ans = 0
+        for i in range(len(nums)):
+            for j in range(i + 1, len(nums)):
+                if nums[i] == nums[j]:
+                    ans += 1
+
+        return ans
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<p>Given <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    as the length of <code>nums</code>,</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <p>We iterate over the input once. At each iteration, we perform <span class="math math-inline"><span
+                class="katex"><span class="katex-mathml">O(1)O(1)</span><span class="katex-html"
+                                                                              aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord">1</span><span class="mclose">)</span></span></span></span></span> work since hash map
+            operations run in constant time.</p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <p>In the worst case, the array contains at most <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 0.4306em;"></span><span
+                class="mord mathnormal">n</span></span></span></span></span> unique numbers, then <code>counts</code>
+            will grow to a size of <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                    class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>.
+        </p>
+    </li>
+</ul>
+<br>
+<hr>
+</body>
+</html>
