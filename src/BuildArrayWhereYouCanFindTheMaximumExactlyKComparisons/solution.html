@@ -1,0 +1,1459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Build Array Where You Can Find The Maximum Exactly K Comparisons - Solution</title>
+</head>
+<body>
+<h2 id="solution">Build Array Where You Can Find The Maximum Exactly K Comparisons - Solution</h2>
+<hr>
+<h4 id="approach-1-top-down-dynamic-programming">Approach 1: Top-Down Dynamic Programming</h4>
+<p><strong>Intuition</strong></p>
+<blockquote>
+    <p><strong>Note.</strong> For this approach, we assume that you already know the fundamentals of dynamic programming
+        and are figuring out how to apply it to a wide range of problems, such as this one. If you are not yet at this
+        stage, we recommend checking out our relevant <a
+                href="https://leetcode.com/explore/featured/card/dynamic-programming/" target="_blank">Explore Card
+            content on dynamic programming</a> before coming back to this problem.</p>
+</blockquote>
+<p>Before we start solving the problem, let's carefully read the algorithm given in the problem description to try to
+    figure out exactly what the problem is asking for. Upon careful inspection, we can deduce that the problem is
+    asking:</p>
+<blockquote>
+    <p>How many arrays of length <code>n</code> with values in the range <code>[1, m]</code> exist, such that you will
+        find exactly <code>k</code> <strong>new maximums</strong> when traversing from left to right?</p>
+</blockquote>
+<p>Given the massive number of possibilities, it seems impossible to actually try to build the arrays. Can we break the
+    problem down?</p>
+<p>Let's say you are currently building a candidate array. We don't need to know the exact contents of the array, but we
+    need to know the following:</p>
+<ol>
+    <li>
+        <p>How many elements have we placed so far? Suppose we add elements to the array in order. We can represent this
+            with an index <code>i</code> that indicates the index of the next element we will place. For example, if the
+            current array is <code>[1, 6, 4]</code>, the next element we will place is at <code>i = 3</code>.</p>
+    </li>
+    <li>
+        <p>The maximum element in the array. We can represent this with an integer <code>maxSoFar</code>. In the example
+            of <code>[1, 6, 4]</code>, we have <code>maxSoFar = 6</code>.</p>
+    </li>
+    <li>
+        <p>How many remaining <strong>new maximums</strong> must we encounter before the end? We can represent this with
+            an integer <code>remain</code>. In the example of <code>[1, 6, 4]</code>, both <code>1</code> and
+            <code>6</code> are maximums, so if we need a total of <code>x</code> maximums, we have <code>remain = x -
+                2</code>.</p>
+    </li>
+</ol>
+<p>Given a state <code>i, maxSoFar, remain</code>, can we come up with a recursive way to solve the problem? Let's
+    define a function <code>dp(i, maxSoFar, remain)</code> that returns the number of ways to build a valid array if we
+    have already placed <code>i</code> elements, the maximum element we have placed so far is <code>maxSoFar</code>, and
+    we need to place <code>remain</code> more new maximums. Then, the answer to the original problem would be <code>dp(0,
+        0, k)</code>. We start with an empty array and need to place <code>k</code> new maximums.</p>
+<p>What would our base cases be?</p>
+<ul>
+    <li>If <code>i == n</code>, we have filled the array. The array is valid if <code>remain == 0</code> and we will
+        return <code>1</code> in that case, or <code>0</code> otherwise.
+    </li>
+    <li>If <code>remain &lt; 0</code>, then we have placed too many new maximums. We should immediately return
+        <code>0</code> as it is impossible to form a valid array from this point forward.
+    </li>
+</ul>
+<p>Now that we have the base cases, how do we calculate a given state <code>i, maxSoFar, remain</code>? We will attempt
+    to place a new element at index <code>i</code>. There are 2 possibilities:</p>
+<ul>
+    <li>We place a number that is not a new maximum. How many ways are there to do this? The range of numbers we could
+        choose from is <code>[1, maxSoFar]</code>. The size of this range is <code>maxSoFar - 1 + 1 = maxSoFar</code>.
+        After placing a number, the next state is <code>i + 1, maxSoFar, remain</code>. We move to the next index, and
+        <code>maxSoFar</code> and <code>remain</code> are unchanged since we didn't place a new maximum. Thus, the total
+        possibilities is <code>maxSoFar * dp(i + 1, maxSoFar, remain)</code>.
+    </li>
+</ul>
+<p><img src="2.png" alt="img"><br>
+    <br></p>
+<ul>
+    <li>We place a number that is a new maximum. How many ways are there to do this? The range of numbers we could
+        choose from is <code>[maxSoFar + 1, m]</code>. Let's say that we choose a number <code>num</code> from this
+        range. The state would be <code>i + 1, num, remain - 1</code>. We move to the next index, <code>maxSoFar</code>
+        is updated, and we placed a new maximum. We need to try all possibilities in the range <code>[maxSoFar + 1,
+            m]</code>.
+    </li>
+</ul>
+<p><img src="3.png" alt="img"><br>
+    <br></p>
+<p>This gives us a recursive solution. Unfortunately, this solution is too slow as many states will be visited an
+    exponential number of times. To solve this, we will memoize our <code>dp</code> function. The first time we solve a
+    state, we will save the result in memory. The next time we visit the same state, we will refer to the result we
+    saved instead of recalculating it. Also, remember that we need to perform operations modulo <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">109+710^9 + 7</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.8974em; vertical-align: -0.0833em;"></span><span
+            class="mord">1</span><span class="mord"><span class="mord">0</span><span class="msupsub"><span
+            class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span
+            class="mord mtight">9</span></span></span></span></span></span></span></span><span class="mspace"
+                                                                                               style="margin-right: 0.2222em;"></span><span
+            class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">7</span></span></span></span></span>
+    to avoid integer overflow.</p>
+<p><strong>Algorithm</strong></p>
+<p>All arithmetic operations should be done mod <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">109+710^9 + 7</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+        class="strut" style="height: 0.8974em; vertical-align: -0.0833em;"></span><span class="mord">1</span><span
+        class="mord"><span class="mord">0</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span
+        class="vlist" style="height: 0.8141em;"><span style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                                         style="height: 2.7em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span
+        class="mord mtight">9</span></span></span></span></span></span></span></span><span class="mspace"
+                                                                                           style="margin-right: 0.2222em;"></span><span
+        class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+        class="strut" style="height: 0.6444em;"></span><span class="mord">7</span></span></span></span></span>.</p>
+<ol>
+    <li>Define a memoized function <code>dp(i, maxSoFar, remain)</code>:
+        <ul>
+            <li>If <code>i == n</code>, return <code>1</code> if <code>remain == 0</code>, and <code>0</code> otherwise.
+            </li>
+            <li>If <code>remain &lt; 0</code>, return <code>0</code>.</li>
+            <li>Initialize <code>ans</code> as <code>maxSoFar * dp(i + 1, maxSoFar, remain)</code>.</li>
+            <li>Iterate <code>num</code> in the range <code>[maxSoFar + 1, m]</code>:
+                <ul>
+                    <li>Add <code>dp(i + 1, num, remain - 1)</code> to <code>ans</code>.</li>
+                </ul>
+            </li>
+            <li>Return <code>ans</code>.</li>
+        </ul>
+    </li>
+    <li>Return <code>dp(0, 0, k)</code>, the answer to the original problem.</li>
+</ol>
+<p><strong>Implementation</strong></p>
+<blockquote>
+    <p>Implementation notes: Python doesn't overflow, so we can simply calculate the case of not placing a new maximum
+        as <code>maxSoFar * dp(i + 1, maxSoFar, remain)</code> directly. In Java and C++, this will result in overflow,
+        so we will calculate the modulo on the fly during the summation over the range <code>[1, maxSoFar]</code> to
+        prevent integer overflow, which is commonly referred to as "modular arithmetic".</p>
+    <p>In Python, we also use <a href="https://docs.python.org/3/library/functools.html#functools.cache"
+                                 target="_blank">@functools.cache</a> to memoize our function.</p>
+</blockquote>
+<pre>
+    Java
+    <code>
+        class Solution {
+    int[][][] memo;
+    int MOD = (int) 1e9 + 7;
+    int n;
+    int m;
+
+    public int numOfArrays(int n, int m, int k) {
+        memo = new int[n][m + 1][k + 1];
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j <= m; j++) {
+                Arrays.fill(memo[i][j], -1);
+            }
+        }
+
+        this.n = n;
+        this.m = m;
+        return dp(0, 0, k);
+    }
+
+    public int dp(int i, int maxSoFar, int remain) {
+        if (i == n) {
+            if (remain == 0) {
+                return 1;
+            }
+
+            return 0;
+        }
+
+        if (remain < 0) {
+            return 0;
+        }
+
+        if (memo[i][maxSoFar][remain] != -1) {
+            return memo[i][maxSoFar][remain];
+        }
+
+        int ans = 0;
+        for (int num = 1; num <= maxSoFar; num++) {
+            ans = (ans + dp(i + 1, maxSoFar, remain)) % MOD;
+        }
+
+        for (int num = maxSoFar + 1; num <= m; num++) {
+            ans = (ans + dp(i + 1, num, remain - 1)) % MOD;
+        }
+
+        memo[i][maxSoFar][remain] = ans;
+        return ans;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    vector<vector<vector<int>>> memo;
+    int MOD = 1e9 + 7;
+    int n;
+    int m;
+
+    int numOfArrays(int n, int m, int k) {
+        memo = vector(n, vector(m + 1, vector(k + 1, -1)));
+        this->n = n;
+        this->m = m;
+        return dp(0, 0, k);
+    }
+
+    int dp(int i, int maxSoFar, int remain) {
+        if (i == n) {
+            if (remain == 0) {
+                return 1;
+            }
+
+            return 0;
+        }
+
+        if (remain < 0) {
+            return 0;
+        }
+
+        if (memo[i][maxSoFar][remain] != -1) {
+            return memo[i][maxSoFar][remain];
+        }
+
+        int ans = 0;
+        for (int num = 1; num <= maxSoFar; num++) {
+            ans = (ans + dp(i + 1, maxSoFar, remain)) % MOD;
+        }
+
+        for (int num = maxSoFar + 1; num <= m; num++) {
+            ans = (ans + dp(i + 1, num, remain - 1)) % MOD;
+        }
+
+        memo[i][maxSoFar][remain] = ans;
+        return ans;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def numOfArrays(self, n: int, m: int, k: int) -> int:
+        @cache
+        def dp(i, max_so_far, remain):
+            if i == n:
+                if remain == 0:
+                    return 1
+
+                return 0
+
+            ans = (max_so_far * dp(i + 1, max_so_far, remain)) % MOD
+            for num in range(max_so_far + 1, m + 1):
+                ans = (ans + dp(i + 1, num, remain - 1)) % MOD
+
+            return ans
+
+        MOD = 10 ** 9 + 7
+        return dp(0, 0, k)
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅m2⋅k)O(n \cdot m^2 \cdot k)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.8141em;"></span><span class="mord"><span
+                class="mord mathnormal">m</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span
+                class="vlist" style="height: 0.8141em;"><span style="top: -3.063em; margin-right: 0.05em;"><span
+                class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mspace"
+                                                                                                   style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <p>There are <span class="math math-inline"><span class="katex"><span class="katex-mathml">n⋅m⋅kn \cdot m \cdot k</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.4445em;"></span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.4445em;"></span><span class="mord mathnormal">m</span><span
+                class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord mathnormal"
+                                                                                        style="margin-right: 0.03148em;">k</span></span></span></span></span>
+            possible states of <code>dp</code>. Because of memoization, we never calculate a state more than once. To
+            calculate a given state, we have for loops that iterate <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">O(m)O(m)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">m</span><span class="mclose">)</span></span></span></span></span> times.
+            Thus, to calculate <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅m⋅k)O(n \cdot m \cdot k)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 0.4445em;"></span><span
+                    class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                    class="mclose">)</span></span></span></span></span> states costs <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅m2⋅k)O(n \cdot m^2 \cdot k)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 0.8141em;"></span><span class="mord"><span
+                    class="mord mathnormal">m</span><span class="msupsub"><span class="vlist-t"><span
+                    class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                    style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                       style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span
+                    class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                    class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅m⋅k)O(n \cdot m \cdot k)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.4445em;"></span><span class="mord mathnormal">m</span><span
+                class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <p>The recursion call stack uses some space, but it will be dominated by the memoization of <code>dp</code>. We
+            are storing the results of <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅m⋅k)O(n \cdot m \cdot k)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 0.4445em;"></span><span
+                    class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                    class="mclose">)</span></span></span></span></span> states.</p>
+    </li>
+</ul>
+<br>
+<hr>
+<h4 id="approach-2-bottom-up-dynamic-programming">Approach 2: Bottom-Up Dynamic Programming</h4>
+<p><strong>Intuition</strong></p>
+<p>We can also implement this dynamic programming algorithm iteratively. In top-down, we start at the answer state
+    <code>i = 0, maxSoFar = 0, remain = k</code> and make recursive calls until we reach our base cases. In bottom-up,
+    we will iterate starting from the base cases toward our answer state.</p>
+<p>Instead of using a recursive function, we will use a 3d table also called <code>dp</code>. Here, <code>dp[i][maxSoFar][remain]</code>
+    is equal to <code>dp(i, maxSoFar, remain)</code> from the previous approach. To convert a top-down algorithm to a
+    bottom-up one, we can do the following:</p>
+<p>First, set the base cases in your <code>dp</code> table. As we initialize <code>dp</code> with values of
+    <code>0</code>, we need to manually set the base case of <code>1</code> when <code>i = n</code> and <code>remain =
+        0</code>. We can set <code>dp[n][...][0] = 1</code>, where <code>...</code> represents all indices.</p>
+<p>Next, we need to configure our for loops. We want one nested for loop per state variable, and we want the innermost
+    loop to represent one state, analogous to a function call from the previous approach. We will iterate starting
+    <strong>away</strong> from the answer state, moving toward it.</p>
+<ol>
+    <li>Our loop for <code>i</code> will start at <code>n - 1</code> and iterate until <code>0</code>.</li>
+    <li>Our loop for <code>maxSoFar</code> will start at <code>m</code> and iterate until <code>0</code>.</li>
+    <li>Our loop for <code>remain</code> will start at <code>0</code> and iterate until <code>k</code>.</li>
+</ol>
+<p>Now, within each iteration of the innermost loop, we will calculate the state <code>i, maxSoFar, remain</code> just
+    like we did in the previous approach. Note that we need to be careful here - if <code>remain = 0</code>, we should
+    not consider the case of placing a new maximum at all, since <code>remain - 1</code> will be a negative index.</p>
+<p>Finally, we can return <code>dp[0][0][k]</code>, analogous to <code>dp(0, 0, k)</code>, the answer to the original
+    problem.</p>
+<p><strong>Algorithm</strong></p>
+<p>All arithmetic operations should be done mod <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">109+710^9 + 7</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+        class="strut" style="height: 0.8974em; vertical-align: -0.0833em;"></span><span class="mord">1</span><span
+        class="mord"><span class="mord">0</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span
+        class="vlist" style="height: 0.8141em;"><span style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                                         style="height: 2.7em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span
+        class="mord mtight">9</span></span></span></span></span></span></span></span><span class="mspace"
+                                                                                           style="margin-right: 0.2222em;"></span><span
+        class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+        class="strut" style="height: 0.6444em;"></span><span class="mord">7</span></span></span></span></span>.</p>
+<ol>
+    <li>Initialize a 3d array <code>dp[n + 1][m + 1][k + 1]</code>.</li>
+    <li>Set the base cases: <code>dp[n][...][0] = 1</code>.</li>
+    <li>Iterate using the nested loops: <code>i</code> from <code>n - 1</code> until <code>0</code>,
+        <code>maxSoFar</code> from <code>m</code> until <code>0</code>, <code>remain</code> from <code>0</code> until
+        <code>k</code>:
+        <ul>
+            <li>Initialize <code>ans = maxSoFar * dp[i + 1][maxSoFar][remain]</code>.</li>
+            <li>If <code>remain &gt; 0</code>, iterate <code>num</code> from <code>maxSoFar + 1</code> until
+                <code>m</code>:
+                <ul>
+                    <li>Add <code>dp[i + 1][num][remain - 1]</code> to <code>ans</code>.</li>
+                </ul>
+            </li>
+            <li>Set <code>dp[i][maxSoFar][remain] = ans</code>.</li>
+        </ul>
+    </li>
+    <li>Return <code>dp[0][0][k]</code>, the answer to the original problem.</li>
+</ol>
+<p><strong>Implementation</strong></p>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int numOfArrays(int n, int m, int k) {
+        int[][][] dp = new int[n + 1][m + 1][k + 1];
+        int MOD = (int) 1e9 + 7;
+
+        for (int num = 0; num < dp[0].length; num++) {
+            dp[n][num][0] = 1;
+        }
+
+        for (int i = n - 1; i >= 0; i--) {
+            for (int maxSoFar = m; maxSoFar >= 0; maxSoFar--) {
+                for (int remain = 0; remain <= k; remain++) {
+                    int ans = 0;
+                    for (int num = 1; num <= maxSoFar; num++) {
+                        ans = (ans + dp[i + 1][maxSoFar][remain]) % MOD;
+                    }
+
+                    if (remain > 0) {
+                        for (int num = maxSoFar + 1; num <= m; num++) {
+                            ans = (ans + dp[i + 1][num][remain - 1]) % MOD;
+                        }
+                    }
+
+                    dp[i][maxSoFar][remain] = ans;
+                }
+            }
+        }
+
+        return dp[0][0][k];
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int numOfArrays(int n, int m, int k) {
+        vector<vector<vector<int>>> dp(n + 1, vector(m + 1, vector(k + 1, 0)));
+        int MOD = 1e9 + 7;
+
+        for (int num = 0; num < dp[0].size(); num++) {
+            dp[n][num][0] = 1;
+        }
+
+        for (int i = n - 1; i >= 0; i--) {
+            for (int maxSoFar = m; maxSoFar >= 0; maxSoFar--) {
+                for (int remain = 0; remain <= k; remain++) {
+                    int ans = 0;
+                    for (int num = 1; num <= maxSoFar; num++) {
+                        ans = (ans + dp[i + 1][maxSoFar][remain]) % MOD;
+                    }
+
+                    if (remain > 0) {
+                        for (int num = maxSoFar + 1; num <= m; num++) {
+                            ans = (ans + dp[i + 1][num][remain - 1]) % MOD;
+                        }
+                    }
+
+                    dp[i][maxSoFar][remain] = ans;
+                }
+            }
+        }
+
+        return dp[0][0][k];
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def numOfArrays(self, n: int, m: int, k: int) -> int:
+        dp = [[[0] * (k + 1) for _ in range(m + 1)] for __ in range(n + 1)]
+        MOD = 10 ** 9 + 7
+
+        for num in range(len(dp[0])):
+            dp[n][num][0] = 1
+
+        for i in range(n - 1, -1, -1):
+            for max_so_far in range(m, -1, -1):
+                for remain in range(k + 1):
+                    ans = (max_so_far * dp[i + 1][max_so_far][remain]) % MOD
+
+                    if remain > 0:
+                        for num in range(max_so_far + 1, m + 1):
+                            ans = (ans + dp[i + 1][num][remain - 1]) % MOD
+
+                    dp[i][max_so_far][remain] = ans
+
+        return dp[0][0][k]
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅m2⋅k)O(n \cdot m^2 \cdot k)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.8141em;"></span><span class="mord"><span
+                class="mord mathnormal">m</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span
+                class="vlist" style="height: 0.8141em;"><span style="top: -3.063em; margin-right: 0.05em;"><span
+                class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mspace"
+                                                                                                   style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <p>There are <span class="math math-inline"><span class="katex"><span class="katex-mathml">n⋅m⋅kn \cdot m \cdot k</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.4445em;"></span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.4445em;"></span><span class="mord mathnormal">m</span><span
+                class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord mathnormal"
+                                                                                        style="margin-right: 0.03148em;">k</span></span></span></span></span>
+            possible states of <code>dp</code>. We iterate over each state in our nested for loops. To calculate a given
+            state, we have for loops that iterate <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(m)O(m)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">m</span><span class="mclose">)</span></span></span></span></span> times.
+            Thus, to calculate <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅m⋅k)O(n \cdot m \cdot k)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 0.4445em;"></span><span
+                    class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                    class="mclose">)</span></span></span></span></span> states costs <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅m2⋅k)O(n \cdot m^2 \cdot k)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 0.8141em;"></span><span class="mord"><span
+                    class="mord mathnormal">m</span><span class="msupsub"><span class="vlist-t"><span
+                    class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                    style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                       style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span
+                    class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                    class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅m⋅k)O(n \cdot m \cdot k)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.4445em;"></span><span class="mord mathnormal">m</span><span
+                class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <p>Our <code>dp</code> table is of size <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n⋅m⋅k)O(n \cdot m \cdot k)</span><span class="katex-html"
+                                                                              aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.4445em;"></span><span class="mord mathnormal">m</span><span
+                class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+</ul>
+<br>
+<hr>
+<h4 id="approach-3-space-optimized-dynamic-programming">Approach 3: Space-Optimized Dynamic Programming</h4>
+<p><strong>Intuition</strong></p>
+<p>Notice that in the previous two approaches, when we calculate a state <code>i, max_so_far, remain</code>, we only
+    depend on values of <code>dp[i + 1]</code>. For example, when the outermost for loop has <code>i = 6</code>, we only
+    reference values in <code>dp[7]</code>. Values that we previously calculated in <code>dp[8], dp[9], dp[10]</code>
+    etc. are no longer required.</p>
+<p>We can use this observation to improve our space complexity. We only need to store the current row <code>dp[i]</code>
+    and previous row <code>dp[i + 1]</code>. We will resize <code>dp</code> so that it has dimensions <code>m * k</code>,
+    and use a second array (of the same size) <code>prevDp</code>. At any given iteration, <code>dp</code> is analogous
+    to <code>dp[i]</code> from the previous approach, and <code>prevDp</code> is analogous to <code>dp[i + 1]</code>
+    from the previous approach.</p>
+<p>We will reset <code>dp</code> whenever we move to a new value of <code>i</code>. When we finish calculating
+    <code>dp</code> for a value of <code>i</code>, we update <code>prevDp = dp</code> so that on the next iteration,
+    <code>prevDp</code> holds the correct values.</p>
+<p>Because our first value of <code>i</code> is <code>n - 1</code>, <code>prevDp</code> initially holds
+    <code>dp[n]</code> from the previous approach. This means we must initialize our base case in <code>prevDp</code>.
+    The final value of <code>i</code> is <code>0</code>, so <code>dp</code> will represent <code>dp[0]</code> from the
+    previous approach. We can return <code>dp[0][k]</code> as the answer to the original problem.</p>
+<p><strong>Algorithm</strong></p>
+<p>All arithmetic operations should be done mod <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">109+710^9 + 7</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+        class="strut" style="height: 0.8974em; vertical-align: -0.0833em;"></span><span class="mord">1</span><span
+        class="mord"><span class="mord">0</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span
+        class="vlist" style="height: 0.8141em;"><span style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                                         style="height: 2.7em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span
+        class="mord mtight">9</span></span></span></span></span></span></span></span><span class="mspace"
+                                                                                           style="margin-right: 0.2222em;"></span><span
+        class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+        class="strut" style="height: 0.6444em;"></span><span class="mord">7</span></span></span></span></span>.</p>
+<ol>
+    <li>Initialize two 2d arrays <code>dp[m + 1][k + 1]</code> and <code>prevDp[m + 1][k + 1]</code>.</li>
+    <li>Set the base cases: <code>prevDp[...][0] = 1</code>.</li>
+    <li>Iterate using the nested loops: <code>i</code> from <code>n - 1</code> until <code>0</code>:
+        <ul>
+            <li>Reset <code>dp</code>.</li>
+            <li><code>maxSoFar</code> from <code>m</code> until <code>0</code>:
+                <ul>
+                    <li><code>remain</code> from <code>0</code> until <code>k</code>:
+                        <ul>
+                            <li>Initialize <code>ans = maxSoFar * prevDp[maxSoFar][remain]</code>.</li>
+                            <li>If <code>remain &gt; 0</code>, iterate <code>num</code> from <code>maxSoFar + 1</code>
+                                until <code>m</code>:
+                                <ul>
+                                    <li>Add <code>prevDp[num][remain - 1]</code> to <code>ans</code>.</li>
+                                </ul>
+                            </li>
+                            <li>Set <code>dp[maxSoFar][remain] = ans</code>.</li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+            <li>Update <code>prevDp = dp</code>.</li>
+        </ul>
+    </li>
+    <li>Return <code>dp[0][k]</code>, the answer to the original problem.</li>
+</ol>
+<p><strong>Implementation</strong></p>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int numOfArrays(int n, int m, int k) {
+        int[][] dp = new int[m + 1][k + 1];
+        int[][] prevDp = new int[m + 1][k + 1];
+        int MOD = (int) 1e9 + 7;
+
+        for (int num = 0; num < dp.length; num++) {
+            prevDp[num][0] = 1;
+        }
+
+        for (int i = n - 1; i >= 0; i--) {
+            dp = new int[m + 1][k + 1];
+            for (int maxSoFar = m; maxSoFar >= 0; maxSoFar--) {
+                for (int remain = 0; remain <= k; remain++) {
+                    int ans = 0;
+                    for (int num = 1; num <= maxSoFar; num++) {
+                        ans = (ans + prevDp[maxSoFar][remain]) % MOD;
+                    }
+
+                    if (remain > 0) {
+                        for (int num = maxSoFar + 1; num <= m; num++) {
+                            ans = (ans + prevDp[num][remain - 1]) % MOD;
+                        }
+                    }
+
+                    dp[maxSoFar][remain] = ans;
+                }
+            }
+
+            prevDp = dp;
+        }
+
+        return dp[0][k];
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int numOfArrays(int n, int m, int k) {
+        vector<vector<int>> dp(vector(m + 1, vector(k + 1, 0)));
+        vector<vector<int>> prevDp(vector(m + 1, vector(k + 1, 0)));
+        int MOD = 1e9 + 7;
+
+        for (int num = 0; num < dp.size(); num++) {
+            prevDp[num][0] = 1;
+        }
+
+        for (int i = n - 1; i >= 0; i--) {
+            dp = vector(m + 1, vector(k + 1, 0));
+            for (int maxSoFar = m; maxSoFar >= 0; maxSoFar--) {
+                for (int remain = 0; remain <= k; remain++) {
+                    int ans = 0;
+                    for (int num = 1; num <= maxSoFar; num++) {
+                        ans = (ans + prevDp[maxSoFar][remain]) % MOD;
+                    }
+
+                    if (remain > 0) {
+                        for (int num = maxSoFar + 1; num <= m; num++) {
+                            ans = (ans + prevDp[num][remain - 1]) % MOD;
+                        }
+                    }
+
+                    dp[maxSoFar][remain] = ans;
+                }
+            }
+
+            prevDp = dp;
+        }
+
+        return dp[0][k];
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def numOfArrays(self, n: int, m: int, k: int) -> int:
+        dp = [[0] * (k + 1) for _ in range(m + 1)]
+        prev_dp = [[0] * (k + 1) for _ in range(m + 1)]
+        MOD = 10 ** 9 + 7
+
+        for num in range(len(prev_dp)):
+            prev_dp[num][0] = 1
+
+        for i in range(n - 1, -1, -1):
+            dp = [[0] * (k + 1) for _ in range(m + 1)]
+            for max_so_far in range(m, -1, -1):
+                for remain in range(k + 1):
+                    ans = (max_so_far * prev_dp[max_so_far][remain]) % MOD
+
+                    if remain > 0:
+                        for num in range(max_so_far + 1, m + 1):
+                            ans = (ans + prev_dp[num][remain - 1]) % MOD
+
+                    dp[max_so_far][remain] = ans
+
+            prev_dp = dp
+
+        return dp[0][k]
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅m2⋅k)O(n \cdot m^2 \cdot k)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.8141em;"></span><span class="mord"><span
+                class="mord mathnormal">m</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span
+                class="vlist" style="height: 0.8141em;"><span style="top: -3.063em; margin-right: 0.05em;"><span
+                class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mspace"
+                                                                                                   style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <p>There are <span class="math math-inline"><span class="katex"><span class="katex-mathml">n⋅m⋅kn \cdot m \cdot k</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.4445em;"></span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.4445em;"></span><span class="mord mathnormal">m</span><span
+                class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord mathnormal"
+                                                                                        style="margin-right: 0.03148em;">k</span></span></span></span></span>
+            possible states of <code>dp</code>. We iterate over each state in our nested for loops. To calculate a given
+            state, we have for loops that iterate <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(m)O(m)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">m</span><span class="mclose">)</span></span></span></span></span> times.
+            Thus, to calculate <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅m⋅k)O(n \cdot m \cdot k)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 0.4445em;"></span><span
+                    class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                    class="mclose">)</span></span></span></span></span> states costs <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅m2⋅k)O(n \cdot m^2 \cdot k)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 0.8141em;"></span><span class="mord"><span
+                    class="mord mathnormal">m</span><span class="msupsub"><span class="vlist-t"><span
+                    class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                    style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                       style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span
+                    class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                    class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(m⋅k)O(m \cdot k)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <p>We have improved our space complexity by only requiring our tables to be of size <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">O(m⋅k)O(m \cdot k)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+</ul>
+<br>
+<hr>
+<h4 id="approach-4-a-different-dp--prefix-sums">Approach 4: A Different DP + Prefix Sums</h4>
+<p><strong>Intuition</strong></p>
+<p>Let's look at the dynamic programming in a different way. It will allow us to optimize the time complexity through
+    prefix sums. In the previous two approaches, we had <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">O(n⋅m⋅k)O(n \cdot m \cdot k)</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.4445em;"></span><span
+            class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span class="mclose">)</span></span></span></span></span>
+    states and each state required <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(m)O(m)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord mathnormal">m</span><span class="mclose">)</span></span></span></span></span> to calculate. Is
+    there a way that we can rid of this extra <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">O(m)O(m)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                     style="margin-right: 0.02778em;">O</span><span
+            class="mopen">(</span><span class="mord mathnormal">m</span><span
+            class="mclose">)</span></span></span></span></span>?</p>
+<p>In our original DP, our state <code>i, maxSoFar, remain</code> represented the following idea:</p>
+<ul>
+    <li>We have placed <code>i</code> elements so far.</li>
+    <li>The maximum element we placed so far is <code>maxSoFar</code>.</li>
+    <li>We must place <code>remain</code> more new maximums.</li>
+    <li>Given this information, how many ways could we place elements such that we will eventually place <code>n</code>
+        elements with <code>remain = 0</code>?
+    </li>
+</ul>
+<p>Let's change the DP to represent this idea, replacing <code>maxSoFar -&gt; maxNum</code> and <code>remain -&gt;
+    cost</code>:</p>
+<ul>
+    <li>There is an array of length <code>i</code>.</li>
+    <li>The maximum element in this array is <code>maxNum</code>.</li>
+    <li>If you were to move from left to right, you would encounter <code>cost</code> new maximums.</li>
+    <li>How many ways can you build this array?</li>
+</ul>
+<p>As you can see, our original DP was in the context of "Given the state of an array we are building, how many ways can
+    we finish?", while this new DP is in the context of "How many ways can we build an array that looks like this?".</p>
+<p><img src="1.png" alt="img"><br>
+    <br></p>
+<p>The answer to this new DP will be the sum of <code>dp[n][maxNum][k]</code> for all values of <code>maxNum</code> in
+    the range <code>[1, m]</code>. It represents all possible arrays of length <code>n</code> with <code>k</code> new
+    maximums.</p>
+<p>What is our base case? If <code>i = 1</code>, it means the array only has one element. It is valid if
+    <code>cost</code> is also equal to <code>1</code>, because any array of length <code>1</code> that goes through the
+    algorithm in the problem description will have <code>search_cost = 1</code> (the number itself is a new maximum).
+</p>
+<p>To calculate a given state <code>i, maxNum, cost</code>, we have two cases, similar to the previous DP:</p>
+<ol>
+    <li>The most recently added number to the array was not a new maximum. That means it could have any value from
+        <code>[1, maxNum]</code>. The size of this range is <code>maxNum</code>. Any of these numbers could have been
+        added to an array with size <code>i - 1</code>, maximum value <code>maxNum</code>, and <code>cost</code> new
+        maximums. Thus, there are <code>maxNum * dp[i - 1][maxNum][cost]</code> ways we could have reached this state.
+    </li>
+    <li>The most recently added number to the array was a new maximum. The previous maximum value in the array must have
+        been in the range <code>[1, maxNum - 1]</code>. Let's say it was <code>num</code>. Then we must have arrived at
+        this state from an array of length <code>i - 1</code>, with a maximum value of <code>num</code>, and <code>cost
+            - 1</code> new maximums. The total number of ways we could have reached this state is the sum of <code>dp[i
+            - 1][num][cost - 1]</code> for all <code>num</code> in the range <code>[1, maxNum - 1]</code>.
+    </li>
+</ol>
+<p>As you can see, the recurrence relation in this DP is quite similar to our old one. Here is an example recursive
+    implementation of this new DP in Python to help you visualize the algorithm:</p>
+<pre>
+    Python3
+    <code>
+        class Solution:
+    def numOfArrays(self, n: int, m: int, k: int) -> int:
+        # @cache memoizes the function for us
+        @cache
+        def dp(i, max_num, cost):
+            if i == 1:
+                return cost == 1
+
+            # current number was not a new maximum
+            ans = (max_num * dp(i - 1, max_num, cost)) % MOD
+
+            # current number was a new maximum
+            for num in range(1, max_num):
+                ans = (ans + dp(i - 1, num, cost - 1)) % MOD
+
+            return ans
+
+        MOD = 10 ** 9 + 7
+        ans = 0
+
+        for num in range(1, m + 1):
+            ans = (ans + dp(n, num, k)) % MOD
+
+        return ans
+    </code>
+</pre>
+<p>Here is the bottom-up version:</p>
+<pre>
+    Python3
+    <code>
+        class Solution:
+    def numOfArrays(self, n: int, m: int, k: int) -> int:
+        dp = [[[0] * (k + 1) for _ in range(m + 1)] for __ in range(n + 1)]
+        MOD = 10 ** 9 + 7
+
+        for num in range(1, m + 1):
+            dp[1][num][1] = 1
+
+        for i in range(1, n + 1):
+            for max_num in range(1, m + 1):
+                for cost in range(1, k + 1):
+                    ans = (max_num * dp[i - 1][max_num][cost]) % MOD
+
+                    for num in range(1, max_num):
+                        ans = (ans + dp[i - 1][num][cost - 1]) % MOD
+
+                    dp[i][max_num][cost] += ans
+                    dp[i][max_num][cost] %= MOD
+
+        ans = 0
+        for num in range(1, m + 1):
+            ans = (ans + dp[n][num][k]) % MOD
+
+        return ans
+    </code>
+</pre>
+<blockquote>
+    <p>But what was the point of this? We still have an <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">O(m)O(m)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                     style="margin-right: 0.02778em;">O</span><span
+            class="mopen">(</span><span class="mord mathnormal">m</span><span
+            class="mclose">)</span></span></span></span></span> for loop when calculating a state.</p>
+</blockquote>
+<p>The expensive part of the recurrence relation is iterating from <code>1</code> to <code>maxNum</code> to find all
+    <code>dp[i - 1][...][cost - 1]</code>. We can optimize this using prefix sums to achieve an <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord">1</span><span class="mclose">)</span></span></span></span></span> complexity.</p>
+<p>We will have a <code>prefix</code> sum array which is the same size as <code>dp</code>. We will have:</p>
+<p><code>prefix[i][maxNum][cost] = dp[i][0][cost] + dp[i][1][cost] + ... + dp[i][maxNum][cost]</code></p>
+<p>Essentially, for a given <code>i, cost</code> pair, we can query a value of <code>maxNum</code> and find the sum of
+    all <code>dp[i][num][cost]</code> where <code>num</code> is in the range <code>[0, maxNum]</code>. You may notice
+    that this is almost exactly what we are calculating in the for loop for each state!</p>
+<p>For each state <code>i, maxNum, cost</code>, we can replace the for loop with <code>prefix[i - 1][maxNum - 1][cost -
+    1]</code>, which is <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                 style="margin-right: 0.02778em;">O</span><span
+        class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span></span>!</p>
+<p>How do we maintain <code>prefix</code>? To calculate <code>prefix[i]</code> for a given <code>maxNum, cost</code>
+    pair, we simply reference <code>prefix[i][maxNum - 1][cost]</code> and add it to <code>dp[i][maxNum][cost]</code>.
+    Remember that this is a prefix sum on the <code>maxNum</code> dimension, so <code>prefix[i][maxNum - 1][cost]</code>
+    is the previous element, and <code>dp[i][maxNum][cost]</code> is the current value.</p>
+<p>For each iteration of <code>i</code>, we require <code>prefix[i - 1]</code> to calculate <code>dp[i]</code>. To
+    ensure the convenient calculation of <code>dp[i + 1]</code> for the subsequent index <code>i + 1</code>, we can
+    build <code>prefix[i]</code> while calculating <code>dp[i]</code>. Once we move to the next index <code>i + 1</code>,
+    <code>prefix[i]</code> will hold the necessary information. For example, when <code>i = 7</code>, we require data
+    from <code>prefix[6]</code>. We calculate <code>prefix[7]</code> during this iteration. Then, in the next iteration
+    when <code>i = 8</code>, we require data from <code>prefix[7]</code>, which we have just calculated.</p>
+<p>When the algorithm is finished running, we can return <code>prefix[n][m][k]</code>, which represents the answer to
+    the original problem (the sum of all <code>dp[n][...][k]</code>).</p>
+<p><strong>Algorithm</strong></p>
+<p>All arithmetic operations should be done mod <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">109+710^9 + 7</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+        class="strut" style="height: 0.8974em; vertical-align: -0.0833em;"></span><span class="mord">1</span><span
+        class="mord"><span class="mord">0</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span
+        class="vlist" style="height: 0.8141em;"><span style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                                         style="height: 2.7em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span
+        class="mord mtight">9</span></span></span></span></span></span></span></span><span class="mspace"
+                                                                                           style="margin-right: 0.2222em;"></span><span
+        class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+        class="strut" style="height: 0.6444em;"></span><span class="mord">7</span></span></span></span></span>.</p>
+<ol>
+    <li>Initialize two 3d arrays <code>dp[n + 1][m + 1][k + 1]</code> and <code>prefix[n + 1][m + 1][k + 1]</code>.</li>
+    <li>Set the base cases: <code>dp[1][...][1] = 1</code>. Also initialize <code>prefix[1][...][1]</code>.</li>
+    <li>Iterate using the nested loops: <code>i</code> from <code>1</code> until <code>n</code>, <code>maxNum</code>
+        from <code>1</code> until <code>m</code>, <code>cost</code> from <code>1</code> until <code>k</code>:
+        <ul>
+            <li>Initialize <code>ans = maxNum * dp[i - 1][maxNum][cost]</code>.</li>
+            <li>Add <code>prefix[i - 1][maxNum - 1][cost - 1]</code> to <code>ans</code>.</li>
+            <li>Add <code>ans</code> to <code>dp[i][maxNum][cost]</code>.</li>
+            <li>Update <code>prefix[i][maxNum][cost]</code> with <code>prefix[i][maxNum - 1][cost] +
+                dp[i][maxNum][cost]</code>.
+            </li>
+        </ul>
+    </li>
+    <li>Return <code>prefix[n][m][k]</code>.</li>
+</ol>
+<p><strong>Implementation</strong></p>
+<blockquote>
+    <p>Note: Recall that in the previous 3 approaches, in Java and C++, we needed an <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">O(m)O(m)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord mathnormal">m</span><span class="mclose">)</span></span></span></span></span> iteration to
+        calculate the multiplication term to avoid overflow. If we want to improve the time complexity, we must perform
+        the multiplication directly. Here, we use <code>long</code> in Java and <code>long long</code> in C++ to avoid
+        overflow. In Python, there's no risk of overflow, so we can perform the multiplication directly without any
+        issues.</p>
+</blockquote>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int numOfArrays(int n, int m, int k) {
+        long[][][] dp = new long[n + 1][m + 1][k + 1];
+        long[][][] prefix = new long[n + 1][m + 1][k + 1];
+        int MOD = (int) 1e9 + 7;
+
+        for (int num = 1; num <= m; num++) {
+            dp[1][num][1] = 1;
+            prefix[1][num][1] = prefix[1][num - 1][1] + 1;
+        }
+
+        for (int i = 1; i <= n; i++) {
+            for (int maxNum = 1; maxNum <= m; maxNum++) {
+                for (int cost = 1; cost <= k; cost++) {
+                    long ans = (maxNum * dp[i - 1][maxNum][cost]) % MOD;
+                    ans = (ans + prefix[i - 1][maxNum - 1][cost - 1]) % MOD;
+
+                    dp[i][maxNum][cost] += ans;
+                    dp[i][maxNum][cost] %= MOD;
+
+                    prefix[i][maxNum][cost] = (prefix[i][maxNum - 1][cost] + dp[i][maxNum][cost]);
+                    prefix[i][maxNum][cost] %= MOD;
+                }
+            }
+        }
+
+        return (int) prefix[n][m][k];
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int numOfArrays(int n, int m, int k) {
+        long long dp[n + 1][m + 1][k + 1];
+        long long prefix[n + 1][m + 1][k + 1];
+        memset(dp, 0, sizeof(dp));
+        memset(prefix, 0, sizeof(prefix));
+        int MOD = 1e9 + 7;
+
+        for (int num = 1; num <= m; num++) {
+            dp[1][num][1] = 1;
+            prefix[1][num][1] = prefix[1][num - 1][1] + 1;
+        }
+
+        for (int i = 1; i <= n; i++) {
+            for (int maxNum = 1; maxNum <= m; maxNum++) {
+                for (int cost = 1; cost <= k; cost++) {
+                    long long ans = (maxNum * dp[i - 1][maxNum][cost]) % MOD;
+                    ans = (ans + prefix[i - 1][maxNum - 1][cost - 1]) % MOD;
+
+                    dp[i][maxNum][cost] += ans;
+                    dp[i][maxNum][cost] %= MOD;
+
+                    prefix[i][maxNum][cost] = (prefix[i][maxNum - 1][cost] + dp[i][maxNum][cost]);
+                    prefix[i][maxNum][cost] %= MOD;
+                }
+            }
+        }
+
+        return prefix[n][m][k];
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def numOfArrays(self, n: int, m: int, k: int) -> int:
+        dp = [[[0] * (k + 1) for _ in range(m + 1)] for __ in range(n + 1)]
+        prefix = [[[0] * (k + 1) for _ in range(m + 1)] for __ in range(n + 1)]
+        MOD = 10 ** 9 + 7
+
+        for num in range(1, m + 1):
+            dp[1][num][1] = 1
+            prefix[1][num][1] = prefix[1][num - 1][1] + 1
+
+        for i in range(1, n + 1):
+            for max_num in range(1, m + 1):
+                for cost in range(1, k + 1):
+                    ans = (max_num * dp[i - 1][max_num][cost]) % MOD
+                    ans = (ans + prefix[i - 1][max_num - 1][cost - 1]) % MOD
+
+                    dp[i][max_num][cost] += ans
+                    dp[i][max_num][cost] %= MOD
+
+                    prefix[i][max_num][cost] = (prefix[i][max_num - 1][cost] + dp[i][max_num][cost]) % MOD
+
+        return prefix[n][m][k]
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅m⋅k)O(n \cdot m \cdot k)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.4445em;"></span><span class="mord mathnormal">m</span><span
+                class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <p>There are <span class="math math-inline"><span class="katex"><span class="katex-mathml">n⋅m⋅kn \cdot m \cdot k</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.4445em;"></span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.4445em;"></span><span class="mord mathnormal">m</span><span
+                class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord mathnormal"
+                                                                                        style="margin-right: 0.03148em;">k</span></span></span></span></span>
+            possible states of <code>dp</code>. We iterate over each state in our nested for loops. Calculating a state
+            now costs <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord">1</span><span class="mclose">)</span></span></span></span></span>, and we also maintain
+            <code>prefix</code> while calculating the states of <code>dp</code>.</p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅m⋅k)O(n \cdot m \cdot k)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.4445em;"></span><span class="mord mathnormal">m</span><span
+                class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <p>Our <code>dp</code> and <code>prefix</code> tables are of size <span class="math math-inline"><span
+                class="katex"><span class="katex-mathml">O(n⋅m⋅k)O(n \cdot m \cdot k)</span><span class="katex-html"
+                                                                                                  aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.4445em;"></span><span class="mord mathnormal">m</span><span
+                class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+</ul>
+<br>
+<hr>
+<h4 id="approach-5-space-optimized-better-dp">Approach 5: Space-Optimized Better DP</h4>
+<p><strong>Intuition</strong></p>
+<p>Just like approach 3, we can optimize space by realizing that <code>dp[i]</code> only depends on <code>dp[i -
+    1]</code> and <code>prefix[i - 1]</code>. We will use four arrays, all sized <code>m * k</code>. At any given
+    iteration of <code>i</code>,</p>
+<ol>
+    <li><code>dp</code> is analogous to <code>dp[i]</code></li>
+    <li><code>prefix</code> is analogous to <code>prefix[i]</code></li>
+    <li><code>prevDp</code> is analogous to <code>dp[i - 1]</code></li>
+    <li><code>prevPrefix</code> is analogous to <code>prefix[i - 1]</code></li>
+</ol>
+<p>For more details on how exactly this idea works, please read approach 3 carefully. We are applying the exact same
+    process here.</p>
+<p><strong>Algorithm</strong></p>
+<p>All arithmetic operations should be done mod <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">109+710^9 + 7</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+        class="strut" style="height: 0.8974em; vertical-align: -0.0833em;"></span><span class="mord">1</span><span
+        class="mord"><span class="mord">0</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span
+        class="vlist" style="height: 0.8141em;"><span style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                                         style="height: 2.7em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span
+        class="mord mtight">9</span></span></span></span></span></span></span></span><span class="mspace"
+                                                                                           style="margin-right: 0.2222em;"></span><span
+        class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+        class="strut" style="height: 0.6444em;"></span><span class="mord">7</span></span></span></span></span>.</p>
+<ol>
+    <li>Initialize 4 arrays of size <code>[m + 1][k + 1]</code>: <code>dp</code>, <code>prefix</code>,
+        <code>prevDp</code>, <code>prevPrefix</code>.
+    </li>
+    <li>Set the base cases: <code>dp[...][1] = 1</code>.</li>
+    <li>Iterate using the nested loops: <code>i</code> from <code>1</code> until <code>n</code>:
+        <ul>
+            <li>If <code>i &gt; 1</code>, reset <code>dp</code>. Always reset <code>prefix</code>.</li>
+            <li><code>maxNum</code> from <code>1</code> until <code>m</code>:
+                <ul>
+                    <li><code>cost</code> from <code>1</code> until <code>k</code>:
+                        <ul>
+                            <li>Initialize <code>ans = maxNum * prevDp[maxNum][cost]</code>.</li>
+                            <li>Add <code>prevPrefix[maxNum - 1][cost - 1]</code> to <code>ans</code>.</li>
+                            <li>Add <code>ans</code> to <code>dp[maxNum][cost]</code>.</li>
+                            <li>Update <code>prefix[maxNum][cost]</code> with <code>prefix[maxNum - 1][cost] +
+                                dp[maxNum][cost]</code>.
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+            <li>Update <code>prevDp = dp</code> and <code>prevPrefix = prefix</code>.</li>
+        </ul>
+    </li>
+    <li>Return <code>prefix[m][k]</code>.</li>
+</ol>
+<p><strong>Implementation</strong></p>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int numOfArrays(int n, int m, int k) {
+        long[][] dp = new long[m + 1][k + 1];
+        long[][] prefix = new long[m + 1][k + 1];
+        long[][] prevDp = new long[m + 1][k + 1];
+        long[][] prevPrefix = new long[m + 1][k + 1];
+        int MOD = (int) 1e9 + 7;
+
+        for (int num = 1; num <= m; num++) {
+            dp[num][1] = 1;
+        }
+
+        for (int i = 1; i <= n; i++) {
+            if (i > 1) {
+                dp = new long[m + 1][k + 1];
+            }
+
+            prefix = new long[m + 1][k + 1];
+
+            for (int maxNum = 1; maxNum <= m; maxNum++) {
+                for (int cost = 1; cost <= k; cost++) {
+                    long ans = (maxNum * prevDp[maxNum][cost]) % MOD;
+                    ans = (ans + prevPrefix[maxNum - 1][cost - 1]) % MOD;
+
+                    dp[maxNum][cost] += ans;
+                    dp[maxNum][cost] %= MOD;
+
+                    prefix[maxNum][cost] = (prefix[maxNum - 1][cost] + dp[maxNum][cost]);
+                    prefix[maxNum][cost] %= MOD;
+                }
+            }
+
+            prevDp = dp;
+            prevPrefix = prefix;
+        }
+
+        return (int) prefix[m][k];
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int numOfArrays(int n, int m, int k) {
+        long long dp[m + 1][k + 1];
+        long long prefix[m + 1][k + 1];
+        long long prevDp[m + 1][k + 1];
+        long long prevPrefix[m + 1][k + 1];
+        memset(dp, 0, sizeof(dp));
+        memset(prefix, 0, sizeof(prefix));
+        memset(prevDp, 0, sizeof(prevDp));
+        memset(prevPrefix, 0, sizeof(prevPrefix));
+        int MOD = 1e9 + 7;
+
+        for (int num = 1; num <= m; num++) {
+            dp[num][1] = 1;
+        }
+
+        for (int i = 1; i <= n; i++) {
+            if (i > 1) {
+                memset(dp, 0, sizeof(dp));
+            }
+
+            memset(prefix, 0, sizeof(prefix));
+
+            for (int maxNum = 1; maxNum <= m; maxNum++) {
+                for (int cost = 1; cost <= k; cost++) {
+                    long long ans = (maxNum * prevDp[maxNum][cost]) % MOD;
+                    ans = (ans + prevPrefix[maxNum - 1][cost - 1]) % MOD;
+
+                    dp[maxNum][cost] += ans;
+                    dp[maxNum][cost] %= MOD;
+
+                    prefix[maxNum][cost] = (prefix[maxNum - 1][cost] + dp[maxNum][cost]);
+                    prefix[maxNum][cost] %= MOD;
+                }
+            }
+
+            // Can't reassign long long[][] in C++, need to manually override
+            for (int maxNum = 0; maxNum <= m; maxNum++) {
+                for (int cost = 0; cost <= k; cost++) {
+                    prevDp[maxNum][cost] = dp[maxNum][cost];
+                    prevPrefix[maxNum][cost] = prefix[maxNum][cost];
+                }
+            }
+        }
+
+        return prefix[m][k];
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def numOfArrays(self, n: int, m: int, k: int) -> int:
+        dp = [[0] * (k + 1) for _ in range(m + 1)]
+        prefix = [[0] * (k + 1) for _ in range(m + 1)]
+        prevDp = [[0] * (k + 1) for _ in range(m + 1)]
+        prevPrefix = [[0] * (k + 1) for _ in range(m + 1)]
+        MOD = 10 ** 9 + 7
+
+        for num in range(1, m + 1):
+            dp[num][1] = 1
+
+        for i in range(1, n + 1):
+            if i > 1:
+                dp = [[0] * (k + 1) for _ in range(m + 1)]
+
+            prefix = [[0] * (k + 1) for _ in range(m + 1)]
+            for max_num in range(1, m + 1):
+                for cost in range(1, k + 1):
+                    ans = (max_num * prevDp[max_num][cost]) % MOD
+                    ans = (ans + prevPrefix[max_num - 1][cost - 1]) % MOD
+
+                    dp[max_num][cost] += ans
+                    dp[max_num][cost] %= MOD
+
+                    prefix[max_num][cost] = (prefix[max_num - 1][cost] + dp[max_num][cost]) % MOD
+
+            prevDp = dp
+            prevPrefix = prefix
+
+        return prefix[m][k]
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅m⋅k)O(n \cdot m \cdot k)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.4445em;"></span><span class="mord mathnormal">m</span><span
+                class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <p>There are <span class="math math-inline"><span class="katex"><span class="katex-mathml">n⋅m⋅kn \cdot m \cdot k</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.4445em;"></span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.4445em;"></span><span class="mord mathnormal">m</span><span
+                class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord mathnormal"
+                                                                                        style="margin-right: 0.03148em;">k</span></span></span></span></span>
+            possible states of <code>dp</code>. We iterate over each state in our nested for loops. Calculating a state
+            now costs <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord">1</span><span class="mclose">)</span></span></span></span></span>, and we also maintain
+            <code>prefix</code> while calculating the states of <code>dp</code>.</p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(m⋅k)O(m \cdot k)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <p>Our <code>dp</code> and <code>prefix</code> tables are of size <span class="math math-inline"><span
+                class="katex"><span class="katex-mathml">O(m⋅k)O(m \cdot k)</span><span class="katex-html"
+                                                                                        aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+</ul>
+<br>
+<hr>
+</body>
+</html>
