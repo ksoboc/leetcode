@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Minimum Number of Operations to Make Array Continuous - Solution</title>
+</head>
+<body>
+<h2 id="solution">Minimum Number of Operations to Make Array Continuous - Solution</h2>
+<hr>
+<h4 id="approach-1-binary-search">Approach 1: Binary Search</h4>
+<p><strong>Intuition</strong></p>
+<p>The problem description gives some rules for what a continuous array is, but we can simplify it to help us better
+    understand the problem. A continuous array covers all the elements in a range of size <code>n</code>. Essentially,
+    if we sort a continuous array, it will continuously count up by <code>1</code>.</p>
+<p>We can define a continuous array by giving its bounds - <code>left</code> and <code>right</code>. For example, in the
+    following continuous array:</p>
+<p><code>[6, 3, 5, 4]</code></p>
+<p>The bounds are <code>left = 3</code> and <code>right = 6</code>. As you can see, the array fully covers all elements
+    in the range <code>[3, 6]</code>. If we were to sort it, we would get <code>[3, 4, 5, 6]</code>, which starts at
+    <code>left</code> and counts up by <code>1</code> until we reach <code>right</code>.</p>
+<p>To solve this problem, we will iterate over the array and treat each element as <code>left</code>. We can then
+    calculate <code>right = left + n - 1</code>. We now want to convert the array into a continuous array that covers
+    all elements in the range <code>[left, right]</code>. How many operations do we need to accomplish this?</p>
+<p>We need to find how many elements in the array are already in the range <code>[left, right]</code>. We can leave
+    these elements unchanged and fill in the rest of the range using operations. Note that if there are duplicate
+    elements in the input, this strategy will not work properly. For example, let's say we had the following input:</p>
+<p><code>6, 3, 3, 5, 4</code></p>
+<p>If we had <code>left = 3</code>, we would have <code>right = 7</code>. Every element in the input is in the range
+    <code>[3, 7]</code>, so it appears that we don't need any operations. However, the number <code>7</code> is missing
+    because we have <code>3</code> twice. Thus, we should first convert <code>nums</code> into a set to get rid of
+    duplicate numbers.</p>
+<p>Now that we have gotten rid of the duplicates, how can we quickly find how many elements in the array are in a given
+    range <code>[left, right]</code>? If the array is sorted, then we can binary search to efficiently find how many
+    elements are less than or equal to <code>right</code>. We already know how many elements are less than
+    <code>left</code> because we treat <code>left = nums[i]</code> during iteration.</p>
+<p>Let's summarize the algorithm with an example.</p>
+<p><img src="1.png" alt="example"><br>
+    <br></p>
+<p>First, we remove duplicates from the array, then sort it. Note the original length before removing duplicates as
+    <code>n = 8</code>.</p>
+<p><img src="2.png" alt="example"><br>
+    <br></p>
+<p>Now, we iterate over the array. For each index <code>i</code>, we treat <code>left = nums[i]</code>.</p>
+<p><img src="3.png" alt="example"><br>
+    <br></p>
+<p>If we were to create a continuous array with <code>left = 2</code> as the minimum, we would need a maximum of <code>right
+    = left + n - 1 = 9</code>.</p>
+<p><img src="4.png" alt="example"><br>
+    <br></p>
+<p>How many operations do we need? We start by finding how many elements in the array are already in the desired range
+    <code>[left, right]</code>. Binary search to find the insertion index of <code>right</code>. Note that the binary
+    search here is finding the index <strong>after</strong> the greatest element less than or equal to
+    <code>right</code>.</p>
+<p><img src="5.png" alt="example"><br>
+    <br></p>
+<p>Let's call this index <code>j</code>. We have <code>j</code> as the index of the first element that falls outside our
+    range due to it being too large. We also have <code>i</code> as the index of the first element in our range. Thus,
+    we can calculate the number of elements already in our range as <code>j - i</code>.</p>
+<p><img src="6.png" alt="example"><br>
+    <br></p>
+<p>As you can see, we have <code>4</code> elements already in the range <code>[left, right]</code>. Thus, these elements
+    do not need to be changed. As we must construct an array of length <code>8</code>, we require <code>8 - 4 = 4</code>
+    operations (one for each other element) to create a continuous array if we treat <code>2</code> as the minimum.</p>
+<p><img src="7.png" alt="example"><br>
+    <br></p>
+<p>We can repeat this process for every index in the sorted, duplicate-free array. For example, if we treat <code>nums[3]
+    = 7</code> as the minimum, then our range is <code>[7, 14]</code>. We can binary search to find <code>j</code> and
+    then calculate <code>j - i = 2</code> as the number of elements already in our range. Thus, we need to perform
+    <code>8 - 2 = 6</code> operations if we treat <code>7</code> as the minimum.</p>
+<p><img src="8.png" alt="example"><br>
+    <br></p>
+<p>As we iterate over all indices and perform the above process, we keep track of the minimum operations needed.</p>
+<p><strong>Algorithm</strong></p>
+<ol>
+    <li>Set <code>n = nums.length</code> and the answer <code>ans = n</code>.</li>
+    <li>Remove duplicates from <code>nums</code> and then sort it. We will call this new array <code>newNums</code>.
+    </li>
+    <li>Iterate <code>i</code> over the indices of <code>newNums</code>:
+        <ul>
+            <li>Set <code>left = newNums[i]</code>.</li>
+            <li>Calculate <code>right = left + n - 1</code>.</li>
+            <li>Calculate <code>j</code>, the insertion index of <code>right</code> in <code>newNums</code> using binary
+                search.
+            </li>
+            <li>Calculate <code>count = j - i</code>, the number of elements already in our range.</li>
+            <li>Update <code>ans</code> with <code>n - count</code> if it is smaller.</li>
+        </ul>
+    </li>
+    <li>Return <code>ans</code>.</li>
+</ol>
+<p><strong>Implementation</strong></p>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int minOperations(int[] nums) {
+        int n = nums.length;
+        int ans = n;
+
+        HashSet<Integer> unique = new HashSet<>();
+        for (int num : nums) {
+            unique.add(num);
+        }
+
+        int[] newNums = new int[unique.size()];
+        int index = 0;
+
+        for (int num : unique) {
+            newNums[index++] = num;
+        }
+
+        Arrays.sort(newNums);
+
+        for (int i = 0; i < newNums.length; i++) {
+            int left = newNums[i];
+            int right = left + n - 1;
+            int j = binarySearch(newNums, right);
+            int count = j - i;
+            ans = Math.min(ans, n - count);
+        }
+
+        return ans;
+    }
+
+    public int binarySearch(int[] newNums, int target) {
+        int left = 0;
+        int right = newNums.length;
+
+        while (left < right) {
+            int mid = (left + right) / 2;
+            if (target < newNums[mid]) {
+                right = mid;
+            } else {
+                left = mid + 1;
+            }
+        }
+
+        return left;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int minOperations(vector<int>& nums) {
+        int n = nums.size();
+        int ans = n;
+
+        // std::set automatically sorts
+        set<int> unique(nums.begin(), nums.end());
+        vector<int> newNums;
+        for (int num : unique) {
+            newNums.push_back(num);
+        }
+
+        for (int i = 0; i < newNums.size(); i++) {
+            int left = newNums[i];
+            int right = left + n - 1;
+            int j = upper_bound(newNums.begin(), newNums.end(), right) - newNums.begin();
+            int count = j - i;
+            ans = min(ans, n - count);
+        }
+
+        return ans;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def minOperations(self, nums: List[int]) -> int:
+        n = len(nums)
+        ans = n
+        new_nums = sorted(set(nums))
+
+        for i in range(len(new_nums)):
+            left = new_nums[i]
+            right = left + n - 1
+            j = bisect_right(new_nums, right)
+            count = j - i
+            ans = min(ans, n - count)
+
+        return ans
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<p>Given <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    as the length of <code>nums</code>,</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅log⁡n)O(n \cdot \log{}n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                      style="margin-right: 0.1667em;"></span><span
+                class="mord"></span><span class="mord mathnormal">n</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <p>To remove duplicates and sort <code>nums</code>, we require <span class="math math-inline"><span
+                class="katex"><span class="katex-mathml">O(n⋅log⁡n)O(n \cdot \log{}n)</span><span class="katex-html"
+                                                                                                  aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                      style="margin-right: 0.1667em;"></span><span
+                class="mord"></span><span class="mord mathnormal">n</span><span
+                class="mclose">)</span></span></span></span></span> time.</p>
+        <p>Then, we iterate over <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.4306em;"></span><span
+                class="mord mathnormal">n</span></span></span></span></span> indices and perform a <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡n)O(\log{}n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                          style="margin-right: 0.1667em;"></span><span
+                class="mord"></span><span class="mord mathnormal">n</span><span
+                class="mclose">)</span></span></span></span></span> binary search at each index.</p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <p>We create a new array <code>newNums</code> of size <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.
+            Note that even if you were to modify the input directly, we still use <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> space
+            creating a hash set to remove duplicates. Also, it is considered a bad practice to modify the input, and
+            many people will argue that modifying the input makes it part of the space complexity anyway.</p>
+    </li>
+</ul>
+<br>
+<hr>
+<h4 id="approach-2-sliding-window">Approach 2: Sliding Window</h4>
+<p><strong>Intuition</strong></p>
+<p>In the previous approach, we locked in an element <code>newNums[i]</code> as <code>left</code>, calculated <code>right</code>,
+    then found the insertion index of <code>right</code> as <code>j</code>. We used an <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡n)O(\log{}n)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                      style="margin-right: 0.1667em;"></span><span
+            class="mord"></span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+    binary search to find <code>j</code>, but we can do better using a sliding window.</p>
+<p>Because <code>newNums</code> is sorted:</p>
+<ul>
+    <li>As <code>i</code> increases, so does <code>left = newNums[i]</code>.</li>
+    <li>An increase in the lower bound <code>left</code> means an increase in the upper bound <code>right</code> as
+        well.
+    </li>
+    <li>As <code>right</code> increases, <code>j</code> either remains the same or increases.</li>
+</ul>
+<p>Thus, as <code>i</code> increases, <code>j</code> will stay the same or increase.</p>
+<p>We initialize <code>j = 0</code> and follow the same process as in the last approach. Iterate <code>i</code> over the
+    indices of <code>newNums</code> and treat each <code>left = newNums[i]</code> as the minimum element. This gives us
+    <code>right = newNums[i] + n - 1</code> as our maximum element.</p>
+<p>How do we update <code>j</code>? Similar to the last approach, we have <code>j</code> as the index of the first
+    element out of our range. Thus, we increment <code>j</code> until it points to an element out of our range. The
+    condition for this is:</p>
+<p><code>while (newNums[j] &lt; newNums[i] + n)</code></p>
+<p>Once this condition is broken, <code>newNums[j]</code> is out of our range <code>[left, right]</code> and correctly
+    positioned. We can calculate the number of elements already in our range as <code>j - i</code> just like in the
+    previous approach.</p>
+<p>Because <code>j</code> starts at <code>0</code> and cannot exceed the length of <code>newNums</code>, it will only be
+    incremented at most <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.4306em;"></span><span
+            class="mord mathnormal">n</span></span></span></span></span> times across the entire algorithm. This means
+    it costs <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord">1</span><span class="mclose">)</span></span></span></span></span> amortized to calculate <code>j</code>,
+    an improvement from the <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡n)O(\log{}n)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                      style="margin-right: 0.1667em;"></span><span
+            class="mord"></span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+    binary search.</p>
+<p><strong>Algorithm</strong></p>
+<ol>
+    <li>Set <code>n = nums.length</code> and the answer <code>ans = n</code>.</li>
+    <li>Remove duplicates from <code>nums</code> and then sort it. We will call this new array <code>newNums</code>.
+    </li>
+    <li>Initialize <code>j = 0</code> and iterate <code>i</code> over the indices of <code>newNums</code>:
+        <ul>
+            <li>While <code>newNums[j]</code> is within our range (less than <code>newNums[i] + n</code>), increment
+                <code>j</code>.
+            </li>
+            <li>Calculate <code>count = j - i</code>, the number of elements already in our range.</li>
+            <li>Update <code>ans</code> with <code>n - count</code> if it is smaller.</li>
+        </ul>
+    </li>
+    <li>Return <code>ans</code>.</li>
+</ol>
+<p><strong>Implementation</strong></p>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int minOperations(int[] nums) {
+        int n = nums.length;
+        int ans = n;
+
+        HashSet<Integer> unique = new HashSet<>();
+        for (int num : nums) {
+            unique.add(num);
+        }
+
+        int[] newNums = new int[unique.size()];
+        int index = 0;
+
+        for (int num : unique) {
+            newNums[index++] = num;
+        }
+
+        Arrays.sort(newNums);
+
+        int j = 0;
+        for (int i = 0; i < newNums.length; i++) {
+            while (j < newNums.length && newNums[j] < newNums[i] + n) {
+                j++;
+            }
+
+            int count = j - i;
+            ans = Math.min(ans, n - count);
+        }
+
+        return ans;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int minOperations(vector<int>& nums) {
+        int n = nums.size();
+        int ans = n;
+
+        // std::set automatically sorts
+        set<int> unique(nums.begin(), nums.end());
+        vector<int> newNums;
+        for (int num : unique) {
+            newNums.push_back(num);
+        }
+
+        int j = 0;
+        for (int i = 0; i < newNums.size(); i++) {
+            while (j < newNums.size() && newNums[j] < newNums[i] + n) {
+                j++;
+            }
+
+            int count = j - i;
+            ans = min(ans, n - count);
+        }
+
+        return ans;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def minOperations(self, nums: List[int]) -> int:
+        n = len(nums)
+        ans = n
+        new_nums = sorted(set(nums))
+        j = 0
+
+        for i in range(len(new_nums)):
+            while j < len(new_nums) and new_nums[j] < new_nums[i] + n:
+                j += 1
+
+            count = j - i
+            ans = min(ans, n - count)
+
+        return ans
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<p>Given <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    as the length of <code>nums</code>,</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅log⁡n)O(n \cdot \log{}n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                      style="margin-right: 0.1667em;"></span><span
+                class="mord"></span><span class="mord mathnormal">n</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <p>To remove duplicates and sort <code>nums</code>, we require <span class="math math-inline"><span
+                class="katex"><span class="katex-mathml">O(n⋅log⁡n)O(n \cdot \log{}n)</span><span class="katex-html"
+                                                                                                  aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                      style="margin-right: 0.1667em;"></span><span
+                class="mord"></span><span class="mord mathnormal">n</span><span
+                class="mclose">)</span></span></span></span></span> time.</p>
+        <p>Then, we iterate over <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.4306em;"></span><span
+                class="mord mathnormal">n</span></span></span></span></span> indices and perform <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord">1</span><span class="mclose">)</span></span></span></span></span> amortized work at each
+            iteration. The while loop inside the for loop can only iterate at most <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 0.4306em;"></span><span
+                    class="mord mathnormal">n</span></span></span></span></span> times total across all iterations of
+            the for loop. Each element in <code>newNums</code> can only be iterated over once by this while loop.</p>
+        <p>Despite this approach having the same time complexity as the previous approach (due to the sort), it is a
+            slight practical improvement as the sliding window portion is <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <p>We create a new array <code>newNums</code> of size <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.
+            Note that even if you were to modify the input directly, we still use <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> space
+            creating a hash set to remove duplicates. Also, it is considered a bad practice to modify the input, and
+            many people will argue that modifying the input makes it part of the space complexity anyway.</p>
+    </li>
+</ul>
+<br>
+<hr>
+</body>
+</html>
