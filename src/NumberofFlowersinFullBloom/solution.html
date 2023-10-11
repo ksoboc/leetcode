@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Number of Flowers in Full Bloom - Solution</title>
+</head>
+<body>
+<h2 id="solution">Number of Flowers in Full Bloom - Solution</h2>
+<hr>
+<h4 id="approach-1-heappriority-queue">Approach 1: Heap/Priority Queue</h4>
+<p><strong>Intuition</strong></p>
+<p>For each <code>person</code> in <code>people</code>, we need to find how many flower ranges <code>[start, end]</code>
+    contain <code>person</code>. An intuitive first step is to sort both input arrays so that we can process both <code>flowers</code>
+    and <code>people</code> in chronological order.</p>
+<p>For the first <code>person</code> (in terms of arrival time), we can find all the flowers that have
+    <code>start</code> less than <code>person</code> - these are the flowers that have started blooming before <code>person</code>
+    arrived, and thus <code>person</code> might have a chance of seeing them. Of those flowers, we remove the ones that
+    have <code>end</code> less than <code>person</code> as well, as these are the flowers that have finished blooming,
+    and <code>person</code> missed them. The number of remaining flowers is the answer for the first <code>person</code>.
+    Note that because we sorted <code>people</code>, the flowers we remove here are guaranteed never to be seen again
+    and therefore will not affect anyone else after <code>person</code>.</p>
+<p>Let's move to the second <code>person</code>. Once again, we find all the flowers that have <code>start</code> less
+    than <code>person</code>. But do we need to start from scratch? No! Because we are processing both the
+    <code>flowers</code> and <code>people</code> in order, we can start from where we left off with the previous person.
+    More specifically, because the second person's arrival time is greater than or equal to the previous person's, the
+    flowers that bloom before the previous person must also bloom before the second person, so there's no need for us to
+    handle this portion of flowers again. Therefore, we will add all the flowers that have <code>start</code> less than
+    the second <code>person</code>, starting after the last flower we took.</p>
+<p>Similarly, the flowers that the previous person missed are definitely also missed by the second person, so there's no
+    need for us to handle this portion of removed flowers again. Once we have taken all the flowers with
+    <code>start</code> less than <code>person</code>, we can simply remove all the flowers that have <code>end</code>
+    less than <code>person</code>. The number of remaining flowers is the answer for the second <code>person</code>.</p>
+<p>We can continue this process for each <code>person</code>. To find the flowers with <code>start</code> less than a
+    given <code>person</code>, we can use a pointer <code>i</code> that starts at <code>0</code>. We will move
+    <code>i</code> along the <code>flowers</code> array and never decrement or reset it. This allows us to pick up where
+    we left off for each successive <code>person</code>.</p>
+<p>How can we remove the flowers that have <code>end</code> less than a given <code>person</code>? This one is trickier
+    because we can only sort <code>flowers</code> by one dimension. To use the pointer technique we just described, we
+    must sort by the <code>start</code> times. Thus, the <code>end</code> times are not necessarily in order. For
+    example, you could have <code>flowers</code> like this:</p>
+<p><code>[2, 9], [3, 6]</code></p>
+<p>In this case, using another pointer like <code>j</code> for the end times would not work since <code>9</code> is
+    greater than <code>6</code> but comes earlier in the input.</p>
+<p>As we are concerned with the flowers that have earlier end times, we can use a heap/priority queue to keep track of
+    which flowers finish blooming. We will maintain a min <code>heap</code> and push <code>end</code> times of flowers
+    onto this <code>heap</code>. Once we have added all flowers with <code>start</code> less than <code>person</code>,
+    we will pop from the <code>heap</code> as long as the top of it is less than <code>person</code>.</p>
+<p>After popping from <code>heap</code>, it will hold the end times of all flowers that <code>person</code> can see.
+    Thus, the answer for <code>person</code> is simply the size of the heap.</p>
+<blockquote>
+    <p>To summarize, we use a pointer <code>i</code> to iterate along <code>flowers</code>. For a given
+        <code>person</code>, we find all the flowers that started blooming before <code>person</code> arrives. We push
+        the <code>end</code> time of these flowers onto a <code>heap</code>. We can then remove all the flowers that
+        finished blooming by popping from the <code>heap</code>, since a min <code>heap</code> efficiently gives us the
+        minimum (earliest) times.</p>
+    <p>As we sort both input arrays, flowers that we pop from <code>heap</code> will never be seen again by future
+        people.</p>
+</blockquote>
+<p>A note on implementation: here, we are sorting <code>people</code>, but the problem description asks us for the
+    answer according to the original order. We will use a hash map that maps a <code>person</code> to the number of
+    flowers they see. We will also keep the original order of <code>people</code> by creating a copy of it to sort. Once
+    we have calculated the answer for everyone in the sorted order, we can iterate through the original
+    <code>people</code> and refer to the hash map to build the final answer by restoring their original order.</p>
+<p><strong>Algorithm</strong></p>
+<ol>
+    <li>Sort <code>flowers</code>. Create a sorted version of <code>people</code> called <code>sortedPeople</code>.</li>
+    <li>Initialize a hash map <code>dic</code>, a min <code>heap</code>, and an integer <code>i = 0</code>.</li>
+    <li>Iterate over <code>sortedPeople</code>. For each <code>person</code>:
+        <ul>
+            <li>While <code>flowers[i][0] &lt; person</code> (the flower at <code>i</code> already started blooming),
+                push <code>flowers[i][1]</code> (when the flower finishes blooming) to <code>heap</code> and increment
+                <code>i</code>.
+            </li>
+            <li>While the top of <code>heap</code> (minimum element) is less than <code>person</code>, pop from <code>heap</code>.
+            </li>
+            <li>Set <code>dic[person]</code> to the size of <code>heap</code>.</li>
+        </ul>
+    </li>
+    <li>Initialize an array <code>ans</code>. Iterate over <code>people</code> and populate <code>ans</code> using
+        <code>dic</code>.
+    </li>
+</ol>
+<p><strong>Implementation</strong></p>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int[] fullBloomFlowers(int[][] flowers, int[] people) {
+        int[] sortedPeople = Arrays.copyOf(people, people.length);
+        Arrays.sort(sortedPeople);
+
+        Arrays.sort(flowers, (a, b) -> Arrays.compare(a, b));
+        Map<Integer, Integer> dic = new HashMap();
+        PriorityQueue<Integer> heap = new PriorityQueue();
+
+        int i = 0;
+        for (int person : sortedPeople) {
+            while (i < flowers.length && flowers[i][0] <= person) {
+                heap.add(flowers[i][1]);
+                i++;
+            }
+
+            while (!heap.isEmpty() && heap.peek() < person) {
+                heap.remove();
+            }
+
+            dic.put(person, heap.size());
+        }
+
+        int[] ans = new int[people.length];
+        for (int j = 0; j < people.length; j++) {
+            ans[j] = dic.get(people[j]);
+        }
+
+        return ans;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    vector<int> fullBloomFlowers(vector<vector<int>>& flowers, vector<int>& people) {
+        vector<int> sortedPeople(people.begin(), people.end());
+        sort(sortedPeople.begin(), sortedPeople.end());
+
+        sort(flowers.begin(), flowers.end());
+        unordered_map<int, int> dic;
+        priority_queue<int, vector<int>, greater<int>> heap;
+
+        int i = 0;
+        for (int person : sortedPeople) {
+            while (i < flowers.size() && flowers[i][0] <= person) {
+                heap.push(flowers[i][1]);
+                i++;
+            }
+
+            while (!heap.empty() && heap.top() < person) {
+                heap.pop();
+            }
+
+            dic[person] = heap.size();
+        }
+
+        vector<int> ans;
+        for (int person : people) {
+            ans.push_back(dic[person]);
+        }
+
+        return ans;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def fullBloomFlowers(self, flowers: List[List[int]], people: List[int]) -> List[int]:
+        flowers.sort()
+        sorted_people = sorted(people)
+        dic = {}
+        heap = []
+
+        i = 0
+        for person in sorted_people:
+            while i < len(flowers) and flowers[i][0] <= person:
+                heapq.heappush(heap, flowers[i][1])
+                i += 1
+
+            while heap and heap[0] < person:
+                heapq.heappop(heap)
+
+            dic[person] = len(heap)
+
+        return [dic[x] for x in people]
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<p>Given <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    as the length of <code>flowers</code> and <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">mm</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.4306em;"></span><span
+            class="mord mathnormal">m</span></span></span></span></span> as the length of <code>people</code>,</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅log⁡n+m⋅(log⁡n+log⁡m))O(n \cdot \log{}n + m \cdot (\log{}n + \log{}m))</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+                class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                          style="margin-right: 0.1667em;"></span><span
+                class="mord"></span><span class="mord mathnormal">n</span><span class="mspace"
+                                                                                style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.4445em;"></span><span class="mord mathnormal">m</span><span
+                class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mopen">(</span><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span
+                class="mspace" style="margin-right: 0.1667em;"></span><span class="mord"></span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                      style="margin-right: 0.1667em;"></span><span
+                class="mord"></span><span class="mord mathnormal">m</span><span
+                class="mclose">))</span></span></span></span></span></p>
+        <p>We start by sorting both <code>flowers</code> and <code>people</code>. This costs <span
+                class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n⋅log⁡n)O(n \cdot \log{}n)</span><span class="katex-html"
+                                                                              aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                      style="margin-right: 0.1667em;"></span><span
+                class="mord"></span><span class="mord mathnormal">n</span><span
+                class="mclose">)</span></span></span></span></span> and <span class="math math-inline"><span
+                class="katex"><span class="katex-mathml">O(m⋅log⁡m)O(m \cdot \log{}m)</span><span class="katex-html"
+                                                                                                  aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                      style="margin-right: 0.1667em;"></span><span
+                class="mord"></span><span class="mord mathnormal">m</span><span
+                class="mclose">)</span></span></span></span></span> respectively. Next, we perform <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">O(m)O(m)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">m</span><span class="mclose">)</span></span></span></span></span> iterations. At
+            each iteration, we perform some heap operations. The cost of these operations is dependent on the size of
+            the heap. Our heap cannot exceed a size of <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                    class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>,
+            so these operations cost <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡n)O(\log{}n)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                              style="margin-right: 0.1667em;"></span><span
+                    class="mord"></span><span class="mord mathnormal">n</span><span
+                    class="mclose">)</span></span></span></span></span>.</p>
+        <p>There are some other linear time operations that don't affect our time complexity. In total, our time
+            complexity is <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅log⁡n+m⋅(log⁡n+log⁡m))O(n \cdot \log{}n + m \cdot (\log{}n + \log{}m))</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+                    class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                              style="margin-right: 0.1667em;"></span><span
+                    class="mord"></span><span class="mord mathnormal">n</span><span class="mspace"
+                                                                                    style="margin-right: 0.2222em;"></span><span
+                    class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 0.4445em;"></span><span
+                    class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mopen">(</span><span class="mop">lo<span
+                    style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                          style="margin-right: 0.1667em;"></span><span
+                    class="mord"></span><span class="mord mathnormal">n</span><span class="mspace"
+                                                                                    style="margin-right: 0.2222em;"></span><span
+                    class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                              style="margin-right: 0.1667em;"></span><span
+                    class="mord"></span><span class="mord mathnormal">m</span><span
+                    class="mclose">))</span></span></span></span></span>.</p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n+m)O(n + m)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal">m</span><span class="mclose">)</span></span></span></span></span></p>
+        <p>We create an array <code>sortedPeople</code> of length <span class="math math-inline"><span
+                class="katex"><span class="katex-mathml">mm</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">m</span></span></span></span></span>.
+            <code>dic</code> also grows to a length of <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">mm</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                    class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">m</span></span></span></span></span>,
+            and <code>heap</code> can grow to a size of <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+</ul>
+<br>
+<hr>
+<h4 id="approach-2-difference-array--binary-search">Approach 2: Difference Array + Binary Search</h4>
+<p><strong>Intuition</strong></p>
+<p>There is a technique called difference array that can be used to solve many "range" based problems. The technique
+    involves creating an array <code>difference</code> and iterating over all ranges <code>[start, end]</code>. We
+    perform <code>difference[start]++</code> and <code>difference[end + 1]--</code> for each range.</p>
+<p>The idea is that each index of <code>difference</code> represents the <strong>change</strong> in the number of
+    flowers we can see when we cross this index (not the actual number of flowers on this index), with each index
+    representing a unit of time. Thus, we could take a <code>prefix</code> sum of this <code>difference</code> array to
+    find how many flowers can be seen at any given time with <code>prefix[time]</code>.</p>
+<blockquote>
+    <p>Some people also call this technique "line sweep".</p>
+</blockquote>
+<p>Unfortunately, if we look at the constraints, we find that values of <code>start, end, people</code> can be up to
+    <span class="math math-inline"><span class="katex"><span class="katex-mathml">10910^9</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.8141em;"></span><span class="mord">1</span><span
+            class="mord"><span class="mord">0</span><span class="msupsub"><span class="vlist-t"><span
+            class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span
+            class="mord mtight">9</span></span></span></span></span></span></span></span></span></span></span></span>.
+    It would not be feasible to create an array with such a large size. Thus, we need to use a map structure instead.
+    Like in the previous approach, we still want to process everything chronologically. We will use the following data
+    structures:</p>
+<ul>
+    <li>In Java, we will use <code>TreeMap</code>.</li>
+    <li>In C++, we will use <code>std::map</code>.</li>
+    <li>In Python, we will use <code>sortedcontainers.SortedDict</code>.</li>
+</ul>
+<blockquote>
+    <p>Note that if you were not allowed to use these structures in an interview, you could still implement this
+        approach using a normal hash map. You would just need to sort the elements in the hash map by key values after
+        you populated it.</p>
+</blockquote>
+<p>Once we have this data structure <code>difference</code>, we will follow the process described above. We iterate over
+    each <code>flower = [start, end]</code> and increment <code>difference[start]</code> while decrementing <code>difference[end
+        + 1]</code>. The idea is that when we reach <code>start</code>, the number of flowers we see increases by one.
+    When we reach <code>end + 1</code>, the number of flowers we see decreases by one.</p>
+<p>We then create a <code>prefix</code> sum of the values in <code>difference</code>. We also need to know what time
+    each value is associated with, so we will create an array <code>positions</code> to go along with our
+    <code>prefix</code> array. Here, <code>prefix[i]</code> is the number of flowers available at time <code>positions[i]</code>.
+</p>
+<p>Finally, we can iterate over <code>people</code> and find the answer for each <code>person</code>. How do we do this?
+    We can perform a binary search over <code>positions</code> to find the index <code>i</code> where
+    <code>person</code> fits. <code>prefix[i]</code> is the answer for this <code>person</code>.</p>
+<p>Let's summarize the algorithm with an example:</p>
+<p><img src="1.png" alt="example"><br>
+    <br></p>
+<p>Our first step is to populate <code>difference</code>. Each <code>key, value</code> pair in <code>difference</code>
+    represents "at time <code>key</code>, we see a change in <code>value</code> new flowers". For example, the key value
+    pair of <code>6: -2</code> means that at time <code>6</code>, we see two less flowers.</p>
+<p><img src="2.png" alt="example"><br>
+    <br></p>
+<p>Next, we create a <code>prefix</code> sum on the values of difference, as well as an array <code>positions</code> to
+    associate each <code>prefix</code> value with a position in time. Notice that <code>positions</code> is just the
+    keys of <code>difference</code>.</p>
+<p><img src="3.png" alt="example"><br>
+    <br></p>
+<p>With these arrays, we can now use binary search to identify how many flowers a given <code>person</code> will see.
+    For example, consider <code>person</code> at time <code>7</code>:</p>
+<p><img src="4.png" alt="example"><br>
+    <br></p>
+<p>What about <code>person</code> at time <code>11</code>?</p>
+<p><img src="5.png" alt="example"><br>
+    <br></p>
+<p>There are a few more things to consider before we start implementation.</p>
+<ol>
+    <li>What happens if there is a <code>person</code> that arrives before any flower blooms? This may confuse our
+        binary search since the minimum value in <code>positions</code> will be greater than <code>person</code>. We
+        will initialize <code>difference</code> with <code>0: 0</code> to represent at time <code>0</code>, we don't see
+        any new flowers.
+    </li>
+    <li>Regarding the binary search; how should it be configured? Referencing the above example images, inserting <code>11</code>
+        into the given <code>positions</code> array will put it at index <code>6</code>. However, we need index
+        <code>5</code>. Thus, we need the insertion index minus one. What if the value exists in <code>positions</code>,
+        as is the case with <code>person = 7</code>? To offset the minus one, we will binary search for the rightmost
+        insertion index (<code>bisect_right</code> in Python, <code>upper_bound</code> in C++).
+    </li>
+</ol>
+<p><strong>Algorithm</strong></p>
+<ol>
+    <li>Initialize a sorted-map data structure <code>difference</code> with <code>0: 0</code>.</li>
+    <li>Iterate over each <code>flower = [start, end]</code> in <code>flowers</code>:
+        <ul>
+            <li>Increment <code>difference[start]</code>.</li>
+            <li>Decrement <code>difference[end + 1]</code>.</li>
+        </ul>
+    </li>
+    <li>Initialize two arrays, <code>positions</code> and <code>prefix</code>. Iterate over the keys of
+        <code>difference</code>:
+        <ul>
+            <li><code>positions</code> contains all the keys in the order they are traversed.</li>
+            <li><code>prefix</code> contains the prefix sum of the corresponding values.</li>
+        </ul>
+    </li>
+    <li>Initialize the answer array <code>ans</code>. Iterate over each <code>person</code> in <code>people</code>:
+        <ul>
+            <li>Perform a right-insertion index binary search on <code>positions</code> with <code>person</code>.</li>
+            <li>Calculate <code>i</code> as the result of this binary search minus one.</li>
+            <li>Add <code>prefix[i]</code> to <code>ans</code>.</li>
+        </ul>
+    </li>
+    <li>Return <code>ans</code>.</li>
+</ol>
+<p><strong>Implementation</strong></p>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int[] fullBloomFlowers(int[][] flowers, int[] people) {
+        TreeMap<Integer, Integer> difference = new TreeMap<>();
+        difference.put(0, 0);
+
+        for (int[] flower : flowers) {
+            int start = flower[0];
+            int end = flower[1] + 1;
+
+            difference.put(start, difference.getOrDefault(start, 0) + 1);
+            difference.put(end, difference.getOrDefault(end, 0) - 1);
+        }
+
+        List<Integer> positions = new ArrayList();
+        List<Integer> prefix = new ArrayList();
+        int curr = 0;
+
+        for (int key : difference.keySet()) {
+            positions.add(key);
+            curr += difference.get(key);
+            prefix.add(curr);
+        }
+
+        int[] ans = new int[people.length];
+        for (int j = 0; j < people.length; j++) {
+            int i = binarySearch(positions, people[j]) - 1;
+            ans[j] = prefix.get(i);
+        }
+
+        return ans;
+    }
+
+    public int binarySearch(List<Integer> arr, int target) {
+        int left = 0;
+        int right = arr.size();
+        while (left < right) {
+            int mid = (left + right) / 2;
+            if (target < arr.get(mid)) {
+                right = mid;
+            } else {
+                left = mid + 1;
+            }
+        }
+
+        return left;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    vector<int> fullBloomFlowers(vector<vector<int>>& flowers, vector<int>& people) {
+        map<int, int> difference;
+        difference[0] = 0;
+
+        for (vector<int>& flower : flowers) {
+            difference[flower[0]]++;
+            difference[flower[1] + 1]--;
+        }
+
+        vector<int> positions;
+        vector<int> prefix;
+        int curr = 0;
+        for (auto& pair : difference) {
+            positions.push_back(pair.first);
+            curr += pair.second;
+            prefix.push_back(curr);
+        }
+
+        vector<int> ans;
+        for (int person : people) {
+            int i = upper_bound(positions.begin(), positions.end(), person) - positions.begin() - 1;
+            ans.push_back(prefix[i]);
+        }
+
+        return ans;
+    }
+};
+    </code>
+    Python3
+    <code>
+        from sortedcontainers import SortedDict
+
+class Solution:
+    def fullBloomFlowers(self, flowers: List[List[int]], people: List[int]) -> List[int]:
+        difference = SortedDict({0: 0})
+        for start, end in flowers:
+            difference[start] = difference.get(start, 0) + 1
+            difference[end + 1] = difference.get(end + 1, 0) - 1
+
+        positions = []
+        prefix = []
+        curr = 0
+        for key, val in difference.items():
+            positions.append(key)
+            curr += val
+            prefix.append(curr)
+
+        ans = []
+        for person in people:
+            i = bisect_right(positions, person) - 1
+            ans.append(prefix[i])
+
+        return ans
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<p>Given <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    as the length of <code>flowers</code> and <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">mm</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.4306em;"></span><span
+            class="mord mathnormal">m</span></span></span></span></span> as the length of <code>people</code>,</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O((n+m)⋅log⁡n)O((n + m) \cdot \log{n})</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">((</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal">m</span><span class="mclose">)</span><span class="mspace"
+                                                                                   style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                      style="margin-right: 0.1667em;"></span><span
+                class="mord"><span class="mord mathnormal">n</span></span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <p>Our first loop sets <code>difference</code>, which costs <span class="math math-inline"><span
+                class="katex"><span class="katex-mathml">O(n⋅log⁡n)O(n \cdot \log{}n)</span><span class="katex-html"
+                                                                                                  aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                      style="margin-right: 0.1667em;"></span><span
+                class="mord"></span><span class="mord mathnormal">n</span><span
+                class="mclose">)</span></span></span></span></span>.</p>
+        <p>Next, we calculate the prefix sum, which will cost either <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+            or <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅log⁡n)O(n \cdot \log{}n)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                              style="margin-right: 0.1667em;"></span><span
+                    class="mord"></span><span class="mord mathnormal">n</span><span
+                    class="mclose">)</span></span></span></span></span> depending on your language's implementation.
+            This is because <code>difference</code> will have a size between <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 0.4306em;"></span><span
+                    class="mord mathnormal">n</span></span></span></span></span> and <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">2n2n</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.6444em;"></span><span
+                    class="mord">2</span><span class="mord mathnormal">n</span></span></span></span></span>.</p>
+        <p>Finally, we have a loop over <code>people</code>. We perform a binary search that costs <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡n)O(\log{}n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                          style="margin-right: 0.1667em;"></span><span
+                class="mord"></span><span class="mord mathnormal">n</span><span
+                class="mclose">)</span></span></span></span></span> at each iteration. Thus, we spend <span
+                class="math math-inline"><span class="katex"><span
+                class="katex-mathml">m⋅log⁡nm \cdot \log{}n</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 0.4445em;"></span><span class="mord mathnormal">m</span><span
+                class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+                class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                          style="margin-right: 0.1667em;"></span><span
+                class="mord"></span><span class="mord mathnormal">n</span></span></span></span></span> here.</p>
+        <p>This gives us a final time complexity of <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O((n+m)⋅log⁡n)O((n + m) \cdot \log{n})</span><span class="katex-html"
+                                                                                        aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">((</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal">m</span><span class="mclose">)</span><span class="mspace"
+                                                                                   style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                      style="margin-right: 0.1667em;"></span><span
+                class="mord"><span class="mord mathnormal">n</span></span><span
+                class="mclose">)</span></span></span></span></span></p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <p><code>difference</code> has a size of <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.
+            <code>prefix</code> and <code>positions</code> have the same size as <code>difference</code>.</p>
+    </li>
+</ul>
+<br>
+<hr>
+<h4 id="approach-3-simpler-binary-search">Approach 3: Simpler Binary Search</h4>
+<p><strong>Intuition</strong></p>
+<p>In the previous approach, we used the concept of a difference array/line sweep to calculate how many flowers are seen
+    at a given time. For each <code>flower = [start, end]</code>, we indicated that at time <code>start</code>, we see
+    one more flower, and at time <code>end + 1</code>, we see one less flower. We identified when a flower started
+    blooming and when it finished blooming.</p>
+<p>The idea behind this strategy is that at any given time, <strong>the number of flowers we see is the number of
+    flowers that have already started blooming minus the amount of flowers have finished blooming.</strong></p>
+<p>Is there a simpler way to identify at a given time, how many flowers have started blooming, and how many flowers have
+    finished blooming? In the first two approaches, we always associate the <code>start</code> and <code>end</code> of
+    the same flower together for processing, which is more intuitive but can be more complex to handle. What if we
+    separately consider these two sets of times?</p>
+<p>We can simply collect all <code>start</code> points in one array <code>starts</code>, sort it, and then perform a
+    binary search. We can do the exact same thing with another array <code>ends</code> for all <code>end</code> points.
+    Take a look at the following example:</p>
+<p><img src="6.png" alt="example"><br>
+    <br></p>
+<p>Here, we have collected all <code>start</code> and <code>end</code> times and then sorted them. How many flowers can
+    somebody at time <code>11</code> see?</p>
+<p><img src="7.png" alt="example"><br>
+    <br></p>
+<p>As you can see, <code>4</code> flowers have started blooming and <code>2</code> flowers have finished blooming. Thus,
+    <code>4 - 2 = 2</code> flowers can be seen at time <code>11</code>. Because <code>starts</code> and
+    <code>ends</code> is sorted, we can use binary search to quickly identify how many flowers have started and finished
+    blooming for any given time.</p>
+<p>Regarding the binary searches: when binary searching on <code>starts</code>, we want to search for the rightmost
+    insertion index. This is because if a <code>person</code> arrives at the same time as a flower starts blooming, we
+    want to include this flower.</p>
+<p>Note that a <code>flower = [start, end]</code> stops blooming at <code>end + 1</code>, not <code>end</code>. There
+    are two ways we can handle this. We can either binary search on <code>end</code> for the leftmost insertion index
+    (since we want to include all flowers with <code>end</code> equal to the current time), or we can assemble <code>ends</code>
+    using <code>end + 1</code> for each <code>flower</code>. We will implement the algorithm using the second option in
+    this article.</p>
+<p><strong>Algorithm</strong></p>
+<ol>
+    <li>Create two arrays <code>starts</code> and <code>ends</code>.</li>
+    <li>Iterate over each <code>flower = [start, end]</code> in <code>flowers</code>:
+        <ul>
+            <li>Add <code>start</code> to <code>starts</code>.</li>
+            <li>Add <code>end + 1</code> to <code>ends</code>.</li>
+        </ul>
+    </li>
+    <li>Sort both <code>starts</code> and <code>ends</code>.</li>
+    <li>Initialize the answer array <code>ans</code> and iterate over each <code>person</code> in <code>people</code>:
+        <ul>
+            <li>Perform a binary search on <code>starts</code> for the rightmost insertion index of <code>person</code>
+                to find <code>i</code>.
+            </li>
+            <li>Perform a binary search on <code>ends</code> for the rightmost insertion index of <code>person</code> to
+                find <code>j</code>.
+            </li>
+            <li>Add <code>i - j</code> to <code>ans</code>.</li>
+        </ul>
+    </li>
+    <li>Return <code>ans</code>.</li>
+</ol>
+<p><strong>Implementation</strong></p>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int[] fullBloomFlowers(int[][] flowers, int[] people) {
+        List<Integer> starts = new ArrayList();
+        List<Integer> ends = new ArrayList();
+
+        for (int[] flower: flowers) {
+            starts.add(flower[0]);
+            ends.add(flower[1] + 1);
+        }
+
+        Collections.sort(starts);
+        Collections.sort(ends);
+        int[] ans = new int[people.length];
+
+        for (int index = 0; index < people.length; index++) {
+            int person = people[index];
+            int i = binarySearch(starts, person);
+            int j = binarySearch(ends, person);
+            ans[index] = i - j;
+        }
+
+        return ans;
+    }
+
+    public int binarySearch(List<Integer> arr, int target) {
+        int left = 0;
+        int right = arr.size();
+        while (left < right) {
+            int mid = (left + right) / 2;
+            if (target < arr.get(mid)) {
+                right = mid;
+            } else {
+                left = mid + 1;
+            }
+        }
+
+        return left;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    vector<int> fullBloomFlowers(vector<vector<int>>& flowers, vector<int>& people) {
+        vector<int> starts;
+        vector<int> ends;
+
+        for (vector<int>& flower : flowers) {
+            starts.push_back(flower[0]);
+            ends.push_back(flower[1] + 1);
+        }
+
+        sort(starts.begin(), starts.end());
+        sort(ends.begin(), ends.end());
+        vector<int> ans;
+
+        for (int person : people) {
+            int i = upper_bound(starts.begin(), starts.end(), person) - starts.begin();
+            int j = upper_bound(ends.begin(), ends.end(), person) - ends.begin();
+            ans.push_back(i - j);
+        }
+
+        return ans;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def fullBloomFlowers(self, flowers: List[List[int]], people: List[int]) -> List[int]:
+        starts = []
+        ends = []
+
+        for start, end in flowers:
+            starts.append(start)
+            ends.append(end + 1)
+
+        starts.sort()
+        ends.sort()
+        ans = []
+
+        for person in people:
+            i = bisect_right(starts, person)
+            j = bisect_right(ends, person)
+            ans.append(i - j)
+
+        return ans
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<p>Given <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    as the length of <code>flowers</code> and <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">mm</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.4306em;"></span><span
+            class="mord mathnormal">m</span></span></span></span></span> as the length of <code>people</code>,</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O((n+m)⋅log⁡n)O((n + m) \cdot \log{n})</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">((</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal">m</span><span class="mclose">)</span><span class="mspace"
+                                                                                   style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                      style="margin-right: 0.1667em;"></span><span
+                class="mord"><span class="mord mathnormal">n</span></span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <p>We first create two arrays of length <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 0.4306em;"></span><span
+                class="mord mathnormal">n</span></span></span></span></span>, <code>starts</code> and <code>ends</code>,
+            then sort them. This costs <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅log⁡n)O(n \cdot \log{}n)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                              style="margin-right: 0.1667em;"></span><span
+                    class="mord"></span><span class="mord mathnormal">n</span><span
+                    class="mclose">)</span></span></span></span></span>.</p>
+        <p>Next, we iterate over <code>people</code> and perform two binary searches at each iteration. This costs <span
+                class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(m⋅log⁡n)O(m \cdot \log{}n)</span><span class="katex-html"
+                                                                              aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                      style="margin-right: 0.1667em;"></span><span
+                class="mord"></span><span class="mord mathnormal">n</span><span
+                class="mclose">)</span></span></span></span></span>.</p>
+        <p>Thus, our time complexity is <span class="math math-inline"><span class="katex"><span class="katex-mathml">O((n+m)⋅log⁡n)O((n + m) \cdot \log{n})</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">((</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal">m</span><span class="mclose">)</span><span class="mspace"
+                                                                                   style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                      style="margin-right: 0.1667em;"></span><span
+                class="mord"><span class="mord mathnormal">n</span></span><span
+                class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <p><code>starts</code> and <code>ends</code> both have a size of <code>n</code>.</p>
+    </li>
+</ul>
+<br>
+<hr>
+</body>
+</html>
