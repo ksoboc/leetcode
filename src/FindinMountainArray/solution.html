@@ -1,0 +1,2575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Find in Mountain Array - Solution</title>
+</head>
+<body>
+<h2 id="solution">Find in Mountain Array - Solution</h2>
+<hr>
+<h3 id="overview">Overview</h3>
+<p>We are given a <strong>mountain array</strong>. Based on the definition given in the problem description, any
+    mountain array, can in general be represented as a <strong>strictly increasing</strong> array followed by a <strong>strictly
+        decreasing</strong> array.</p>
+<p><img src="Slide1.PNG" alt="representation"></p>
+<p>The problem asks us to find the (minimum) index of a given <code>target</code> element in the given
+    <code>mountainArr</code>. There might be a case where the <code>target</code> element is not present in the <code>mountainArr</code>.
+    In such a case, we need to return <code>-1</code>.</p>
+<p>Before moving further, let's focus on the term <strong>minimum index</strong>. Is there a possibility of multiple
+    occurrences of the <code>target</code> element in the <code>mountainArr</code>?</p>
+<p>Due to the phrase <strong>strictly</strong> in definition, it may seem that there is no possibility of multiple
+    occurrences of any element. However, further thought on the graph suggests that corresponding to any element, there
+    can be at most two occurrences of the element, one in the <strong>strictly increasing</strong> array and the other
+    in the <strong>strictly decreasing</strong> array.<br>
+    <em>Or one before the peak and the other after the peak.</em></p>
+<p><img src="Slide2.PNG" alt="two_occurrences"></p>
+<p>In such a case, we should return the index of the element in the <strong>strictly increasing</strong> array. If the
+    element is not present in the <strong>strictly increasing</strong> array, then we should return the index of the
+    element in the <strong>strictly decreasing</strong> array.</p>
+<p>Like any other array search problem, the <strong>Linear Search</strong> may sound very natural.</p>
+<p>However, we cannot access the element of the given <code>mountainArr</code> directly. To access the element at index
+    <code>k</code>, we need to call the function <code>mountainArr.get(k)</code>.</p>
+<p>Still, we can call <code>get</code> for indices varying from <code>0</code> to <code>mountainArr.length() - 1</code>,
+    and find the index of the <code>target</code> element.</p>
+<p>However, there is a catch. The problem description also mentions that the function <code>mountainArr.get(k)</code>
+    will be called at most <code>100</code> times, but the size of the <code>mountainArr</code> can be as large as
+    <code>10000</code>.</p>
+<p>Thus, <strong>Linear Search will not work here!</strong></p>
+<p>Recall that when search space is sorted, we can use <strong>Binary Search</strong> to find the element in <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡2N)O(\log_2 {N})</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+        class="mop"><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span
+        class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist"
+                                                                                   style="height: 0.207em;"><span
+        style="top: -2.4559em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span
+        class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.2441em;"><span></span></span></span></span></span></span><span
+        class="mspace" style="margin-right: 0.1667em;"></span><span class="mord"><span class="mord mathnormal"
+                                                                                       style="margin-right: 0.10903em;">N</span></span><span
+        class="mclose">)</span></span></span></span></span> time complexity, where <span class="math math-inline"><span
+        class="katex"><span class="katex-mathml">NN</span><span class="katex-html" aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                style="margin-right: 0.10903em;">N</span></span></span></span></span>
+    is the size of the search space.</p>
+<blockquote>
+    <p><strong>Binary Search</strong> is an algorithm for searching in a sorted array by repeatedly dividing the search
+        interval in half.</p>
+    <p>While the basic algorithm sounds simpler, backed by in-built functions such as <code>bisect.bisect_left</code>,
+        <code>upper_bound</code>, <code>lower_bound</code>, etc., the implementation has a good number of corner cases
+        to handle, particularly off-by-one errors.</p>
+    <p>Hence, readers are strongly advised to follow the template given in <a
+            href="https://leetcode.com/explore/learn/card/binary-search/" target="_blank"><strong>Leetcode Binary Search
+        Explore Card</strong></a>. The templates there standardize the implementation of binary search and help in
+        avoiding silly mistakes.</p>
+</blockquote>
+<p>In a sorted array, examination of only <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡2N)O(\log_2 {N})</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+        class="mop"><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span
+        class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist"
+                                                                                   style="height: 0.207em;"><span
+        style="top: -2.4559em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span
+        class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.2441em;"><span></span></span></span></span></span></span><span
+        class="mspace" style="margin-right: 0.1667em;"></span><span class="mord"><span class="mord mathnormal"
+                                                                                       style="margin-right: 0.10903em;">N</span></span><span
+        class="mclose">)</span></span></span></span></span> elements is sufficient to search an element, or <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡2N)O(\log_2 {N})</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+        class="mop"><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span
+        class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist"
+                                                                                   style="height: 0.207em;"><span
+        style="top: -2.4559em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span
+        class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.2441em;"><span></span></span></span></span></span></span><span
+        class="mspace" style="margin-right: 0.1667em;"></span><span class="mord"><span class="mord mathnormal"
+                                                                                       style="margin-right: 0.10903em;">N</span></span><span
+        class="mclose">)</span></span></span></span></span> calls to the <code>get</code> function is sufficient to find
+    the element.</p>
+<p>Taking the upper bound of the length of the <code>mountainArr</code> as <code>10000</code>, we can say that around
+    <code>14</code> calls to <code>get(k)</code> will be sufficient to find the <code>target</code> element
+    <strong>if</strong> array was sorted. <strong>However, <code>mountainArr</code> is not exactly sorted.</strong></p>
+<ul>
+    <li>
+        <p>It has a peak element <code>peak</code> at index <code>peakIndex</code>.</p>
+        <blockquote>
+            <p>Finding the <code>peakIndex</code> in the <code>mountainArr</code> is another algorithmic problem.
+                Readers are strongly advised to solve the problem <a
+                        href="https://leetcode.com/problems/peak-index-in-a-mountain-array/description/"
+                        target="_blank"><strong>Peak Index in a Mountain Array</strong></a> before proceeding further.
+            </p>
+            <p>After solving, readers can appreciate that the <code>peakIndex</code> can be found in <span
+                    class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(log⁡2N)O(\log_2 {N})</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mop"><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span
+                    class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist"
+                                                                                               style="height: 0.207em;"><span
+                    style="top: -2.4559em; margin-right: 0.05em;"><span class="pstrut"
+                                                                        style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span
+                    class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                               style="height: 0.2441em;"><span></span></span></span></span></span></span><span
+                    class="mspace" style="margin-right: 0.1667em;"></span><span class="mord"><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">N</span></span><span
+                    class="mclose">)</span></span></span></span></span> time complexity.</p>
+            <p>However, it is worth noting that although the time complexity of finding <code>peakIndex</code> is <span
+                    class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(log⁡2N)O(\log_2 {N})</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mop"><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span
+                    class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist"
+                                                                                               style="height: 0.207em;"><span
+                    style="top: -2.4559em; margin-right: 0.05em;"><span class="pstrut"
+                                                                        style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span
+                    class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                               style="height: 0.2441em;"><span></span></span></span></span></span></span><span
+                    class="mspace" style="margin-right: 0.1667em;"></span><span class="mord"><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">N</span></span><span
+                    class="mclose">)</span></span></span></span></span>, at each step, we need to examine at least two
+                neighboring elements. Hence, the number of calls to <code>get(k)</code> will be around <span
+                        class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">2log⁡2N2 \log_2 {N}</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut"
+                                           style="height: 0.9386em; vertical-align: -0.2441em;"></span><span
+                        class="mord">2</span><span class="mspace" style="margin-right: 0.1667em;"></span><span
+                        class="mop"><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span
+                        class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist"
+                                                                                                   style="height: 0.207em;"><span
+                        style="top: -2.4559em; margin-right: 0.05em;"><span class="pstrut"
+                                                                            style="height: 2.7em;"></span><span
+                        class="sizing reset-size6 size3 mtight"><span
+                        class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span
+                        class="vlist-r"><span class="vlist" style="height: 0.2441em;"><span></span></span></span></span></span></span><span
+                        class="mspace" style="margin-right: 0.1667em;"></span><span class="mord"><span
+                        class="mord mathnormal"
+                        style="margin-right: 0.10903em;">N</span></span></span></span></span></span>.</p>
+        </blockquote>
+    </li>
+    <li>
+        <p>The array is <strong>strictly increasing</strong> from index <code>0</code> to <code>peakIndex</code>. Thus,
+            we can use <strong>Binary Search</strong> to find the <code>target</code> element in the range <code>[0,
+                peakIndex]</code>.</p>
+        <blockquote>
+            <p>The time complexity of <strong>Binary Search</strong> is <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">O(log⁡2N)O(\log_2 {N})</span><span class="katex-html"
+                                                                                                aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mop"><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span
+                    class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist"
+                                                                                               style="height: 0.207em;"><span
+                    style="top: -2.4559em; margin-right: 0.05em;"><span class="pstrut"
+                                                                        style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span
+                    class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                               style="height: 0.2441em;"><span></span></span></span></span></span></span><span
+                    class="mspace" style="margin-right: 0.1667em;"></span><span class="mord"><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">N</span></span><span
+                    class="mclose">)</span></span></span></span></span>. For searching, at each step, we need to examine
+                only one element. Hence, the number of calls to <code>get(k)</code> will be around <span
+                        class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">log⁡2N\log_2 N</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut"
+                                           style="height: 0.9386em; vertical-align: -0.2441em;"></span><span
+                        class="mop"><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span
+                        class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist"
+                                                                                                   style="height: 0.207em;"><span
+                        style="top: -2.4559em; margin-right: 0.05em;"><span class="pstrut"
+                                                                            style="height: 2.7em;"></span><span
+                        class="sizing reset-size6 size3 mtight"><span
+                        class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span
+                        class="vlist-r"><span class="vlist" style="height: 0.2441em;"><span></span></span></span></span></span></span><span
+                        class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal"
+                                                                                    style="margin-right: 0.10903em;">N</span></span></span></span></span>.
+            </p>
+        </blockquote>
+    </li>
+    <li>
+        <p>The array is <strong>strictly decreasing</strong> from index <code>peakIndex + 1</code> to <code>mountainArr.length()
+            - 1</code>. Thus, we can use <strong>Binary Search</strong> to find the <code>target</code> element in the
+            range <code>[peakIndex + 1, mountainArr.length() - 1]</code>.</p>
+        <blockquote>
+            <p>The time complexity of <strong>Binary Search</strong> is <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">O(log⁡2N)O(\log_2 {N})</span><span class="katex-html"
+                                                                                                aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mop"><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span
+                    class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist"
+                                                                                               style="height: 0.207em;"><span
+                    style="top: -2.4559em; margin-right: 0.05em;"><span class="pstrut"
+                                                                        style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span
+                    class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                               style="height: 0.2441em;"><span></span></span></span></span></span></span><span
+                    class="mspace" style="margin-right: 0.1667em;"></span><span class="mord"><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">N</span></span><span
+                    class="mclose">)</span></span></span></span></span>. For searching, at each step, we need to examine
+                only one element. Hence, the number of calls to <code>get(k)</code> will be around <span
+                        class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">log⁡2N\log_2 {N}</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut"
+                                           style="height: 0.9386em; vertical-align: -0.2441em;"></span><span
+                        class="mop"><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span
+                        class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist"
+                                                                                                   style="height: 0.207em;"><span
+                        style="top: -2.4559em; margin-right: 0.05em;"><span class="pstrut"
+                                                                            style="height: 2.7em;"></span><span
+                        class="sizing reset-size6 size3 mtight"><span
+                        class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span
+                        class="vlist-r"><span class="vlist" style="height: 0.2441em;"><span></span></span></span></span></span></span><span
+                        class="mspace" style="margin-right: 0.1667em;"></span><span class="mord"><span
+                        class="mord mathnormal"
+                        style="margin-right: 0.10903em;">N</span></span></span></span></span></span>.</p>
+        </blockquote>
+    </li>
+</ul>
+<p>Hence, by using <strong>Binary Search</strong> thrice, and by making about <span class="math math-inline"><span
+        class="katex"><span class="katex-mathml">4log⁡2N4 \log_2 {N}</span><span class="katex-html"
+                                                                                 aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.9386em; vertical-align: -0.2441em;"></span><span class="mord">4</span><span
+        class="mspace" style="margin-right: 0.1667em;"></span><span class="mop"><span class="mop">lo<span
+        style="margin-right: 0.01389em;">g</span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span
+        class="vlist-r"><span class="vlist" style="height: 0.207em;"><span
+        style="top: -2.4559em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span
+        class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.2441em;"><span></span></span></span></span></span></span><span
+        class="mspace" style="margin-right: 0.1667em;"></span><span class="mord"><span class="mord mathnormal"
+                                                                                       style="margin-right: 0.10903em;">N</span></span></span></span></span></span>
+    calls to <code>get(k)</code>, we can find the <code>target</code> element in the <code>mountainArr</code>.</p>
+<p><strong>Will the number of calls to <code>mountainArr.get(k)</code> be less than <code>100</code>?</strong><br>
+    In the worst case, there will be about <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">4log⁡2N4 \log_2 {N}</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.9386em; vertical-align: -0.2441em;"></span><span
+            class="mord">4</span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mop"><span
+            class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="msupsub"><span
+            class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.207em;"><span
+            style="top: -2.4559em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span
+            class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                       style="height: 0.2441em;"><span></span></span></span></span></span></span><span
+            class="mspace" style="margin-right: 0.1667em;"></span><span class="mord"><span class="mord mathnormal"
+                                                                                           style="margin-right: 0.10903em;">N</span></span></span></span></span></span>
+    calls to <code>mountainArr.get(k)</code>. Taking the upper bound of the length of the <code>mountainArr</code> as
+    <code>10000</code>, we can say that <strong>Binary Search</strong> will take around <code>56</code> calls to <code>get(k)</code>.
+    Thus, the number of calls to <code>get(k)</code> will be less than <code>100</code>.</p>
+<p>This editorial has two pre-requisites:</p>
+<ol>
+    <li>
+        <p>Proficiency in implementing Binary Search, which takes care of off-by-one errors. If not, readers are
+            strongly advised to deep dive into <a href="https://leetcode.com/explore/learn/card/binary-search/"
+                                                  target="_blank">Binary Search Explore Card</a>.</p>
+    </li>
+    <li>
+        <p>Solving the problem <a href="https://leetcode.com/problems/peak-index-in-a-mountain-array/description/"
+                                  target="_blank">Peak Index in a Mountain Array</a>. If not, readers are strongly
+            advised to solve the problem before proceeding further. The problem is a good warm-up exercise for the
+            current problem.</p>
+    </li>
+</ol>
+<p>The editorial also tries to capture these prerequisites briefly.</p>
+<hr>
+<h3 id="approach-1-binary-search">Approach 1: Binary Search</h3>
+<h4 id="intuition">Intuition</h4>
+<p>As discussed in <a href="#overview" rel="noopener noreferrer nofollow ugc" target="_self">overview</a>, we will break
+    the problem into three parts, but before doing that, readers should keep in mind the following fact of Binary Search
+</p>
+<blockquote>
+    <p>In Binary Search, we discard half of the search space at each step, based on the test condition on the middle
+        element of the search space.</p>
+    <p>We must ensure that we don't end up discarding the element we are looking for. Our <code>[low, high]</code>
+        search space must always contain the element we are looking for.</p>
+</blockquote>
+<p><strong>1. FIND INDEX OF PEAK ELEMENT</strong></p>
+<ul>
+    <li>
+        <p><strong>What's the possible range of <code>peakIndex</code>?</strong></p>
+        <p>Looking at the problem description, we are sure that index-<code>0</code> and index-<code>mountainArr.length()
+            - 1</code> are not the peak indices. Hence, the lowest possible value of <code>peakIndex</code> is
+            <code>1</code>, and the highest possible value of <code>peakIndex</code> is <code>mountainArr.length() -
+                2</code>.</p>
+        <p>Hence, we can set</p>
+        <ul>
+            <li>
+                <p><code>low = 1</code></p>
+            </li>
+            <li>
+                <p><code>high = mountainArr.length() - 2</code></p>
+            </li>
+        </ul>
+        <p><code>testIndex</code> will be the middle index of the search space <code>[low, high]</code>.</p>
+    </li>
+    <li>
+        <p><strong>How to test if <code>testIndex</code> is the <code>peakIndex</code>?</strong></p>
+        <p>Element at <code>peakIndex</code> is greater than its neighbors. However, this would require 3 calls to
+            <code>mountainArr.get(k)</code>. We can do better.</p>
+        <p>Let's compare the element at <code>testIndex</code> with its right neighbor only</p>
+        <p>We can have three markers on the graph</p>
+        <ul>
+            <li>
+                <p><code>i</code> for arbitrary index at strictly increasing part of the array</p>
+            </li>
+            <li>
+                <p><code>d</code> for arbitrary index at strictly decreasing part of the array</p>
+            </li>
+            <li>
+                <p><code>p</code> for the <code>peakIndex</code></p>
+            </li>
+        </ul>
+        <p><img src="Slide3.PNG" alt="arbitrarypoints"></p>
+        <ul>
+            <li>
+                <p>For all <code>i</code>, we have <code>mountainArr.get(i) &lt; mountainArr.get(i + 1)</code>.</p>
+            </li>
+            <li>
+                <p>For all <code>d</code>, we have <code>mountainArr.get(d) &gt; mountainArr.get(d + 1)</code>.</p>
+            </li>
+            <li>
+                <p>For <code>p</code>, we have <code>mountainArr.get(p) &gt; mountainArr.get(p + 1)</code>.</p>
+            </li>
+        </ul>
+        <p>Thus,</p>
+        <ul>
+            <li>
+                <p>if <code>mountainArr.get(testIndex) &lt; mountainArr.get(testIndex + 1)</code>, then
+                    <code>testIndex</code> is <code>i</code> only.</p>
+                <p>In this case, we can discard the left half of the search space, and search in the right half of the
+                    search space. This can be done by setting <code>low = testIndex + 1</code>. The
+                    <code>testIndex</code> was not at all a candidate for <code>peakIndex</code>. Hence, by discarding
+                    the left half of the search space, we are not discarding the <code>peakIndex</code>.</p>
+            </li>
+            <li>
+                <p>the case <code>mountainArr.get(testIndex) == mountainArr.get(testIndex + 1)</code> is not possible.
+                </p>
+            </li>
+            <li>
+                <p>if <code>mountainArr.get(testIndex) &gt; mountainArr.get(testIndex + 1)</code>, then
+                    <code>testIndex</code> is either <code>d</code> or <code>p</code>.</p>
+                <p>In this case, we can discard the right half of the search space, and search in the left half of the
+                    search space. This can be done by setting <code>high = testIndex</code>. We cannot discard <code>testIndex</code>
+                    as it is a candidate for <code>peakIndex</code>. Hence, by setting <code>high = testIndex</code>, we
+                    are not discarding candidates for <code>peakIndex</code>.</p>
+                <p>Note that failure of the first <code>if</code> condition (<code>mountainArr.get(testIndex) &lt;
+                    mountainArr.get(testIndex + 1)</code>) implies passing of this <code>if</code> condition (<code>mountainArr.get(testIndex)
+                    &gt; mountainArr.get(testIndex + 1)</code>). Hence, we can use <code>else</code> instead of the
+                    <code>if</code> condition. This will prevent unnecessary comparison calls to <code>get</code>.</p>
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p><strong>When to stop the search?</strong></p>
+        <p>The discarding of search space is done in such a way that the <strong><code>peakIndex</code> is always
+            present in the search space</strong>. A quick check of the above algorithm shows that the search space will
+            be reduced to a single element, i.e. <code>low == high</code>.</p>
+        <blockquote>
+            <p>Readers are encouraged to do this on pen and paper and convince themselves for smaller search space.</p>
+        </blockquote>
+        <blockquote>
+            <p>Assume search space reduces to three element array <code>[f, g, h]</code>. It's worth noting that <code>[f,
+                g, h]</code> is not the input array, but the reduced search space. The <code>testIndex</code> will be
+                the index of <code>g</code>.</p>
+            <ul>
+                <li>If <code>mountainArr.get(testIndex) &lt; mountainArr.get(testIndex + 1)</code>, then in the next
+                    iteration, the search space will reduce to a single element <code>[h]</code>.
+                </li>
+                <li>If <code>mountainArr.get(testIndex) &gt; mountainArr.get(testIndex + 1)</code>, then in the next
+                    iteration, the search space will reduce to <code>[f, g]</code>.
+                </li>
+            </ul>
+        </blockquote>
+        <blockquote>
+            <p>Let's see what happens when search space reduces to an array <code>[f, g]</code> with only two elements.
+                It's worth noting that <code>[f, g]</code> is not the input array. In fact, <code>mountainArr</code>
+                needs to have at least 3 elements. The <code>[f, g]</code> is reduced search space. The
+                <code>testIndex</code> will be the index of <code>f</code>.</p>
+            <ul>
+                <li>If <code>mountainArr.get(testIndex) &lt; mountainArr.get(testIndex + 1)</code>, then in the next
+                    iteration, the search space will reduce to a single element <code>[g]</code>.
+                </li>
+                <li>If <code>mountainArr.get(testIndex) &gt; mountainArr.get(testIndex + 1)</code>, then in the next
+                    iteration, the search space will reduce to a single element <code>[f]</code>.
+                </li>
+            </ul>
+        </blockquote>
+        <blockquote>
+            <p>Thus, every two-element search space will be reduced to a single-element search space. We can prove by
+                induction that every search space reduces to a single-element search space.</p>
+        </blockquote>
+        <p>Hence, we can stop the search when <code>low == high</code>. In this case, <code>low</code> (which is equal
+            to <code>high</code>) will be the <code>peakIndex</code>.</p>
+    </li>
+</ul>
+<p><strong>2. SEARCH IN STRICTLY INCREASING PART OF THE ARRAY</strong></p>
+<p>We will first search in the strictly increasing part of the array because if <code>target</code> exists, we need to
+    return the minimum index of the <code>target</code> element. The minimum index of the <code>target</code> element
+    will be in the strictly increasing part of the array.</p>
+<p>If we fail to find the <code>target</code> element in the strictly increasing part of the array, then we will search
+    in the strictly decreasing part of the array.</p>
+<ul>
+    <li>
+        <p><strong>What's the possible range of <code>targetIndex</code> in the strictly increasing part of the
+            array?</strong></p>
+        <p>The <code>targetIndex</code> will be in the range <code>[0, peakIndex]</code>. Hence, we can set</p>
+        <ul>
+            <li>
+                <p><code>low = 0</code></p>
+            </li>
+            <li>
+                <p><code>high = peakIndex</code></p>
+            </li>
+        </ul>
+        <p>Both are inclusive. <code>testIndex</code> will be the middle index of the search space <code>[low,
+            high]</code>.</p>
+    </li>
+    <li>
+        <p><strong>How to test if <code>testIndex</code> is the <code>targetIndex</code>?</strong></p>
+        <p>The array is strictly increasing.</p>
+        <p><img src="Slide4_1.PNG" alt="increasing"></p>
+        <ul>
+            <li>
+                <p>If <code>mountainArr.get(testIndex) &lt; target</code>, then we are sure that all elements at indices
+                    less than or equal to <code>testIndex</code> are less than <code>target</code>. Hence, we can
+                    discard the left half of the search space, and search in the right half of the search space. This
+                    can be done by setting <code>low = testIndex + 1</code>. The <code>testIndex</code> was not at all a
+                    candidate for <code>targetIndex</code>. Hence, by discarding the left half of the search space, we
+                    are not discarding the <code>targetIndex</code>.</p>
+            </li>
+            <li>
+                <p>Otherwise, it means <code>mountainArr.get(testIndex) &gt;= target</code>, then we are sure that all
+                    elements at indices greater than <code>testIndex</code> are greater than or equal to
+                    <code>target</code>. Here, we can discard the right half of the search space, and search in the left
+                    half of the search space. This can be done by setting <code>high = testIndex</code>. We cannot
+                    discard <code>testIndex</code> as it is a candidate for <code>targetIndex</code>. Hence, by setting
+                    <code>high = testIndex</code>, we are not discarding candidates for <code>targetIndex</code>.</p>
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p><strong>When to stop the search?</strong></p>
+        <p>The discarding of search space is done in such a way that the <strong>candidate for <code>targetIndex</code>
+            is always present in the search space</strong>. A quick check of the above algorithm shows that the search
+            space will be reduced to a single element, i.e. <code>low == high</code>.</p>
+        <blockquote>
+            <p>Assume search space reduces to three element array <code>[f, g, h]</code>. The <code>testIndex</code>
+                will be the index of <code>g</code>.</p>
+            <ul>
+                <li>If <code>mountainArr.get(testIndex) &lt; target</code>, then in the next iteration, the search space
+                    will reduce to a single element <code>[h]</code>.
+                </li>
+                <li>If <code>mountainArr.get(testIndex) &gt;= target</code>, then in the next iteration, the search
+                    space will reduce to a single element <code>[f, g]</code>.
+                </li>
+            </ul>
+        </blockquote>
+        <blockquote>
+            <p>Let's see what happens when search space reduces to <code>[f, g]</code>, an array containing two
+                elements. the <code>testIndex</code> will be the index of <code>f</code>.</p>
+            <ul>
+                <li>If <code>mountainArr.get(testIndex) &lt; target</code>, then in the next iteration, the search space
+                    will reduce to a single element <code>[g]</code>.
+                </li>
+                <li>If <code>mountainArr.get(testIndex) &gt;= target</code>, then in the next iteration, the search
+                    space will reduce to a single element <code>[f]</code>.
+                </li>
+            </ul>
+        </blockquote>
+        <blockquote>
+            <p>We can prove by induction that every search space reduces to a single-element search space.</p>
+        </blockquote>
+        <p>Hence, we can stop the search when <code>low == high</code>. In this case, <code>low</code> (which is equal
+            to <code>high</code>) is the only candidate for <code>targetIndex</code> in the strictly increasing part of
+            the array.</p>
+    </li>
+    <li>
+        <p><strong>What if <code>target</code> is not present in the strictly increasing part of the array?</strong></p>
+        <p><code>low</code> was the only candidate for <code>targetIndex</code> in the strictly increasing part of the
+            array.</p>
+        <ul>
+            <li>
+                <p>If <code>mountainArr.get(low) == target</code>, then <code>low</code> is the <code>targetIndex</code>.
+                    Hence, we will return <code>low</code>.</p>
+            </li>
+            <li>
+                <p>Otherwise, if <code>mountainArr.get(low) != target</code>, then <code>target</code> is not present in
+                    the strictly increasing part of the array. In this case, we will search in the strictly decreasing
+                    part of the array.</p>
+            </li>
+        </ul>
+    </li>
+</ul>
+<p><strong>3. SEARCH IN STRICTLY DECREASING PART OF THE ARRAY</strong></p>
+<p>If <code>target</code> is not present in the strictly increasing part of the array, then we will search in the
+    strictly decreasing part of the array. If we fail to find the <code>target</code> element in the strictly decreasing
+    part of the array, then we will return <code>-1</code>.</p>
+<ul>
+    <li>
+        <p><strong>What's the possible range of <code>targetIndex</code> in the strictly decreasing part of the
+            array?</strong></p>
+        <p>The <code>targetIndex</code> will be in the range <code>[peakIndex + 1, mountainArr.length() - 1]</code>.
+            Hence, we can set</p>
+        <ul>
+            <li>
+                <p><code>low = peakIndex + 1</code></p>
+            </li>
+            <li>
+                <p><code>high = mountainArr.length() - 1</code></p>
+            </li>
+        </ul>
+        <p>Both are inclusive. <code>testIndex</code> will be the middle index of the search space <code>[low,
+            high]</code>.</p>
+    </li>
+    <li>
+        <p><strong>How to test if <code>testIndex</code> is the <code>targetIndex</code>?</strong></p>
+        <p>The array is strictly decreasing.</p>
+        <p><img src="Slide4_2.PNG" alt="decreasing"></p>
+        <ul>
+            <li>
+                <p>If <code>mountainArr.get(testIndex) &gt; target</code>, then we are sure that all elements at indices
+                    less than or equal to <code>testIndex</code> are greater than <code>target</code>. Hence, we can
+                    discard the left half of the search space, and search in the right half of the search space. This
+                    can be done by setting <code>low = testIndex + 1</code>. The <code>testIndex</code> was not at all a
+                    candidate for <code>targetIndex</code>. Hence, by discarding the left half of the search space, we
+                    are not discarding the <code>targetIndex</code>.</p>
+            </li>
+            <li>
+                <p>Otherwise, it means <code>mountainArr.get(testIndex) &lt;= target</code>, then we are sure that all
+                    elements at indices greater than <code>testIndex</code> are less than or equal to
+                    <code>target</code>. Here, we can discard the right half of the search space, and search in the left
+                    half of the search space. This can be done by setting <code>high = testIndex</code>. We cannot
+                    discard <code>testIndex</code> as it is a candidate for <code>targetIndex</code>. Hence, by setting
+                    <code>high = testIndex</code>, we are not discarding the candidate for <code>targetIndex</code>.</p>
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p><strong>When to stop the search?</strong></p>
+        <p>The discarding of search space is done in such a way that the <strong>candidate for <code>targetIndex</code>
+            is always present in the search space</strong>. A quick check of the above algorithm shows that the search
+            space will be reduced to a single element, i.e. <code>low == high</code>.</p>
+        <blockquote>
+            <p>Assume search space reduces to three element array <code>[r, q, p]</code>. The <code>testIndex</code>
+                will be the index of <code>q</code>.</p>
+            <ul>
+                <li>If <code>mountainArr.get(testIndex) &gt; target</code>, then in the next iteration, the search space
+                    will reduce to a single element <code>[p]</code>.
+                </li>
+                <li>If <code>mountainArr.get(testIndex) &lt;= target</code>, then in the next iteration, the search
+                    space will reduce to a single element <code>[r, q]</code>.
+                </li>
+            </ul>
+        </blockquote>
+        <blockquote>
+            <p>Let's see what happens when search space reduces to a two-element array <code>[r, q]</code>. the <code>testIndex</code>
+                will be the index of <code>r</code>.</p>
+            <ul>
+                <li>If <code>mountainArr.get(testIndex) &gt; target</code>, then in the next iteration, the search space
+                    will reduce to a single element <code>[q]</code>.
+                </li>
+                <li>If <code>mountainArr.get(testIndex) &lt;= target</code>, then in the next iteration, the search
+                    space will reduce to a single element <code>[r]</code>.
+                </li>
+            </ul>
+        </blockquote>
+        <blockquote>
+            <p>We can prove by induction that every search space reduces to a single-element search space.</p>
+        </blockquote>
+        <p>Hence, we can stop the search when <code>low == high</code>. In this case, <code>low</code> (which is equal
+            to <code>high</code>) is the only candidate for <code>targetIndex</code> in the strictly decreasing part of
+            the array.</p>
+    </li>
+    <li>
+        <p><strong>What if <code>target</code> is not present in the strictly decreasing part of the array?</strong></p>
+        <p><code>low</code> was the only candidate for <code>targetIndex</code> in the strictly decreasing part of the
+            array.</p>
+        <ul>
+            <li>
+                <p>If <code>mountainArr.get(low) == target</code>, then <code>low</code> is the <code>targetIndex</code>.
+                    Hence, we will return <code>low</code>.</p>
+            </li>
+            <li>
+                <p>Otherwise, if <code>mountainArr.get(low) != target</code>, then <code>target</code> is not present in
+                    the strictly decreasing part of the array. Searching in the strictly decreasing part of the array
+                    implies that <code>target</code> was not present in the strictly increasing part of the array.
+                    Hence, <code>target</code> is not present in the <code>mountainArr</code>. In this case, we will
+                    return <code>-1</code>.</p>
+            </li>
+        </ul>
+    </li>
+</ul>
+<p>Hence, by breaking the problem into three parts, we can find the <code>target</code> element in the
+    <code>mountainArr</code>.</p>
+<blockquote>
+    <p>The <code>testIndex</code> is the middle value of the search space <code>[low, high]</code>.</p>
+    <ul>
+        <li>Now, <code>testIndex = (low + high) / 2</code> is a natural way to find the middle value of the search
+            space. However, this can cause overflow. Hence, many often use the formula <code>testIndex = low + (high -
+                low) / 2</code>.
+        </li>
+        <li>In our problem, <code>high</code> and <code>low</code> can be at most <code>10000</code>. Thus, <code>low +
+            high</code>, will probably not cause overflow. Hence, we can use sum.
+        </li>
+    </ul>
+</blockquote>
+<p>With all details minutely discussed, readers are encouraged to implement the algorithm.</p>
+<h4 id="algorithm">Algorithm</h4>
+<ol>
+    <li>
+        <p>In a variable <code>length</code>, save the length of the <code>mountainArr</code> by calling the function
+            <code>mountainArr.length()</code>.</p>
+    </li>
+    <li>
+        <p>Find the index of the <code>peak</code> element in the <code>mountainArr</code>.</p>
+        <ul>
+            <li>Set <code>low = 1</code> and <code>high = length - 2</code>.</li>
+            <li>While <code>low != high</code>, do the following:
+                <ul>
+                    <li>Find the middle index of the search space <code>[low, high]</code>. Let's call the index <code>testIndex</code>.
+                    </li>
+                    <li>If <code>mountainArr.get(testIndex) &lt; mountainArr.get(testIndex + 1)</code>, then set <code>low
+                        = testIndex + 1</code>.
+                    </li>
+                    <li>Otherwise, set <code>high = testIndex</code>.</li>
+                </ul>
+            </li>
+            <li>After the loop, <code>low</code> (which is equal to <code>high</code>) will be the
+                <code>peakIndex</code>.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Search for the <code>target</code> element in the strictly increasing part of the array.</p>
+        <ul>
+            <li>Set <code>low = 0</code> and <code>high = peakIndex</code>.</li>
+            <li>While <code>low != high</code>, do the following:
+                <ul>
+                    <li>Find the middle index of the search space <code>[low, high]</code>. Let's call the index <code>testIndex</code>.
+                    </li>
+                    <li>If <code>mountainArr.get(testIndex) &lt; target</code>, then set <code>low = testIndex +
+                        1</code>.
+                    </li>
+                    <li>Otherwise, set <code>high = testIndex</code>.</li>
+                </ul>
+            </li>
+            <li>If <code>mountainArr.get(low) == target</code>, then return <code>low</code>.</li>
+            <li>Otherwise, search for the <code>target</code> element in the strictly decreasing part of the array.</li>
+        </ul>
+    </li>
+    <li>
+        <p>Search for the <code>target</code> element in the strictly decreasing part of the array.</p>
+        <ul>
+            <li>Set <code>low = peakIndex + 1</code> and <code>high = length - 1</code>.</li>
+            <li>While <code>low != high</code>, do the following:
+                <ul>
+                    <li>Find the middle index of the search space <code>[low, high]</code>. Let's call the index <code>testIndex</code>.
+                    </li>
+                    <li>If <code>mountainArr.get(testIndex) &gt; target</code>, then set <code>low = testIndex +
+                        1</code>.
+                    </li>
+                    <li>Otherwise, set <code>high = testIndex</code>.</li>
+                </ul>
+            </li>
+            <li>If <code>mountainArr.get(low) == target</code>, then return <code>low</code>.</li>
+        </ul>
+    </li>
+    <li>
+        <p><code>target</code> not found in the <code>mountainArr</code>. Return <code>-1</code>.</p>
+    </li>
+</ol>
+<h4 id="implementation">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int findInMountainArray(int target, MountainArray mountainArr) {
+        // Save the length of the mountain array
+        int length = mountainArr.length();
+
+        // 1. Find the index of the peak element
+        int low = 1;
+        int high = length - 2;
+        while (low != high) {
+            int testIndex = (low + high) / 2;
+            if (mountainArr.get(testIndex) < mountainArr.get(testIndex + 1)) {
+                low = testIndex + 1;
+            } else {
+                high = testIndex;
+            }
+        }
+        int peakIndex = low;
+
+        // 2. Search in the strictly increasing part of the array
+        low = 0;
+        high = peakIndex;
+        while (low != high) {
+            int testIndex = (low + high) / 2;
+            if (mountainArr.get(testIndex) < target) {
+                low = testIndex + 1;
+            } else {
+                high = testIndex;
+            }
+        }
+        // Check if the target is present in the strictly increasing part
+        if (mountainArr.get(low) == target) {
+            return low;
+        }
+
+        // 3. Otherwise, search in the strictly decreasing part
+        low = peakIndex + 1;
+        high = length - 1;
+        while (low != high) {
+            int testIndex = (low + high) / 2;
+            if (mountainArr.get(testIndex) > target) {
+                low = testIndex + 1;
+            } else {
+                high = testIndex;
+            }
+        }
+        // Check if the target is present in the strictly decreasing part
+        if (mountainArr.get(low) == target) {
+            return low;
+        }
+
+        // Target is not present in the mountain array
+        return -1;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int findInMountainArray(int target, MountainArray &mountainArr) {
+        // Save the length of the mountain array
+        int length = mountainArr.length();
+
+        // 1. Find the index of the peak element
+        int low = 1;
+        int high = length - 2;
+        while (low != high) {
+            int testIndex = (low + high) / 2;
+            if (mountainArr.get(testIndex) < mountainArr.get(testIndex + 1)) {
+                low = testIndex + 1;
+            } else {
+                high = testIndex;
+            }
+        }
+        int peakIndex = low;
+
+        // 2. Search in the strictly increasing part of the array
+        low = 0;
+        high = peakIndex;
+        while (low != high) {
+            int testIndex = (low + high) / 2;
+            if (mountainArr.get(testIndex) < target) {
+                low = testIndex + 1;
+            } else {
+                high = testIndex;
+            }
+        }
+        // Check if the target is present in the strictly increasing part
+        if (mountainArr.get(low) == target) {
+            return low;
+        }
+
+        // 3. Otherwise, search in the strictly decreasing part
+        low = peakIndex + 1;
+        high = length - 1;
+        while (low != high) {
+            int testIndex = (low + high) / 2;
+            if (mountainArr.get(testIndex) > target) {
+                low = testIndex + 1;
+            } else {
+                high = testIndex;
+            }
+        }
+        // Check if the target is present in the strictly decreasing part
+        if (mountainArr.get(low) == target) {
+            return low;
+        }
+
+        // Target is not present in the mountain array
+        return -1;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def findInMountainArray(self, target: int, mountain_arr: 'MountainArray') -> int:
+        # Save the length of the mountain array
+        length = mountain_arr.length()
+
+        # 1. Find the index of the peak element
+        low = 1
+        high = length - 2
+        while low != high:
+            test_index = (low + high) // 2
+            if mountain_arr.get(test_index) < mountain_arr.get(test_index + 1):
+                low = test_index + 1
+            else:
+                high = test_index
+        peak_index = low
+
+        # 2. Search in the strictly increasing part of the array
+        low = 0
+        high = peak_index
+        while low != high:
+            test_index = (low + high) // 2
+            if mountain_arr.get(test_index) < target:
+                low = test_index + 1
+            else:
+                high = test_index
+        # Check if the target is present in the strictly increasing part
+        if mountain_arr.get(low) == target:
+            return low
+
+        # 3. Otherwise, search in the strictly decreasing part
+        low = peak_index + 1
+        high = length - 1
+        while low != high:
+            test_index = (low + high) // 2
+            if mountain_arr.get(test_index) > target:
+                low = test_index + 1
+            else:
+                high = test_index
+        # Check if the target is present in the strictly decreasing part
+        if mountain_arr.get(low) == target:
+            return low
+
+        # Target is not present in the mountain array
+        return -1
+    </code>
+    C
+    <code>
+        int findInMountainArray(int target, MountainArray *mountainArr) {
+    // Save the length of the mountain array
+    int size = length(mountainArr);
+
+    // 1. Find the index of the peak element
+    int low = 1;
+    int high = size - 2;
+    while (low != high) {
+        int testIndex = (low + high) / 2;
+        if (get(mountainArr, testIndex) < get(mountainArr, testIndex + 1)) {
+            low = testIndex + 1;
+        } else {
+            high = testIndex;
+        }
+    }
+
+    int peakIndex = low;
+
+    // 2. Search in the strictly increasing part of the array
+    low = 0;
+    high = peakIndex;
+    while (low != high) {
+        int testIndex = (low + high) / 2;
+        if (get(mountainArr, testIndex) < target) {
+            low = testIndex + 1;
+        } else {
+            high = testIndex;
+        }
+    }
+    // Check if the target is present in the strictly increasing part
+    if (get(mountainArr, low) == target) {
+        return low;
+    }
+
+    // 3. Otherwise, search in the strictly decreasing part
+    low = peakIndex + 1;
+    high = size - 1;
+    while (low != high) {
+        int testIndex = (low + high) / 2;
+        if (get(mountainArr, testIndex) > target) {
+            low = testIndex + 1;
+        } else {
+            high = testIndex;
+        }
+    }
+    // Check if the target is present in the strictly decreasing part
+    if (get(mountainArr, low) == target) {
+        return low;
+    }
+
+    // Target is not present in the mountain array
+    return -1;
+}
+    </code>
+    JavaScript
+    <code>
+        var findInMountainArray = function(target, mountainArr) {
+    // Save the length of the mountain array
+    const length = mountainArr.length();
+
+    // 1. Find the index of the peak element
+    let low = 1;
+    let high = length - 2;
+    while (low !== high) {
+        const testIndex = (low + high) / 2;
+        if (mountainArr.get(testIndex) < mountainArr.get(testIndex + 1)) {
+            low = testIndex + 1;
+        } else {
+            high = testIndex;
+        }
+    }
+    const peakIndex = low;
+
+    // 2. Search in the strictly increasing part of the array
+    low = 0;
+    high = peakIndex;
+    while (low !== high) {
+        const testIndex = (low + high) / 2;
+        if (mountainArr.get(testIndex) < target) {
+            low = testIndex + 1;
+        } else {
+            high = testIndex;
+        }
+    }
+    // Check if the target is present in the strictly increasing part
+    if (mountainArr.get(low) === target) {
+        return low;
+    }
+
+    // 3. Otherwise, search in the strictly decreasing part
+    low = peakIndex + 1;
+    high = length - 1;
+    while (low !== high) {
+        const testIndex = (low + high) / 2;
+        if (mountainArr.get(testIndex) > target) {
+            low = testIndex + 1;
+        } else {
+            high = testIndex;
+        }
+    }
+    // Check if the target is present in the strictly decreasing part
+    if (mountainArr.get(low) === target) {
+        return low;
+    }
+
+    // Target is not present in the mountain array
+    return -1;
+}
+    </code>
+</pre>
+<h4 id="complexity-analysis">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">NN</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                style="margin-right: 0.10903em;">N</span></span></span></span></span>
+    be the length of the <code>mountainArr</code>. Moreover, let's assume that each call to
+    <code>mountainArr.get(k)</code> takes <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord">1</span><span class="mclose">)</span></span></span></span></span> time.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡N)O(\log N)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                          style="margin-right: 0.1667em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>
+                <p><strong>Finding the <code>peakIndex</code></strong><br>
+                    There will be <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡2N)O(\log_2 {N})</span><span
+                            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+                            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                            class="mopen">(</span><span class="mop"><span class="mop">lo<span
+                            style="margin-right: 0.01389em;">g</span></span><span class="msupsub"><span
+                            class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.207em;"><span
+                            style="top: -2.4559em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                style="height: 2.7em;"></span><span
+                            class="sizing reset-size6 size3 mtight"><span
+                            class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span
+                            class="vlist-r"><span class="vlist"
+                                                  style="height: 0.2441em;"><span></span></span></span></span></span></span><span
+                            class="mspace" style="margin-right: 0.1667em;"></span><span class="mord"><span
+                            class="mord mathnormal" style="margin-right: 0.10903em;">N</span></span><span
+                            class="mclose">)</span></span></span></span></span> iterations in the <code>while</code>
+                    loop. The reason is that at each iteration, the search space is reduced to half. At each iteration,
+                    we are</p>
+                <ul>
+                    <li>
+                        <p>computing <code>testIndex</code> using addition and division. This takes <span
+                                class="math math-inline"><span class="katex"><span
+                                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span
+                                class="base"><span class="strut"
+                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                                class="mopen">(</span><span class="mord">1</span><span
+                                class="mclose">)</span></span></span></span></span> time.</p>
+                    </li>
+                    <li>
+                        <p>calling <code>mountainArr.get(testIndex)</code> twice. This we assume takes <span
+                                class="math math-inline"><span class="katex"><span
+                                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span
+                                class="base"><span class="strut"
+                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                                class="mopen">(</span><span class="mord">1</span><span
+                                class="mclose">)</span></span></span></span></span> time.</p>
+                    </li>
+                    <li>
+                        <p>resetting <code>low</code> or <code>high</code>. This takes <span
+                                class="math math-inline"><span class="katex"><span
+                                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span
+                                class="base"><span class="strut"
+                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                                class="mopen">(</span><span class="mord">1</span><span
+                                class="mclose">)</span></span></span></span></span> time.</p>
+                    </li>
+                </ul>
+                <p>Thus, the time complexity of finding the <code>peakIndex</code> is <span
+                        class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(log⁡2N)O(\log_2 {N})</span><span class="katex-html"
+                                                                                aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mop"><span class="mop">lo<span
+                        style="margin-right: 0.01389em;">g</span></span><span class="msupsub"><span
+                        class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist"
+                                                                             style="height: 0.207em;"><span
+                        style="top: -2.4559em; margin-right: 0.05em;"><span class="pstrut"
+                                                                            style="height: 2.7em;"></span><span
+                        class="sizing reset-size6 size3 mtight"><span
+                        class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span
+                        class="vlist-r"><span class="vlist" style="height: 0.2441em;"><span></span></span></span></span></span></span><span
+                        class="mspace" style="margin-right: 0.1667em;"></span><span class="mord"><span
+                        class="mord mathnormal" style="margin-right: 0.10903em;">N</span></span><span
+                        class="mclose">)</span></span></span></span></span>.</p>
+            </li>
+            <li>
+                <p><strong>Searching in the strictly increasing part of the array</strong><br>
+                    There will be <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡2N)O(\log_2 {N})</span><span
+                            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+                            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                            class="mopen">(</span><span class="mop"><span class="mop">lo<span
+                            style="margin-right: 0.01389em;">g</span></span><span class="msupsub"><span
+                            class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.207em;"><span
+                            style="top: -2.4559em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                style="height: 2.7em;"></span><span
+                            class="sizing reset-size6 size3 mtight"><span
+                            class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span
+                            class="vlist-r"><span class="vlist"
+                                                  style="height: 0.2441em;"><span></span></span></span></span></span></span><span
+                            class="mspace" style="margin-right: 0.1667em;"></span><span class="mord"><span
+                            class="mord mathnormal" style="margin-right: 0.10903em;">N</span></span><span
+                            class="mclose">)</span></span></span></span></span> iterations in the <code>while</code>
+                    loop. The reason is that at each iteration, the search space is reduced to half. At each iteration,
+                    we are</p>
+                <ul>
+                    <li>
+                        <p>computing <code>testIndex</code> using addition and division. This takes <span
+                                class="math math-inline"><span class="katex"><span
+                                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span
+                                class="base"><span class="strut"
+                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                                class="mopen">(</span><span class="mord">1</span><span
+                                class="mclose">)</span></span></span></span></span> time.</p>
+                    </li>
+                    <li>
+                        <p>calling <code>mountainArr.get(testIndex)</code> once. This we assume takes <span
+                                class="math math-inline"><span class="katex"><span
+                                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span
+                                class="base"><span class="strut"
+                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                                class="mopen">(</span><span class="mord">1</span><span
+                                class="mclose">)</span></span></span></span></span> time.</p>
+                    </li>
+                    <li>
+                        <p>resetting <code>low</code> or <code>high</code>. This takes <span
+                                class="math math-inline"><span class="katex"><span
+                                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span
+                                class="base"><span class="strut"
+                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                                class="mopen">(</span><span class="mord">1</span><span
+                                class="mclose">)</span></span></span></span></span> time.</p>
+                    </li>
+                </ul>
+                <p>Thus, the time complexity of searching in the strictly increasing part of the array is <span
+                        class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(log⁡2N)O(\log_2 {N})</span><span class="katex-html"
+                                                                                aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mop"><span class="mop">lo<span
+                        style="margin-right: 0.01389em;">g</span></span><span class="msupsub"><span
+                        class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist"
+                                                                             style="height: 0.207em;"><span
+                        style="top: -2.4559em; margin-right: 0.05em;"><span class="pstrut"
+                                                                            style="height: 2.7em;"></span><span
+                        class="sizing reset-size6 size3 mtight"><span
+                        class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span
+                        class="vlist-r"><span class="vlist" style="height: 0.2441em;"><span></span></span></span></span></span></span><span
+                        class="mspace" style="margin-right: 0.1667em;"></span><span class="mord"><span
+                        class="mord mathnormal" style="margin-right: 0.10903em;">N</span></span><span
+                        class="mclose">)</span></span></span></span></span>.</p>
+            </li>
+            <li>
+                <p><strong>Searching in the strictly decreasing part of the array</strong><br>
+                    There will be <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡2N)O(\log_2 {N})</span><span
+                            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+                            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                            class="mopen">(</span><span class="mop"><span class="mop">lo<span
+                            style="margin-right: 0.01389em;">g</span></span><span class="msupsub"><span
+                            class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.207em;"><span
+                            style="top: -2.4559em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                style="height: 2.7em;"></span><span
+                            class="sizing reset-size6 size3 mtight"><span
+                            class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span
+                            class="vlist-r"><span class="vlist"
+                                                  style="height: 0.2441em;"><span></span></span></span></span></span></span><span
+                            class="mspace" style="margin-right: 0.1667em;"></span><span class="mord"><span
+                            class="mord mathnormal" style="margin-right: 0.10903em;">N</span></span><span
+                            class="mclose">)</span></span></span></span></span> iterations in the <code>while</code>
+                    loop. The reason is that at each iteration, the search space is reduced to half. At each iteration,
+                    we are</p>
+                <ul>
+                    <li>
+                        <p>computing <code>testIndex</code> using addition and division. This takes <span
+                                class="math math-inline"><span class="katex"><span
+                                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span
+                                class="base"><span class="strut"
+                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                                class="mopen">(</span><span class="mord">1</span><span
+                                class="mclose">)</span></span></span></span></span> time.</p>
+                    </li>
+                    <li>
+                        <p>calling <code>mountainArr.get(testIndex)</code> once. This we assume takes <span
+                                class="math math-inline"><span class="katex"><span
+                                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span
+                                class="base"><span class="strut"
+                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                                class="mopen">(</span><span class="mord">1</span><span
+                                class="mclose">)</span></span></span></span></span> time.</p>
+                    </li>
+                    <li>
+                        <p>resetting <code>low</code> or <code>high</code>. This takes <span
+                                class="math math-inline"><span class="katex"><span
+                                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span
+                                class="base"><span class="strut"
+                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                                class="mopen">(</span><span class="mord">1</span><span
+                                class="mclose">)</span></span></span></span></span> time.</p>
+                    </li>
+                </ul>
+                <p>Thus, the time complexity of searching in the strictly decreasing part of the array is <span
+                        class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(log⁡2N)O(\log_2 {N})</span><span class="katex-html"
+                                                                                aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mop"><span class="mop">lo<span
+                        style="margin-right: 0.01389em;">g</span></span><span class="msupsub"><span
+                        class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist"
+                                                                             style="height: 0.207em;"><span
+                        style="top: -2.4559em; margin-right: 0.05em;"><span class="pstrut"
+                                                                            style="height: 2.7em;"></span><span
+                        class="sizing reset-size6 size3 mtight"><span
+                        class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span
+                        class="vlist-r"><span class="vlist" style="height: 0.2441em;"><span></span></span></span></span></span></span><span
+                        class="mspace" style="margin-right: 0.1667em;"></span><span class="mord"><span
+                        class="mord mathnormal" style="margin-right: 0.10903em;">N</span></span><span
+                        class="mclose">)</span></span></span></span></span>.</p>
+            </li>
+        </ul>
+        <p>Hence, the overall time complexity of the algorithm is <span class="math math-inline"><span
+                class="katex"><span class="katex-mathml">O(log⁡2N)O(\log_2 {N})</span><span class="katex-html"
+                                                                                            aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mop"><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span
+                class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist"
+                                                                                           style="height: 0.207em;"><span
+                style="top: -2.4559em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span
+                class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                           style="height: 0.2441em;"><span></span></span></span></span></span></span><span
+                class="mspace" style="margin-right: 0.1667em;"></span><span class="mord"><span class="mord mathnormal"
+                                                                                               style="margin-right: 0.10903em;">N</span></span><span
+                class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord">1</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <p>We are using only constant extra space which includes a bunch of variables. Hence, the space complexity is
+            <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord">1</span><span class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+</ul>
+<hr>
+<h3 id="approach-2-minimizing-get-calls-with-early-stopping-and-caching">Approach 2: Minimizing <code>get</code> Calls
+    with Early Stopping and Caching</h3>
+<h4 id="intuition-1">Intuition</h4>
+<p>The purpose of <a href="#approach-1-binary-search" rel="noopener noreferrer nofollow ugc" target="_self">Approach
+    1</a> was to slowly build the intuition for the problem. Therefore, the three parts of the problem contain several
+    redundant steps.</p>
+<p>In this approach, we will avoid redundant work that will minimize the number of calls to
+    <code>mountainArr.get(k)</code>. In addition, we will look at the "caching" technique that can accomplish the task
+    more efficiently.</p>
+<ul>
+    <li>
+        <p>We are examining <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">2log⁡N2 \log N</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+                class="mord">2</span><span class="mspace" style="margin-right: 0.1667em;"></span><span
+                class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                          style="margin-right: 0.1667em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.10903em;">N</span></span></span></span></span> elements
+            for finding <code>peakIndex</code>. What if while examining an element at index <code>testIndex</code>, we
+            came to know that element is equal to <code>target</code> itself? Can we immediately return
+            <code>testIndex</code> as the <code>targetIndex</code>?</p>
+        <p>Not every time! In the problem, we want to return the minimum index of the <code>target</code> element.
+            Hence, we can do so only when we are sure that the element at index <code>testIndex</code> is in the
+            strictly increasing part of the array. If the element at index <code>testIndex</code> is in the strictly
+            decreasing part of the array, then we aren't sure if it is the minimum index of the <code>target</code>
+            element.</p>
+    </li>
+    <li>
+        <p>For search in strictly increasing (and after that strictly decreasing) part, if we came to know that element
+            at <code>testIndex</code> is equal to <code>target</code>, then there we can immediately return the <code>testIndex</code>
+            as <code>targetIndex</code>. However, here is a word of caution.</p>
+        <p>Let's take the example of the strictly increasing portion.</p>
+        <ul>
+            <li>
+                <p>if <code>mountainArr.get(testIndex) == target</code>, then we can return <code>testIndex</code> as
+                    <code>targetIndex</code>.</p>
+            </li>
+            <li>
+                <p>if <code>mountainArr.get(testIndex) &lt; target</code>, then we can set <code>low = testIndex +
+                    1</code>.</p>
+            </li>
+            <li>
+                <p>if <code>mountainArr.get(testIndex) &gt; target</code>, then we can set <code>high = testIndex -
+                    1</code>. Because we know that <code>testIndex</code> is no longer a candidate for
+                    <code>targetIndex</code>. In <a href="#approach-1-binary-search"
+                                                    rel="noopener noreferrer nofollow ugc" target="_self">Approach-1</a>,
+                    we were setting <code>high = testIndex</code> because it was a potential candidate. The condition
+                    there was <code>mountainArr.get(testIndex) &gt;= target</code>. Here, the condition is <code>mountainArr.get(testIndex)
+                        &gt; target</code>. Hence, we can set <code>high = testIndex - 1</code>.</p>
+            </li>
+        </ul>
+        <p>Now, this may seem like no issue, but there are chances that <code>low</code> and <code>high</code> don't
+            converge to a single element.</p>
+        <blockquote>
+            <p>Take for example a two array search space <code>[f, g]</code>.</p>
+            <ul>
+                <li>
+                    <p><code>low</code> will be the index of <code>f</code>.</p>
+                </li>
+                <li>
+                    <p><code>high</code> will be the index of <code>g</code>.</p>
+                </li>
+                <li>
+                    <p><code>testIndex</code> will be the index of <code>f</code>.</p>
+                </li>
+            </ul>
+            <p>Now, if <code>mountainArr.get(testIndex) &gt; target</code>, then we will set <code>high = testIndex -
+                1</code>. This will make the <code>high</code> point to <code>f - 1</code>. However, <code>low</code>
+                will still point to <code>f</code>. Hence, the search space will be <code>[f, f - 1]</code>. This is not
+                a valid search space.</p>
+        </blockquote>
+        <p>Thus, the condition of the stop of the search will be <code>low &gt; high</code>, and while loop condition
+            will be <code>low &lt;= high</code>.</p>
+    </li>
+    <li>
+        <p>We computed <code>testIndex</code> as <code>testIndex = (low + high) / 2</code>. The floor division by <code>2</code>
+            can be computed by right shift by <code>1</code>. Hence, we can compute <code>testIndex</code> as <code>testIndex
+                = (low + high) &gt;&gt; 1</code>.</p>
+    </li>
+    <li>
+        <p>In strictly increasing (or strictly decreasing) subarray, we are doing Binary Search. Turns out that we can
+            also do a Ternary Search, by reducing search space to one-third at each iteration. Will it reduce the number
+            of calls to <code>mountainArr.get(k)</code>? Let's see.</p>
+        <p>The number of iterations in ternary search will be <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(log⁡3N)O(\log_3 N)</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mop"><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span
+                class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist"
+                                                                                           style="height: 0.207em;"><span
+                style="top: -2.4559em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span class="mord mtight">3</span></span></span></span><span
+                class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                           style="height: 0.2441em;"><span></span></span></span></span></span></span><span
+                class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal"
+                                                                            style="margin-right: 0.10903em;">N</span><span
+                class="mclose">)</span></span></span></span></span>. The reason is that at each iteration, the search
+            space is reduced to one-third. Now at each iteration, we need to examine two indices,
+            <code>testIndex1</code> and <code>testIndex2</code>. Thus, the number of calls to
+            <code>mountainArr.get(k)</code> will be <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">2log⁡3N2 \log_3 N</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 0.9386em; vertical-align: -0.2441em;"></span><span
+                    class="mord">2</span><span class="mspace" style="margin-right: 0.1667em;"></span><span
+                    class="mop"><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span
+                    class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist"
+                                                                                               style="height: 0.207em;"><span
+                    style="top: -2.4559em; margin-right: 0.05em;"><span class="pstrut"
+                                                                        style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span class="mord mtight">3</span></span></span></span><span
+                    class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                               style="height: 0.2441em;"><span></span></span></span></span></span></span><span
+                    class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal"
+                                                                                style="margin-right: 0.10903em;">N</span></span></span></span></span>.
+        </p>
+        <p>Using the base change formula,<br>
+            <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">=2log⁡3N= 2 \log_3 N</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 0.3669em;"></span><span class="mrel">=</span><span
+                    class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut"
+                                                                                                          style="height: 0.9386em; vertical-align: -0.2441em;"></span><span
+                    class="mord">2</span><span class="mspace" style="margin-right: 0.1667em;"></span><span
+                    class="mop"><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span
+                    class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist"
+                                                                                               style="height: 0.207em;"><span
+                    style="top: -2.4559em; margin-right: 0.05em;"><span class="pstrut"
+                                                                        style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span class="mord mtight">3</span></span></span></span><span
+                    class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                               style="height: 0.2441em;"><span></span></span></span></span></span></span><span
+                    class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal"
+                                                                                style="margin-right: 0.10903em;">N</span></span></span></span></span><br>
+            <span class="math math-inline"><span class="katex"><span class="katex-mathml">=2log⁡2Nlog⁡23= 2 \frac{\log_2 {N}}{\log_2 3}</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.3669em;"></span><span
+                    class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1.5133em; vertical-align: -0.5311em;"></span><span
+                    class="mord">2</span><span class="mord"><span class="mopen nulldelimiter"></span><span
+                    class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist"
+                                                                                             style="height: 0.9822em;"><span
+                    style="top: -2.655em;"><span class="pstrut" style="height: 3em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mop mtight"><span
+                    class="mop mtight"><span class="mtight">l</span><span class="mtight">o</span><span class="mtight"
+                                                                                                       style="margin-right: 0.01389em;">g</span></span><span
+                    class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist"
+                                                                                               style="height: 0.1944em;"><span
+                    style="top: -2.2341em; margin-right: 0.0714em;"><span class="pstrut"
+                                                                          style="height: 2.5em;"></span><span
+                    class="sizing reset-size3 size1 mtight"><span class="mord mtight">2</span></span></span></span><span
+                    class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                               style="height: 0.2659em;"><span></span></span></span></span></span></span><span
+                    class="mspace mtight" style="margin-right: 0.1952em;"></span><span
+                    class="mord mtight">3</span></span></span></span><span style="top: -3.23em;"><span class="pstrut"
+                                                                                                       style="height: 3em;"></span><span
+                    class="frac-line" style="border-bottom-width: 0.04em;"></span></span><span
+                    style="top: -3.4961em;"><span class="pstrut" style="height: 3em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mop mtight"><span
+                    class="mop mtight"><span class="mtight">l</span><span class="mtight">o</span><span class="mtight"
+                                                                                                       style="margin-right: 0.01389em;">g</span></span><span
+                    class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist"
+                                                                                               style="height: 0.1944em;"><span
+                    style="top: -2.2341em; margin-right: 0.0714em;"><span class="pstrut"
+                                                                          style="height: 2.5em;"></span><span
+                    class="sizing reset-size3 size1 mtight"><span class="mord mtight">2</span></span></span></span><span
+                    class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                               style="height: 0.2659em;"><span></span></span></span></span></span></span><span
+                    class="mspace mtight" style="margin-right: 0.1952em;"></span><span class="mord mtight"><span
+                    class="mord mathnormal mtight" style="margin-right: 0.10903em;">N</span></span></span></span></span></span><span
+                    class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                               style="height: 0.5311em;"><span></span></span></span></span></span><span
+                    class="mclose nulldelimiter"></span></span></span></span></span></span><br>
+            <span class="math math-inline"><span class="katex"><span class="katex-mathml">=2log⁡2N1.585= 2 \frac{\log_2 {N}}{1.585}</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.3669em;"></span><span
+                    class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1.3272em; vertical-align: -0.345em;"></span><span
+                    class="mord">2</span><span class="mord"><span class="mopen nulldelimiter"></span><span
+                    class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist"
+                                                                                             style="height: 0.9822em;"><span
+                    style="top: -2.655em;"><span class="pstrut" style="height: 3em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+                    class="mord mtight">1.585</span></span></span></span><span style="top: -3.23em;"><span
+                    class="pstrut" style="height: 3em;"></span><span class="frac-line"
+                                                                     style="border-bottom-width: 0.04em;"></span></span><span
+                    style="top: -3.4961em;"><span class="pstrut" style="height: 3em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mop mtight"><span
+                    class="mop mtight"><span class="mtight">l</span><span class="mtight">o</span><span class="mtight"
+                                                                                                       style="margin-right: 0.01389em;">g</span></span><span
+                    class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist"
+                                                                                               style="height: 0.1944em;"><span
+                    style="top: -2.2341em; margin-right: 0.0714em;"><span class="pstrut"
+                                                                          style="height: 2.5em;"></span><span
+                    class="sizing reset-size3 size1 mtight"><span class="mord mtight">2</span></span></span></span><span
+                    class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                               style="height: 0.2659em;"><span></span></span></span></span></span></span><span
+                    class="mspace mtight" style="margin-right: 0.1952em;"></span><span class="mord mtight"><span
+                    class="mord mathnormal mtight" style="margin-right: 0.10903em;">N</span></span></span></span></span></span><span
+                    class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                               style="height: 0.345em;"><span></span></span></span></span></span><span
+                    class="mclose nulldelimiter"></span></span></span></span></span></span><br>
+            <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">=1.26log⁡2N= 1.26 \log_2 {N}</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 0.3669em;"></span><span class="mrel">=</span><span
+                    class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut"
+                                                                                                          style="height: 0.9386em; vertical-align: -0.2441em;"></span><span
+                    class="mord">1.26</span><span class="mspace" style="margin-right: 0.1667em;"></span><span
+                    class="mop"><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span
+                    class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist"
+                                                                                               style="height: 0.207em;"><span
+                    style="top: -2.4559em; margin-right: 0.05em;"><span class="pstrut"
+                                                                        style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span
+                    class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                               style="height: 0.2441em;"><span></span></span></span></span></span></span><span
+                    class="mspace" style="margin-right: 0.1667em;"></span><span class="mord"><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">N</span></span></span></span></span></span>
+        </p>
+        <p>The number of calls to <code>mountainArr.get(k)</code> in Binary Search is <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">log⁡2N\log_2 {N}</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.9386em; vertical-align: -0.2441em;"></span><span
+                class="mop"><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span
+                class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist"
+                                                                                           style="height: 0.207em;"><span
+                style="top: -2.4559em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span
+                class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                           style="height: 0.2441em;"><span></span></span></span></span></span></span><span
+                class="mspace" style="margin-right: 0.1667em;"></span><span class="mord"><span class="mord mathnormal"
+                                                                                               style="margin-right: 0.10903em;">N</span></span></span></span></span></span>.
+        </p>
+        <p>Thus, ternary search provides less number of iterations, but more number of calls to
+            <code>mountainArr.get(k)</code>. Hence, we will stick to Binary Search.</p>
+    </li>
+</ul>
+<p>The above ideas sound good. Let's see one more idea.</p>
+<p>In <a href="#complexity-analysis" rel="noopener noreferrer nofollow ugc" target="_self">complexity analysis</a> of <a
+        href="#approach-1-binary-search" rel="noopener noreferrer nofollow ugc" target="_self">Approach 1</a>, we
+    assumed that each call to <code>mountainArr.get(k)</code> takes <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord">1</span><span class="mclose">)</span></span></span></span></span> time. However, we don't know
+    the time complexity of <code>mountainArr.get(k)</code>. What if calls to the <code>get()</code> API are very
+    expensive? We certainly need to minimize function calls as much as we can.</p>
+<blockquote>
+    <p>Assume <code>get()</code> was retrieving data from a huge database that is on the other side of the world. One
+        would appreciate our algorithm finishing faster, even if that difference is constant.</p>
+</blockquote>
+<p>Assume an element at index <code>i</code> in the strictly increasing part of the array, and we called
+    <code>get(i)</code> while computing the <code>peakIndex</code>. Now, we are searching for <code>target</code> in the
+    strictly increasing part of the array. We might again need to call <code>get(i)</code> while searching for <code>target</code>.
+    Is it truly a better idea to call <code>get(i)</code> twice?</p>
+<p>We perhaps can cache the values of <code>mountainArr.get(k)</code> in an array, or perhaps in a Hash Map. This will
+    increase the space complexity. However, we won't be calling <code>mountainArr.get(k)</code> twice. Before calling
+    <code>mountainArr.get(k)</code>, we will check if the value is already cached. If it is, then we will use the cached
+    value. Otherwise, we will call <code>mountainArr.get(k)</code> and cache the value.</p>
+<p>This parallels the way web browsers store data. Often, the expense associated with reacquiring a page is considered
+    to be greater than that of storing it in a cache.</p>
+<blockquote>
+    <p>Briefly, the following major modifications will be done in three parts.</p>
+    <ol>
+        <li>
+            <p><strong>FINDING <code>peakIndex</code></strong></p>
+            <ul>
+                <li>
+                    <p>If <code>mountainArr.get(testIndex)</code> is in the cache, then use the cached value. Otherwise,
+                        call <code>mountainArr.get(testIndex)</code> and cache the value. Call this as <code>curr</code>.
+                        If <code>curr == target</code>, check if it is in the strictly increasing part of the array. If
+                        it is, then return <code>testIndex</code> as <code>targetIndex</code>. Otherwise, continue the
+                        search for <code>peakIndex</code>.</p>
+                </li>
+                <li>
+                    <p>If <code>mountainArr.get(testIndex + 1)</code> is in the cache, then use the cached value.
+                        Otherwise, call <code>mountainArr.get(testIndex + 1)</code> and cache the value. Call this
+                        <code>next</code>. If <code>next == target</code>, check if it is in the strictly increasing
+                        part of the array. If it is, then return <code>testIndex + 1</code> as <code>targetIndex</code>.
+                        Otherwise, continue the search for <code>peakIndex</code>.</p>
+                </li>
+            </ul>
+        </li>
+        <li>
+            <p><strong>SEARCH IN STRICTLY INCREASING PART OF THE ARRAY</strong></p>
+            <p>If <code>mountainArr.get(testIndex)</code> is in the cache, then use the cached value.</p>
+            <p>Otherwise, call <code>mountainArr.get(testIndex)</code>. Note that we don't need to cache the value of
+                <code>mountainArr.get(testIndex)</code> as this is the last time we need to access this value. Call this
+                as <code>curr</code>. If <code>curr == target</code>, then return <code>testIndex</code> as <code>targetIndex</code>.
+            </p>
+        </li>
+        <li>
+            <p><strong>SEARCH IN STRICTLY DECREASING PART OF THE ARRAY</strong></p>
+            <p>If <code>mountainArr.get(testIndex)</code> is in the cache, then use the cached value. Call it
+                <code>curr</code>. If <code>curr == target</code>, then return <code>testIndex</code> as <code>targetIndex</code>.
+                We perhaps didn't return in the first while loop because it was in the strictly decreasing part of the
+                array.</p>
+            <p>Otherwise, call <code>mountainArr.get(testIndex)</code>. Note that we don't need to cache the value of
+                <code>mountainArr.get(testIndex)</code> as this is the last time we need to access this value. Call this
+                as <code>curr</code>. If <code>curr == target</code>, then return <code>testIndex</code> as <code>targetIndex</code>.
+            </p>
+        </li>
+    </ol>
+</blockquote>
+<p>A quick note on <strong>how to cache the values</strong> of <code>mountainArr.get(k)</code>.</p>
+<ul>
+    <li>
+        <p>We can use an array of size <code>mountainArr.length()</code> to cache the values of
+            <code>mountainArr.get(k)</code>. The index of the array will be the index of the <code>mountainArr</code>.
+            The value at the index will be the value of <code>mountainArr.get(k)</code>. This will increase the space
+            complexity by <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(N)O(N)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                    class="mclose">)</span></span></span></span></span>. However, is it a truly good idea? There will be
+            many indices in the array that will not be used because we will call <code>mountainArr.get(k)</code> only
+            for <span class="math math-inline"><span class="katex"><span class="katex-mathml">4log⁡N4 \log N</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.8889em; vertical-align: -0.1944em;"></span><span
+                    class="mord">4</span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mop">lo<span
+                    style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                          style="margin-right: 0.1667em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">N</span></span></span></span></span>
+            indices. Hence, we will be wasting space.</p>
+    </li>
+    <li>
+        <p>Therefore, use a Hash Map which gives constant time lookups. The key of the Hash Map will be the index of the
+            <code>mountainArr</code>. The value at the key will be the value of <code>mountainArr.get(k)</code>. This
+            will increase the space complexity by <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(log⁡N)O(\log N)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                              style="margin-right: 0.1667em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                    class="mclose">)</span></span></span></span></span> reducing it from previously proposed <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(N)O(N)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                    class="mclose">)</span></span></span></span></span>. The reduction of this space complexity is
+            significant.</p>
+    </li>
+</ul>
+<p>With these thoughts in mind, we can implement the algorithm.</p>
+<h4 id="algorithm-1">Algorithm</h4>
+<ol>
+    <li>
+        <p>Save the length of the <code>mountainArr</code> by calling the function <code>mountainArr.length()</code> in
+            the variable <code>length</code>.</p>
+    </li>
+    <li>
+        <p>Initialize a Hash Map <code>cache</code> to cache the values of <code>mountainArr.get(k)</code>.</p>
+    </li>
+    <li>
+        <p>Find the index of the <code>peak</code> element in the <code>mountainArr</code>.</p>
+        <ul>
+            <li>Set <code>low = 1</code> and <code>high = length - 2</code>.</li>
+            <li>While <code>low != high</code>, do the following:
+                <ul>
+                    <li>Find the middle index of the search space <code>[low, high]</code>. Let's call the index <code>testIndex</code>.
+                    </li>
+                    <li>If <code>testIndex</code> is in the <code>cache</code>, then set <code>curr =
+                        cache.get(testIndex)</code>. Otherwise, call <code>mountainArr.get(testIndex)</code> and set
+                        <code>curr = mountainArr.get(testIndex)</code>. Cache the value of <code>curr</code> in the
+                        <code>cache</code>.
+                    </li>
+                    <li>If <code>testIndex + 1</code> is in the <code>cache</code>, then set <code>next =
+                        cache.get(testIndex + 1)</code>. Otherwise, call <code>mountainArr.get(testIndex + 1)</code> and
+                        set <code>next = mountainArr.get(testIndex + 1)</code>. Cache the value of <code>next</code> in
+                        the <code>cache</code>.
+                    </li>
+                    <li>If <code>curr &lt; next</code>, check if <code>curr == target</code> or <code>next ==
+                        target</code>. If yes, then return the index of the <code>target</code> element. Otherwise, set
+                        <code>low = testIndex + 1</code>.
+                    </li>
+                    <li>Otherwise, set <code>high = testIndex</code>.</li>
+                </ul>
+            </li>
+            <li>After the loop, <code>low</code> (which is equal to <code>high</code>) will be the
+                <code>peakIndex</code>.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Search for the <code>target</code> element in the strictly increasing part of the array.</p>
+        <ul>
+            <li>Set <code>low = 0</code> and <code>high = peakIndex</code>.</li>
+            <li>While <code>low &lt;= high</code>, do the following:
+                <ul>
+                    <li>Find the middle index of the search space <code>[low, high]</code>. Let's call the index <code>testIndex</code>.
+                    </li>
+                    <li>If <code>testIndex</code> is in the <code>cache</code>, then set <code>curr =
+                        cache.get(testIndex)</code>. Otherwise, call <code>mountainArr.get(testIndex)</code> and set
+                        <code>curr = mountainArr.get(testIndex)</code>.
+                    </li>
+                    <li>If <code>curr == target</code>, then return <code>testIndex</code>.</li>
+                    <li>If <code>curr &lt; target</code>, then set <code>low = testIndex + 1</code>.</li>
+                    <li>Otherwise, set <code>high = testIndex - 1</code>.</li>
+                </ul>
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Search for the <code>target</code> element in the strictly decreasing part of the array.</p>
+        <ul>
+            <li>Set <code>low = peakIndex + 1</code> and <code>high = length - 1</code>.</li>
+            <li>While <code>low &lt;= high</code>, do the following:
+                <ul>
+                    <li>Find the middle index of the search space <code>[low, high]</code>. Let's call the index <code>testIndex</code>.
+                    </li>
+                    <li>If <code>testIndex</code> is in the <code>cache</code>, then set <code>curr =
+                        cache.get(testIndex)</code>. Otherwise, call <code>mountainArr.get(testIndex)</code> and set
+                        <code>curr = mountainArr.get(testIndex)</code>.
+                    </li>
+                    <li>If <code>curr == target</code>, then return <code>testIndex</code>.</li>
+                    <li>If <code>curr &gt; target</code>, then set <code>low = testIndex + 1</code>.</li>
+                    <li>Otherwise, set <code>high = testIndex - 1</code>.</li>
+                </ul>
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p><code>target</code> not found in the <code>mountainArr</code>. Return <code>-1</code>.</p>
+    </li>
+</ol>
+<h4 id="implementation-1">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int findInMountainArray(int target, MountainArray mountainArr) {
+        // Save the length of the mountain array
+        int length = mountainArr.length();
+
+        // Initialize the cache
+        Map<Integer, Integer> cache = new HashMap<>();
+
+        // 1. Find the index of the peak element
+        int low = 1;
+        int high = length - 2;
+        while (low != high) {
+            int testIndex = (low + high) >> 1;
+
+            int curr;
+            if (cache.containsKey(testIndex)) {
+                curr = cache.get(testIndex);
+            } else {
+                curr = mountainArr.get(testIndex);
+                cache.put(testIndex, curr);
+            }
+
+            int next;
+            if (cache.containsKey(testIndex + 1)) {
+                next = cache.get(testIndex + 1);
+            } else {
+                next = mountainArr.get(testIndex + 1);
+                cache.put(testIndex + 1, next);
+            }
+
+            if (curr < next) {
+                if (curr == target) {
+                    return testIndex;
+                }
+                if (next == target) {
+                    return testIndex + 1;
+                }
+                low = testIndex + 1;
+            } else {
+                high = testIndex;
+            }
+        }
+
+        int peakIndex = low;
+
+        // 2. Search in the strictly increasing part of the array
+        // If found, will be returned in the loop itself.
+        low = 0;
+        high = peakIndex;
+        while (low <= high) {
+            int testIndex = (low + high) >> 1;
+
+            int curr;
+            if (cache.containsKey(testIndex)) {
+                curr = cache.get(testIndex);
+            } else {
+                curr = mountainArr.get(testIndex);
+            }
+
+            if (curr == target) {
+                return testIndex;
+            } else if (curr < target) {
+                low = testIndex + 1;
+            } else {
+                high = testIndex - 1;
+            }
+        }
+
+        // 3. Search in the strictly decreasing part of the array
+        // If found, will be returned in the loop itself.
+        low = peakIndex + 1;
+        high = length - 1;
+        while (low <= high) {
+            int testIndex = (low + high) >> 1;
+
+            int curr;
+            if (cache.containsKey(testIndex)) {
+                curr = cache.get(testIndex);
+            } else {
+                curr = mountainArr.get(testIndex);
+            }
+
+            if (curr == target) {
+                return testIndex;
+            } else if (curr > target) {
+                low = testIndex + 1;
+            } else {
+                high = testIndex - 1;
+            }
+        }
+
+        // Target is not present in the mountain array
+        return -1;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int findInMountainArray(int target, MountainArray &mountainArr) {
+        // Save the length of the mountain array
+        int length = mountainArr.length();
+
+        // Initialize the cache
+        unordered_map<int, int> cache;
+
+        // 1. Find the index of the peak element
+        int low = 1;
+        int high = length - 2;
+        while (low != high) {
+            int testIndex = (low + high) >> 1;
+
+            int curr;
+            if (cache.find(testIndex) != cache.end()) {
+                curr = cache[testIndex];
+            } else {
+                curr = mountainArr.get(testIndex);
+                cache[testIndex] = curr;
+            }
+
+            int next;
+            if (cache.find(testIndex + 1) != cache.end()) {
+                next = cache[testIndex + 1];
+            } else {
+                next = mountainArr.get(testIndex + 1);
+                cache[testIndex + 1] = next;
+            }
+
+            if (curr < next) {
+                if (curr == target) {
+                    return testIndex;
+                }
+                if (next == target) {
+                    return testIndex + 1;
+                }
+                low = testIndex + 1;
+            } else {
+                high = testIndex;
+            }
+        }
+
+        int peakIndex = low;
+
+        // 2. Search in the strictly increasing part of the array
+        // If found, will be returned in the loop itself.
+        low = 0;
+        high = peakIndex;
+        while (low <= high) {
+            int testIndex = (low + high) >> 1;
+
+            int curr;
+            if (cache.find(testIndex) != cache.end()) {
+                curr = cache[testIndex];
+            } else {
+                curr = mountainArr.get(testIndex);
+            }
+
+            if (curr == target) {
+                return testIndex;
+            } else if (curr < target) {
+                low = testIndex + 1;
+            } else {
+                high = testIndex - 1;
+            }
+        }
+
+        // 3. Search in the strictly decreasing part of the array
+        // If found, will be returned in the loop itself.
+        low = peakIndex + 1;
+        high = length - 1;
+        while (low <= high) {
+            int testIndex = (low + high) >> 1;
+
+            int curr;
+            if (cache.find(testIndex) != cache.end()) {
+                curr = cache[testIndex];
+            } else {
+                curr = mountainArr.get(testIndex);
+            }
+
+            if (curr == target) {
+                return testIndex;
+            } else if (curr > target) {
+                low = testIndex + 1;
+            } else {
+                high = testIndex - 1;
+            }
+        }
+
+        // Target is not present in the mountain array
+        return -1;
+    }
+};
+    </code>
+    Python3
+    <code>
+class Solution:
+    def findInMountainArray(self, target: int, mountain_arr: 'MountainArray') -> int:
+        # Save the length of the mountain array
+        length = mountain_arr.length()
+
+        # Initialize the cache
+        cache = {}
+
+        # 1. Find the index of the peak element
+        low = 1
+        high = length - 2
+        while low != high:
+            test_index = (low + high) >> 1
+
+            if test_index in cache:
+                curr = cache[test_index]
+            else:
+                curr = mountain_arr.get(test_index)
+                cache[test_index] = curr
+
+            if test_index + 1 in cache:
+                next = cache[test_index + 1]
+            else:
+                next = mountain_arr.get(test_index + 1)
+                cache[test_index + 1] = next
+
+            if curr < next:
+                if curr == target:
+                    return test_index
+                if next == target:
+                    return test_index + 1
+                low = test_index + 1
+            else:
+                high = test_index
+
+        peak_index = low
+
+        # 2. Search in the strictly increasing part of the array
+        # If found, will be returned in the loop itself.
+        low = 0
+        high = peak_index
+        while low <= high:
+            test_index = (low + high) >> 1
+
+            if test_index in cache:
+                curr = cache[test_index]
+            else:
+                curr = mountain_arr.get(test_index)
+
+            if curr == target:
+                return test_index
+            elif curr < target:
+                low = test_index + 1
+            else:
+                high = test_index - 1
+
+        # 3. Search in the strictly decreasing part of the array
+        # If found, will be returned in the loop itself.
+        low = peak_index + 1
+        high = length - 1
+        while low <= high:
+            test_index = (low + high) >> 1
+
+            if test_index in cache:
+                curr = cache[test_index]
+            else:
+                curr = mountain_arr.get(test_index)
+
+            if curr == target:
+                return test_index
+            elif curr > target:
+                low = test_index + 1
+            else:
+                high = test_index - 1
+
+        # Target is not present in the mountain array
+        return -1
+    </code>
+</pre>
+<p>Readers might be prompted to think that <code>cache</code> is redundant. It might be because in this problem <code>get(k)</code>
+    looks like <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord">1</span><span class="mclose">)</span></span></span></span></span> operation. However, when the
+    time complexity of any function is not specified explicitly, it is better to call that function the minimum possible
+    number of times.</p>
+<p>Here is the implementation without caching.</p>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int findInMountainArray(int target, MountainArray mountainArr) {
+        // Save the length of the mountain array
+        int length = mountainArr.length();
+
+        // 1. Find the index of the peak element
+        int low = 1;
+        int high = length - 2;
+        while (low != high) {
+            int testIndex = (low + high) >> 1;
+            int curr = mountainArr.get(testIndex);
+            int next = mountainArr.get(testIndex + 1);
+
+            if (curr < next) {
+                if (curr == target) {
+                    return testIndex;
+                }
+                if (next == target) {
+                    return testIndex + 1;
+                }
+                low = testIndex + 1;
+            } else {
+                high = testIndex;
+            }
+        }
+        int peakIndex = low;
+
+        // 2. Search in the strictly increasing part of the array
+        // If found, will be returned in the loop itself.
+        low = 0;
+        high = peakIndex;
+        while (low <= high) {
+            int testIndex = (low + high) >> 1;
+            int curr = mountainArr.get(testIndex);
+
+            if (curr == target) {
+                return testIndex;
+            } else if (curr < target) {
+                low = testIndex + 1;
+            } else {
+                high = testIndex - 1;
+            }
+        }
+
+        // 3. Search in the strictly decreasing part of the array
+        // If found, will be returned in the loop itself.
+        low = peakIndex + 1;
+        high = length - 1;
+        while (low <= high) {
+            int testIndex = (low + high) >> 1;
+            int curr = mountainArr.get(testIndex);
+
+            if (curr == target) {
+                return testIndex;
+            } else if (curr > target) {
+                low = testIndex + 1;
+            } else {
+                high = testIndex - 1;
+            }
+        }
+
+        // Target is not present in the mountain array
+        return -1;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int findInMountainArray(int target, MountainArray &mountainArr) {
+        // Save the length of the mountain array
+        int length = mountainArr.length();
+
+        // 1. Find the index of the peak element
+        int low = 1;
+        int high = length - 2;
+        while (low != high) {
+            int testIndex = (low + high) >> 1;
+            int curr = mountainArr.get(testIndex);
+            int next = mountainArr.get(testIndex + 1);
+
+            if (curr < next) {
+                if (curr == target) {
+                    return testIndex;
+                }
+                if (next == target) {
+                    return testIndex + 1;
+                }
+                low = testIndex + 1;
+            } else {
+                high = testIndex;
+            }
+        }
+
+        int peakIndex = low;
+
+        // 2. Search in the strictly increasing part of the array
+        // If found, will be returned in the loop itself.
+        low = 0;
+        high = peakIndex;
+        while (low <= high) {
+            int testIndex = (low + high) >> 1;
+            int curr = mountainArr.get(testIndex);
+
+            if (curr == target) {
+                return testIndex;
+            } else if (curr < target) {
+                low = testIndex + 1;
+            } else {
+                high = testIndex - 1;
+            }
+        }
+
+        // 3. Search in the strictly decreasing part of the array
+        // If found, will be returned in the loop itself.
+        low = peakIndex + 1;
+        high = length - 1;
+        while (low <= high) {
+            int testIndex = (low + high) >> 1;
+            int curr = mountainArr.get(testIndex);
+
+            if (curr == target) {
+                return testIndex;
+            } else if (curr > target) {
+                low = testIndex + 1;
+            } else {
+                high = testIndex - 1;
+            }
+        }
+
+        // Target is not present in the mountain array
+        return -1;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def findInMountainArray(self, target: int, mountain_arr: 'MountainArray') -> int:
+        # Save the length of the mountain array
+        length = mountain_arr.length()
+
+        # 1. Find the index of the peak element
+        low = 1
+        high = length - 2
+        while low != high:
+            test_index = (low + high) >> 1
+            curr = mountain_arr.get(test_index)
+            next = mountain_arr.get(test_index + 1)
+
+            if curr < next:
+                if curr == target:
+                    return test_index
+                if next == target:
+                    return test_index + 1
+                low = test_index + 1
+            else:
+                high = test_index
+
+        peak_index = low
+
+        # 2. Search in the strictly increasing part of the array
+        # If found, will be returned in the loop itself.
+        low = 0
+        high = peak_index
+        while low <= high:
+            test_index = (low + high) >> 1
+            curr = mountain_arr.get(test_index)
+
+            if curr == target:
+                return test_index
+            elif curr < target:
+                low = test_index + 1
+            else:
+                high = test_index - 1
+
+        # 3. Search in the strictly decreasing part of the array
+        # If found, will be returned in the loop itself.
+        low = peak_index + 1
+        high = length - 1
+        while low <= high:
+            test_index = (low + high) >> 1
+            curr = mountain_arr.get(test_index)
+
+            if curr == target:
+                return test_index
+            elif curr > target:
+                low = test_index + 1
+            else:
+                high = test_index - 1
+
+        # Target is not present in the mountain array
+        return -1
+    </code>
+    C
+    <code>
+        int findInMountainArray(int target, MountainArray* mountainArr) {
+	// Save the length of the mountain array
+    int size = length(mountainArr);
+
+    // 1. Find the index of the peak element
+    int low = 1;
+    int high = size - 2;
+    while (low != high) {
+        int testIndex = (low + high) >> 1;
+        int curr = get(mountainArr, testIndex);
+        int next = get(mountainArr, testIndex + 1);
+
+        if (curr < next) {
+            if (curr == target) {
+                return testIndex;
+            }
+            if (next == target) {
+                return testIndex + 1;
+            }
+            low = testIndex + 1;
+        } else {
+            high = testIndex;
+        }
+    }
+
+    int peakIndex = low;
+
+    // 2. Search in the strictly increasing part of the array
+    // If found, will be returned in the loop itself.
+    low = 0;
+    high = peakIndex;
+    while (low <= high) {
+        int testIndex = (low + high) >> 1;
+        int curr = get(mountainArr, testIndex);
+
+        if (curr == target) {
+            return testIndex;
+        } else if (curr < target) {
+            low = testIndex + 1;
+        } else {
+            high = testIndex - 1;
+        }
+    }
+
+    // 3. Search in the strictly decreasing part of the array
+    // If found, will be returned in the loop itself.
+    low = peakIndex + 1;
+    high = size - 1;
+    while (low <= high) {
+        int testIndex = (low + high) >> 1;
+        int curr = get(mountainArr, testIndex);
+
+        if (curr == target) {
+            return testIndex;
+        } else if (curr > target) {
+            low = testIndex + 1;
+        } else {
+            high = testIndex - 1;
+        }
+    }
+
+    // Target is not present in the mountain array
+    return -1;
+}
+    </code>
+    JavaScript
+    <code>
+        var findInMountainArray = function(target, mountainArr) {
+    // Save the length of the mountain array
+    const length = mountainArr.length();
+
+    // 1. Find the index of the peak element
+    let low = 1;
+    let high = length - 2;
+    while (low !== high) {
+        const testIndex = (low + high) >> 1;
+        const curr = mountainArr.get(testIndex);
+        const next = mountainArr.get(testIndex + 1);
+
+        if (curr < next) {
+            if (curr === target) {
+                return testIndex;
+            }
+            if (next === target) {
+                return testIndex + 1;
+            }
+            low = testIndex + 1;
+        } else {
+            high = testIndex;
+        }
+    }
+
+    const peakIndex = low;
+
+    // 2. Search in the strictly increasing part of the array
+    // If found, will be returned in the loop itself.
+    low = 0;
+    high = peakIndex;
+    while (low <= high) {
+        const testIndex = (low + high) >> 1;
+        const curr = mountainArr.get(testIndex);
+
+        if (curr === target) {
+            return testIndex;
+        } else if (curr < target) {
+            low = testIndex + 1;
+        } else {
+            high = testIndex - 1;
+        }
+    }
+
+    // 3. Search in the strictly decreasing part of the array
+    // If found, will be returned in the loop itself.
+    low = peakIndex + 1;
+    high = length - 1;
+    while (low <= high) {
+        const testIndex = (low + high) >> 1;
+        const curr = mountainArr.get(testIndex);
+
+        if (curr === target) {
+            return testIndex;
+        } else if (curr > target) {
+            low = testIndex + 1;
+        } else {
+            high = testIndex - 1;
+        }
+    }
+
+    // Target is not present in the mountain array
+    return -1;
+};
+    </code>
+</pre>
+<h4 id="complexity-analysis-1">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">NN</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                style="margin-right: 0.10903em;">N</span></span></span></span></span>
+    be the length of the <code>mountainArr</code>. Moreover, let's assume that each call to
+    <code>mountainArr.get(k)</code> takes <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord">1</span><span class="mclose">)</span></span></span></span></span> time.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡N)O(\log N)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                          style="margin-right: 0.1667em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>
+                <p><strong>Finding the <code>peakIndex</code></strong><br>
+                    There will be <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡2N)O(\log_2 {N})</span><span
+                            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+                            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                            class="mopen">(</span><span class="mop"><span class="mop">lo<span
+                            style="margin-right: 0.01389em;">g</span></span><span class="msupsub"><span
+                            class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.207em;"><span
+                            style="top: -2.4559em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                style="height: 2.7em;"></span><span
+                            class="sizing reset-size6 size3 mtight"><span
+                            class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span
+                            class="vlist-r"><span class="vlist"
+                                                  style="height: 0.2441em;"><span></span></span></span></span></span></span><span
+                            class="mspace" style="margin-right: 0.1667em;"></span><span class="mord"><span
+                            class="mord mathnormal" style="margin-right: 0.10903em;">N</span></span><span
+                            class="mclose">)</span></span></span></span></span> iterations in the <code>while</code>
+                    loop. The reason is that at each iteration, the search space is reduced to half. At each iteration,
+                    we are</p>
+                <ul>
+                    <li>
+                        <p>computing <code>testIndex</code> using addition and bit shift. This takes <span
+                                class="math math-inline"><span class="katex"><span
+                                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span
+                                class="base"><span class="strut"
+                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                                class="mopen">(</span><span class="mord">1</span><span
+                                class="mclose">)</span></span></span></span></span> time.</p>
+                    </li>
+                    <li>
+                        <p>Getting the value of <code>mountainArr.get(testIndex)</code> from the <code>cache</code> or
+                            from the <code>mountainArr</code>. Caching if not present in the <code>cache</code>. This
+                            takes <span class="math math-inline"><span class="katex"><span
+                                    class="katex-mathml">O(1)O(1)</span><span class="katex-html"
+                                                                              aria-hidden="true"><span
+                                    class="base"><span class="strut"
+                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                                    class="mopen">(</span><span class="mord">1</span><span
+                                    class="mclose">)</span></span></span></span></span> time.</p>
+                    </li>
+                    <li>
+                        <p>Getting the value of <code>mountainArr.get(testIndex + 1)</code> from the <code>cache</code>
+                            or from the <code>mountainArr</code>. Caching if not present in the <code>cache</code>. This
+                            takes <span class="math math-inline"><span class="katex"><span
+                                    class="katex-mathml">O(1)O(1)</span><span class="katex-html"
+                                                                              aria-hidden="true"><span
+                                    class="base"><span class="strut"
+                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                                    class="mopen">(</span><span class="mord">1</span><span
+                                    class="mclose">)</span></span></span></span></span> time.</p>
+                    </li>
+                    <li>
+                        <p>Returning or resetting <code>low</code> or <code>high</code>. This takes <span
+                                class="math math-inline"><span class="katex"><span
+                                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span
+                                class="base"><span class="strut"
+                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                                class="mopen">(</span><span class="mord">1</span><span
+                                class="mclose">)</span></span></span></span></span> time.</p>
+                    </li>
+                </ul>
+                <p>Thus, the time complexity of finding the <code>peakIndex</code> is <span
+                        class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(log⁡2N)O(\log_2 {N})</span><span class="katex-html"
+                                                                                aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mop"><span class="mop">lo<span
+                        style="margin-right: 0.01389em;">g</span></span><span class="msupsub"><span
+                        class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist"
+                                                                             style="height: 0.207em;"><span
+                        style="top: -2.4559em; margin-right: 0.05em;"><span class="pstrut"
+                                                                            style="height: 2.7em;"></span><span
+                        class="sizing reset-size6 size3 mtight"><span
+                        class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span
+                        class="vlist-r"><span class="vlist" style="height: 0.2441em;"><span></span></span></span></span></span></span><span
+                        class="mspace" style="margin-right: 0.1667em;"></span><span class="mord"><span
+                        class="mord mathnormal" style="margin-right: 0.10903em;">N</span></span><span
+                        class="mclose">)</span></span></span></span></span>.</p>
+            </li>
+            <li>
+                <p><strong>Searching in the strictly increasing part of the array</strong><br>
+                    There will be <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡2N)O(\log_2 {N})</span><span
+                            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+                            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                            class="mopen">(</span><span class="mop"><span class="mop">lo<span
+                            style="margin-right: 0.01389em;">g</span></span><span class="msupsub"><span
+                            class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.207em;"><span
+                            style="top: -2.4559em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                style="height: 2.7em;"></span><span
+                            class="sizing reset-size6 size3 mtight"><span
+                            class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span
+                            class="vlist-r"><span class="vlist"
+                                                  style="height: 0.2441em;"><span></span></span></span></span></span></span><span
+                            class="mspace" style="margin-right: 0.1667em;"></span><span class="mord"><span
+                            class="mord mathnormal" style="margin-right: 0.10903em;">N</span></span><span
+                            class="mclose">)</span></span></span></span></span> iterations in the <code>while</code>
+                    loop. The reason is that at each iteration, the search space is reduced to half. At each iteration,
+                    we are</p>
+                <ul>
+                    <li>
+                        <p>computing <code>testIndex</code> using addition and bit shift. This takes <span
+                                class="math math-inline"><span class="katex"><span
+                                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span
+                                class="base"><span class="strut"
+                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                                class="mopen">(</span><span class="mord">1</span><span
+                                class="mclose">)</span></span></span></span></span> time.</p>
+                    </li>
+                    <li>
+                        <p>Getting the value of <code>mountainArr.get(testIndex)</code> from the <code>cache</code> or
+                            from the <code>mountainArr</code>. This takes <span class="math math-inline"><span
+                                    class="katex"><span class="katex-mathml">O(1)O(1)</span><span class="katex-html"
+                                                                                                  aria-hidden="true"><span
+                                    class="base"><span class="strut"
+                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                                    class="mopen">(</span><span class="mord">1</span><span
+                                    class="mclose">)</span></span></span></span></span> time.</p>
+                    </li>
+                    <li>
+                        <p>Returning or resetting <code>low</code> or <code>high</code>. This takes <span
+                                class="math math-inline"><span class="katex"><span
+                                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span
+                                class="base"><span class="strut"
+                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                                class="mopen">(</span><span class="mord">1</span><span
+                                class="mclose">)</span></span></span></span></span> time.</p>
+                    </li>
+                </ul>
+                <p>Thus, the time complexity of searching in the strictly increasing part of the array is <span
+                        class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(log⁡2N)O(\log_2 {N})</span><span class="katex-html"
+                                                                                aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mop"><span class="mop">lo<span
+                        style="margin-right: 0.01389em;">g</span></span><span class="msupsub"><span
+                        class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist"
+                                                                             style="height: 0.207em;"><span
+                        style="top: -2.4559em; margin-right: 0.05em;"><span class="pstrut"
+                                                                            style="height: 2.7em;"></span><span
+                        class="sizing reset-size6 size3 mtight"><span
+                        class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span
+                        class="vlist-r"><span class="vlist" style="height: 0.2441em;"><span></span></span></span></span></span></span><span
+                        class="mspace" style="margin-right: 0.1667em;"></span><span class="mord"><span
+                        class="mord mathnormal" style="margin-right: 0.10903em;">N</span></span><span
+                        class="mclose">)</span></span></span></span></span>.</p>
+            </li>
+            <li>
+                <p><strong>Searching in the strictly decreasing part of the array</strong><br>
+                    There will be <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡2N)O(\log_2 {N})</span><span
+                            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+                            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                            class="mopen">(</span><span class="mop"><span class="mop">lo<span
+                            style="margin-right: 0.01389em;">g</span></span><span class="msupsub"><span
+                            class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.207em;"><span
+                            style="top: -2.4559em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                style="height: 2.7em;"></span><span
+                            class="sizing reset-size6 size3 mtight"><span
+                            class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span
+                            class="vlist-r"><span class="vlist"
+                                                  style="height: 0.2441em;"><span></span></span></span></span></span></span><span
+                            class="mspace" style="margin-right: 0.1667em;"></span><span class="mord"><span
+                            class="mord mathnormal" style="margin-right: 0.10903em;">N</span></span><span
+                            class="mclose">)</span></span></span></span></span> iterations in the <code>while</code>
+                    loop. The reason is that at each iteration, the search space is reduced to half. At each iteration,
+                    we are</p>
+                <ul>
+                    <li>
+                        <p>computing <code>testIndex</code> using addition and bit shift. This takes <span
+                                class="math math-inline"><span class="katex"><span
+                                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span
+                                class="base"><span class="strut"
+                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                                class="mopen">(</span><span class="mord">1</span><span
+                                class="mclose">)</span></span></span></span></span> time.</p>
+                    </li>
+                    <li>
+                        <p>Getting the value of <code>mountainArr.get(testIndex)</code> from the <code>cache</code> or
+                            from the <code>mountainArr</code>. This takes <span class="math math-inline"><span
+                                    class="katex"><span class="katex-mathml">O(1)O(1)</span><span class="katex-html"
+                                                                                                  aria-hidden="true"><span
+                                    class="base"><span class="strut"
+                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                                    class="mopen">(</span><span class="mord">1</span><span
+                                    class="mclose">)</span></span></span></span></span> time.</p>
+                    </li>
+                    <li>
+                        <p>Returning or resetting <code>low</code> or <code>high</code>. This takes <span
+                                class="math math-inline"><span class="katex"><span
+                                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span
+                                class="base"><span class="strut"
+                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                                class="mopen">(</span><span class="mord">1</span><span
+                                class="mclose">)</span></span></span></span></span> time.</p>
+                    </li>
+                </ul>
+                <p>Thus, the time complexity of searching in the strictly decreasing part of the array is <span
+                        class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(log⁡2N)O(\log_2 {N})</span><span class="katex-html"
+                                                                                aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mop"><span class="mop">lo<span
+                        style="margin-right: 0.01389em;">g</span></span><span class="msupsub"><span
+                        class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist"
+                                                                             style="height: 0.207em;"><span
+                        style="top: -2.4559em; margin-right: 0.05em;"><span class="pstrut"
+                                                                            style="height: 2.7em;"></span><span
+                        class="sizing reset-size6 size3 mtight"><span
+                        class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span
+                        class="vlist-r"><span class="vlist" style="height: 0.2441em;"><span></span></span></span></span></span></span><span
+                        class="mspace" style="margin-right: 0.1667em;"></span><span class="mord"><span
+                        class="mord mathnormal" style="margin-right: 0.10903em;">N</span></span><span
+                        class="mclose">)</span></span></span></span></span>.</p>
+            </li>
+        </ul>
+        <p>Hence, the overall time complexity is <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(log⁡2N)O(\log_2 {N})</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mop"><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span
+                class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist"
+                                                                                           style="height: 0.207em;"><span
+                style="top: -2.4559em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span
+                class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                           style="height: 0.2441em;"><span></span></span></span></span></span></span><span
+                class="mspace" style="margin-right: 0.1667em;"></span><span class="mord"><span class="mord mathnormal"
+                                                                                               style="margin-right: 0.10903em;">N</span></span><span
+                class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡N)O(\log N)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                          style="margin-right: 0.1667em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <p>The <code>cache</code> will contain <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(log⁡N)O(\log N)</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                          style="margin-right: 0.1667em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                class="mclose">)</span></span></span></span></span> elements because we are caching only the elements
+            for which we are calling <code>mountainArr.get(k)</code>.</p>
+        <p>Hence, the space complexity is <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡N)O(\log N)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                          style="margin-right: 0.1667em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+</ul>
+<hr>
+</body>
+</html>
