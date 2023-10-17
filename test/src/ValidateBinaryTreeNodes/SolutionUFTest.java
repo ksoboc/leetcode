@@ -2,13 +2,12 @@ package ValidateBinaryTreeNodes;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
-class SolutionTest {
+class SolutionUFTest {
     @Test
     void test1() {
-        Solution solution=new Solution();
+        SolutionUF solution=new SolutionUF();
         int[] leftChild = {1,-1,3,-1};
         int[] rightChild = {2,-1,-1,-1};
         var res = solution.validateBinaryTreeNodes(leftChild.length,leftChild,rightChild);
@@ -16,7 +15,7 @@ class SolutionTest {
     }
     @Test
     void test2() {
-        Solution solution=new Solution();
+        SolutionUF solution=new SolutionUF();
         int[] leftChild = {1,-1,3,-1};
         int[] rightChild = {2,3,-1,-1};
         var res = solution.validateBinaryTreeNodes(leftChild.length,leftChild,rightChild);
@@ -24,7 +23,7 @@ class SolutionTest {
     }
     @Test
     void test3() {
-        Solution solution=new Solution();
+        SolutionUF solution=new SolutionUF();
         int[] leftChild = {1,0};
         int[] rightChild = {-1,-1};
         var res = solution.validateBinaryTreeNodes(leftChild.length,leftChild,rightChild);
