@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Validate Binary Tree Nodes - Solution</title>
+</head>
+<body>
+<h2 id="solution">Validate Binary Tree Nodes - Solution</h2>
+<hr>
+<h4 id="overview">Overview</h4>
+<p>Before we go into the approaches, let's first talk about what makes a binary tree valid.</p>
+<blockquote>
+    <p>Note that while this is not a formal definition of a binary tree, these rules are sufficient for solving the
+        problem.</p>
+</blockquote>
+<p><strong>A binary tree must have a root. This is a node with no incoming edges - that is, the root has no
+    parent.</strong></p>
+<p><img src="1.png" alt="invalid tree example"><br>
+    <br><br>
+    <br></p>
+<p><strong>Every node other than the root must have exactly one parent.</strong></p>
+<p><img src="2.png" alt="invalid tree example"><br>
+    <br><br>
+    <br></p>
+<p><strong>The tree must be connected - every node must be reachable from one node (the root).</strong></p>
+<p><img src="3.png" alt="invalid tree example"><br>
+    <br><br>
+    <br></p>
+<p><strong>There cannot be a cycle.</strong></p>
+<p><img src="4.png" alt="invalid tree example"><br>
+    <br><br>
+    <br></p>
+<p>To solve this problem, we can check the nodes given to us against these rules.</p>
+<blockquote>
+    <p>You may notice that some of these rules imply each other. For example, if a binary tree had a root, it would have
+        a cycle only if there was a node with more than one parent.</p>
+</blockquote>
+<hr>
+<h4 id="approach-1-depth-first-search-dfs">Approach 1: Depth First Search (DFS)</h4>
+<p><strong>Intuition</strong></p>
+<blockquote>
+    <p>If you are new to Depth First Search, please see our <a
+            href="https://leetcode.com/explore/featured/card/graph/619/depth-first-search-in-graph/3882/"
+            target="_blank">LeetCode Explore Card</a> for more information on it!</p>
+</blockquote>
+<p>One way to solve this problem would be to perform a DFS on the tree and check that all the rules are followed. Before
+    we can start a DFS, we need to locate the root. Let's define a function <code>findRoot</code> that helps us find the
+    root.</p>
+<p>As mentioned above, the root has no parent - this also means that the root is not the child of any nodes. The input
+    arrays <code>leftChild</code> and <code>rightChild</code> describe all children, so the root would not appear in
+    these arrays. We can simply use a for loop from <code>0</code> to <code>n - 1</code> and for each number, check if
+    it is present in <code>leftChild</code> or <code>rightChild</code>. If it's not present in either, then we can
+    return it as the root. If we don't find any root, we can return <code>-1</code>.</p>
+<p>To improve efficiency, we will convert <code>leftChild</code> and <code>rightChild</code> to a set for <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span class="katex-html"
+                                                                                                     aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord">1</span><span
+        class="mclose">)</span></span></span></span></span> checks.</p>
+<pre>
+    Java
+    <code>
+        public int findRoot(int n, int[] left, int[] right) {
+    Set<Integer> children = new HashSet<>();
+    for (int node : left) {
+        children.add(node);
+    }
+
+    for (int node : right) {
+        children.add(node);
+    }
+
+    for (int i = 0; i < n; i++) {
+        if (!children.contains(i)) {
+            return i;
+        }
+    }
+
+    return -1;
+}
+    </code>
+    C++
+    <code>
+        int findRoot(int n, vector<int>& left, vector<int>& right) {
+    unordered_set<int> children;
+    children.insert(left.begin(), left.end());
+    children.insert(right.begin(), right.end());
+
+    for (int i = 0; i < n; i++) {
+        if (children.find(i) == children.end()) {
+            return i;
+        }
+    }
+
+    return -1;
+}
+    </code>
+    Python3
+    <code>
+        def find_root():
+    children = set(leftChild) | set(rightChild)
+
+    for i in range(n):
+        if i not in children:
+            return i
+
+    return -1
+    </code>
+</pre>
+<p>We will start by obtaining <code>root = findRoot()</code>. If <code>root = -1</code>, there is no node without a
+    parent, and we can immediately return false as the tree is invalid.</p>
+<p>Once we have the root, we can start a DFS from it. We will implement the DFS iteratively with a stack. How can we
+    validate the tree? First of all, if we see a node multiple times during the DFS, it means a node has multiple
+    parents (and there could be a cycle). We will use a set <code>seen</code> that keeps track of all the nodes we have
+    seen so far during the traversal. When we move to a <code>child</code>, if <code>child</code> is already in <code>seen</code>,
+    we can immediately return false since we would be visiting <code>child</code> for the second time.</p>
+<p>Once the DFS finishes, every node we visited will be in <code>seen</code>. If the tree is connected, then the length
+    of <code>seen</code> will be equal to <code>n</code>. If <code>seen.length != n</code>, it means that some nodes
+    were not visited, and thus the tree must be disconnected. Thus, we can return <code>seen.length == n</code> at the
+    end of the algorithm.</p>
+<p>This process is sufficient in validating a binary tree:</p>
+<ol>
+    <li>If a binary tree does not have a root, then <code>findRoot</code> will return <code>-1</code>.</li>
+    <li>If there is a node with more than one parent, then we will detect it with <code>seen</code>.</li>
+    <li>If the tree is disconnected, then <code>seen</code> will hold less than <code>n</code> nodes at the end.</li>
+    <li>If there is a cycle, then we will detect it with <code>seen</code>.</li>
+</ol>
+<p>Any other scenario we don't explicitly check for will be caught by some other rule. For example, the second rule we
+    stated was:</p>
+<p><strong>Every node other than the root must have exactly one parent.</strong></p>
+<p>You may be thinking: we are explicitly checking the case when a node has multiple parents with <code>seen</code>, but
+    what if there is a node with no parent other than the <code>root</code>? That is, what if there are multiple roots?
+    In that scenario, <code>findRoot</code> would give us the root with the lowest value. We would perform a DFS from
+    there, and never reach any of the other roots. Then at the end, <code>seen</code> would have less than
+    <code>n</code> nodes.</p>
+<p><strong>Algorithm</strong></p>
+<ol>
+    <li>Define a function <code>findRoot</code> that gives us the root, as described above.</li>
+    <li>Obtain <code>root = findRoot()</code>. If <code>root == -1</code>, then <code>return false</code>.</li>
+    <li>Initialize a <code>stack</code> and set <code>seen</code> with <code>root</code> in them.</li>
+    <li>While the <code>stack</code> is not empty:
+        <ul>
+            <li>Pop the top of the stack as <code>node</code>.</li>
+            <li>Iterate over the children of <code>node</code>, given in <code>leftChild[node]</code> and <code>rightChild[node]</code>.
+                For each <code>child</code>:
+                <ul>
+                    <li>If <code>child == -1</code>, then ignore it as it means there is no child.</li>
+                    <li>If <code>child</code> is in <code>seen</code>, <code>return false</code>.</li>
+                    <li>Push <code>child</code> to the stack and add it to <code>seen</code>.</li>
+                </ul>
+            </li>
+        </ul>
+    </li>
+    <li>After the DFS, <code>return seen.length == n</code>.</li>
+</ol>
+<p><strong>Implementation</strong></p>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public boolean validateBinaryTreeNodes(int n, int[] leftChild, int[] rightChild) {
+        int root = findRoot(n, leftChild, rightChild);
+        if (root == -1) {
+            return false;
+        }
+
+        Set<Integer> seen = new HashSet<>();
+        Stack<Integer> stack = new Stack<>();
+        seen.add(root);
+        stack.push(root);
+
+        while (!stack.isEmpty()) {
+            int node = stack.pop();
+            int[] children = {leftChild[node], rightChild[node]};
+
+            for (int child : children) {
+                if (child != -1) {
+                    if (seen.contains(child)) {
+                        return false;
+                    }
+
+                    stack.push(child);
+                    seen.add(child);
+                }
+            }
+
+        }
+
+        return seen.size() == n;
+    }
+
+    public int findRoot(int n, int[] left, int[] right) {
+        Set<Integer> children = new HashSet<>();
+        for (int node : left) {
+            children.add(node);
+        }
+
+        for (int node : right) {
+            children.add(node);
+        }
+
+        for (int i = 0; i < n; i++) {
+            if (!children.contains(i)) {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    bool validateBinaryTreeNodes(int n, vector<int>& leftChild, vector<int>& rightChild) {
+        int root = findRoot(n, leftChild, rightChild);
+        if (root == -1) {
+            return false;
+        }
+
+        unordered_set<int> seen;
+        stack<int> stack;
+        seen.insert(root);
+        stack.push(root);
+
+        while (!stack.empty()) {
+            int node = stack.top();
+            stack.pop();
+
+            int children[] = {leftChild[node], rightChild[node]};
+            for (int child : children) {
+                if (child != -1) {
+                    if (seen.find(child) != seen.end()) {
+                        return false;
+                    }
+
+                    stack.push(child);
+                    seen.insert(child);
+                }
+            }
+        }
+
+        return seen.size() == n;
+    }
+
+    int findRoot(int n, vector<int>& left, vector<int>& right) {
+        unordered_set<int> children;
+        children.insert(left.begin(), left.end());
+        children.insert(right.begin(), right.end());
+
+        for (int i = 0; i < n; i++) {
+            if (children.find(i) == children.end()) {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def validateBinaryTreeNodes(self, n: int, leftChild: List[int], rightChild: List[int]) -> bool:
+        def find_root():
+            children = set(leftChild) | set(rightChild)
+
+            for i in range(n):
+                if i not in children:
+                    return i
+
+            return -1
+
+        root = find_root()
+        if root == -1:
+            return False
+
+        seen = {root}
+        stack = [root]
+        while stack:
+            node = stack.pop()
+            for child in [leftChild[node], rightChild[node]]:
+                if child != -1:
+                    if child in seen:
+                        return False
+
+                    stack.append(child)
+                    seen.add(child)
+
+        return len(seen) == n
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <p>To find the root, we convert <code>leftChild</code> and <code>rightChild</code> to a set, which costs <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>. Then, we
+            iterate over all nodes, which also costs <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.</p>
+        <p>Once we have the root, we perform a DFS that costs <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+            as we never visit a node more than once.</p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <p>We require <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> space when
+            converting <code>leftChild</code> and <code>rightChild</code> to a set to find the root. We also require
+            <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> space for
+            <code>stack</code> and <code>seen</code> during the DFS.</p>
+    </li>
+</ul>
+<br>
+<hr>
+<h4 id="approach-2-breadth-first-search-bfs">Approach 2: Breadth First Search (BFS)</h4>
+<p><strong>Intuition</strong></p>
+<p>Sometimes an interviewer may ask you to implement both BFS and DFS. This approach is the same as the previous one,
+    except we will use BFS to perform the traversal instead of DFS.</p>
+<p>BFS uses a queue instead of a stack. If you are not familiar with BFS traversal, we suggest you read our relevant <a
+        href="https://leetcode.com/explore/learn/card/queue-stack/231/practical-application-queue/1376/"
+        target="_blank">LeetCode Explore Card</a>.</p>
+<p><strong>Algorithm</strong></p>
+<ol>
+    <li>Define a function <code>findRoot</code> that gives us the root, as described above.</li>
+    <li>Obtain <code>root = findRoot()</code>. If <code>root == -1</code>, then <code>return false</code>.</li>
+    <li>Initialize a <code>queue</code> and set <code>seen</code> with <code>root</code> in them.</li>
+    <li>While the <code>queue</code> is not empty:
+        <ul>
+            <li>Pop the front of the queue as <code>node</code>.</li>
+            <li>Iterate over the children of <code>node</code>, given in <code>leftChild[node]</code> and <code>rightChild[node]</code>.
+                For each <code>child</code>:
+                <ul>
+                    <li>If <code>child == -1</code>, then ignore it as it means there is no child.</li>
+                    <li>If <code>child</code> is in <code>seen</code>, <code>return false</code>.</li>
+                    <li>Push <code>child</code> to the queue and add it to <code>seen</code>.</li>
+                </ul>
+            </li>
+        </ul>
+    </li>
+    <li>After the BFS, <code>return seen.length == n</code>.</li>
+</ol>
+<p><strong>Implementation</strong></p>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public boolean validateBinaryTreeNodes(int n, int[] leftChild, int[] rightChild) {
+        int root = findRoot(n, leftChild, rightChild);
+        if (root == -1) {
+            return false;
+        }
+
+        Set<Integer> seen = new HashSet<>();
+        Queue<Integer> queue = new LinkedList<>();
+        seen.add(root);
+        queue.add(root);
+
+        while (!queue.isEmpty()) {
+            int node = queue.remove();
+            int[] children = {leftChild[node], rightChild[node]};
+
+            for (int child : children) {
+                if (child != -1) {
+                    if (seen.contains(child)) {
+                        return false;
+                    }
+
+                    queue.add(child);
+                    seen.add(child);
+                }
+            }
+
+        }
+
+        return seen.size() == n;
+    }
+
+    public int findRoot(int n, int[] left, int[] right) {
+        Set<Integer> children = new HashSet<>();
+        for (int node : left) {
+            children.add(node);
+        }
+
+        for (int node : right) {
+            children.add(node);
+        }
+
+        for (int i = 0; i < n; i++) {
+            if (!children.contains(i)) {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    bool validateBinaryTreeNodes(int n, vector<int>& leftChild, vector<int>& rightChild) {
+        int root = findRoot(n, leftChild, rightChild);
+        if (root == -1) {
+            return false;
+        }
+
+        unordered_set<int> seen;
+        queue<int> queue;
+        seen.insert(root);
+        queue.push(root);
+
+        while (!queue.empty()) {
+            int node = queue.front();
+            queue.pop();
+
+            int children[] = {leftChild[node], rightChild[node]};
+            for (int child : children) {
+                if (child != -1) {
+                    if (seen.find(child) != seen.end()) {
+                        return false;
+                    }
+
+                    queue.push(child);
+                    seen.insert(child);
+                }
+            }
+        }
+
+        return seen.size() == n;
+    }
+
+    int findRoot(int n, vector<int>& left, vector<int>& right) {
+        unordered_set<int> children;
+        children.insert(left.begin(), left.end());
+        children.insert(right.begin(), right.end());
+
+        for (int i = 0; i < n; i++) {
+            if (children.find(i) == children.end()) {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def validateBinaryTreeNodes(self, n: int, leftChild: List[int], rightChild: List[int]) -> bool:
+        def find_root():
+            children = set(leftChild) | set(rightChild)
+
+            for i in range(n):
+                if i not in children:
+                    return i
+
+            return -1
+
+        root = find_root()
+        if root == -1:
+            return False
+
+        seen = {root}
+        queue = deque([root])
+        while queue:
+            node = queue.popleft()
+            for child in [leftChild[node], rightChild[node]]:
+                if child != -1:
+                    if child in seen:
+                        return False
+
+                    queue.append(child)
+                    seen.add(child)
+
+        return len(seen) == n
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <p>To find the root, we convert <code>leftChild</code> and <code>rightChild</code> to a set, which costs <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>. Then, we
+            iterate over all nodes, which also costs <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.</p>
+        <p>Once we have the root, we perform a BFS that costs <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+            as we never visit a node more than once. Note that an efficient queue implementation with <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord">1</span><span class="mclose">)</span></span></span></span></span> operations is
+            required to achieve this complexity.</p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <p>We require <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> space when
+            converting <code>leftChild</code> and <code>rightChild</code> to a set to find the root. We also require
+            <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> space for
+            <code>queue</code> and <code>seen</code> during the BFS.</p>
+    </li>
+</ul>
+<br>
+<hr>
+<h4 id="approach-3-union-find">Approach 3: Union Find</h4>
+<p><strong>Intuition</strong></p>
+<blockquote>
+    <p>This is a more advanced, but interesting way to approach this problem. We have included it for the sake of
+        completeness. It is unlikely you will be expected to implement this approach in an interview if you have already
+        used one of the previous approaches, so we will not delve into great detail in this approach.</p>
+</blockquote>
+<p>A disjoint-set data structure (also called a union–find), is a data structure that stores a collection of disjoint
+    (non-overlapping) sets. Union-find provides us with the following methods:</p>
+<ol>
+    <li><code>find</code>: Determine which subset a particular element is in. This can be used to determine if two
+        elements are in the same subset.
+    </li>
+    <li><code>union</code>: Join two subsets into a single subset.</li>
+</ol>
+<p>If you are new to Union-Find, we suggest you read our <a
+        href="https://leetcode.com/explore/learn/card/graph/618/disjoint-set/3881/" target="_blank">Leetcode Explore
+    Card</a>. We will not talk about implementation details in this article, but only about the interface to the data
+    structure.</p>
+<p>Initially, all nodes belong to their own subset. We will iterate over all <code>(parent, child)</code> pairs given in
+    <code>leftChild</code> and <code>rightChild</code> and attempt a <code>union</code>. We want to assign the subset of
+    <code>child</code> to the subset of <code>parent</code>. For each call to <code>union(parent, child)</code>, we can
+    see if the tree is invalid with the following checks:</p>
+<ol>
+    <li>If <code>find(child) != child</code>, then <code>child</code> must have been assigned a parent earlier, and thus
+        <code>child</code> has multiple parents.
+    </li>
+    <li>If <code>parent</code> and <code>child</code> already belong to the same subset, then there must be a directed
+        path from <code>child</code> to <code>parent</code> as <code>parent</code> must have been assigned to the subset
+        of <code>child</code> earlier, and thus there exists a cycle.
+    </li>
+</ol>
+<p>After performing all <code>union</code> operations successfully between parents and their children, there should only
+    be one component in the union-find data structure. We can track the number of components by subtracting one from the
+    count on each successful <code>union</code> operation, and then check whether the final count of components is equal
+    to 1.</p>
+<p><strong>Algorithm</strong></p>
+<ol>
+    <li>Create a union-find data structure <code>uf</code> that implements <code>find(node)</code> and <code>union(parent,
+        child)</code>. It should also track the number of <code>components</code>.
+        <ul>
+            <li>In <code>union</code>, we return a boolean indicating if the union was successful. A union is
+                unsuccessful if the parent of <code>child</code> is not <code>child</code>, or the parent of <code>parent</code>
+                is <code>child</code>.
+            </li>
+            <li>If <code>union</code> is successful, we assign the subset of <code>child</code> to the subset of <code>parent</code>
+                and decrement the number of <code>components</code>.
+            </li>
+        </ul>
+    </li>
+    <li>Iterate <code>node</code> from <code>0</code> until <code>n</code>:
+        <ul>
+            <li>Iterate over the children of <code>node</code> as <code>child</code>:
+                <ul>
+                    <li>If <code>child == - 1</code>, ignore it.</li>
+                    <li>Otherwise, perform a <code>union(node, child)</code>. If it returns false, then <code>return
+                        false</code>.
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </li>
+    <li>Return <code>uf.components == 1</code>.</li>
+</ol>
+<p><strong>Implementation</strong></p>
+<blockquote>
+    <p>Note: In C++, <code>union</code> is a reserved keyword and cannot be redefined. Therefore, we need to rename the
+        <code>union</code> method, and we call it <code>join</code> here.</p>
+</blockquote>
+<pre>
+    Java
+    <code>
+        class UnionFind {
+    private final int n;
+    private final int[] parents;
+    public int components;
+
+    UnionFind(int n) {
+        this.n = n;
+        parents = new int[n];
+        components = n;
+
+        for (int i = 0; i < n; i++) {
+            parents[i] = i;
+        }
+    }
+
+    public boolean union(int parent, int child) {
+        int parentParent = find(parent);
+        int childParent = find(child);
+
+        if (childParent != child || parentParent == childParent) {
+            return false;
+        }
+
+        components--;
+        parents[childParent] = parentParent;
+        return true;
+    }
+
+    private int find(int node) {
+        if (parents[node] != node) {
+            parents[node] = find(parents[node]);
+        }
+
+        return parents[node];
+    }
+}
+
+class Solution {
+    public boolean validateBinaryTreeNodes(int n, int[] leftChild, int[] rightChild) {
+        UnionFind uf = new UnionFind(n);
+        for (int node = 0; node < n; node++) {
+            int[] children = {leftChild[node], rightChild[node]};
+            for (int child : children) {
+                if (child == -1) {
+                    continue;
+                }
+
+                if (!uf.union(node, child)) {
+                    return false;
+                }
+            }
+        }
+
+        return uf.components == 1;
+    }
+}
+    </code>
+    C++
+    <code>
+        class UnionFind {
+public:
+    int components;
+    int n;
+    vector<int> parents;
+
+    UnionFind(int n) {
+        this->n = n;
+        parents = vector(n, 0);
+        components = n;
+
+        for (int i = 0; i < n; i++) {
+            parents[i] = i;
+        }
+    }
+
+    bool join(int parent, int child) {
+        int parentParent = find(parent);
+        int childParent = find(child);
+
+        if (childParent != child || parentParent == childParent) {
+            return false;
+        }
+
+        components--;
+        parents[childParent] = parentParent;
+        return true;
+    }
+
+    int find(int node) {
+        if (parents[node] != node) {
+            parents[node] = find(parents[node]);
+        }
+
+        return parents[node];
+    }
+};
+
+class Solution {
+public:
+    bool validateBinaryTreeNodes(int n, vector<int>& leftChild, vector<int>& rightChild) {
+        UnionFind uf(n);
+        for (int node = 0; node < n; node++) {
+            int children[] = {leftChild[node], rightChild[node]};
+            for (int child : children) {
+                if (child == -1) {
+                    continue;
+                }
+
+                if (!uf.join(node, child)) {
+                    return false;
+                }
+            }
+        }
+
+        return uf.components == 1;
+    }
+};
+    </code>
+    Pytnon3
+    <code>
+        class UnionFind:
+    def __init__(self, n):
+        self.components = n
+        self.parents = list(range(n))
+
+    def union(self, parent, child):
+        parent_parent = self.find(parent)
+        child_parent = self.find(child)
+
+        if child_parent != child or parent_parent == child_parent:
+            return False
+
+        self.components -= 1
+        self.parents[child_parent] = parent_parent
+        return True
+
+    def find(self, node):
+        if self.parents[node] != node:
+            self.parents[node] = self.find(self.parents[node])
+
+        return self.parents[node]
+
+
+class Solution:
+    def validateBinaryTreeNodes(self, n: int, leftChild: List[int], rightChild: List[int]) -> bool:
+        uf = UnionFind(n)
+        for node in range(n):
+            for child in [leftChild[node], rightChild[node]]:
+                if child == -1:
+                    continue
+
+                if not uf.union(node, child):
+                    return False
+
+        return uf.components == 1
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <p>For <span class="math math-inline"><span class="katex"><span class="katex-mathml">TT</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.6833em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.13889em;">T</span></span></span></span></span>
+            operations, the amortized time complexity of the union-find algorithm is <span
+                    class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(alpha(T))O(alpha(T))</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">a</span><span class="mord mathnormal">lp</span><span
+                    class="mord mathnormal">ha</span><span class="mopen">(</span><span class="mord mathnormal"
+                                                                                       style="margin-right: 0.13889em;">T</span><span
+                    class="mclose">))</span></span></span></span></span>. Here, <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">α(T)\alpha(T)</span><span class="katex-html"
+                                                                                       aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.0037em;">α</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.13889em;">T</span><span
+                    class="mclose">)</span></span></span></span></span> is the inverse Ackermann function that grows so
+            slowly, that it doesn't exceed <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">44</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                    class="strut" style="height: 0.6444em;"></span><span
+                    class="mord">4</span></span></span></span></span> for all reasonable <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">TT</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                            style="margin-right: 0.13889em;">T</span></span></span></span></span>
+            (approximately <span class="math math-inline"><span class="katex"><span class="katex-mathml">T&lt;10600 T &lt; 10^{600}</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.7224em; vertical-align: -0.0391em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.13889em;">T</span><span class="mspace"
+                                                                                           style="margin-right: 0.2778em;"></span><span
+                    class="mrel">&lt;</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+                    class="base"><span class="strut" style="height: 0.8141em;"></span><span class="mord">1</span><span
+                    class="mord"><span class="mord">0</span><span class="msupsub"><span class="vlist-t"><span
+                    class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                    style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                       style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+                    class="mord mtight">600</span></span></span></span></span></span></span></span></span></span></span></span></span>).
+            You can read more about the complexity of union-find <a
+                    href="https://en.wikipedia.org/wiki/Disjoint-set_data_structure#Time_complexity" target="_blank">here</a>.
+            Because the function grows so slowly, we consider it to be <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord">1</span><span class="mclose">)</span></span></span></span></span>.</p>
+        <p>Initializing the <code>UnionFind</code> data structure costs <span class="math math-inline"><span
+                class="katex"><span class="katex-mathml">O(n)O(n)</span><span class="katex-html"
+                                                                              aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>. Then, we
+            simply iterate over each node once and perform some union-find operations at each iteration.</p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <p>The <code>UnionFind</code> data structure keeps a <code>parents</code> array that takes <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> space.</p>
+    </li>
+</ul>
+<br>
+<hr>
+</body>
+</html>
