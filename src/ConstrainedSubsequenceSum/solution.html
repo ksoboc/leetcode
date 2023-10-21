@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Constrained Subsequence Sum - Solution</title>
+</head>
+<body>
+<h2 id="solution">Constrained Subsequence Sum - Solution</h2>
+<hr>
+<h4 id="approach-1-heappriority-queue">Approach 1: Heap/Priority Queue</h4>
+<p><strong>Intuition</strong></p>
+<p>Before we start developing a strategy, we must carefully understand what the problem is asking for.</p>
+<p>We need to maximize the sum of a subsequence. We can take as many integers as we want, but the primary constraint is
+    that we <strong>cannot</strong> have a gap of <code>k</code> or more in our subsequence.</p>
+<p>You may immediately notice that in an array of positive integers, we should always take the entire array. The tricky
+    part comes in when we have negative integers. Of course, we would prefer to avoid negative integers since they will
+    decrease our sum. However, it may be worth taking a negative integer as a sort of "bridge". Take a look at the
+    following example:</p>
+<p><img src="1.png" alt="example"><br>
+    <br></p>
+<p>In this example, we have a group of negative numbers separating a <code>16</code> and a group of positive numbers
+    that sum to <code>16</code>. We would like to take all the positive numbers while avoiding the negative numbers, but
+    we aren't allowed to as that would result in a gap of three numbers. As <code>k = 2</code>, the biggest gap we can
+    have is one number. The optimal solution here is to take the <code>-5</code>.</p>
+<p><img src="2.png" alt="example"><br>
+    <br></p>
+<p>As you can see, the <code>-5</code> acts as a bridge for the positive numbers. The question now is, how do we know
+    when it is worth it to take negative numbers? In this case, taking the <code>-5</code> allowed us to take the first
+    element of <code>16</code>. This results in a net gain of <code>11</code>. Anytime we have a positive net gain, we
+    should consider taking this element because it can contribute to a positive sum and potentially increase the sum of
+    subsequent subsequences.</p>
+<p>We will iterate over the input from left to right. At each index <code>i</code>, we will consider the maximum
+    possible sum of a subsequence that <strong>includes and ends at nums[i]</strong>. Let's call this value
+    <code>curr</code>. How do we calculate <code>curr</code> for a given index <code>i</code>? We want the maximum
+    possible sum of a subsequence that ends within the last <code>k</code> indices. We will then add
+    <code>nums[i]</code> to this sum.</p>
+<p>We could solve this using dynamic programming - let <code>dp[i]</code> represent the maximum possible sum of a
+    subsequence that includes and ends at <code>nums[i]</code>. We can calculate <code>dp[i]</code> by taking the
+    maximum <code>dp[j]</code> for all <code>j</code> in the range <code>[i - k, i - 1]</code> (the last <code>k</code>
+    indices), then adding <code>nums[i]</code> to it.</p>
+<p>However, we would be iterating up to <code>k</code> times to calculate each state. As <code>k</code> can be large,
+    this approach is too slow. We need a faster way to find the maximum <code>dp[j]</code> for all indices
+    <code>j</code> in the range <code>[i - k, i - 1]</code>.</p>
+<p>Because we are only concerned with the maximum sum, we could use a max heap. The max heap would store
+    <code>dp[j]</code> for all <code>j</code> in the last <code>k</code> indices. We can easily calculate
+    <code>curr</code> by simply checking the top of this heap.</p>
+<p>We need to make sure we don't use elements of the heap that are more than <code>k</code> away from the current index.
+    Before we calculate <code>curr</code>, we pop from the top of the heap if it is outside our range. This means each
+    entry in the heap will also need its associated index, so we can tell when an element is out of range.</p>
+<p>Note that if the top of the heap is negative, it is better to not take it. This is a process very similar to Kadane's
+    Algorithm, which solves the <a href="https://leetcode.com/problems/maximum-subarray/" target="_blank">Maximum
+        Subarray</a> problem. When the top of the heap is negative, it indicates that selecting this subsequence would
+    result in a sum less than 0. Every element in the array to the left of the current index should be abandoned - any
+    "bridge" would not be worth taking. It's better to discard these subsequences altogether and reset the sum to 0.</p>
+<p><strong>Algorithm</strong></p>
+<ol>
+    <li>Initialize a max <code>heap</code> with <code>(nums[0], 0)</code>. Also initialize the answer <code>ans =
+        nums[0]</code>.
+    </li>
+    <li>Iterate <code>i</code> over the indices of <code>nums</code>, starting from <code>i = 1</code>:
+        <ul>
+            <li>While <code>i</code> minus the index (second element) at the top of <code>heap</code> is greater than
+                <code>k</code>, pop from <code>heap</code>.
+            </li>
+            <li>Set <code>curr</code> to the value (first element) at the top of <code>heap</code>, plus
+                <code>nums[i]</code>. Note that if the value at the top of <code>heap</code> is negative, we should take
+                <code>0</code> instead.
+            </li>
+            <li>Update <code>ans</code> with <code>curr</code> if it is larger.</li>
+            <li>Push <code>(curr, i)</code> to <code>heap</code>.</li>
+        </ul>
+    </li>
+    <li>Return <code>ans</code>.</li>
+</ol>
+<p><strong>Implementation</strong></p>
+<blockquote>
+    <p>Implementation note: Python's heapq module only implements min heaps, so we will make the values in the heap
+        negative to simulate a max heap.</p>
+</blockquote>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int constrainedSubsetSum(int[] nums, int k) {
+        PriorityQueue<int[]> heap = new PriorityQueue<>((a, b) -> {
+            return b[0] - a[0];
+        });
+
+        heap.add(new int[] {nums[0], 0});
+        int ans = nums[0];
+
+        for (int i = 1; i < nums.length; i++) {
+            while (i - heap.peek()[1] > k) {
+                heap.remove();
+            }
+
+            int curr = Math.max(0, heap.peek()[0]) + nums[i];
+            ans = Math.max(ans, curr);
+            heap.add(new int[] {curr, i});
+        }
+
+        return ans;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int constrainedSubsetSum(vector<int>& nums, int k) {
+        priority_queue<pair<int, int>> heap;
+        heap.push({nums[0], 0});
+        int ans = nums[0];
+
+        for (int i = 1; i < nums.size(); i++) {
+            while (i - heap.top().second > k) {
+                heap.pop();
+            }
+
+            int curr = max(0, heap.top().first) + nums[i];
+            ans = max(ans, curr);
+            heap.push({curr, i});
+        }
+
+        return ans;
+    }
+};
+    </code>
+    Python3
+    <code>
+        import heapq
+
+class Solution:
+    def constrainedSubsetSum(self, nums: List[int], k: int) -> int:
+        heap = [(-nums[0], 0)]
+        ans = nums[0]
+
+        for i in range(1, len(nums)):
+            while i - heap[0][1] > k:
+                heapq.heappop(heap)
+
+            curr = max(0, -heap[0][0]) + nums[i]
+            ans = max(ans, curr)
+            heapq.heappush(heap, (-curr, i))
+
+        return ans
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<p>Given <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    as the length of <code>nums</code>,</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅log⁡n)O(n \cdot \log{}n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                      style="margin-right: 0.1667em;"></span><span
+                class="mord"></span><span class="mord mathnormal">n</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <p>We iterate over each index of <code>nums</code> once. At each iteration, we have a while loop and some heap
+            operations. The while loop runs in <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord">1</span><span class="mclose">)</span></span></span></span></span> amortized - because
+            an element can only be popped from the heap once, the while loop cannot run more than <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> times in
+            total across all iterations.</p>
+        <p>The heap operations depend on the size of the heap. In an array of only positive integers, we will never pop
+            from the heap. Thus, the size of the heap will grow to <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> and the
+            heap operations will cost <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡n)O(\log{}n)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                              style="margin-right: 0.1667em;"></span><span
+                    class="mord"></span><span class="mord mathnormal">n</span><span
+                    class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <p>As mentioned above, <code>heap</code> could grow to a size of <span class="math math-inline"><span
+                class="katex"><span class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>.
+        </p>
+    </li>
+</ul>
+<br>
+<hr>
+<h4 id="approach-2-treemap-like-data-structure">Approach 2: TreeMap-Like Data Structure</h4>
+<p><strong>Intuition</strong></p>
+<p>As we saw in the previous approach, the crux of the dynamic programming idea was finding the maximum value of <code>dp</code>
+    in the last <code>k</code> indices. We accomplished this in <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">O(log⁡n)O(\log{}n)</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                      style="margin-right: 0.1667em;"></span><span
+            class="mord"></span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+    time with a heap, but we could achieve <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">O(log⁡k)O(\log{}k)</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                      style="margin-right: 0.1667em;"></span><span
+            class="mord"></span><span class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+            class="mclose">)</span></span></span></span></span> with a tree map data structure (like a red-black tree).
+    Because <code>k &lt;= n</code>, this is a slight improvement in terms of big O.</p>
+<p>Let's actually use the <code>dp</code> array that we spoke of in the previous approach this time. We will have a data
+    structure <code>window</code> that holds all values of <code>dp</code> in the last <code>k</code> indices. We can
+    easily calculate <code>dp[i]</code> as <code>nums[i]</code> plus the maximum value in <code>window</code>. Then, we
+    can add <code>dp[i]</code> to <code>window</code>.</p>
+<p>To maintain <code>window</code>, once we reach index <code>k</code>, we need to start removing <code>dp[i - k]</code>
+    from <code>window</code> at each iteration.</p>
+<p>In Java, we will use <code>TreeMap</code>. Each key will be a value in <code>dp</code> which we will map to its
+    frequency. To remove <code>dp[i - k]</code> from the window, we will decrement its frequency, and if its frequency
+    becomes <code>0</code>, we will delete the key.</p>
+<p>In C++, we will use <code>std::map</code>, which functions similarly to Java's <code>TreeMap</code>.</p>
+<p>In Python, we will use <a href="https://grantjenks.com/docs/sortedcontainers/sortedlist.html" target="_blank">sortedcontainers.SortedList</a>,
+    which is more like a list than a map, but still provides us with the efficient operations we require.</p>
+<p>For all implementations, we will initialize <code>window</code> with a key of <code>0</code> to make the code
+    cleaner, otherwise we would need to handle the first index differently (check if <code>window</code> is empty before
+    accessing the maximum key).</p>
+<p>The answer to the problem will be the max value in <code>dp</code> in the end.</p>
+<p><strong>Algorithm</strong></p>
+<ol>
+    <li>Initialize <code>window</code> with <code>0: 0</code>.</li>
+    <li>Initialize an array <code>dp</code> with the same length as <code>nums</code>.</li>
+    <li>Iterate <code>i</code> over the indices of <code>nums</code>:
+        <ul>
+            <li>Set <code>dp[i]</code> to <code>nums[i]</code> plus the maximum key in <code>window</code>.</li>
+            <li>Increment the frequency of <code>dp[i]</code> in <code>window</code>.</li>
+            <li>If <code>i &gt;= k</code>:
+                <ul>
+                    <li>Decrement the frequency of <code>dp[i - k]</code> in <code>window</code>. If the frequency
+                        becomes <code>0</code>, delete it from <code>window</code>.
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </li>
+    <li>Return the max value in <code>dp</code>.</li>
+</ol>
+<p><strong>Implementation</strong></p>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int constrainedSubsetSum(int[] nums, int k) {
+        TreeMap<Integer, Integer> window = new TreeMap();
+        window.put(0, 0);
+
+        int dp[] = new int[nums.length];
+
+        for (int i = 0; i < nums.length; i++) {
+            dp[i] = nums[i] + window.lastKey();
+            window.put(dp[i], window.getOrDefault(dp[i], 0) + 1);
+
+            if (i >= k) {
+                window.put(dp[i - k], window.get(dp[i - k]) - 1);
+                if (window.get(dp[i - k]) == 0) {
+                    window.remove(dp[i - k]);
+                }
+            }
+        }
+
+        int ans = Integer.MIN_VALUE;
+        for (int num : dp) {
+            ans = Math.max(ans, num);
+        }
+
+        return ans;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int constrainedSubsetSum(vector<int>& nums, int k) {
+        map<int, int> window;
+        window[0] = 0;
+        vector<int> dp(nums.size());
+
+        for (int i = 0; i < nums.size(); i++) {
+            dp[i] = nums[i] + window.rbegin()->first;
+            window[dp[i]]++;
+
+            if (i >= k) {
+                window[dp[i - k]]--;
+                if (window[dp[i - k]] == 0) {
+                    window.erase(dp[i - k]);
+                }
+            }
+        }
+
+        return *max_element(dp.begin(), dp.end());
+    }
+};
+    </code>
+    Python3
+    <code>
+        from sortedcontainers import SortedList
+
+class Solution:
+    def constrainedSubsetSum(self, nums: List[int], k: int) -> int:
+        window = SortedList([0])
+        dp = [0] * len(nums)
+
+        for i in range(len(nums)):
+            dp[i] = nums[i] + window[-1]
+            window.add(dp[i])
+            if i >= k:
+                window.remove(dp[i - k])
+
+        return max(dp)
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<p>Given <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    as the length of <code>nums</code>,</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅log⁡k)O(n \cdot \log{}k)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                      style="margin-right: 0.1667em;"></span><span
+                class="mord"></span><span class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <p>We iterate over each index of <code>nums</code> once. At each iteration, we have some operations with <code>window</code>.
+            The cost of these operations is a function of the size of <code>window</code>. As <code>window</code> will
+            never exceed a size of <code>k</code>, these operations cost <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">O(log⁡k)O(\log{}k)</span><span class="katex-html"
+                                                                                            aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                              style="margin-right: 0.1667em;"></span><span
+                    class="mord"></span><span class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                    class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <p><code>window</code> will not exceed a size of <code>k</code>, but <code>dp</code> requires <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> space.</p>
+    </li>
+</ul>
+<br>
+<hr>
+<h4 id="approach-3-monotonic-deque">Approach 3: Monotonic Deque</h4>
+<p><strong>Intuition</strong></p>
+<blockquote>
+    <p>This approach is very similar to the solution to <a href="https://leetcode.com/problems/sliding-window-maximum/"
+                                                           target="_blank">Sliding Window Maximum</a>. We recommend you
+        try this problem as well if you haven't already.</p>
+</blockquote>
+<p>Is it possible to find the maximum value of <code>dp</code> in the last <code>k</code> indices in <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span class="katex-html"
+                                                                                                     aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord">1</span><span
+        class="mclose">)</span></span></span></span></span>? Yes, by using a monotonic queue!</p>
+<p>A monotonic data structure is one where the elements are always sorted. If we have a monotonic
+    <strong>decreasing</strong> data structure, then the elements are always sorted descending. Thus, if we can maintain
+    a monotonic data structure that holds values of <code>dp</code> for the last <code>k</code> indices, then the first
+    element in this data structure will be the value we are interested in.</p>
+<p>To maintain this data structure, we need to make sure that whenever we push a new element, it will be the smallest
+    value. Before we push an element <code>dp[i]</code>, we check the last element. If it is less than
+    <code>dp[i]</code>, we must pop it, otherwise, the monotonic property would be broken. Since there may be multiple
+    elements less than <code>dp[i]</code>, we need to use a while loop to "clean" the data structure before pushing
+    <code>dp[i]</code>.</p>
+<p>Only once there are no elements in the data structure less than <code>dp[i]</code> will we push <code>dp[i]</code>.
+    Additionally, we will only push positive values of <code>dp[i]</code> to <code>queue</code>.</p>
+<p>The reason we want to remove elements that are less than <code>dp[i]</code> is because <code>dp[i]</code> comes after
+    those elements. Thus, those elements will be out of range before <code>dp[i]</code>, and because <code>dp[i]</code>
+    is greater than them, there is no chance those elements will ever be the maximum value in the last <code>k</code>
+    indices anymore.</p>
+<p>Before we check the max value, we must make sure it is not out of range. If it is, we will remove this invalid max
+    value. As you can see, we need to remove elements from both the front and the back. Thus, we will use a deque
+    (double-ended queue) as our data structure.</p>
+<p>To detect if the max value is out of range, we must store the indices in the queue.</p>
+<ul>
+    <li>To check if the max value is out of range, we check if <code>i - queue.front() &gt; k</code>.</li>
+    <li>To obtain the max value of the queue, we check <code>dp[queue.front()]</code></li>
+    <li>To obtain the value at the end of the queue, we check <code>dp[queue.back()]</code></li>
+</ul>
+<blockquote>
+    <p>Note that we could also store pairs <code>(dp[i], i)</code> on the queue.</p>
+</blockquote>
+<p><strong>Algorithm</strong></p>
+<ol>
+    <li>Initialize a deque <code>queue</code>. Also initialize an array <code>dp</code> with the same length as <code>nums</code>.
+    </li>
+    <li>Iterate <code>i</code> over the indices of <code>nums</code>:
+        <ul>
+            <li>If <code>i</code> minus the front of <code>queue</code> is greater than <code>k</code>, remove from the
+                front of <code>queue</code>.
+            </li>
+            <li>Set <code>dp[i]</code> to <code>dp[queue.front()] + nums[i]</code>. If <code>queue</code> is empty, use
+                <code>0</code> instead of <code>dp[queue.front()]</code>.
+            </li>
+            <li>While <code>dp[queue.back()]</code> is less than <code>dp[i]</code>, pop from the back of
+                <code>queue</code>.
+            </li>
+            <li>If <code>dp[i] &gt; 0</code>, push <code>i</code> to the back of <code>queue</code>.</li>
+        </ul>
+    </li>
+    <li>Return the max element in <code>dp</code>.</li>
+</ol>
+<p><strong>Implementation</strong></p>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int constrainedSubsetSum(int[] nums, int k) {
+        Deque<Integer> queue = new ArrayDeque<>();
+        int dp[] = new int[nums.length];
+
+        for (int i = 0; i < nums.length; i++) {
+            if (!queue.isEmpty() && i - queue.peek() > k) {
+                queue.poll();
+            }
+
+            dp[i] = (!queue.isEmpty() ? dp[queue.peek()] : 0) + nums[i];
+            while (!queue.isEmpty() && dp[queue.peekLast()] < dp[i]) {
+                queue.pollLast();
+            }
+
+            if (dp[i] > 0) {
+                queue.offer(i);
+            }
+        }
+
+        int ans = Integer.MIN_VALUE;
+        for (int num : dp) {
+            ans = Math.max(ans, num);
+        }
+
+        return ans;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int constrainedSubsetSum(vector<int>& nums, int k) {
+        deque<int> queue;
+        vector<int> dp(nums.size());
+
+        for (int i = 0; i < nums.size(); i++) {
+            if (!queue.empty() && i - queue.front() > k) {
+                queue.pop_front();
+            }
+
+            dp[i] = (!queue.empty() ? dp[queue.front()] : 0) + nums[i];
+            while (!queue.empty() && dp[queue.back()] < dp[i]) {
+                queue.pop_back();
+            }
+
+            if (dp[i] > 0) {
+                queue.push_back(i);
+            }
+        }
+
+        return *max_element(dp.begin(), dp.end());
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def constrainedSubsetSum(self, nums: List[int], k: int) -> int:
+        queue = deque()
+        dp = [0] * len(nums)
+
+        for i in range(len(nums)):
+            if queue and i - queue[0] > k:
+                queue.popleft()
+
+            dp[i] = (dp[queue[0]] if queue else 0) + nums[i]
+            while queue and dp[queue[-1]] < dp[i]:
+                queue.pop()
+
+            if dp[i] > 0:
+                queue.append(i)
+
+        return max(dp)
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<p>Given <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    as the length of <code>nums</code>,</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <p>We iterate over each index once. At each iteration, we have a while loop. This while loop runs in <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord">1</span><span class="mclose">)</span></span></span></span></span> amortized. Each element
+            in <code>nums</code> can only be pushed and popped from <code>queue</code> at most once. Thus, this while
+            loop will not run more than <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                    class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+            times across all <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                    class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+            iterations. Everything else in each iteration runs in <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord">1</span><span class="mclose">)</span></span></span></span></span>. Thus, each iteration
+            costs <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord">1</span><span class="mclose">)</span></span></span></span></span> amortized.</p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <p><code>dp</code> and <code>queue</code> both require <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+            space.</p>
+    </li>
+</ul>
+<br>
+<hr>
+</body>
+</html>
