@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Find Largest Value in Each Tree Row - Solution</title>
+</head>
+<body>
+<h2 id="solution">Find Largest Value in Each Tree Row - Solution</h2>
+<hr>
+<h4 id="approach-1-breadth-first-search-bfs">Approach 1: Breadth First Search (BFS)</h4>
+<p><strong>Intuition</strong></p>
+<blockquote>
+    <p>If you are not familiar with BFS traversal, we suggest you read our relevant <a
+            href="https://leetcode.com/explore/learn/card/queue-stack/231/practical-application-queue/1376/"
+            target="_blank">LeetCode Explore Card</a>.</p>
+</blockquote>
+<p>BFS is perfect when we are dealing specifically with rows/levels of a binary tree. With BFS, we handle one row of the
+    tree at a time.</p>
+<p>Here, we need to find the maximum value in each row. We can simply perform a BFS and for each row, keep track of the
+    maximum value we have seen so far. We will initialize an integer <code>currMax</code> to a small value like negative
+    infinity. Then we go through the row and try to update <code>currMax</code> when we see larger values. After
+    handling the row, we add <code>currMax</code> to our answer.</p>
+<p><strong>Algorithm</strong></p>
+<ol>
+    <li>If the <code>root</code> is null (empty) tree, just return an empty list.</li>
+    <li>Initialize the answer list <code>ans</code> and a <code>queue</code> with the <code>root</code> to perform BFS.
+    </li>
+    <li>Perform BFS - while the <code>queue</code> is not empty:
+        <ul>
+            <li>Initialize <code>currMax</code> to a small value and save the length of the queue in
+                <code>currentLength</code>.
+            </li>
+            <li>Iterate <code>currentLength</code> times:
+                <ul>
+                    <li>Remove a <code>node</code> from the <code>queue</code>.</li>
+                    <li>Update <code>currMax</code> with <code>node.val</code> if it is larger.</li>
+                    <li>For each child of <code>node</code>, if it is not null, push it to the <code>queue</code>.</li>
+                </ul>
+            </li>
+            <li>Add <code>currMax</code> to <code>ans</code>.</li>
+        </ul>
+    </li>
+    <li>Return <code>ans</code>.</li>
+</ol>
+<p><strong>Implementation</strong></p>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public List<Integer> largestValues(TreeNode root) {
+        if (root == null) {
+            return new ArrayList<Integer>();
+        }
+
+        List<Integer> ans = new ArrayList<Integer>();
+        Queue<TreeNode> queue = new LinkedList<>();
+        queue.add(root);
+
+        while (!queue.isEmpty()) {
+            int currentLength = queue.size();
+            int currMax = Integer.MIN_VALUE;
+
+            for (int i = 0; i < currentLength; i++) {
+                TreeNode node = queue.remove();
+                currMax = Math.max(currMax, node.val);
+
+                if (node.left != null) {
+                    queue.add(node.left);
+                }
+
+                if (node.right != null) {
+                    queue.add(node.right);
+                }
+            }
+
+            ans.add(currMax);
+        }
+
+        return ans;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    vector<int> largestValues(TreeNode* root) {
+        if (root == nullptr) {
+            return vector<int>{};
+        }
+
+        vector<int> ans;
+        queue<TreeNode*> queue;
+        queue.push(root);
+
+        while (!queue.empty()) {
+            int currentLength = queue.size();
+            int currMax = INT_MIN;
+
+            for (int i = 0; i < currentLength; i++) {
+                TreeNode* node = queue.front();
+                queue.pop();
+                currMax = max(currMax, node->val);
+
+                if (node->left) {
+                    queue.push(node->left);
+                }
+
+                if (node->right) {
+                    queue.push(node->right);
+                }
+            }
+
+            ans.push_back(currMax);
+        }
+
+        return ans;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def largestValues(self, root: Optional[TreeNode]) -> List[int]:
+        if not root:
+            return []
+
+        ans = []
+        queue = deque([root])
+
+        while queue:
+            current_length = len(queue)
+            curr_max = float("-inf")
+
+            for _ in range(current_length):
+                node = queue.popleft()
+                curr_max = max(curr_max, node.val)
+                if node.left:
+                    queue.append(node.left)
+                if node.right:
+                    queue.append(node.right)
+
+            ans.append(curr_max)
+
+        return ans
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<p>Given <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    as the number of nodes in the tree,</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <p>During the BFS, we visit each node in the tree once. At each node, we perform <span class="math math-inline"><span
+                class="katex"><span class="katex-mathml">O(1)O(1)</span><span class="katex-html"
+                                                                              aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord">1</span><span class="mclose">)</span></span></span></span></span> work.</p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <p>In a perfect binary tree, the final row has <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n2)=O(n)O(\frac{n}{2}) = O(n)</span><span class="katex-html"
+                                                                                 aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1.095em; vertical-align: -0.345em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span
+                class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.6954em;"><span
+                style="top: -2.655em;"><span class="pstrut" style="height: 3em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+                class="mord mtight">2</span></span></span></span><span style="top: -3.23em;"><span class="pstrut"
+                                                                                                   style="height: 3em;"></span><span
+                class="frac-line" style="border-bottom-width: 0.04em;"></span></span><span style="top: -3.394em;"><span
+                class="pstrut" style="height: 3em;"></span><span class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight"><span class="mord mathnormal mtight">n</span></span></span></span></span><span
+                class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                           style="height: 0.345em;"><span></span></span></span></span></span><span
+                class="mclose nulldelimiter"></span></span><span class="mclose">)</span><span class="mspace"
+                                                                                              style="margin-right: 0.2778em;"></span><span
+                class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> nodes, all of
+            which will be in <code>queue</code>.</p>
+    </li>
+</ul>
+<br>
+<hr>
+<h4 id="approach-2-depth-first-search-dfs">Approach 2: Depth First Search (DFS)</h4>
+<p><strong>Intuition</strong></p>
+<blockquote>
+    <p>Note: This problem is perfect for BFS, but an interviewer might you to implement DFS as a follow-up. We have
+        included a DFS approach for completeness.</p>
+</blockquote>
+<p>In BFS, we handle each row explicitly, so it's easy to just keep track of the maximum value as we traverse through
+    the row.</p>
+<p>In DFS, the order in which we move through the tree is not related to the rows. Thus, we need to be more creative to
+    find the maximum value in each row. The first observation to make is that each row can be described by the depth of
+    its nodes.</p>
+<p><img src="1.png" alt="depth"><br>
+    <br></p>
+<p>The depth of a node is its distance from the root. The root has a depth of <code>0</code>, and every child has a
+    depth of <code>1</code> greater than its parent. You may also notice that in terms of indices, each node's depth
+    corresponds to its index in the answer.</p>
+<p>For example, if <code>ans</code> is our answer list, then <code>ans[2]</code> holds the maximum value of all nodes
+    with depth <code>2</code>.</p>
+<p>If we keep track of each node's depth during the traversal, then we can update <code>ans</code> directly. How do we
+    keep track of the depth? We will pass an additional argument <code>depth</code> in our <code>dfs</code> function.
+    When we initially call <code>dfs</code> with <code>root</code>, we will pass <code>depth = 0</code>. When we call
+    <code>dfs</code> on a child, we will pass <code>depth + 1</code>.</p>
+<p>There is one problem: how do we know what length <code>ans</code> should be? We will initialize <code>ans</code> as
+    an empty list. If we are at a <code>depth</code> that would be out of bounds if we tried to access
+    <code>ans[depth]</code>, then we will simply initialize the current <code>node.val</code> as the maximum value seen
+    at <code>depth</code> so far by pushing <code>node.val</code> to <code>ans</code>.</p>
+<p><strong>Algorithm</strong></p>
+<ol>
+    <li>Initialize <code>ans</code> as an empty list.</li>
+    <li>Define a function <code>dfs(node, depth)</code>:
+        <ul>
+            <li>If <code>node</code> is null, return.</li>
+            <li>If <code>depth == ans.length</code>, then push <code>node.val</code> to <code>ans</code>. Otherwise, try
+                to update <code>ans[depth]</code> with <code>node.val</code> if its larger.
+            </li>
+            <li>Call <code>dfs</code> on <code>node.left</code> and <code>node.right</code> with <code>depth + 1</code>
+                as the second argument.
+            </li>
+        </ul>
+    </li>
+    <li>Call <code>dfs(root, 0)</code> and then <code>return ans</code>.</li>
+</ol>
+<p><strong>Implementation</strong></p>
+<pre>
+    Java
+    <code>
+        class Solution {
+    List<Integer> ans;
+
+    public List<Integer> largestValues(TreeNode root) {
+        ans = new ArrayList<Integer>();
+        dfs(root, 0);
+        return ans;
+    }
+
+    public void dfs(TreeNode node, int depth) {
+        if (node == null) {
+            return;
+        }
+
+        if (depth == ans.size()) {
+            ans.add(node.val);
+        } else {
+            ans.set(depth, Math.max(ans.get(depth), node.val));
+        }
+
+        dfs(node.left, depth + 1);
+        dfs(node.right, depth + 1);
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    vector<int> ans;
+
+    vector<int> largestValues(TreeNode* root) {
+        dfs(root, 0);
+        return ans;
+    }
+
+    void dfs(TreeNode* node, int depth) {
+        if (node == nullptr) {
+            return;
+        }
+
+        if (depth == ans.size()) {
+            ans.push_back(node->val);
+        } else {
+            ans[depth] = max(ans[depth], node->val);
+        }
+
+        dfs(node->left, depth + 1);
+        dfs(node->right, depth + 1);
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def largestValues(self, root: Optional[TreeNode]) -> List[int]:
+        def dfs(node, depth):
+            if not node:
+                return
+
+            if depth == len(ans):
+                ans.append(node.val)
+            else:
+                ans[depth] = max(ans[depth], node.val)
+
+            dfs(node.left, depth + 1)
+            dfs(node.right, depth + 1)
+
+        ans = []
+        dfs(root, 0)
+        return ans
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<p>Given <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    as the number of nodes in the tree and <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">hh</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.6944em;"></span><span
+            class="mord mathnormal">h</span></span></span></span></span> as the max depth of the tree,</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <p>During the DFS, we visit each node in the tree once. At each node, we perform <span class="math math-inline"><span
+                class="katex"><span class="katex-mathml">O(1)O(1)</span><span class="katex-html"
+                                                                              aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord">1</span><span class="mclose">)</span></span></span></span></span> work.</p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(h)O(h)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">h</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <p>We use extra space for the recursion call stack. The most calls in the call stack at any given time will be
+            the max depth of the tree. In the worst-case scenario where the tree is like a linked list, the max depth
+            will be <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+</ul>
+<br>
+<hr>
+<h4 id="approach-3-dfs-iterative">Approach 3: DFS, Iterative</h4>
+<p><strong>Intuition</strong></p>
+<p>We can also implement DFS iteratively using a stack. Each entry in the stack will be a pair <code>node, depth</code>.
+    We will use a while loop to perform the DFS, with each iteration being analogous to a function call from the
+    previous approach. As such, we will perform the same process in each while loop iteration: try to update
+    <code>ans</code> with <code>node.val</code>, then push the children of <code>node</code> to the stack if they exist.
+</p>
+<p><strong>Algorithm</strong></p>
+<ol>
+    <li>If the <code>root</code> is null (empty) tree, just return an empty list.</li>
+    <li>Initialize the answer list <code>ans</code> and a <code>stack</code> with <code>(root, 0)</code>.</li>
+    <li>While the <code>stack</code> is not empty:
+        <ul>
+            <li>Pop <code>(node, depth)</code> from the stack.</li>
+            <li>If <code>depth == ans.length</code>, then push <code>node.val</code> to <code>ans</code>. Otherwise, try
+                to update <code>ans[depth]</code> with <code>node.val</code> if its larger.
+            </li>
+            <li>If <code>node.left</code> is not null, push <code>(node.left, depth + 1)</code> to <code>stack</code>.
+            </li>
+            <li>If <code>node.right</code> is not null, push <code>(node.right, depth + 1)</code> to <code>stack</code>.
+            </li>
+        </ul>
+    </li>
+    <li>Return <code>ans</code>.</li>
+</ol>
+<p><strong>Implementation</strong></p>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public List<Integer> largestValues(TreeNode root) {
+        if (root == null) {
+            return new ArrayList<Integer>();
+        }
+
+        List<Integer> ans = new ArrayList<>();
+        Stack<Pair<TreeNode, Integer>> stack = new Stack<>();
+        stack.push(new Pair<>(root, 0));
+
+        while (!stack.isEmpty()) {
+            Pair<TreeNode, Integer> pair = stack.pop();
+            TreeNode node = pair.getKey();
+            int depth = pair.getValue();
+
+            if (depth == ans.size()) {
+                ans.add(node.val);
+            } else {
+                ans.set(depth, Math.max(ans.get(depth), node.val));
+            }
+
+            if (node.left != null) {
+                stack.push(new Pair<>(node.left, depth + 1));
+            }
+
+            if (node.right != null) {
+                stack.push(new Pair<>(node.right, depth + 1));
+            }
+        }
+
+        return ans;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    vector<int> largestValues(TreeNode* root) {
+        if (root == nullptr) {
+            return vector<int>{};
+        }
+
+        vector<int> ans;
+        stack<pair<TreeNode*, int>> stack;
+        stack.push(make_pair(root, 0));
+
+        while (!stack.empty()) {
+            pair<TreeNode*, int> pair = stack.top();
+            stack.pop();
+            TreeNode* node = pair.first;
+            int depth = pair.second;
+
+            if (depth == ans.size()) {
+                ans.push_back(node->val);
+            } else {
+                ans[depth] = max(ans[depth], node->val);
+            }
+
+            if (node->left) {
+                stack.push(make_pair(node->left, depth + 1));
+            }
+
+            if (node->right) {
+                stack.push(make_pair(node->right, depth + 1));
+            }
+        }
+
+        return ans;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def largestValues(self, root: Optional[TreeNode]) -> List[int]:
+        if not root:
+            return []
+
+        ans = []
+        stack = [(root, 0)]
+
+        while stack:
+            node, depth = stack.pop()
+            if depth == len(ans):
+                ans.append(node.val)
+            else:
+                ans[depth] = max(ans[depth], node.val)
+
+            if node.left:
+                stack.append((node.left, depth + 1))
+            if node.right:
+                stack.append((node.right, depth + 1))
+
+        return ans
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<p>Given <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    as the number of nodes in the tree and <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">hh</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.6944em;"></span><span
+            class="mord mathnormal">h</span></span></span></span></span> as the max depth of the tree,</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <p>During the DFS, we visit each node in the tree once. At each node, we perform <span class="math math-inline"><span
+                class="katex"><span class="katex-mathml">O(1)O(1)</span><span class="katex-html"
+                                                                              aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord">1</span><span class="mclose">)</span></span></span></span></span> work.</p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(h)O(h)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">h</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <p>We use extra space for the recursion call stack. The most calls in the call stack at any given time will be
+            the max depth of the tree. In the worst-case scenario where the tree is like a linked list, the max depth
+            will be <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.</p>
+        <p>We pop the top node from the stack and then push its child nodes onto the stack based on the DFS traversal
+            strategy. This process of pushing and popping forms a path-like structure within the stack, and the length
+            of this path will not exceed the height of the tree. Therefore, <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">O(h)O(h)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">h</span><span class="mclose">)</span></span></span></span></span> space will
+            be used.</p>
+    </li>
+</ul>
+<br>
+<hr>
+</body>
+</html>
