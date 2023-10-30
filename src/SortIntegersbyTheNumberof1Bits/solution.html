@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sort Integers by The Number of 1 Bits - Solution</title>
+</head>
+<body>
+<h2 id="solution">Sort Integers by The Number of 1 Bits - Solution</h2>
+<hr>
+<h4 id="approach-1-sort-by-custom-comparator-built-in">Approach 1: Sort By Custom Comparator: Built-in</h4>
+<p><strong>Intuition</strong></p>
+<p>The number of <code>1's</code> in a number's binary representation is also known as the number of
+    <strong>set</strong> bits, or the <a href="https://en.wikipedia.org/wiki/Hamming_weight" target="_blank">hamming
+        weight</a> of the number.</p>
+<p>In this problem, we need to sort the numbers according to their hamming weight. We can sort arrays by any criteria
+    using a custom comparator, which is a function that we pass into a language's sort function to specify how elements
+    should be sorted.</p>
+<p>There are a number of ways to find the hamming weight of a number, but the easiest way is by using built-in
+    methods.</p>
+<blockquote>
+    <p>Note: we have included this approach for completeness. It is likely that in an interview, you will be expected to
+        use bit manipulation to find the hamming weight, and simply using built-in methods may be considered
+        "cheating".</p>
+</blockquote>
+<p>Most major programming languages have a built-in method for finding the hamming weight of a number. We simply define
+    a custom comparator using these methods, then sort the input with it, and return the answer. Remember to handle the
+    tiebreak: when two numbers have equal hamming weight, the one with a lower value should come first.</p>
+<p><strong>Algorithm</strong></p>
+<ol>
+    <li>Use built-in methods to define a custom comparator that uses the hamming weight of a number.</li>
+    <li>Sort <code>arr</code> with the custom comparator.</li>
+    <li>Return <code>arr</code>.</li>
+</ol>
+<p><strong>Implementation</strong></p>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int[] sortByBits(int[] arr) {
+        Integer[] nums = Arrays.stream(arr).boxed().toArray(Integer[]::new);
+        Comparator<Integer> comparator = new CustomComparator();
+        Arrays.sort(nums, comparator);
+        return Arrays.stream(nums).mapToInt(Integer::intValue).toArray();
+    }
+}
+
+class CustomComparator implements Comparator<Integer> {
+    @Override
+    public int compare(Integer a, Integer b) {
+        if (Integer.bitCount(a) == Integer.bitCount(b)) {
+            return a - b;
+        }
+
+        return Integer.bitCount(a) - Integer.bitCount(b);
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    static bool compare(int a, int b) {
+        if (__builtin_popcount(a) == __builtin_popcount(b)) {
+            return a < b;
+        }
+
+        return __builtin_popcount(a) < __builtin_popcount(b);
+    }
+
+    vector<int> sortByBits(vector<int>& arr) {
+        sort(arr.begin(), arr.end(), compare);
+        return arr;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def sortByBits(self, arr: List[int]) -> List[int]:
+        arr.sort(key = lambda num: (num.bit_count(), num))
+        return arr
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<p>Given <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    as the length of <code>arr</code>,</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅log⁡n)O(n \cdot \log{n})</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                      style="margin-right: 0.1667em;"></span><span
+                class="mord"><span class="mord mathnormal">n</span></span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <p>Finding the hamming weight of a number is dependent on the size of a number, but as we are dealing with
+            integers that have a fixed size (31 bits), we can consider it as an <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord">1</span><span class="mclose">)</span></span></span></span></span> operation. Sorting
+            <code>arr</code> costs <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅log⁡n)O(n \cdot \log{n})</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                              style="margin-right: 0.1667em;"></span><span
+                    class="mord"><span class="mord mathnormal">n</span></span><span
+                    class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+    <li>
+        <p>Space Complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡n)O(\log n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                          style="margin-right: 0.1667em;"></span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> or <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></p>
+        <p>The space complexity of the sorting algorithm depends on the implementation of each programming language:</p>
+        <ul>
+            <li>In Java, Arrays.sort() for primitives is implemented using a variant of the Quick Sort algorithm, which
+                has a space complexity of <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡n)O(\log n)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span
+                        class="mspace" style="margin-right: 0.1667em;"></span><span
+                        class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></li>
+            <li>In C++, the sort() function provided by STL uses a hybrid of Quick Sort, Heap Sort and Insertion Sort,
+                with a worst case space complexity of <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(log⁡n)O(\log n)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span
+                        class="mspace" style="margin-right: 0.1667em;"></span><span
+                        class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></li>
+            <li>In Python, the sort() function is implemented using the Timsort algorithm, which has a worst-case space
+                complexity of <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+            </li>
+        </ul>
+    </li>
+</ul>
+<br>
+<hr>
+<h4 id="approach-2-bit-manipulation">Approach 2: Bit Manipulation</h4>
+<p><strong>Intuition</strong></p>
+<p>This approach is the same as the previous one, except we will now obtain the hamming weight of each number using bit
+    manipulation instead of built-in methods, which is what most interviewers will be expecting.</p>
+<details>
+    <summary>
+        <b>   If you aren't familiar with bit manipulation and the operations used in bit manipulation, please click to
+            expand. </b>
+    </summary>
+    <br>
+    <p>Bit manipulation is the act of manipulating bits, like changing bits of an integer.<br>
+        At the heart of bit manipulation are the bit-wise operators:</p>
+    <p><strong>NOT (~):</strong> Bitwise NOT is a unary operator that flips the bits of the number i.e., if the current
+        bit is <span class="math math-inline"><span class="katex"><span class="katex-mathml">00</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.6444em;"></span><span
+                class="mord">0</span></span></span></span></span>, it will change it to <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">11</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.6444em;"></span><span
+                class="mord">1</span></span></span></span></span> and vice versa.</p>
+    <div class="mb-6 rounded-lg px-3 py-2.5 font-menlo text-sm bg-fill-3 dark:bg-dark-fill-3">
+        <div class="group relative" translate="no"><pre
+                style="color: rgb(212, 212, 212); font-size: 13px; text-shadow: none; font-family: Menlo, Monaco, Consolas; direction: ltr; text-align: left; white-space: pre; word-spacing: normal; word-break: normal; line-height: 1.5; tab-size: 4; hyphens: none; padding: 0px; margin: 0px; overflow: auto; background: transparent;"><code
+                class="language-text"
+                style="color: rgb(212, 212, 212); font-size: 13px; text-shadow: none; font-family: Menlo, Monaco, Consolas, &quot;Andale Mono&quot;, &quot;Ubuntu Mono&quot;, &quot;Courier New&quot;, monospace; direction: ltr; text-align: left; white-space: pre; word-spacing: normal; word-break: normal; line-height: 1.5; tab-size: 4; hyphens: none;"><span><span>N = 5 = 101 (in binary)
+</span></span><span>~N = ~(101) = 010 = 2 (in decimal)</span></code></pre>
+            <div class="h-4 w-4 cursor-pointer fill-gray-6 hover:fill-gray-7 dark:fill-dark-gray-6 dark:hover:fill-dark-gray-7 absolute right-0 top-0">
+                <div>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em"
+                         fill="currentColor"
+                         class="h-4 w-4 text-gray-6 hover:text-gray-7 dark:text-dark-gray-6 dark:hover:text-dark-gray-7 hidden group-hover:block">
+                        <path fill-rule="evenodd"
+                              d="M11.3 8.3H19a3 3 0 013 3V19a3 3 0 01-3 3h-7.7a3 3 0 01-3-3v-7.7a3 3 0 013-3zm0 2a1 1 0 00-1 1V19a1 1 0 001 1H19a1 1 0 001-1v-7.7a1 1 0 00-1-1h-7.7zm-5.6 3.4a1 1 0 110 2h-.9A2.8 2.8 0 012 12.9V4.8A2.8 2.8 0 014.8 2h8.1a2.8 2.8 0 012.8 2.8v.9a1 1 0 11-2 0v-.9a.8.8 0 00-.8-.8H4.8a.8.8 0 00-.8.8v8.1a.8.8 0 00.8.8h.9z"
+                              clip-rule="evenodd"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+    <p><strong>AND (&amp;):</strong> In bitwise AND if both bits in the compared position of the bit patterns are <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">11</span><span class="katex-html"
+                                                                                                   aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span>,
+        the bit in the resulting bit pattern is <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">11</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span>,
+        otherwise <span class="math math-inline"><span class="katex"><span class="katex-mathml">00</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.6444em;"></span><span
+                class="mord">0</span></span></span></span></span>.</p>
+    <div class="mb-6 rounded-lg px-3 py-2.5 font-menlo text-sm bg-fill-3 dark:bg-dark-fill-3">
+        <div class="group relative" translate="no"><pre
+                style="color: rgb(212, 212, 212); font-size: 13px; text-shadow: none; font-family: Menlo, Monaco, Consolas; direction: ltr; text-align: left; white-space: pre; word-spacing: normal; word-break: normal; line-height: 1.5; tab-size: 4; hyphens: none; padding: 0px; margin: 0px; overflow: auto; background: transparent;"><code
+                class="language-text"
+                style="color: rgb(212, 212, 212); font-size: 13px; text-shadow: none; font-family: Menlo, Monaco, Consolas, &quot;Andale Mono&quot;, &quot;Ubuntu Mono&quot;, &quot;Courier New&quot;, monospace; direction: ltr; text-align: left; white-space: pre; word-spacing: normal; word-break: normal; line-height: 1.5; tab-size: 4; hyphens: none;"><span><span>A = 5 = 101 (in binary)
+</span></span><span>B = 1 = 001 (in binary)
+</span><span>A &amp; B = 101 &amp; 001 = 001 = 1 (in decimal)</span></code></pre>
+            <div class="h-4 w-4 cursor-pointer fill-gray-6 hover:fill-gray-7 dark:fill-dark-gray-6 dark:hover:fill-dark-gray-7 absolute right-0 top-0">
+                <div>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em"
+                         fill="currentColor"
+                         class="h-4 w-4 text-gray-6 hover:text-gray-7 dark:text-dark-gray-6 dark:hover:text-dark-gray-7 hidden group-hover:block">
+                        <path fill-rule="evenodd"
+                              d="M11.3 8.3H19a3 3 0 013 3V19a3 3 0 01-3 3h-7.7a3 3 0 01-3-3v-7.7a3 3 0 013-3zm0 2a1 1 0 00-1 1V19a1 1 0 001 1H19a1 1 0 001-1v-7.7a1 1 0 00-1-1h-7.7zm-5.6 3.4a1 1 0 110 2h-.9A2.8 2.8 0 012 12.9V4.8A2.8 2.8 0 014.8 2h8.1a2.8 2.8 0 012.8 2.8v.9a1 1 0 11-2 0v-.9a.8.8 0 00-.8-.8H4.8a.8.8 0 00-.8.8v8.1a.8.8 0 00.8.8h.9z"
+                              clip-rule="evenodd"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+    <p><strong>OR ( | ):</strong> Bitwise OR is also similar to bitwise AND. If both bits in the compared position of
+        the bit patterns are <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">00</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span>,
+        the bit in the resulting bit pattern is <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">00</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span>,
+        otherwise <span class="math math-inline"><span class="katex"><span class="katex-mathml">11</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.6444em;"></span><span
+                class="mord">1</span></span></span></span></span>.</p>
+    <div class="mb-6 rounded-lg px-3 py-2.5 font-menlo text-sm bg-fill-3 dark:bg-dark-fill-3">
+        <div class="group relative" translate="no"><pre
+                style="color: rgb(212, 212, 212); font-size: 13px; text-shadow: none; font-family: Menlo, Monaco, Consolas; direction: ltr; text-align: left; white-space: pre; word-spacing: normal; word-break: normal; line-height: 1.5; tab-size: 4; hyphens: none; padding: 0px; margin: 0px; overflow: auto; background: transparent;"><code
+                class="language-text"
+                style="color: rgb(212, 212, 212); font-size: 13px; text-shadow: none; font-family: Menlo, Monaco, Consolas, &quot;Andale Mono&quot;, &quot;Ubuntu Mono&quot;, &quot;Courier New&quot;, monospace; direction: ltr; text-align: left; white-space: pre; word-spacing: normal; word-break: normal; line-height: 1.5; tab-size: 4; hyphens: none;"><span><span>A = 5 = 101 (in binary)
+</span></span><span>B = 1 = 001 (in binary)
+</span><span>A | B = 101 | 001 = 101 = 5 (in decimal)</span></code></pre>
+            <div class="h-4 w-4 cursor-pointer fill-gray-6 hover:fill-gray-7 dark:fill-dark-gray-6 dark:hover:fill-dark-gray-7 absolute right-0 top-0">
+                <div>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em"
+                         fill="currentColor"
+                         class="h-4 w-4 text-gray-6 hover:text-gray-7 dark:text-dark-gray-6 dark:hover:text-dark-gray-7 hidden group-hover:block">
+                        <path fill-rule="evenodd"
+                              d="M11.3 8.3H19a3 3 0 013 3V19a3 3 0 01-3 3h-7.7a3 3 0 01-3-3v-7.7a3 3 0 013-3zm0 2a1 1 0 00-1 1V19a1 1 0 001 1H19a1 1 0 001-1v-7.7a1 1 0 00-1-1h-7.7zm-5.6 3.4a1 1 0 110 2h-.9A2.8 2.8 0 012 12.9V4.8A2.8 2.8 0 014.8 2h8.1a2.8 2.8 0 012.8 2.8v.9a1 1 0 11-2 0v-.9a.8.8 0 00-.8-.8H4.8a.8.8 0 00-.8.8v8.1a.8.8 0 00.8.8h.9z"
+                              clip-rule="evenodd"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+    <p><strong>XOR (^):</strong> In bitwise XOR if both bits are <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">00</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span>
+        or <span class="math math-inline"><span class="katex"><span class="katex-mathml">11</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.6444em;"></span><span
+                class="mord">1</span></span></span></span></span>, the result will be <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">00</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.6444em;"></span><span
+                class="mord">0</span></span></span></span></span>, otherwise <span class="math math-inline"><span
+                class="katex"><span class="katex-mathml">11</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 0.6444em;"></span><span
+                class="mord">1</span></span></span></span></span>.</p>
+    <div class="mb-6 rounded-lg px-3 py-2.5 font-menlo text-sm bg-fill-3 dark:bg-dark-fill-3">
+        <div class="group relative" translate="no"><pre
+                style="color: rgb(212, 212, 212); font-size: 13px; text-shadow: none; font-family: Menlo, Monaco, Consolas; direction: ltr; text-align: left; white-space: pre; word-spacing: normal; word-break: normal; line-height: 1.5; tab-size: 4; hyphens: none; padding: 0px; margin: 0px; overflow: auto; background: transparent;"><code
+                class="language-text"
+                style="color: rgb(212, 212, 212); font-size: 13px; text-shadow: none; font-family: Menlo, Monaco, Consolas, &quot;Andale Mono&quot;, &quot;Ubuntu Mono&quot;, &quot;Courier New&quot;, monospace; direction: ltr; text-align: left; white-space: pre; word-spacing: normal; word-break: normal; line-height: 1.5; tab-size: 4; hyphens: none;"><span><span>A = 5 = 101 (in binary)
+</span></span><span>B = 1 = 001 (in binary)
+</span><span>A ^ B = 101 ^ 001 = 100 = 4 (in decimal)</span></code></pre>
+            <div class="h-4 w-4 cursor-pointer fill-gray-6 hover:fill-gray-7 dark:fill-dark-gray-6 dark:hover:fill-dark-gray-7 absolute right-0 top-0">
+                <div>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em"
+                         fill="currentColor"
+                         class="h-4 w-4 text-gray-6 hover:text-gray-7 dark:text-dark-gray-6 dark:hover:text-dark-gray-7 hidden group-hover:block">
+                        <path fill-rule="evenodd"
+                              d="M11.3 8.3H19a3 3 0 013 3V19a3 3 0 01-3 3h-7.7a3 3 0 01-3-3v-7.7a3 3 0 013-3zm0 2a1 1 0 00-1 1V19a1 1 0 001 1H19a1 1 0 001-1v-7.7a1 1 0 00-1-1h-7.7zm-5.6 3.4a1 1 0 110 2h-.9A2.8 2.8 0 012 12.9V4.8A2.8 2.8 0 014.8 2h8.1a2.8 2.8 0 012.8 2.8v.9a1 1 0 11-2 0v-.9a.8.8 0 00-.8-.8H4.8a.8.8 0 00-.8.8v8.1a.8.8 0 00.8.8h.9z"
+                              clip-rule="evenodd"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+    <p><strong>Left Shift (&lt;&lt;):</strong> Left shift operator is a binary operator which shifts some number of bits
+        to the left and appends <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">00</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span>
+        at the end. One left shift is equivalent to multiplying the bit pattern with <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">22</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.6444em;"></span><span
+                class="mord">2</span></span></span></span></span>.</p>
+    <div class="mb-6 rounded-lg px-3 py-2.5 font-menlo text-sm bg-fill-3 dark:bg-dark-fill-3">
+        <div class="group relative" translate="no"><pre
+                style="color: rgb(212, 212, 212); font-size: 13px; text-shadow: none; font-family: Menlo, Monaco, Consolas; direction: ltr; text-align: left; white-space: pre; word-spacing: normal; word-break: normal; line-height: 1.5; tab-size: 4; hyphens: none; padding: 0px; margin: 0px; overflow: auto; background: transparent;"><code
+                class="language-text"
+                style="color: rgb(212, 212, 212); font-size: 13px; text-shadow: none; font-family: Menlo, Monaco, Consolas, &quot;Andale Mono&quot;, &quot;Ubuntu Mono&quot;, &quot;Courier New&quot;, monospace; direction: ltr; text-align: left; white-space: pre; word-spacing: normal; word-break: normal; line-height: 1.5; tab-size: 4; hyphens: none;"><span><span>A = 1 = 001 (in binary)
+</span></span><span>A &lt;&lt; 1 = 001 &lt;&lt; 1 = 010 = 2 (in decimal)
+</span><span>A &lt;&lt; 2 = 001 &lt;&lt; 2 = 100 = 4 (in decimal)
+</span><span>
+</span><span>B = 5 = 00101 (in binary)
+</span><span>B &lt;&lt; 1 = 00101 &lt;&lt; 1 = 01010 = 10 (in decimal)
+</span><span>B &lt;&lt; 2 = 00101 &lt;&lt; 2 = 10100 = 20 (in decimal)</span></code></pre>
+            <div class="h-4 w-4 cursor-pointer fill-gray-6 hover:fill-gray-7 dark:fill-dark-gray-6 dark:hover:fill-dark-gray-7 absolute right-0 top-0">
+                <div>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em"
+                         fill="currentColor"
+                         class="h-4 w-4 text-gray-6 hover:text-gray-7 dark:text-dark-gray-6 dark:hover:text-dark-gray-7 hidden group-hover:block">
+                        <path fill-rule="evenodd"
+                              d="M11.3 8.3H19a3 3 0 013 3V19a3 3 0 01-3 3h-7.7a3 3 0 01-3-3v-7.7a3 3 0 013-3zm0 2a1 1 0 00-1 1V19a1 1 0 001 1H19a1 1 0 001-1v-7.7a1 1 0 00-1-1h-7.7zm-5.6 3.4a1 1 0 110 2h-.9A2.8 2.8 0 012 12.9V4.8A2.8 2.8 0 014.8 2h8.1a2.8 2.8 0 012.8 2.8v.9a1 1 0 11-2 0v-.9a.8.8 0 00-.8-.8H4.8a.8.8 0 00-.8.8v8.1a.8.8 0 00.8.8h.9z"
+                              clip-rule="evenodd"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+    <p><strong>Right Shift (&gt;&gt;):</strong> Right shift operator is a binary operator which shifts some number of
+        bits to the right and appends <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">00</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 0.6444em;"></span><span class="mord">0</span></span></span></span></span>
+        at the left side. One right shift is equivalent to dividing the bit pattern with <span class="math math-inline"><span
+                class="katex"><span class="katex-mathml">22</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 0.6444em;"></span><span
+                class="mord">2</span></span></span></span></span>.</p>
+    <div class="mb-6 rounded-lg px-3 py-2.5 font-menlo text-sm bg-fill-3 dark:bg-dark-fill-3">
+        <div class="group relative" translate="no"><pre
+                style="color: rgb(212, 212, 212); font-size: 13px; text-shadow: none; font-family: Menlo, Monaco, Consolas; direction: ltr; text-align: left; white-space: pre; word-spacing: normal; word-break: normal; line-height: 1.5; tab-size: 4; hyphens: none; padding: 0px; margin: 0px; overflow: auto; background: transparent;"><code
+                class="language-text"
+                style="color: rgb(212, 212, 212); font-size: 13px; text-shadow: none; font-family: Menlo, Monaco, Consolas, &quot;Andale Mono&quot;, &quot;Ubuntu Mono&quot;, &quot;Courier New&quot;, monospace; direction: ltr; text-align: left; white-space: pre; word-spacing: normal; word-break: normal; line-height: 1.5; tab-size: 4; hyphens: none;"><span><span>A = 4 = 100 (in binary)
+</span></span><span>A &gt;&gt; 1 = 100 &gt;&gt; 1 = 010 = 2 (in decimal)
+</span><span>A &gt;&gt; 2 = 100 &gt;&gt; 2 = 001 = 1 (in decimal)
+</span><span>A &gt;&gt; 3 = 100 &gt;&gt; 3 = 000 = 0 (in decimal)
+</span><span>
+</span><span>B = 5 = 00101 (in binary)
+</span><span>B &gt;&gt; 1 = 00101 &gt;&gt; 1 = 00010 = 2 (in decimal)</span></code></pre>
+            <div class="h-4 w-4 cursor-pointer fill-gray-6 hover:fill-gray-7 dark:fill-dark-gray-6 dark:hover:fill-dark-gray-7 absolute right-0 top-0">
+                <div>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em"
+                         fill="currentColor"
+                         class="h-4 w-4 text-gray-6 hover:text-gray-7 dark:text-dark-gray-6 dark:hover:text-dark-gray-7 hidden group-hover:block">
+                        <path fill-rule="evenodd"
+                              d="M11.3 8.3H19a3 3 0 013 3V19a3 3 0 01-3 3h-7.7a3 3 0 01-3-3v-7.7a3 3 0 013-3zm0 2a1 1 0 00-1 1V19a1 1 0 001 1H19a1 1 0 001-1v-7.7a1 1 0 00-1-1h-7.7zm-5.6 3.4a1 1 0 110 2h-.9A2.8 2.8 0 012 12.9V4.8A2.8 2.8 0 014.8 2h8.1a2.8 2.8 0 012.8 2.8v.9a1 1 0 11-2 0v-.9a.8.8 0 00-.8-.8H4.8a.8.8 0 00-.8.8v8.1a.8.8 0 00.8.8h.9z"
+                              clip-rule="evenodd"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+</details>
+<br>
+<p>To find the hamming weight of a number, we can use what is called a <strong>mask</strong>. This mask will have a
+    single set bit, initially the least significant one (representing the number <code>1</code>, at position
+    <code>0</code>). We will AND this mask with the number, and if the result is non-zero, it means the bit is set in
+    the number. We can thus increment the hamming weight by 1 and then continue to the next position by left-shifting
+    the mask, which moves the single bit over to the next position (this is the same as multiplying it by two).</p>
+<p>There are two ways we can end this process.</p>
+<ol>
+    <li>Iterate 31 times (since this is the maximum size of an integer)</li>
+    <li>When we find a set bit in the number, flip it to a 0 (with XOR). When the number becomes 0, then we know there
+        are no more set bits and can end.
+    </li>
+</ol>
+<p>The second option is better since we will terminate as soon as possible, whereas the first option will always iterate
+    31 times, regardless of the size of the number. We will proceed with the second option. The following animation
+    illustrates this process:</p>
+<p>
+<div class="relative mx-auto mb-6 flex flex-col overflow-hidden rounded-lg border-[1px] border-label-1"
+     style="max-width: 960px;">
+    <div class="rounded-lg" style="max-height: 540px;"><img alt="Current"
+                                                            class="object-fit-contain !mb-0 max-h-full max-w-full"
+                                                            src="blob:https://leetcode.com/b9bc5831-f516-48cb-9d27-e58839ee62de">
+    </div>
+    <div class="absolute top-[50%] left-[50%] flex h-12 w-12 translate-x-[-50%] translate-y-[-50%] items-center justify-center rounded-full bg-black/30">
+        <div class="flex h-4 w-4 cursor-pointer items-center justify-center text-[35px]">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="h-full w-full text-white">
+                <path fill-rule="evenodd"
+                      d="M18.97 12.871l-12.96 7.29a1 1 0 01-1.49-.87V4.71a1 1 0 011.49-.872l12.96 7.29a1 1 0 010 1.743z"
+                      clip-rule="evenodd"></path>
+            </svg>
+        </div>
+    </div>
+    <div class="relative flex h-8 select-none items-center justify-around bg-black">
+        <div class="flex items-center space-x-7">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M16.091 4.929l-7.057 7.078 7.057 7.064a1 1 0 01-1.414 1.414l-7.764-7.77a1 1 0 010-1.415l7.764-7.785a1 1 0 111.415 1.414z"
+                      clip-rule="evenodd"></path>
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M18.97 12.871l-12.96 7.29a1 1 0 01-1.49-.87V4.71a1 1 0 011.49-.872l12.96 7.29a1 1 0 010 1.743z"
+                      clip-rule="evenodd"></path>
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M7.913 19.071l7.057-7.078-7.057-7.064a1 1 0 011.414-1.414l7.764 7.77a1 1 0 010 1.415l-7.764 7.785a1 1 0 01-1.414-1.414z"
+                      clip-rule="evenodd"></path>
+            </svg>
+        </div>
+        <div class="absolute right-0 mr-5 text-xs font-medium text-white">1 / 6</div>
+    </div>
+</div>
+<br>
+<br><br>
+<br></p>
+<p><strong>Algorithm</strong></p>
+<ol>
+    <li>Define a function <code>findWeight</code> that takes an integer <code>num</code> and returns its hamming weight.
+        <ul>
+            <li>Initialize <code>mask = 1</code> and <code>weight = 0</code></li>
+            <li>While <code>num &gt; 0</code>:
+                <ul>
+                    <li>Check if <code>num &amp; mask</code> is non-zero. If so, increment <code>weight</code> and XOR
+                        <code>num</code> with <code>mask</code></li>
+                    <li>Left shift <code>mask</code></li>
+                </ul>
+            </li>
+            <li>Return <code>weight</code></li>
+        </ul>
+    </li>
+    <li>Create a custom comparator with <code>findWeight</code>. Sort <code>arr</code> with the custom comparator.</li>
+    <li>Return <code>arr</code>.</li>
+</ol>
+<p><strong>Implementation</strong></p>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int[] sortByBits(int[] arr) {
+        Integer[] nums = Arrays.stream(arr).boxed().toArray(Integer[]::new);
+        Comparator<Integer> comparator = new CustomComparator();
+        Arrays.sort(nums, comparator);
+        return Arrays.stream(nums).mapToInt(Integer::intValue).toArray();
+    }
+}
+
+class CustomComparator implements Comparator<Integer> {
+    private int findWeight(int num) {
+        int mask = 1;
+        int weight = 0;
+
+        while (num > 0) {
+            if ((num & mask) > 0) {
+                weight++;
+                num ^= mask;
+            }
+
+            mask <<= 1;
+        }
+
+        return weight;
+    }
+
+    @Override
+    public int compare(Integer a, Integer b) {
+        if (findWeight(a) == findWeight(b)) {
+            return a - b;
+        }
+
+        return findWeight(a) - findWeight(b);
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    static int findWeight(int num) {
+        int mask = 1;
+        int weight = 0;
+
+        while (num > 0) {
+            if ((num & mask) > 0) {
+                weight++;
+                num ^= mask;
+            }
+
+            mask <<= 1;
+        }
+
+        return weight;
+    }
+
+    static bool compare(int a, int b) {
+        if (findWeight(a) == findWeight(b)) {
+            return a < b;
+        }
+
+        return findWeight(a) < findWeight(b);
+    }
+
+    vector<int> sortByBits(vector<int>& arr) {
+        sort(arr.begin(), arr.end(), compare);
+        return arr;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def sortByBits(self, arr: List[int]) -> List[int]:
+        def find_weight(num):
+            mask = 1
+            weight = 0
+
+            while num:
+                if num & mask:
+                    weight += 1
+                    num ^= mask
+
+                mask <<= 1
+
+            return weight
+
+        arr.sort(key = lambda num: (find_weight(num), num))
+        return arr
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<p>Given <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    as the length of <code>arr</code>,</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅log⁡n)O(n \cdot \log{}n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                      style="margin-right: 0.1667em;"></span><span
+                class="mord"></span><span class="mord mathnormal">n</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <p>Finding the hamming weight of a number is dependent on the size of a number, but as we are dealing with
+            integers that have a fixed size (31 bits), we can consider it as an <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord">1</span><span class="mclose">)</span></span></span></span></span> operation. Sorting
+            <code>arr</code> costs <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅log⁡n)O(n \cdot \log{n})</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                              style="margin-right: 0.1667em;"></span><span
+                    class="mord"><span class="mord mathnormal">n</span></span><span
+                    class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+    <li>
+        <p>Space Complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡n)O(\log n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                          style="margin-right: 0.1667em;"></span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> or <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></p>
+        <p>The space complexity of the sorting algorithm depends on the implementation of each programming language:</p>
+        <ul>
+            <li>In Java, Arrays.sort() for primitives is implemented using a variant of the Quick Sort algorithm, which
+                has a space complexity of <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡n)O(\log n)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span
+                        class="mspace" style="margin-right: 0.1667em;"></span><span
+                        class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></li>
+            <li>In C++, the sort() function provided by STL uses a hybrid of Quick Sort, Heap Sort and Insertion Sort,
+                with a worst case space complexity of <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(log⁡n)O(\log n)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span
+                        class="mspace" style="margin-right: 0.1667em;"></span><span
+                        class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></li>
+            <li>In Python, the sort() function is implemented using the Timsort algorithm, which has a worst-case space
+                complexity of <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+            </li>
+        </ul>
+    </li>
+</ul>
+<br>
+<hr>
+<h4 id="approach-3-brian-kerninghans-algorithm">Approach 3: Brian Kerninghan's Algorithm</h4>
+<p><strong>Intuition</strong></p>
+<p>There is a better way to find the hamming weight of a number. Brian Kerninghan's algorithm is an elegant and
+    efficient way to find the number of set bits in a number.</p>
+<p>For a given <code>num</code>, we run the algorithm until <code>num = 0</code>, that is the algorithm runs until there
+    are no more set bits. At each iteration, we remove the least significant bit in <code>num</code>. Once all the bits
+    are removed, <code>num = 0</code> and the algorithm terminates. The number of iterations is the number of set bits
+    since we remove one bit per iteration.</p>
+<p>So how do we remove the least significant bit (LSB)? All we need to do is AND <code>num</code> with <code>num -
+    1</code>. That is, <code>num &amp;= (num - 1)</code>.</p>
+<p>Why does this work? Take a look at the following image.</p>
+<p><img src="7.png" alt="kerninghan algorithm"><br>
+    <br></p>
+<p>Logically, every bit to the right of the LSB will be 0. That means when we subtract <code>1</code> from
+    <code>num</code>, the LSB becomes <code>0</code> and every bit to the right of it becomes <code>1</code>.</p>
+<blockquote>
+    <p>In the image, the first 3 positions go from <code>100</code> to <code>011</code>. If the LSB was in position
+        <code>5</code>, it would go from <code>10000</code> to <code>01111</code>.</p>
+</blockquote>
+<p>In <code>num</code>, every bit to the right of the LSB is <code>0</code>. In <code>num - 1</code>, every bit to the
+    right of the LSB is <code>1</code>. Thus, after an AND operation, every bit to the right of the LSB will remain
+    <code>0</code>, since <code>0 &amp; 1 = 0</code>.</p>
+<p>The LSB itself will also become <code>0</code> since it's <code>1</code> in <code>num</code> and <code>0</code> in
+    <code>num - 1</code>.</p>
+<p>Finally, everything to the left of the LSB is completely unchanged when subtracting by <code>1</code>. Thus,
+    performing <code>num &amp; (num - 1)</code> will not change any of these bits, and the only net change is that the
+    LSB was set to <code>0</code>.</p>
+<p><strong>Algorithm</strong></p>
+<ol>
+    <li>Define a function <code>findWeight</code> that takes an integer <code>num</code> and returns its hamming weight
+        using Brian Kerninghan's algorithm.
+        <ul>
+            <li>Initialize <code>weight = 0</code></li>
+            <li>While <code>num &gt; 0</code>:
+                <ul>
+                    <li>Increment <code>weight</code></li>
+                    <li>Set <code>num</code> to <code>num &amp; (num - 1)</code></li>
+                </ul>
+            </li>
+            <li>Return <code>weight</code></li>
+        </ul>
+    </li>
+    <li>Create a custom comparator with <code>findWeight</code>. Sort <code>arr</code> with the custom comparator.</li>
+    <li>Return <code>arr</code>.</li>
+</ol>
+<p><strong>Implementation</strong></p>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int[] sortByBits(int[] arr) {
+        Integer[] nums = Arrays.stream(arr).boxed().toArray(Integer[]::new);
+        Comparator<Integer> comparator = new CustomComparator();
+        Arrays.sort(nums, comparator);
+        return Arrays.stream(nums).mapToInt(Integer::intValue).toArray();
+    }
+}
+
+class CustomComparator implements Comparator<Integer> {
+    private int findWeight(int num) {
+        int weight = 0;
+
+        while (num > 0) {
+            weight++;
+            num &= (num - 1);
+        }
+
+        return weight;
+    }
+
+    @Override
+    public int compare(Integer a, Integer b) {
+        if (findWeight(a) == findWeight(b)) {
+            return a - b;
+        }
+
+        return findWeight(a) - findWeight(b);
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    static int findWeight(int num) {
+        int weight = 0;
+
+        while (num > 0) {
+            weight++;
+            num &= (num - 1);
+        }
+
+        return weight;
+    }
+
+    static bool compare(int a, int b) {
+        if (findWeight(a) == findWeight(b)) {
+            return a < b;
+        }
+
+        return findWeight(a) < findWeight(b);
+    }
+
+    vector<int> sortByBits(vector<int>& arr) {
+        sort(arr.begin(), arr.end(), compare);
+        return arr;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def sortByBits(self, arr: List[int]) -> List[int]:
+        def find_weight(num):
+            weight = 0
+
+            while num:
+                weight += 1
+                num &= (num - 1)
+
+            return weight
+
+        arr.sort(key = lambda num: (find_weight(num), num))
+        return arr
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<p>Given <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    as the length of <code>arr</code>,</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅log⁡n)O(n \cdot \log{}n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                      style="margin-right: 0.1667em;"></span><span
+                class="mord"></span><span class="mord mathnormal">n</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <p>Finding the hamming weight of a number is dependent on the size of a number, but as we are dealing with
+            integers that have a fixed size (31 bits), we can consider it as an <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord">1</span><span class="mclose">)</span></span></span></span></span> operation. Sorting
+            <code>arr</code> costs <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅log⁡n)O(n \cdot \log{n})</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                              style="margin-right: 0.1667em;"></span><span
+                    class="mord"><span class="mord mathnormal">n</span></span><span
+                    class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+    <li>
+        <p>Space Complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡n)O(\log n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                          style="margin-right: 0.1667em;"></span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> or <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></p>
+        <p>The space complexity of the sorting algorithm depends on the implementation of each programming language:</p>
+        <ul>
+            <li>In Java, Arrays.sort() for primitives is implemented using a variant of the Quick Sort algorithm, which
+                has a space complexity of <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡n)O(\log n)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span
+                        class="mspace" style="margin-right: 0.1667em;"></span><span
+                        class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></li>
+            <li>In C++, the sort() function provided by STL uses a hybrid of Quick Sort, Heap Sort and Insertion Sort,
+                with a worst case space complexity of <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(log⁡n)O(\log n)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span
+                        class="mspace" style="margin-right: 0.1667em;"></span><span
+                        class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></li>
+            <li>In Python, the sort() function is implemented using the Timsort algorithm, which has a worst-case space
+                complexity of <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+            </li>
+        </ul>
+    </li>
+</ul>
+<br>
+<hr>
+</body>
+</html>
