@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Find The Original Array of Prefix Xor - Solution</title>
+</head>
+<body>
+<h2 id="solution">Find The Original Array of Prefix Xor - Solution</h2>
+<hr>
+<h4 id="approach-1-using-xor-properties">Approach 1: Using XOR Properties</h4>
+<p><strong>Intuition</strong></p>
+<p>There exists an array <code>arr</code> of <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">NN</span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                                           style="height: 0.6833em;"></span><span
+        class="mord mathnormal" style="margin-right: 0.10903em;">N</span></span></span></span></span> integers and we
+    are given another array <code>pref</code> in which the <code>ith</code> index has the value as <code>pref[i] =
+        arr[0] ^ arr[1] ^ ... ^ arr[i]</code>. We need to return the original array <code>arr</code> which will generate
+    the array <code>pref</code> using the above XOR operations.</p>
+<p>An important property of XOR that we can use to solve this problem is <code>a ^ a = 0</code>, i.e. the
+    <code>XOR</code> of two same integers is equal to <code>0</code>. The value in the array <code>pref</code> at index
+    <code>i</code> is equal to <code>arr[0] ^ arr[1] ^ ... ^ arr[i]</code>, and the value in the index <code>i +
+        1</code> is equal to <code>arr[0] ^ arr[1] ^ ... ^ arr[i] ^ arr[i + 1]</code>. Now, if we perform the
+    <code>XOR</code> operation with <code>pref[i]</code> and <code>pref[i + 1]</code> the expression would be as shown
+    below.</p>
+<p><img src="2433A.png" alt="fig"></p>
+<p>Note that we have also used the XOR <a href="https://en.wikipedia.org/wiki/Associative_property" target="_blank">Associative</a>
+    &amp; <a href="https://en.wikipedia.org/wiki/Commutative_property" target="_blank">Commutative</a> properties while
+    rearranging the expression in the above diagram to come at the result.</p>
+<p>In the above XOR expression, each index has two terms except the <code>arr[i + 1]</code>, and hence all other terms
+    will be evaluated to <code>0</code>. Thus the final expression will evaluate to <code>arr[i + 1]</code>. This
+    happened because the terms <code>pref[i]</code> and <code>pref[i + 1]</code> have the same value expression except
+    that <code>pref[i + 1]</code> has one more extra term which is the only remained term when XOR operation is
+    performed.</p>
+<p>Therefore, the <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">i−thi-\text{th}</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+        class="strut" style="height: 0.7429em; vertical-align: -0.0833em;"></span><span class="mord mathnormal">i</span><span
+        class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">−</span><span class="mspace"
+                                                                                               style="margin-right: 0.2222em;"></span></span><span
+        class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord text"><span
+        class="mord">th</span></span></span></span></span></span> index in the array <code>arr</code> can be found by
+    taking the XOR of <code>pref[i]</code> and <code>pref[i - 1]</code>, also for index <code>i = 0</code> the value
+    <code>arr[0]</code> will be equal to the <code>pref[0]</code> as the value expression for <code>pref[0]</code> is
+    equal to <code>arr[0]</code> itself.</p>
+<p><strong>Algorithm</strong></p>
+<ol>
+    <li>Initialize an empty array <code>arr</code> of size <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">NN</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                 style="margin-right: 0.10903em;">N</span></span></span></span></span>,
+        this will store the final result.
+    </li>
+    <li>Assign <code>arr[0]</code> as <code>pref[0]</code>, because the XOR of all numbers on and before the
+        <code>0th</code> index will be the same as the number itself.
+    </li>
+    <li>Iterate over the indices from <code>1</code> to <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">N−1N - 1</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.7667em; vertical-align: -0.0833em;"></span><span class="mord mathnormal"
+                                                                                            style="margin-right: 0.10903em;">N</span><span
+            class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">−</span><span class="mspace"
+                                                                                                   style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span>,
+        and for each index <code>i</code>:
+        <ol>
+            <li>Assign <code>pref[i] ^ pref[i - 1]</code> to <code>arr[i]</code>.</li>
+        </ol>
+    </li>
+    <li>Return <code>arr</code>.</li>
+</ol>
+<p><strong>Implementation</strong></p>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int[] findArray(int[] pref) {
+        int n = pref.length;
+
+        int[] arr = new int[n];
+        arr[0] = pref[0];
+        for (int i = 1; i < n; i++) {
+            arr[i] = pref[i] ^ pref[i - 1];
+        }
+
+        return arr;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    vector<int> findArray(vector<int>& pref) {
+        int n = pref.size();
+
+        vector<int> arr;
+        arr.push_back(pref[0]);
+        for (int i = 1; i < n; i++) {
+            arr.push_back(pref[i] ^ pref[i - 1]);
+        }
+
+        return arr;
+    }
+};
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<p>Here, <span class="math math-inline"><span class="katex"><span class="katex-mathml">NN</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                style="margin-right: 0.10903em;">N</span></span></span></span></span>
+    is the number of elements in the array <code>pref</code> or <code>arr</code>.</p>
+<ul>
+    <li>
+        <p>Time complexity <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(N)O(N)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <p>We are iterating over each element only once in the array <code>pref</code>, the XOR operation takes <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord">1</span><span class="mclose">)</span></span></span></span></span> and hence the total time
+            complexity is equal to <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(N)O(N)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                    class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+    <li>
+        <p>Space complexity <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(N)O(N)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <p>The only space required is the array <code>arr</code> to store the result, although the space to store the
+            result is generally not considered as part of the space complexity. The total space complexity is equal to
+            <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(N)O(N)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                    class="mclose">)</span></span></span></span></span>.<br>
+            <br></p>
+    </li>
+</ul>
+<hr>
+<h4 id="approach-2-using-xor-properties-space-optimized">Approach 2: Using XOR Properties, Space Optimized</h4>
+<p><strong>Intuition</strong></p>
+<blockquote>
+    <p>Note: This approach requires altering the input which is not recommended in an interview setting, This approach
+        has been added for the completion sake and should only be presented in an interview if explicitly asked.</p>
+</blockquote>
+<p>To find the value at an index <code>i</code> in the array <code>arr</code> we need the values at indices
+    <code>i</code> and <code>i - 1</code> in the array <code>pref</code>. In the previous approach, since we were
+    iterating from left to right, we needed a separate array to store the values. This is because when we calculate the
+    value of index <code>i</code>, we can't put it directly into the array <code>pref</code> to override
+    <code>pref[i]</code>, because we need to use the original value of <code>pref[i]</code> again when we compute the
+    value of <code>arr[i + 1]</code> later.</p>
+<p>Therefore, instead of iterating from left to right, we will iterate from right to left and store the answers directly
+    in the array <code>pref</code> itself. This way, when we store the value for index <code>i</code> in the
+    <code>pref</code> using <code>pref[i] ^ pref[i - 1]</code> we don't need the value of <code>pref[i]</code> again.
+    Because the next value to be calculated is at index <code>i - 1</code> which will be calculated as <code>pref[i - 1]
+        ^ pref[i - 2]</code>. In this way, we can use the original input array <code>pref</code> itself to store the
+    answer.</p>
+<p><strong>Algorithm</strong></p>
+<ol>
+    <li>Iterate over the array <code>pref</code> from the index <code>N - 1</code> to <code>1</code> and for each index
+        <code>i</code>, do:
+        <ul>
+            <li><code>pref[i] = pref[i] ^ pref[i - 1]</code></li>
+            <li>We don't need to do anything for index <code>0</code> as it will be returned as it is.</li>
+        </ul>
+    </li>
+    <li>Return <code>pref</code>.</li>
+</ol>
+<p><strong>Implementation</strong></p>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int[] findArray(int[] pref) {
+        int n = pref.length;
+
+        for (int i = n - 1; i > 0; i--) {
+            pref[i] = pref[i] ^ pref[i - 1];
+        }
+
+        return pref;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    vector<int> findArray(vector<int>& pref) {
+        int n = pref.size();
+
+        for (int i = n - 1; i > 0; i--) {
+            pref[i] = pref[i] ^ pref[i - 1];
+        }
+
+        return pref;
+    }
+};
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<p>Here, <span class="math math-inline"><span class="katex"><span class="katex-mathml">NN</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                style="margin-right: 0.10903em;">N</span></span></span></span></span>
+    is the number of elements in the array <code>pref</code> or <code>arr</code>.</p>
+<ul>
+    <li>
+        <p>Time complexity <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(N)O(N)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <p>We are iterating over each element only once in the array <code>pref</code>, the XOR operation takes <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord">1</span><span class="mclose">)</span></span></span></span></span> and hence the total time
+            complexity is equal to <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(N)O(N)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                    class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+    <li>
+        <p>Space complexity <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord">1</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <p>No extra space is required to store the result. Therefore the total space complexity is constant.<br>
+            <br></p>
+    </li>
+</ul>
+<hr>
+</body>
+</html>
