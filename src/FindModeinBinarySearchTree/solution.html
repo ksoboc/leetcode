@@ -1,0 +1,1707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Find Mode in Binary Search Tree - Solution</title>
+</head>
+<body>
+<h2 id="solution">Find Mode in Binary Search Tree - Solution</h2>
+<hr>
+<h4 id="overview">Overview</h4>
+<p>In this article, we will present many different approaches to solving this problem.</p>
+<p>The level of these approaches varies greatly. Some approaches have different time complexities, while some simply
+    present a different way of attacking the problem.</p>
+<p>Note that not all of these approaches will be expected in an interview. At the start of each approach, there will be
+    a comment regarding the difficulty of the approach and if it should be used in an interview.</p>
+<p>For all approaches, we will assume that you are already familiar with how trees are given in LeetCode problems and
+    how to traverse them.</p>
+<hr>
+<h4 id="approach-1-count-frequency-with-hash-map-dfs">Approach 1: Count Frequency With Hash Map (DFS)</h4>
+<p><strong>Intuition</strong></p>
+<blockquote>
+    <p>This is a great first approach to use in an interview. It is simple, easy to implement, has good complexity, and
+        demonstrates an understanding of binary trees and hash maps. You should be prepared for follow-ups after
+        implementing this solution.</p>
+</blockquote>
+<p>Our goal is to find all the modes in the tree. A mode is a value that has the maximum frequency. Note that there
+    could be multiple modes: for example, if we had the following tree:</p>
+<p><img src="1.png" alt="example"><br>
+    <br></p>
+<p>The frequency of each value is as follows:</p>
+
+
+<table>
+    <thead>
+    <tr>
+        <th style="text-align: center;">Value</th>
+        <th style="text-align: center;">Frequency</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td style="text-align: center;">4</td>
+        <td style="text-align: center;">2</td>
+    </tr>
+    <tr>
+        <td style="text-align: center;">7</td>
+        <td style="text-align: center;">1</td>
+    </tr>
+    <tr>
+        <td style="text-align: center;">8</td>
+        <td style="text-align: center;">2</td>
+    </tr>
+    <tr>
+        <td style="text-align: center;">10</td>
+        <td style="text-align: center;">1</td>
+    </tr>
+    </tbody>
+</table>
+<br>
+<p>The maximum frequency is <code>2</code>, thus we have two modes: <code>4</code> and <code>8</code>.</p>
+<p>We can solve this problem by collecting the frequency of all values in the tree, finding the maximum frequency <code>maxFreq</code>,
+    then checking which values have a frequency of <code>maxFreq</code>.</p>
+<p>To count the frequency of each value, we will perform a depth-first search (DFS) on the tree to visit every node. We
+    can initialize a hash map <code>counter</code> before starting the DFS. At each node we visit, we will update the
+    frequency of <code>node.val</code> in <code>counter</code>.</p>
+<p>Once we have finished the DFS (visited every node), <code>counter</code> will hold the frequency of all values. We
+    will save the maximum frequency as <code>maxFreq</code>, then iterate over all the elements of <code>counter</code>
+    and check which ones have a frequency equal to <code>maxFreq</code>. Each of those elements will be in our final
+    answer.</p>
+<p><strong>Algorithm</strong></p>
+<ol>
+    <li>Initialize a hash map <code>counter</code>.</li>
+    <li>Create a function <code>dfs(node, counter)</code>:
+        <ul>
+            <li>If <code>node</code> is null, immediately exit the function.</li>
+            <li>Increment the frequency of <code>node.val</code> in <code>counter</code>.</li>
+            <li>Call <code>dfs</code> on both children with <code>dfs(node.left, counter)</code> and <code>dfs(node.right,
+                counter)</code>.
+            </li>
+        </ul>
+    </li>
+    <li>Call <code>dfs(root, counter)</code>.</li>
+    <li>Find the maximum value in <code>counter</code> as <code>maxFreq</code>.</li>
+    <li>Initialize the answer list <code>ans</code>.</li>
+    <li>Iterate over all key-value pairs in <code>counter</code>. If the value is equal to <code>maxFreq</code>, add the
+        key to <code>ans</code>.
+    </li>
+    <li>Return <code>ans</code>.</li>
+</ol>
+<p><strong>Implementation</strong></p>
+<blockquote>
+    <p>In Python, we are using <a href="https://docs.python.org/3/library/collections.html#collections.defaultdict"
+                                  target="_blank">collections.defaultdict</a> to make the code cleaner. It is similar to
+        <code>std::unordered_map</code> in C++.</p>
+</blockquote>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int[] findMode(TreeNode root) {
+        Map<Integer, Integer> counter = new HashMap();
+        dfs(root, counter);
+        int maxFreq = 0;
+
+        for (int key : counter.keySet()) {
+            maxFreq = Math.max(maxFreq, counter.get(key));
+        }
+
+        List<Integer> ans = new ArrayList();
+        for (int key : counter.keySet()) {
+            if (counter.get(key) == maxFreq) {
+                ans.add(key);
+            }
+        }
+
+        int[] result = new int[ans.size()];
+        for (int i = 0; i < ans.size(); i++) {
+            result[i] = ans.get(i);
+        }
+
+        return result;
+    }
+
+    public void dfs(TreeNode node, Map<Integer, Integer> counter) {
+        if (node == null) {
+            return;
+        }
+
+        counter.put(node.val, counter.getOrDefault(node.val, 0) + 1);
+        dfs(node.left, counter);
+        dfs(node.right, counter);
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    vector<int> findMode(TreeNode* root) {
+        unordered_map<int, int> counter;
+        dfs(root, counter);
+        int maxFreq = 0;
+
+        for (auto& [key, val] : counter) {
+            maxFreq = max(maxFreq, val);
+        }
+
+        vector<int> ans;
+        for (auto& [key, val] : counter) {
+            if (val == maxFreq) {
+                ans.push_back(key);
+            }
+        }
+
+        return ans;
+    }
+
+    void dfs(TreeNode* node, unordered_map<int, int>& counter) {
+        if (node == nullptr) {
+            return;
+        }
+
+        counter[node->val]++;
+        dfs(node->left, counter);
+        dfs(node->right, counter);
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def findMode(self, root: Optional[TreeNode]) -> List[int]:
+        def dfs(node, counter):
+            if not node:
+                return
+
+            counter[node.val] += 1
+            dfs(node.left, counter)
+            dfs(node.right, counter)
+
+        counter = defaultdict(int)
+        dfs(root, counter)
+        max_freq = max(counter.values())
+
+        ans = []
+        for key in counter:
+            if counter[key] == max_freq:
+                ans.append(key)
+
+        return ans
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<p>Given <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    as the number of nodes in the tree,</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <p>During the DFS, we visit each node once. At each node, we perform <span class="math math-inline"><span
+                class="katex"><span class="katex-mathml">O(1)O(1)</span><span class="katex-html"
+                                                                              aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord">1</span><span class="mclose">)</span></span></span></span></span> work since hash map
+            operations cost <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord">1</span><span class="mclose">)</span></span></span></span></span>.</p>
+        <p>Next, we find <code>maxFreq</code>, which involves iterating over <code>counter</code>. In the worst case
+            scenario where the tree has only unique values, <code>counter</code> will have a size of <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.4306em;"></span><span
+                    class="mord mathnormal">n</span></span></span></span></span>, and thus this will cost <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.</p>
+        <p>Finally, we construct <code>ans</code>, which involves iterating over <code>counter</code> again. Overall,
+            our time complexity is <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.</p>
+        <p>In Java, we need to convert <code>ans</code> to the correct type, but this doesn't change the time
+            complexity.</p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <p>During DFS, recursion is executed using the call stack. This call stack is equal to the depth of the tree,
+            which in the worst case scenario is <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>. Also, as
+            mentioned above, if the tree only has unique values then <code>counter</code> will have a size of <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.4306em;"></span><span
+                    class="mord mathnormal">n</span></span></span></span></span>. Thus, <code>counter</code> also uses
+            <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> space.</p>
+    </li>
+</ul>
+<br>
+<hr>
+<h4 id="approach-2-iterative-dfs">Approach 2: Iterative DFS</h4>
+<p><strong>Intuition</strong></p>
+<blockquote>
+    <p>This approach may be asked as a follow-up to the previous approach, or vice-versa if you implement this one
+        first. It is common for interviewers to ask you to solve a problem with DFS both recursively and
+        iteratively.</p>
+</blockquote>
+<p>In this approach, we will use the same algorithm from the previous approach, except that we will implement the DFS
+    iteratively.</p>
+<p>Instead of using recursion, we will use a stack <code>stack</code>. Initially, we will have the <code>root</code> in
+    the <code>stack</code>. Then, we will perform a DFS until the <code>stack</code> is empty using a while loop. At
+    each iteration, we pop a <code>node</code> from the <code>stack</code>. We will increment the frequency of <code>node</code>
+    in <code>counter</code> just like we did in the previous approach, then push the children of <code>node</code> to
+    <code>stack</code> if they exist. In this way, we go as deep into the tree as possible before backtracking, similar
+    to node exploration in recursive DFS.</p>
+<p>Each iteration of the while loop is analogous to a function call from the previous approach, as we are handling a
+    given <code>node</code>.</p>
+<p><strong>Algorithm</strong></p>
+<ol>
+    <li>Initialize a hash map <code>counter</code> and a stack <code>stack</code> that contains <code>root</code>.</li>
+    <li>Perform a DFS. While <code>stack</code> is not empty:
+        <ul>
+            <li>Pop <code>node</code> from the top of <code>stack</code>.</li>
+            <li>Increment the frequency of <code>node.val</code> in <code>counter</code>.</li>
+            <li>If <code>node.left</code> is not null, push it to <code>stack</code>.</li>
+            <li>If <code>node.right</code> is not null, push it to <code>stack</code>.</li>
+        </ul>
+    </li>
+    <li>Find the maximum value in <code>counter</code> as <code>maxFreq</code>.</li>
+    <li>Initialize the answer list <code>ans</code>.</li>
+    <li>Iterate over all key-value pairs in <code>counter</code>. If the value is equal to <code>maxFreq</code>, add the
+        key to <code>ans</code>.
+    </li>
+    <li>Return <code>ans</code>.</li>
+</ol>
+<p><strong>Implementation</strong></p>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int[] findMode(TreeNode root) {
+        Map<Integer, Integer> counter = new HashMap();
+        dfs(root, counter);
+        int maxFreq = 0;
+
+        for (int key : counter.keySet()) {
+            maxFreq = Math.max(maxFreq, counter.get(key));
+        }
+
+        List<Integer> ans = new ArrayList();
+        for (int key : counter.keySet()) {
+            if (counter.get(key) == maxFreq) {
+                ans.add(key);
+            }
+        }
+
+        int[] result = new int[ans.size()];
+        for (int i = 0; i < ans.size(); i++) {
+            result[i] = ans.get(i);
+        }
+
+        return result;
+    }
+
+    public void dfs(TreeNode node, Map<Integer, Integer> counter) {
+        if (node == null) {
+            return;
+        }
+
+        counter.put(node.val, counter.getOrDefault(node.val, 0) + 1);
+        dfs(node.left, counter);
+        dfs(node.right, counter);
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    vector<int> findMode(TreeNode* root) {
+        unordered_map<int, int> counter;
+        dfs(root, counter);
+        int maxFreq = 0;
+
+        for (auto& [key, val] : counter) {
+            maxFreq = max(maxFreq, val);
+        }
+
+        vector<int> ans;
+        for (auto& [key, val] : counter) {
+            if (val == maxFreq) {
+                ans.push_back(key);
+            }
+        }
+
+        return ans;
+    }
+
+    void dfs(TreeNode* node, unordered_map<int, int>& counter) {
+        if (node == nullptr) {
+            return;
+        }
+
+        counter[node->val]++;
+        dfs(node->left, counter);
+        dfs(node->right, counter);
+    }
+};
+    </code>
+    Ptyhon3
+    <code>
+        class Solution:
+    def findMode(self, root: Optional[TreeNode]) -> List[int]:
+        def dfs(node, counter):
+            if not node:
+                return
+
+            counter[node.val] += 1
+            dfs(node.left, counter)
+            dfs(node.right, counter)
+
+        counter = defaultdict(int)
+        dfs(root, counter)
+        max_freq = max(counter.values())
+
+        ans = []
+        for key in counter:
+            if counter[key] == max_freq:
+                ans.append(key)
+
+        return ans
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<p>Given <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    as the number of nodes in the tree,</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <p>During the DFS, we visit each node once. At each node, we perform <span class="math math-inline"><span
+                class="katex"><span class="katex-mathml">O(1)O(1)</span><span class="katex-html"
+                                                                              aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord">1</span><span class="mclose">)</span></span></span></span></span> work since hash map and
+            stack operations cost <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord">1</span><span class="mclose">)</span></span></span></span></span>.</p>
+        <p>Next, we find <code>maxFreq</code>, which involves iterating over <code>counter</code>. In the worst case
+            scenario where the tree has only unique values, <code>counter</code> will have a size of <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.4306em;"></span><span
+                    class="mord mathnormal">n</span></span></span></span></span>, and thus this will cost <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.</p>
+        <p>Finally, we construct <code>ans</code>, which involves iterating over <code>counter</code> again. Overall,
+            our time complexity is <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.</p>
+        <p>In Java, we need to convert <code>ans</code> to the correct type, but this doesn't change the time
+            complexity.</p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <p>During DFS, <code>stack</code> may grow to a size of <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.
+            Also, as mentioned above, if the tree only has unique values then <code>counter</code> will have a size of
+            <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.4306em;"></span><span
+                    class="mord mathnormal">n</span></span></span></span></span>. Thus, <code>counter</code> also uses
+            <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> space.</p>
+    </li>
+</ul>
+<br>
+<hr>
+<h4 id="approach-3-breadth-first-search-bfs">Approach 3: Breadth First Search (BFS)</h4>
+<p><strong>Intuition</strong></p>
+<blockquote>
+    <p>Again, this approach may be asked as a follow-up if you implemented DFS first, or vice-versa. It is also common
+        for interviewers to ask you to implement both DFS and BFS.</p>
+    <p>We have included approaches 2 and 3 to demonstrate the usage of iterative DFS and BFS to solve this problem. We
+        are able to do this because there isn't really a difference in using recursive DFS, iterative DFS, or BFS for
+        this algorithm - we simply need to visit each node.</p>
+</blockquote>
+<p>In this approach, we again use the same algorithm from the first two approaches. This time, we will perform the
+    traversal using BFS.</p>
+<p>With BFS, instead of using a stack (or the recursion stack) like in DFS, we use a queue. The main difference is that
+    we handle nodes in a first-in, first-out fashion (FIFO) as opposed to in DFS where we handle nodes in a last-in,
+    first-out (LIFO) fashion. This results in us visiting each node by depth - we can imagine the root at depth
+    <code>0</code>, the root's children at depth <code>1</code>, the children of those children at depth <code>2</code>,
+    and so on.</p>
+<p><img src="bfs.png" alt="example"><br>
+    <br></p>
+<p>With BFS, we visit all nodes at a depth of <code>x</code> before visiting any node at a depth of <code>x + 1</code>.
+    While BFS excels over DFS for many problems, in this problem it is just another way for us to perform the traversal.
+    We simply need to visit each node in the tree so that we can record the frequencies in <code>counter</code>.</p>
+<p><strong>Algorithm</strong></p>
+<ol>
+    <li>Initialize a hash map <code>counter</code> and a queue <code>queue</code> that contains <code>root</code>.</li>
+    <li>Perform a BFS. While <code>queue</code> is not empty:
+        <ul>
+            <li>Pop <code>node</code> from the front of <code>queue</code>.</li>
+            <li>Increment the frequency of <code>node.val</code> in <code>counter</code>.</li>
+            <li>If <code>node.left</code> is not null, push it to <code>queue</code>.</li>
+            <li>If <code>node.right</code> is not null, push it to <code>queue</code>.</li>
+        </ul>
+    </li>
+    <li>Find the maximum value in <code>counter</code> as <code>maxFreq</code>.</li>
+    <li>Initialize the answer list <code>ans</code>.</li>
+    <li>Iterate over all key-value pairs in <code>counter</code>. If the value is equal to <code>maxFreq</code>, add the
+        key to <code>ans</code>.
+    </li>
+    <li>Return <code>ans</code>.</li>
+</ol>
+<p><strong>Implementation</strong></p>
+<blockquote>
+    <p>In Python, we are using <a href="https://docs.python.org/3/library/collections.html#collections.deque"
+                                  target="_blank">collections.deque</a> to implement an efficient queue.</p>
+</blockquote>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int[] findMode(TreeNode root) {
+        Map<Integer, Integer> counter = new HashMap();
+        dfs(root, counter);
+        int maxFreq = 0;
+
+        for (int key : counter.keySet()) {
+            maxFreq = Math.max(maxFreq, counter.get(key));
+        }
+
+        List<Integer> ans = new ArrayList();
+        for (int key : counter.keySet()) {
+            if (counter.get(key) == maxFreq) {
+                ans.add(key);
+            }
+        }
+
+        int[] result = new int[ans.size()];
+        for (int i = 0; i < ans.size(); i++) {
+            result[i] = ans.get(i);
+        }
+
+        return result;
+    }
+
+    public void dfs(TreeNode node, Map<Integer, Integer> counter) {
+        if (node == null) {
+            return;
+        }
+
+        counter.put(node.val, counter.getOrDefault(node.val, 0) + 1);
+        dfs(node.left, counter);
+        dfs(node.right, counter);
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    vector<int> findMode(TreeNode* root) {
+        unordered_map<int, int> counter;
+        dfs(root, counter);
+        int maxFreq = 0;
+
+        for (auto& [key, val] : counter) {
+            maxFreq = max(maxFreq, val);
+        }
+
+        vector<int> ans;
+        for (auto& [key, val] : counter) {
+            if (val == maxFreq) {
+                ans.push_back(key);
+            }
+        }
+
+        return ans;
+    }
+
+    void dfs(TreeNode* node, unordered_map<int, int>& counter) {
+        if (node == nullptr) {
+            return;
+        }
+
+        counter[node->val]++;
+        dfs(node->left, counter);
+        dfs(node->right, counter);
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def findMode(self, root: Optional[TreeNode]) -> List[int]:
+        def dfs(node, counter):
+            if not node:
+                return
+
+            counter[node.val] += 1
+            dfs(node.left, counter)
+            dfs(node.right, counter)
+
+        counter = defaultdict(int)
+        dfs(root, counter)
+        max_freq = max(counter.values())
+
+        ans = []
+        for key in counter:
+            if counter[key] == max_freq:
+                ans.append(key)
+
+        return ans
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<p>Given <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    as the number of nodes in the tree,</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <p>During the BFS, we visit each node once. At each node, we perform <span class="math math-inline"><span
+                class="katex"><span class="katex-mathml">O(1)O(1)</span><span class="katex-html"
+                                                                              aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord">1</span><span class="mclose">)</span></span></span></span></span> work since hash map and
+            queue operations cost <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord">1</span><span class="mclose">)</span></span></span></span></span>. Note that this
+            assumes that the implementation of <code>queue</code> is efficient. In the code we presented above, all
+            implementations are efficient.</p>
+        <p>Next, we find <code>maxFreq</code>, which involves iterating over <code>counter</code>. In the worst case
+            scenario where the tree has only unique values, <code>counter</code> will have a size of <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.4306em;"></span><span
+                    class="mord mathnormal">n</span></span></span></span></span>, and thus this will cost <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.</p>
+        <p>Finally, we construct <code>ans</code>, which involves iterating over <code>counter</code> again. Overall,
+            our time complexity is <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.</p>
+        <p>In Java, we need to convert <code>ans</code> to the correct type, but this doesn't change the time
+            complexity.</p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <p>During DFS, <code>queue</code> may grow to a size of <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.
+            Also, as mentioned above, if the tree only has unique values then <code>counter</code> will have a size of
+            <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.4306em;"></span><span
+                    class="mord mathnormal">n</span></span></span></span></span>. Thus, <code>counter</code> also uses
+            <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> space.</p>
+    </li>
+</ul>
+<br>
+<hr>
+<h4 id="approach-4-no-hash-map">Approach 4: No Hash-Map</h4>
+<p><strong>Intuition</strong></p>
+<blockquote>
+    <p>This approach is another way to attack the problem compared to the previous three approaches. It is slightly more
+        complex and can be implemented if the interviewer asks for an alternate way to solve the problem. While this
+        approach has the same time and space complexity as the first three, it runs slightly faster as we avoid the
+        overhead associated with hash maps.</p>
+</blockquote>
+<p>So far, we have not taken advantage of the fact that the input tree is a binary search tree (with duplicates). The
+    first three approaches would work for <strong>any</strong> binary tree.</p>
+<p>If you perform an inorder DFS traversal on a binary search tree (BST), you will handle the nodes in
+    <strong>sorted</strong> order. Why?</p>
+<p>Recall that in a BST, all nodes to the left are less than the current node and all nodes to the right are greater
+    than the current node. In an inorder traversal, we handle all the nodes on the left first, then the current node,
+    then all the nodes to the right.</p>
+<p>The fact that there are duplicates in the BSTs given in this problem does not change this property - we will still
+    handle nodes in sorted order during an inorder traversal. So how does this help us? If we can obtain the nodes in
+    sorted order, then we can find the most frequent elements without needing a hash map.</p>
+<p>Let's say we have a list <code>values</code> that has all the values in the tree in sorted order. Any duplicated
+    values must be adjacent to each other in this list since it is sorted. We can iterate over this list from left to
+    right and keep count of a streak - how many of the same number we have seen in a row. Let's call our current streak
+    <code>currStreak</code>, and the number we have seen most recently <code>currNum</code>. For each <code>num</code>
+    we iterate over:</p>
+<ul>
+    <li>If <code>num = currNum</code>, then we can increment <code>currStreak</code> by <code>1</code>.</li>
+    <li>If <code>num != currNum</code>, then we must start a new streak. We update <code>currNum = num</code> and reset
+        <code>currStreak = 1</code>.
+    </li>
+</ul>
+<p>We will also maintain the <code>maxStreak</code> we have seen so far. When we find a new streak with a longer length,
+    i.e. <code>currStreak &gt; maxStreak</code>, we update <code>maxStreak</code> and reset the answer, since all the
+    numbers stored in the answer are guaranteed not to be modes. When we find that <code>currStreak = maxStreak</code>,
+    we can add the current <code>num</code> to the answer.</p>
+<p>
+<div class="relative mx-auto mb-6 flex flex-col overflow-hidden rounded-lg border-[1px] border-label-1"
+     style="max-width: 960px;">
+    <div class="rounded-lg" style="max-height: 540px;"><img alt="Current"
+                                                            class="object-fit-contain !mb-0 max-h-full max-w-full"
+                                                            src="blob:https://leetcode.com/a3d1a6ea-75b2-4182-b6a5-ba151a45b004">
+    </div>
+    <div class="absolute top-[50%] left-[50%] flex h-12 w-12 translate-x-[-50%] translate-y-[-50%] items-center justify-center rounded-full bg-black/30">
+        <div class="flex h-4 w-4 cursor-pointer items-center justify-center text-[35px]">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="h-full w-full text-white">
+                <path fill-rule="evenodd"
+                      d="M18.97 12.871l-12.96 7.29a1 1 0 01-1.49-.87V4.71a1 1 0 011.49-.872l12.96 7.29a1 1 0 010 1.743z"
+                      clip-rule="evenodd"></path>
+            </svg>
+        </div>
+    </div>
+    <div class="relative flex h-8 select-none items-center justify-around bg-black">
+        <div class="flex items-center space-x-7">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M16.091 4.929l-7.057 7.078 7.057 7.064a1 1 0 01-1.414 1.414l-7.764-7.77a1 1 0 010-1.415l7.764-7.785a1 1 0 111.415 1.414z"
+                      clip-rule="evenodd"></path>
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M18.97 12.871l-12.96 7.29a1 1 0 01-1.49-.87V4.71a1 1 0 011.49-.872l12.96 7.29a1 1 0 010 1.743z"
+                      clip-rule="evenodd"></path>
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M7.913 19.071l7.057-7.078-7.057-7.064a1 1 0 011.414-1.414l7.764 7.77a1 1 0 010 1.415l-7.764 7.785a1 1 0 01-1.414-1.414z"
+                      clip-rule="evenodd"></path>
+            </svg>
+        </div>
+        <div class="absolute right-0 mr-5 text-xs font-medium text-white">1 / 8</div>
+    </div>
+</div>
+<br>
+<br></p>
+<p>Once we have finished iterating through the array, <code>maxStreak</code> represents the max frequency and our answer
+    list <code>ans</code> will hold all the values that have this frequency.</p>
+<p><strong>Algorithm</strong></p>
+<ol>
+    <li>Perform an inorder DFS using a recursive <code>dfs</code> function to traverse the input tree. At each <code>node</code>,
+        add <code>node.val</code> to a list <code>values</code>.
+    </li>
+    <li>Initialize variables <code>maxStreak, currStreak, currNum</code> to <code>0</code> and an empty list
+        <code>ans</code>.
+    </li>
+    <li>Iterate over <code>values</code>. At each <code>num</code>:
+        <ul>
+            <li>If <code>num = currNum</code>, increment <code>currStreak</code>. Otherwise, set <code>currStreak = 1,
+                currNum = num</code>.
+            </li>
+            <li>If <code>currStreak &gt; maxStreak</code>, update <code>maxStreak = currStreak</code> and reset <code>ans</code>.
+            </li>
+            <li>If <code>currStreak = maxStreak</code>, add <code>num</code> to <code>ans</code>.</li>
+        </ul>
+    </li>
+    <li>Return <code>ans</code>.</li>
+</ol>
+<p><strong>Implementation</strong></p>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int[] findMode(TreeNode root) {
+        Map<Integer, Integer> counter = new HashMap();
+        Stack<TreeNode> stack = new Stack();
+        stack.push(root);
+
+        while (!stack.empty()) {
+            TreeNode node = stack.pop();
+
+            counter.put(node.val, counter.getOrDefault(node.val, 0) + 1);
+            if (node.left != null) {
+                stack.push(node.left);
+            }
+            if (node.right != null) {
+                stack.push(node.right);
+            }
+        }
+
+
+        int maxFreq = 0;
+        for (int key : counter.keySet()) {
+            maxFreq = Math.max(maxFreq, counter.get(key));
+        }
+
+        List<Integer> ans = new ArrayList();
+        for (int key : counter.keySet()) {
+            if (counter.get(key) == maxFreq) {
+                ans.add(key);
+            }
+        }
+
+        int[] result = new int[ans.size()];
+        for (int i = 0; i < ans.size(); i++) {
+            result[i] = ans.get(i);
+        }
+
+        return result;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    vector<int> findMode(TreeNode* root) {
+        unordered_map<int, int> counter;
+        vector<TreeNode*> stack;
+        stack.push_back(root);
+
+        while (!stack.empty()) {
+            TreeNode* node = stack.back();
+            stack.pop_back();
+
+            counter[node->val]++;
+            if (node->left != nullptr) {
+                stack.push_back(node->left);
+            }
+            if (node->right != nullptr) {
+                stack.push_back(node->right);
+            }
+        }
+
+        int maxFreq = 0;
+
+        for (auto& [key, val] : counter) {
+            maxFreq = max(maxFreq, val);
+        }
+
+        vector<int> ans;
+        for (auto& [key, val] : counter) {
+            if (val == maxFreq) {
+                ans.push_back(key);
+            }
+        }
+
+        return ans;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def findMode(self, root: Optional[TreeNode]) -> List[int]:
+        counter = defaultdict(int)
+        stack = [root]
+
+        while stack:
+            node = stack.pop()
+            counter[node.val] += 1
+
+            if node.left:
+                stack.append(node.left)
+            if node.right:
+                stack.append(node.right)
+
+        max_freq = max(counter.values())
+
+        ans = []
+        for key in counter:
+            if counter[key] == max_freq:
+                ans.append(key)
+
+        return ans
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<p>Given <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    as the number of nodes in the tree,</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <p>During the DFS, we visit each node once. At each node, we perform <span class="math math-inline"><span
+                class="katex"><span class="katex-mathml">O(1)O(1)</span><span class="katex-html"
+                                                                              aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord">1</span><span class="mclose">)</span></span></span></span></span> work.</p>
+        <p>After the DFS, we iterate over <code>values</code> which has a length of <span class="math math-inline"><span
+                class="katex"><span class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>.
+            At each iteration, we perform <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord">1</span><span class="mclose">)</span></span></span></span></span> work. Overall, we
+            perform <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> work.</p>
+        <p>You may notice that the runtime of this algorithm is faster than the first three approaches. This is because
+            while hash map operations are <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord">1</span><span class="mclose">)</span></span></span></span></span>, the constant
+            overhead still takes a little bit of time, especially compared to just using a list.</p>
+        <p>In Java, we need to convert <code>ans</code> to the correct type, but this doesn't change the time
+            complexity.</p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <p>During DFS, recursion is executed using the call stack. This call stack is equal to the depth of the tree,
+            which in the worst case scenario is <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>. Also, the
+            <code>values</code> array always grows to a size of <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                    class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>,
+            and thus also uses <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> space.</p>
+    </li>
+</ul>
+<br>
+<hr>
+<h4 id="approach-5-no-values-array">Approach 5: No "Values" Array</h4>
+<p><strong>Intuition</strong></p>
+<blockquote>
+    <p>This approach could be asked as a follow-up to the previous approach. It also satisfies the follow-up given in
+        the problem description (at the bottom, under the constraints). The only extra space we will use in this
+        approach is the call stack from recursion.</p>
+</blockquote>
+<p>In the previous approach, we perform an inorder traversal to create a <code>values</code> list. We then iterate over
+    the <code>values</code> list. Do we need this extra list?</p>
+<p>The answer is no: because by definition, the values we iterate over in <code>values</code> are the same values we
+    visit during the inorder traversal, in the same order. Thus, we can perform the same logic on the fly during the
+    inorder DFS, instead of performing DFS once to record the numbers in <code>values</code>, and then traversing <code>values</code>
+    to count the recorded numbers.</p>
+<p>We will use the same process: initialize <code>maxStreak, currStreak, currNum</code> as global variables. Perform an
+    inorder traversal using recursion, and at each <code>node</code>, treat <code>num = node.val</code> and perform the
+    same logic from the previous approach.</p>
+<p><strong>Algorithm</strong></p>
+<ol>
+    <li>Initialize global variables <code>maxStreak, currStreak, currNum</code> to <code>0</code> and an empty list
+        <code>ans</code>.
+    </li>
+    <li>Perform an inorder traversal from <code>root</code>. At each <code>node</code>:
+        <ul>
+            <li>If <code>node</code> is null, immediately exit the function.</li>
+            <li>Call <code>dfs(node.left)</code>.</li>
+            <li>Set <code>num = node.val</code>.</li>
+            <li>If <code>num = currNum</code>, increment <code>currStreak</code>. Otherwise, set <code>currStreak = 1,
+                currNum = num</code>.
+            </li>
+            <li>If <code>currStreak &gt; maxStreak</code>, update <code>maxStreak = currStreak</code> and reset <code>ans</code>.
+            </li>
+            <li>If <code>currStreak = maxStreak</code>, add <code>num</code> to <code>ans</code>.</li>
+            <li>Call <code>dfs(node.right)</code>.</li>
+        </ul>
+    </li>
+    <li>Return <code>ans.</code></li>
+</ol>
+<p><strong>Implementation</strong></p>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int[] findMode(TreeNode root) {
+        Map<Integer, Integer> counter = new HashMap();
+        Queue<TreeNode> queue = new LinkedList();
+        queue.add(root);
+
+        while (!queue.isEmpty()) {
+            TreeNode node = queue.remove();
+
+            counter.put(node.val, counter.getOrDefault(node.val, 0) + 1);
+            if (node.left != null) {
+                queue.add(node.left);
+            }
+            if (node.right != null) {
+                queue.add(node.right);
+            }
+        }
+
+        int maxFreq = 0;
+        for (int key : counter.keySet()) {
+            maxFreq = Math.max(maxFreq, counter.get(key));
+        }
+
+        List<Integer> ans = new ArrayList();
+        for (int key : counter.keySet()) {
+            if (counter.get(key) == maxFreq) {
+                ans.add(key);
+            }
+        }
+
+        int[] result = new int[ans.size()];
+        for (int i = 0; i < ans.size(); i++) {
+            result[i] = ans.get(i);
+        }
+
+        return result;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    vector<int> findMode(TreeNode* root) {
+        unordered_map<int, int> counter;
+        queue<TreeNode*> queue;
+        queue.push(root);
+
+        while (!queue.empty()) {
+            TreeNode* node = queue.front();
+            queue.pop();
+
+            counter[node->val]++;
+            if (node->left != nullptr) {
+                queue.push(node->left);
+            }
+            if (node->right != nullptr) {
+                queue.push(node->right);
+            }
+        }
+
+        int maxFreq = 0;
+        for (auto& [key, val] : counter) {
+            maxFreq = max(maxFreq, val);
+        }
+
+        vector<int> ans;
+        for (auto& [key, val] : counter) {
+            if (val == maxFreq) {
+                ans.push_back(key);
+            }
+        }
+
+        return ans;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def findMode(self, root: Optional[TreeNode]) -> List[int]:
+        counter = defaultdict(int)
+        queue = deque([root])
+
+        while queue:
+            node = queue.popleft()
+            counter[node.val] += 1
+
+            if node.left:
+                queue.append(node.left)
+            if node.right:
+                queue.append(node.right)
+
+        max_freq = max(counter.values())
+
+        ans = []
+        for key in counter:
+            if counter[key] == max_freq:
+                ans.append(key)
+
+        return ans
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<p>Given <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    as the number of nodes in the tree,</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <p>We perform a DFS, visiting each node in the tree once. At each node, we perform <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord">1</span><span class="mclose">)</span></span></span></span></span> work.</p>
+        <p>In Java, we need to convert <code>ans</code> to the correct type, but this doesn't change the time
+            complexity.</p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <p>During DFS, recursion is executed using the call stack. This call stack is equal to the depth of the tree,
+            which in the worst case scenario is <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.</p>
+        <p>Note that space used by the answer is not considered part of the space complexity. If we don't count the
+            recursion call stack space either (as suggested in the problem description's follow-up), then this approach
+            uses <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord">1</span><span class="mclose">)</span></span></span></span></span> space as we only use
+            a few extra variables like <code>maxStreak, currStreak, currNum</code>.</p>
+    </li>
+</ul>
+<br>
+<hr>
+<h4 id="approach-6-true-constant-space-morris-traversal">Approach 6: True Constant Space: Morris Traversal</h4>
+<p><strong>Intuition</strong></p>
+<blockquote>
+    <p>This approach is very advanced and would not be expected in an interview. We have included it for
+        completeness.</p>
+</blockquote>
+<p>We will contiunue using the same idea from the previous approach. Is there a way for us to perform the inorder
+    traversal without using any space, including the recursion call stack?</p>
+<p>Morris traversal is an advanced technique that allows us to traverse a binary tree with constant auxiliary space. In
+    this approach, we will implement a variant of Morris traversal that will still allow us to achieve an <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord">1</span><span class="mclose">)</span></span></span></span></span> space complexity. To
+    understand Morris traversal, we must first understand why a stack is "necessary" during DFS.</p>
+<p><img src="10.png" alt="example"><br>
+    <br></p>
+<p>In the above tree, we start at the root and move to the left child. Once we are finished fully handling the left
+    subtree, we then handle the root, and finally the right subtree. The reason we use extra stack space during DFS is
+    to "remember" the root and right subtree. Think about it: if we move to <code>root.left</code>, how can we get back
+    to <code>root</code> and thus <code>root.right</code>?</p>
+<p><img src="11.png" alt="example"><br>
+    <br></p>
+<p>Furthermore, when we are the green node, how do we get back to the blue nodes? Let's assign each node a <strong>friend</strong>.
+    A node's friend is the <strong>rightmost</strong> node in the left subtree. That is, to find the friend of <code>node</code>,
+    we first do <code>node = node.left</code>, then do <code>node = node.right</code> until there is no right child.</p>
+<p><img src="12.png" alt="example"><br>
+    <br></p>
+<p>You may notice that some nodes will not have a friend. Namely, a node will not have a friend if it does not have a
+    left child.</p>
+<p><img src="13.png" alt="example"><br>
+    <br></p>
+<p>Morris traversal takes advantage of the following facts:</p>
+<blockquote>
+    <ol>
+        <li>
+            <p>All friends are unique. That is, a node cannot be the friend of more than one node.</p>
+        </li>
+        <li>
+            <p>Friend nodes do not have right children. This is because by definition, we find friend nodes by
+                traversing right until there is no right child.</p>
+        </li>
+    </ol>
+</blockquote>
+<p>Thus, we can safely assign the right child of each friend to the node it is friend to. In the following examples, we
+    are numbering the nodes arbitrarily (these are not the values of a binary search tree):</p>
+<p><img src="14.png" alt="example"><br>
+    <br></p>
+<p>The rightmost node in the left subtree of the root is the node labelled <code>4</code>. Thus, we can assign the right
+    child of <code>4</code> to the root.</p>
+<p><img src="15.png" alt="example"><br>
+    <br></p>
+<p>In these example images, green edges will indicate "friend" edges. Notice that now, we have a way back to the root
+    (and thus the right subtree of the root) after entering the left subtree! Let's add the other friend edges.</p>
+<p><img src="16.png" alt="example"><br>
+    <br></p>
+<p>With these friend edges, we can now perform an inorder traversal without recursion or a stack! We start by handling
+    the <code>3</code>, then use the friend edge to get back to <code>1</code>. We handle the <code>1</code>, then the
+    <code>4</code>, and then use the friend edge to get back to the root. After handling the root, we handle the
+    <code>5</code>, then use the friend edge to get back to the <code>2</code>, which is the final node in our inorder
+    traversal.</p>
+<p>Now comes the tricky part: how do we implement this idea? We will use the following process. First, initialize <code>curr
+    = root</code>. This represents the current node that we iterating on. Next, we perform the following in a while loop
+    until <code>curr = null</code>, indicating we have finished the traversal:</p>
+<ul>
+    <li>If <code>curr.left != null</code>, we will find the <code>friend</code> of <code>curr</code>. After finding
+        <code>friend</code>, we set <code>friend.right = curr</code> then move to the left subtree with <code>curr =
+            curr.left</code>. Once we are in the left subtree, we should delete the edge to prevent any infinite loops.
+    </li>
+    <li>If <code>curr.left = null</code>, it means there is no left subtree. We can handle this node now, then move to
+        the right with <code>curr = curr.right</code>.
+    </li>
+</ul>
+<p>We will quickly demonstrate the traversal using the previous example. At any given time, the green node is
+    <code>curr</code>.</p>
+<p><img src="17.png" alt="example"><br>
+    <br></p>
+<p>Initially, <code>curr = root</code>. Because there is a left subtree, we will find the friend.</p>
+<p><img src="18.png" alt="example"><br>
+    <br></p>
+<p>We find the friend by moving to the left subtree, then moving right as much as we can. Set <code>friend.right =
+    curr</code>. Next, we set <code>curr = curr.left</code>.</p>
+<p><img src="19.png" alt="example"><br>
+    <br></p>
+<p>After we move to the left subtree, we must delete the edge we used. This is is so when we return back to the root, we
+    don't repeat the process we just performed (as without deleting the edge, <code>root.left != null</code>).</p>
+<p><img src="20.png" alt="example"><br>
+    <br></p>
+<p>Again, <code>curr.left != null</code>, so we find the <code>friend</code> and set <code>friend.right = curr</code>.
+    Then we move to the left subtree and delete the edge.</p>
+<p><img src="21.png" alt="example"><br>
+    <br></p>
+<p>At the node labelled <code>3</code>, we have no left subtree. Thus we can now handle this node and move to <code>curr.right</code>,
+    which you will notice is the friend edge we created earlier.</p>
+<p><img src="22.png" alt="example"><br>
+    <br></p>
+<p><img src="23.png" alt="example"><br>
+    <br></p>
+<p>The next two nodes, <code>1</code> and <code>4</code> are handled the same way. Notice that so far, we have handled
+    nodes in the order <code>3, 1, 4</code>, which is the correct order for an inorder traversal. Now, we find ourselves
+    back at the <code>root</code>. Because we deleted the left edge earlier, we now move handle the <code>root</code>
+    and move right.</p>
+<p><img src="24.png" alt="example"><br>
+    <br></p>
+<p><img src="25.png" alt="example"><br>
+    <br></p>
+<p>We have reached another node where <code>curr.left != null</code>. We find the friend and set the right edge.</p>
+<p><img src="26.png" alt="example"><br>
+    <br></p>
+<p>At the node labelled <code>5</code>, we find that <code>curr.left = null</code>. Thus, we handle the node and then
+    move right (back to the <code>2</code>, as we set this "friend" edge earlier).</p>
+<p><img src="27.png" alt="example"><br>
+    <br></p>
+<p>We finally handle the last node. The traversal ends as we move right, but there is no right child. We handled the
+    nodes in the correct order: <code>3, 1, 4, 0, 5, 2</code>.</p>
+<p>Finally, we solve the problem by using the same algorithm from the previous approach during our Morris traversal.</p>
+<p><strong>Algorithm</strong></p>
+<ol>
+    <li>Initialize variables <code>maxStreak, currStreak, currNum</code> to <code>0</code> and an empty list
+        <code>ans</code>. Also, initialize <code>curr = root</code>.
+    </li>
+    <li>While <code>curr != null</code>, perform Morris traversal:
+        <ul>
+            <li>If <code>curr.left != null</code>:
+                <ul>
+                    <li>Find <code>friend</code>. We first set <code>friend = curr.left</code>, then move with <code>friend
+                        = friend.right</code> as long as <code>friend.right</code> exists.
+                    </li>
+                    <li>Once <code>friend</code> is found, we set <code>friend.right = curr</code>.</li>
+                    <li>Move to <code>curr.left</code> and delete the edge. You can do this by first saving <code>left =
+                        curr.left</code>, then setting <code>curr.left = null</code>, and finally performing <code>curr
+                        = left</code>.
+                    </li>
+                </ul>
+            </li>
+            <li>Otherwise, <code>curr.left = null</code>:
+                <ul>
+                    <li>Set <code>num = curr.val</code>.</li>
+                    <li>If <code>num = currNum</code>, increment <code>currStreak</code>. Otherwise, set <code>currStreak
+                        = 1, currNum = num</code>.
+                    </li>
+                    <li>If <code>currStreak &gt; maxStreak</code>, update <code>maxStreak = currStreak</code> and reset
+                        <code>ans</code>.
+                    </li>
+                    <li>If <code>currStreak = maxStreak</code>, add <code>num</code> to <code>ans</code>.</li>
+                    <li>Perform <code>curr = curr.right</code>.</li>
+                </ul>
+            </li>
+        </ul>
+    </li>
+    <li>Return <code>ans.</code></li>
+</ol>
+<p><strong>Implementation</strong></p>
+<blockquote>
+    <p>Note: <code>friend</code> is a keyword in C++, so we will use <code>friendNode</code> as the variable name
+        instead.</p>
+</blockquote>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int[] findMode(TreeNode root) {
+        List<Integer> values = new ArrayList();
+        dfs(root, values);
+
+        int maxStreak = 0;
+        int currStreak = 0;
+        int currNum = 0;
+        List<Integer> ans = new ArrayList();
+
+        for (int num : values) {
+            if (num == currNum) {
+                currStreak++;
+            } else {
+                currStreak = 1;
+                currNum = num;
+            }
+
+            if (currStreak > maxStreak) {
+                ans = new ArrayList();
+                maxStreak = currStreak;
+            }
+
+            if (currStreak == maxStreak) {
+                ans.add(num);
+            }
+        }
+
+        int[] result = new int[ans.size()];
+        for (int i = 0; i < ans.size(); i++) {
+            result[i] = ans.get(i);
+        }
+
+        return result;
+    }
+
+    public void dfs(TreeNode node, List<Integer> values) {
+        if (node == null) {
+            return;
+        }
+
+        // Inorder traversal visits nodes in sorted order
+        dfs(node.left, values);
+        values.add(node.val);
+        dfs(node.right, values);
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    vector<int> findMode(TreeNode* root) {
+        vector<int> values;
+        dfs(root, values);
+
+        int maxStreak = 0;
+        int currStreak = 0;
+        int currNum = 0;
+        vector<int> ans;
+
+        for (int num : values) {
+            if (num == currNum) {
+                currStreak++;
+            } else {
+                currStreak = 1;
+                currNum = num;
+            }
+
+            if (currStreak > maxStreak) {
+                ans = {};
+                maxStreak = currStreak;
+            }
+
+            if (currStreak == maxStreak) {
+                ans.push_back(num);
+            }
+        }
+
+        return ans;
+    }
+
+    void dfs(TreeNode* node, vector<int>& values) {
+        if (node == nullptr) {
+            return;
+        }
+
+        // Inorder traversal visits nodes in sorted order
+        dfs(node->left, values);
+        values.push_back(node->val);
+        dfs(node->right, values);
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def findMode(self, root: Optional[TreeNode]) -> List[int]:
+        def dfs(node, values):
+            if not node:
+                return
+
+            # Inorder traversal visits nodes in sorted order
+            dfs(node.left, values)
+            values.append(node.val)
+            dfs(node.right, values)
+
+        values = []
+        dfs(root, values)
+
+        max_streak = 0
+        curr_streak = 0
+        curr_num = 0
+        ans = []
+
+        for num in values:
+            if num == curr_num:
+                curr_streak += 1
+            else:
+                curr_streak = 1
+                curr_num = num
+
+            if curr_streak > max_streak:
+                ans = []
+                max_streak = curr_streak
+
+            if curr_streak == max_streak:
+                ans.append(num)
+
+        return ans
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<p>Given <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    as the number of nodes in the tree,</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <p>You may be thinking: there is a nested while loop, wouldn't this algorithm have a time complexity of <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">O(n2)O(n^2)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+                class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                class="mclose">)</span></span></span></span></span>? The answer is no, because the inner while loop can
+            only iterate <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> times
+            total across the entire algorithm.</p>
+        <p>In a binary tree with <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.4306em;"></span><span
+                class="mord mathnormal">n</span></span></span></span></span> nodes, there are <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">n−1n - 1</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.6444em;"></span><span
+                class="mord">1</span></span></span></span></span> edges. This is because every node except for the root
+            has a parent. During a Morris traversal, we never use an edge more than twice. We use each edge once to move
+            <code>curr</code> through the tree, and we use each edge another time to find friends.</p>
+        <p>This means we have <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(2⋅(n−1))=O(n)O(2 \cdot (n - 1)) = O(n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord">2</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mspace"
+                                                                                  style="margin-right: 0.2222em;"></span><span
+                class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord">1</span><span class="mclose">))</span><span class="mspace"
+                                                                         style="margin-right: 0.2778em;"></span><span
+                class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> edge
+            iterations. Thus, the Morris traversal overall costs <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>, since
+            everything else we do costs <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord">1</span><span class="mclose">)</span></span></span></span></span>.</p>
+        <p>In Java, we need to convert <code>ans</code> to the correct type, but this doesn't change the time
+            complexity.</p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord">1</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <p>We don't count the answer as part of the space complexity. The only extra space we use are a few extra
+            variables like <code>maxStreak, currStreak, currNum</code>. Thus, we have achieved a true <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord">1</span><span class="mclose">)</span></span></span></span></span> space complexity.</p>
+        <p>Note that we are modifying the input in this algorithm, which may be considered as a bad practice. Some
+            people will also argue that by modifying the input, we should also include it in the space complexity.</p>
+    </li>
+</ul>
+<br>
+<p><strong>Morris Traversal Follow-Up</strong></p>
+<p>As mentioned before, what we have implemented above is a variant of the traditional Morris traversal. One drawback to
+    this variant is that the tree is heavily modified after the traversal. With some small changes, we can actually
+    "repair" the tree to its original state while still accomplishing an <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord">1</span><span class="mclose">)</span></span></span></span></span> space traversal!</p>
+<p>This article focused on the variant for the sake of brevity. We encourage any eager readers to try and implement the
+    standard traversal on their own as a follow-up.</p>
+<details>
+    <summary>Click here to see the solution!</summary>
+    <pre>
+        Java
+        <code>
+            class Solution {
+    int maxStreak = 0;
+    int currStreak = 0;
+    int currNum = 0;
+    List<Integer> ans = new ArrayList();
+
+    public void add(int num) {
+        if (num == currNum) {
+            currStreak++;
+        } else {
+            currStreak = 1;
+            currNum = num;
+        }
+
+        if (currStreak > maxStreak) {
+            ans = new ArrayList();
+            maxStreak = currStreak;
+        }
+
+        if (currStreak == maxStreak) {
+            ans.add(num);
+        }
+    }
+
+    public int[] findMode(TreeNode root) {
+        TreeNode curr = root;
+        TreeNode friend;
+        while (curr != null) {
+            if (curr.left != null) {
+                friend = curr.left;
+                while (friend.right != null && friend.right != curr) {
+                    friend = friend.right;
+                }
+
+                if (friend.right == null) {
+                    friend.right = curr;
+                    curr = curr.left;
+                } else {
+                    friend.right = null;
+                    add(curr.val);
+                    curr = curr.right;
+                }
+
+            } else {
+                add(curr.val);
+                curr = curr.right;
+            }
+        }
+
+
+        int[] result = new int[ans.size()];
+        for (int i = 0; i < ans.size(); i++) {
+            result[i] = ans.get(i);
+        }
+
+        return result;
+    }
+}
+        </code>
+        C++
+        <code>
+            class Solution {
+public:
+    vector<int> ans;
+    int maxStreak = 0;
+    int currStreak = 0;
+    int currNum = 0;
+
+    void add(int num) {
+        if (num == currNum) {
+            currStreak++;
+        } else {
+            currStreak = 1;
+            currNum = num;
+        }
+
+        if (currStreak > maxStreak) {
+            ans = {};
+            maxStreak = currStreak;
+        }
+
+        if (currStreak == maxStreak) {
+            ans.push_back(num);
+        }
+    }
+
+    vector<int> findMode(TreeNode* root) {
+        TreeNode* curr = root;
+        TreeNode* friendNode;
+        while (curr != nullptr) {
+            if (curr->left != nullptr) {
+                friendNode = curr->left;
+                while (friendNode->right != nullptr && friendNode->right != curr) {
+                    friendNode = friendNode->right;
+                }
+
+                if (friendNode->right == nullptr) {
+                    friendNode->right = curr;
+                    curr = curr->left;
+                } else {
+                    friendNode->right = nullptr;
+                    add(curr->val);
+                    curr = curr->right;
+                }
+            } else {
+                add(curr->val);
+                curr = curr->right;
+            }
+        }
+
+        return ans;
+    }
+};
+        </code>
+        Python3
+        <code>
+            class Solution:
+    def findMode(self, root: Optional[TreeNode]) -> List[int]:
+        def add(num):
+            nonlocal max_streak, curr_streak, curr_num, ans
+            if num == curr_num:
+                curr_streak += 1
+            else:
+                curr_streak = 1
+                curr_num = num
+
+            if curr_streak > max_streak:
+                ans = []
+                max_streak = curr_streak
+
+            if curr_streak == max_streak:
+                ans.append(num)
+
+        max_streak = 0
+        curr_streak = 0
+        curr_num = 0
+        ans = []
+
+        curr = root
+        while curr:
+            if curr.left:
+                friend = curr.left
+                while friend.right and friend.right != curr:
+                    friend = friend.right
+
+                if not friend.right:
+                    friend.right = curr
+                    curr = curr.left
+                else:
+                    friend.right = None
+                    add(curr.val)
+                    curr = curr.right
+            else:
+                add(curr.val)
+                curr = curr.right
+
+        return ans
+        </code>
+    </pre>
+</details>
+<hr>
+</body>
+</html>
