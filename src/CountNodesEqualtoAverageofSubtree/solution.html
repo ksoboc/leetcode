@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Count Nodes Equal to Average of Subtree - Solution</title>
+</head>
+<body>
+<h2 id="solution">Count Nodes Equal to Average of Subtree - Solution</h2>
+<hr>
+<h4 id="approach-depth-first-search-dfs">Approach: Depth First Search (DFS)</h4>
+<p><strong>Intuition</strong></p>
+<p>We are given a binary tree with nodes that have non-negative integer values. We need to return the number of nodes
+    that have the same value as the average value of all the nodes that have that node as their root (and the root node
+    is included in the subtree). To find the average, we can round down the value to the nearest integer.</p>
+<p>To find the average of some integers, we have two requirements. One is the sum of all the integers, and the other one
+    is the number of integers. If we have both of these, we can find the average by dividing the sum by the number of
+    integers. In this problem, we need the sum of all the nodes in the subtree <code>Sum of nodes</code>, and the second
+    is the number of nodes in the subtree <code>Number of nodes</code>. We can then find the average as the <code>Sum of
+        nodes / Number of nodes</code>.</p>
+<p>One naive way to do this is to iterate over each node in the binary tree and then iterate over the subtree starting
+    with this node, keeping the sum of nodes and count of nodes in two variables. Then, after completing the subtree, we
+    will check if the average is equal to the root node value. If it is, we will increment the count of the answer
+    variable. This approach is, however, inefficient as we will be iterating over the nodes multiple times. For each
+    node, we will have to iterate over the nodes in the subtree, even if they have already been traversed.</p>
+<p>In the above approach, we have to iterate over the nodes multiple times because we have started from top to bottom
+    and as a result, we are not able to reuse the sum and count. Instead of going from to root node to the leaves, we
+    can iterate in the reverse manner. We will first iterate over the left and right subtree of each node and return the
+    sum of nodes as well as the count of nodes, Then we can find the average and check if this node should be counted.
+    We will repeat the process for each node and return the final count once we have iterated over all the nodes.</p>
+<p>If we look closely, traversing the children before traversing the nodes is a depth-first search traversal. We will
+    use a recursive function that will return a pair of integers where the first integer is the sum of the nodes and the
+    second integer is the count of the nodes. Using the pairs returned from the left and right subtrees, we can find the
+    number of nodes in the total subtree and the total number of nodes. We can then find the average and determine
+    whether the node should be counted in the final answer.</p>
+<p>Note that at the current node when we get the node values sum and count of nodes in both the left and right subtree,
+    we add these values along with the current node value to get the total sum of this subtree and we add one to the
+    total nodes to get the total nodes.</p>
+<p><img src="2265A.png" alt="fig"></p>
+<p><strong>Algorithm</strong></p>
+<ol>
+    <li>
+        <p>Define the method <code>postOrder</code> which takes a node <code>root</code> and returns a pair of integers,
+            where the first integer is the sum of all nodes in the subtree under <code>root</code> and the second
+            integer is the count of a node in the subtree under <code>root</code>. <code>postOrder</code> will include
+            these steps:</p>
+    </li>
+    <li>
+        <p>Return a pair with <code>(0, 0)</code> if the <code>root</code> is <code>NULL</code>.</p>
+    </li>
+    <li>
+        <p>Recursively call <code>postOrder</code> for the left and the right child of the <code>root</code> and store
+            the pairs as <code>left</code> and <code>right</code> respectively.</p>
+    </li>
+    <li>
+        <p>Find the total sum under <code>root</code> as the sum of nodes in the pair <code>left</code>, and
+            <code>right</code> and the <code>root</code> itself as <code>nodeSum</code>.</p>
+    </li>
+    <li>
+        <p>Find the total node count under <code>root</code> as the count of nodes in the pair <code>left</code>, and
+            <code>right</code> and the <code>1</code> for the <code>root</code> as <code>nodeCount</code>.</p>
+    </li>
+    <li>
+        <p>Find the average using <code>nodeSum</code> and <code>nodeCount</code> and increment the counter
+            <code>count</code> if the average is equal to the <code>root</code> value.</p>
+    </li>
+    <li>
+        <p>Return a pair as <code>(nodeSum, nodeCount)</code>.</p>
+    </li>
+    <li>
+        <p>When <code>postOrder</code> is finished, return <code>count</code>.</p>
+    </li>
+</ol>
+<p><strong>Implementation</strong></p>
+<pre>
+    Java
+    <code>
+        class Solution {
+    int count = 0;
+
+    Pair<Integer, Integer> postOrder(TreeNode root) {
+        if (root == null) {
+            return new Pair(0, 0);
+        }
+
+        // First iterate over left and right subtrees.
+        Pair<Integer, Integer> left = postOrder(root.left);
+        Pair<Integer, Integer> right = postOrder(root.right);
+
+        int nodeSum = left.getKey() + right.getKey() + root.val;
+        int nodeCount = left.getValue() + right.getValue() + 1;
+
+        // Check if the average of the subtree is equal to the node value.
+        if (root.val == nodeSum / (nodeCount)) {
+            count++;
+        }
+
+        // Return the sum of nodes and the count in the subtree.
+        return new Pair(nodeSum, nodeCount);
+    }
+
+    public int averageOfSubtree(TreeNode root) {
+        postOrder(root);
+        return count;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int count = 0;
+
+    pair<int, int> postOrder(TreeNode* root) {
+        if (root == NULL) {
+            return {0, 0};
+        }
+
+        // First iterate over left and right subtrees.
+        pair<int, int> left = postOrder(root->left);
+        pair<int, int> right = postOrder(root->right);
+
+        int nodeSum = left.first + right.first + root->val;
+        int nodeCount = left.second + right.second + 1;
+
+        // Check if the average of the subtree is equal to the node value.
+        if (root->val == nodeSum / (nodeCount)) {
+            count++;
+        }
+
+        // Return the sum of nodes and the count in the subtree.
+        return {nodeSum, nodeCount};
+    }
+
+    int averageOfSubtree(TreeNode* root) {
+        postOrder(root);
+        return count;
+    }
+};
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<p>Here, <span class="math math-inline"><span class="katex"><span class="katex-mathml">NN</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                style="margin-right: 0.10903em;">N</span></span></span></span></span>
+    is the number of nodes in the binary tree.</p>
+<ul>
+    <li>
+        <p>Time complexity <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(N)O(N)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <p>We need to iterate over each node in the binary tree only once, and all other operations, like finding the
+            average, are <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord">1</span><span class="mclose">)</span></span></span></span></span>, and hence the total
+            time complexity is equal to <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(N)O(N)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                    class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+    <li>
+        <p>Space complexity <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(N)O(N)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <p>Recursion requires some stack space, and the maximum number of active stack calls would be equal to <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">NN</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.6833em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.10903em;">N</span></span></span></span></span> (one for
+            each node). The space required by the pair is <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord">1</span><span class="mclose">)</span></span></span></span></span> and hence the total
+            space complexity is equal to <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(N)O(N)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                    class="mclose">)</span></span></span></span></span>.<br>
+            <br></p>
+    </li>
+</ul>
+<hr>
+</body>
+</html>
