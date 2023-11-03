@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Build an Array With Stack Operations - Solution</title>
+</head>
+<body>
+<h2 id="solution">Build an Array With Stack Operations - Solution</h2>
+<hr>
+<h4 id="approach-simulate">Approach: Simulate</h4>
+<p><strong>Intuition</strong></p>
+<p>In this problem, we are given two stack operations:</p>
+<ul>
+    <li>Push a number to the stack</li>
+    <li>Pop off the top of the stack</li>
+</ul>
+<p>The numbers that we push to the stack are ordered from <code>1</code> to <code>n</code>. Each number is available
+    only once, so if we pop a number from the stack, that number is permanently gone. This means we want to pop every
+    number that does not appear in <code>target</code> and should never pop any number that does appear in
+    <code>target</code>.</p>
+<p>We stop once the stack is equal to <code>target</code> and we are allowed to return any valid answer. Because <code>target</code>
+    is always sorted and the stream of numbers always comes in ascending order, we can build <code>target</code> one
+    element at a time, starting with the first element.</p>
+<p>Let's use an integer <code>i</code> that represents the most recently pushed number. Initially, <code>i = 0</code> as
+    no numbers have been pushed yet.</p>
+<p><img src="1.png" alt="example"><br>
+    <br></p>
+<p>In this example, the first number we need to reach in <code>target</code> is <code>3</code>. Before we can reach
+    <code>3</code>, we need to go through <code>1, 2</code>. However, we don't want either <code>1</code> or
+    <code>2</code> in the answer, so we can immediately pop <code>1</code> after pushing it, and pop <code>2</code>
+    after pushing it. Essentially, we are only pushing them to move forward until we reach <code>3</code>.</p>
+<p><img src="2.png" alt="example"><br>
+    <br></p>
+<p><img src="3.png" alt="example"><br>
+    <br></p>
+<p>Now, we are ready to push <code>3</code>, so we do so.</p>
+<p><img src="4.png" alt="example"><br>
+    <br></p>
+<p>To get to the next number <code>6</code>, we must first go through <code>4, 5</code>. Again, we don't want either
+    <code>4</code> or <code>5</code> in the answer, so we can immediately pop <code>4</code> after pushing it, and pop
+    <code>5</code> after pushing it.</p>
+<p><img src="5.png" alt="example"><br>
+    <br></p>
+<p><img src="6.png" alt="example"><br>
+    <br></p>
+<p>Now, we are ready to push <code>6</code>, so we do so.</p>
+<p><img src="7.png" alt="example"><br>
+    <br></p>
+<p>We continue this process for each number in <code>target</code>. This brings us to our solution. We iterate over each
+    <code>num</code> in <code>target</code>:</p>
+<ul>
+    <li>We push and immediately pop the current number, then increment <code>i</code>, and repeat the process until we
+        are ready to push <code>num</code>.
+    </li>
+    <li>When are we ready to push <code>num</code>? Recall that <code>i</code> represents the most recently pushed
+        number. Thus, we are ready to push <code>num</code> when the most recently pushed number is <code>i = num -
+            1</code>.
+    </li>
+    <li>Once we are ready, we simply push and increment <code>i</code>.</li>
+</ul>
+<p><strong>Algorithm</strong></p>
+<ol>
+    <li>Initialize the answer <code>ans</code> and the integer <code>i = 0</code>.</li>
+    <li>For each <code>num</code> in <code>target</code>:
+        <ul>
+            <li>While <code>i &lt; num - 1</code>:
+                <ul>
+                    <li>Add <code>"Push"</code> to <code>ans</code>.</li>
+                    <li>Add <code>"Pop"</code> to <code>ans</code>.</li>
+                    <li>Increment <code>i</code>.</li>
+                </ul>
+            </li>
+            <li>Add <code>"Push"</code> to <code>ans</code>.</li>
+            <li>Increment <code>i</code>.</li>
+        </ul>
+    </li>
+    <li>Return <code>ans</code>.</li>
+</ol>
+<p><strong>Implementation</strong></p>
+<pre>
+  Java
+  <code>
+    class Solution {
+    public List<String> buildArray(int[] target, int n) {
+        List<String> ans = new ArrayList();
+        int i = 0;
+
+        for (int num : target) {
+            while (i < num - 1) {
+                ans.add("Push");
+                ans.add("Pop");
+                i++;
+            }
+
+            ans.add("Push");
+            i++;
+        }
+
+        return ans;
+    }
+}
+  </code>
+  C++
+  <code>
+    class Solution {
+public:
+    vector<string> buildArray(vector<int>& target, int n) {
+        vector<string> ans;
+        int i = 0;
+
+        for (int num : target) {
+            while (i < num - 1) {
+                ans.push_back("Push");
+                ans.push_back("Pop");
+                i++;
+            }
+
+            ans.push_back("Push");
+            i++;
+        }
+
+        return ans;
+    }
+};
+  </code>
+  Python3
+  <code>
+    class Solution:
+    def buildArray(self, target: List[int], n: int) -> List[str]:
+        ans = []
+        i = 0
+
+        for num in target:
+            while i < num - 1:
+                ans.append("Push")
+                ans.append("Pop")
+                i += 1
+
+            ans.append("Push")
+            i += 1
+
+        return ans
+  </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <p>Let <code>k</code> denote the largest (final) element in <code>target</code>. We push (and maybe pop) every
+            number from <code>1</code> until <code>k</code>. This gives us a maximum of <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">2k2k</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.6944em;"></span><span
+                    class="mord">2</span><span class="mord mathnormal" style="margin-right: 0.03148em;">k</span></span></span></span></span>
+            operations. In the worst case scenario, <code>k = n</code>, which gives us a time complexity of <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord">1</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <p>We don't count the answer as part of the space complexity. Thus, we aren't using any extra space other than
+            the integer <code>i</code>.</p>
+    </li>
+</ul>
+<br>
+<hr>
+</body>
+</html>
