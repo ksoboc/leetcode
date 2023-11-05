@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Find the Winner of an Array Game - Solution</title>
+</head>
+<body>
+<h2 id="solution">Find the Winner of an Array Game - Solution</h2>
+<hr>
+<h4 id="approach-1-simulate-process-with-queue">Approach 1: Simulate Process With Queue</h4>
+<p><strong>Intuition</strong></p>
+<p>We have an interesting game here. Let's try to fully understand it so that we can simulate it.</p>
+<ul>
+    <li>In each round, two players face each other. The player with a larger value wins.</li>
+    <li>The problem states that <code>arr</code> has distinct integers, so we don't need to worry about tiebreaks.</li>
+    <li>The game ends when someone wins <code>k</code> rounds in a row.</li>
+    <li>The game starts between the first two elements of <code>arr</code>. The other elements of <code>arr</code>
+        represent a line.
+    </li>
+    <li>After each round, the next round is played between the winner and the next player in line.</li>
+    <li>The loser goes to the end of the line.</li>
+</ul>
+<p>The functionality of a line can be implemented using a queue. We remove from the front of the queue to determine the
+    next player, and we add to the back of the queue when a player loses. Using a queue and some integers, we can
+    simulate the game.</p>
+<ul>
+    <li>Let <code>curr</code> represent the winner of the most recent round. Initially, <code>curr = arr[0]</code>.</li>
+    <li>Let <code>winstreak</code> represent the winstreak of the current player. Initially, <code>winstreak = 0</code>.
+    </li>
+    <li>Let <code>queue</code> represent the line. Initially, <code>queue</code> holds all the elements of
+        <code>arr</code> in order, except for the first element.
+    </li>
+</ul>
+<p>Now, let's simulate the game. At each round:</p>
+<ul>
+    <li>Remove from the front of <code>queue</code> and let this value be <code>opponent</code>.</li>
+    <li>If <code>curr &gt; opponent</code>, the current player wins. Add <code>opponent</code> to the back of <code>queue</code>
+        and increment <code>winstreak</code>.
+    </li>
+    <li>Otherwise, <code>opponent</code> wins. Add <code>curr</code> to the back of <code>queue</code>, update <code>curr
+        = opponent</code>, and set <code>winstreak = 1</code>.
+    </li>
+    <li>If <code>winstreak = k</code>, the current player has won <code>k</code> rounds in a row. We can return <code>curr</code>.
+    </li>
+</ul>
+<p>
+<div class="relative mx-auto mb-6 flex flex-col overflow-hidden rounded-lg border-[1px] border-label-1"
+     style="max-width: 960px;">
+    <div class="rounded-lg" style="max-height: 540px;"><img alt="Current"
+                                                            class="object-fit-contain !mb-0 max-h-full max-w-full"
+                                                            src="blob:https://leetcode.com/c45e8029-b4e9-4a0e-b25a-09ab25423cf4">
+    </div>
+    <div class="absolute top-[50%] left-[50%] flex h-12 w-12 translate-x-[-50%] translate-y-[-50%] items-center justify-center rounded-full bg-black/30">
+        <div class="flex h-4 w-4 cursor-pointer items-center justify-center text-[35px]">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="h-full w-full text-white">
+                <path fill-rule="evenodd"
+                      d="M18.97 12.871l-12.96 7.29a1 1 0 01-1.49-.87V4.71a1 1 0 011.49-.872l12.96 7.29a1 1 0 010 1.743z"
+                      clip-rule="evenodd"></path>
+            </svg>
+        </div>
+    </div>
+    <div class="relative flex h-8 select-none items-center justify-around bg-black">
+        <div class="flex items-center space-x-7">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M16.091 4.929l-7.057 7.078 7.057 7.064a1 1 0 01-1.414 1.414l-7.764-7.77a1 1 0 010-1.415l7.764-7.785a1 1 0 111.415 1.414z"
+                      clip-rule="evenodd"></path>
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M18.97 12.871l-12.96 7.29a1 1 0 01-1.49-.87V4.71a1 1 0 011.49-.872l12.96 7.29a1 1 0 010 1.743z"
+                      clip-rule="evenodd"></path>
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M7.913 19.071l7.057-7.078-7.057-7.064a1 1 0 011.414-1.414l7.764 7.77a1 1 0 010 1.415l-7.764 7.785a1 1 0 01-1.414-1.414z"
+                      clip-rule="evenodd"></path>
+            </svg>
+        </div>
+        <div class="absolute right-0 mr-5 text-xs font-medium text-white">1 / 7</div>
+    </div>
+</div>
+<br>
+<br></p>
+<p>This simulation process works, but there is an issue. If we examine the constraints, we find that <span
+        class="math math-inline"><span class="katex"><span class="katex-mathml">kk</span><span class="katex-html"
+                                                                                               aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord mathnormal"
+                                                                                style="margin-right: 0.03148em;">k</span></span></span></span></span>
+    can be up to 1 billion! If we tried to simulate a billion rounds, we would exceed the time limit. How do we solve
+    this?</p>
+<p>We can make another observation: let the player with the largest value in <code>arr</code> be <code>maxElement</code>.
+    Since the elements in the array are all unique, this player will <strong>never</strong> lose a round, so if the
+    current player ever becomes <code>maxElement</code>, it will surely end up winning so many games as long as the
+    simulation continues, no matter how large the required <code>k</code> is. Thus, if <code>curr = maxElement</code>,
+    we can immediately return <code>curr</code> without actually simulating all the games, because we know that all
+    future games will result in <code>curr</code> winning!</p>
+<p><strong>Algorithm</strong></p>
+<ol>
+    <li>Initialize:
+        <ul>
+            <li><code>maxElement</code> as the maximum element in <code>arr</code>.</li>
+            <li><code>queue</code> as a queue with every element in <code>arr</code> except the first one.</li>
+            <li><code>curr = arr[0]</code>.</li>
+            <li><code>winstreak = 0</code>.</li>
+        </ul>
+    </li>
+    <li>While <code>queue</code> is not empty (could also do <code>while True</code>):
+        <ul>
+            <li>Pop <code>opponent</code> from the front of <code>queue</code>.</li>
+            <li>If <code>curr &gt; opponent</code>:
+                <ul>
+                    <li>Push <code>opponent</code> to the back of <code>queue</code>.</li>
+                    <li>Increment <code>winstreak</code>.</li>
+                </ul>
+            </li>
+            <li>Else:
+                <ul>
+                    <li>Push <code>curr</code> to the back of <code>queue</code>.</li>
+                    <li>Set <code>curr = opponent</code>.</li>
+                    <li>Set <code>winstreak = 1</code>.</li>
+                </ul>
+            </li>
+            <li>If <code>winstreak = k</code> or <code>curr = maxElement</code>, return <code>curr</code>.</li>
+        </ul>
+    </li>
+    <li>The code should never reach this point since there is guaranteed to be a winner. Return anything.</li>
+</ol>
+<p><strong>Implementation</strong></p>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int getWinner(int[] arr, int k) {
+        int maxElement = arr[0];
+        Queue<Integer> queue = new LinkedList();
+        for (int i = 1; i < arr.length; i++) {
+            maxElement = Math.max(maxElement, arr[i]);
+            queue.offer(arr[i]);
+        }
+
+        int curr = arr[0];
+        int winstreak = 0;
+
+        while (!queue.isEmpty()) {
+            int opponent = queue.poll();
+
+            if (curr > opponent) {
+                queue.offer(opponent);
+                winstreak++;
+            } else {
+                queue.offer(curr);
+                curr = opponent;
+                winstreak = 1;
+            }
+
+            if (winstreak == k || curr == maxElement) {
+                return curr;
+            }
+        }
+
+        return -1;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int getWinner(vector<int>& arr, int k) {
+        int maxElement = arr[0];
+        queue<int> queue;
+        for (int i = 1; i < arr.size(); i++) {
+            maxElement = max(maxElement, arr[i]);
+            queue.push(arr[i]);
+        }
+
+        int curr = arr[0];
+        int winstreak = 0;
+
+        while (!queue.empty()) {
+            int opponent = queue.front();
+            queue.pop();
+
+            if (curr > opponent) {
+                queue.push(opponent);
+                winstreak++;
+            } else {
+                queue.push(curr);
+                curr = opponent;
+                winstreak = 1;
+            }
+
+            if (winstreak == k || curr == maxElement) {
+                return curr;
+            }
+        }
+
+        return -1;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def getWinner(self, arr: List[int], k: int) -> int:
+        max_element = max(arr)
+        queue = deque(arr[1:])
+        curr = arr[0]
+        winstreak = 0
+
+        while queue:
+            opponent = queue.popleft()
+            if curr > opponent:
+                queue.append(opponent)
+                winstreak += 1
+            else:
+                queue.append(curr)
+                curr = opponent
+                winstreak = 1
+
+            if winstreak == k or curr == max_element:
+                return curr
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<p>Given <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    as the length of <code>arr</code>,</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <p>We spend <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> to find <code>maxElement</code>
+            and to initialize <code>queue</code>.</p>
+        <p>Then, we perform a while loop. Each iteration of the while loop costs <span class="math math-inline"><span
+                class="katex"><span class="katex-mathml">O(1)O(1)</span><span class="katex-html"
+                                                                              aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord">1</span><span class="mclose">)</span></span></span></span></span>. The number of iterations
+            is limited to <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>, since we
+            visit the elements of <code>arr</code> in order and terminate if we find <code>maxElement</code>. Thus, the
+            while loop costs up to <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.</p>
+        <p>Note that the value of <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">kk</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 0.6944em;"></span><span class="mord mathnormal"
+                                                                     style="margin-right: 0.03148em;">k</span></span></span></span></span>
+            is not relevant. If <span class="math math-inline"><span class="katex"><span class="katex-mathml">k&lt;nk &lt; n</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.7335em; vertical-align: -0.0391em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span class="mspace"
+                                                                                           style="margin-right: 0.2778em;"></span><span
+                    class="mrel">&lt;</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+                    class="base"><span class="strut" style="height: 0.4306em;"></span><span
+                    class="mord mathnormal">n</span></span></span></span></span>, then it wouldn't change the time
+            complexity. If <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">k&gt;nk &gt; n</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 0.7335em; vertical-align: -0.0391em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span class="mspace"
+                                                                                           style="margin-right: 0.2778em;"></span><span
+                    class="mrel">&gt;</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+                    class="base"><span class="strut" style="height: 0.4306em;"></span><span
+                    class="mord mathnormal">n</span></span></span></span></span>, we would terminate before <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">kk</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.6944em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.03148em;">k</span></span></span></span></span>
+            operations anyway, as we must find <code>maxElement</code> within <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 0.4306em;"></span><span
+                    class="mord mathnormal">n</span></span></span></span></span> rounds.</p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <p><code>queue</code> has a size of <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.
+        </p>
+    </li>
+</ul>
+<br>
+<hr>
+<h4 id="approach-2-no-queue">Approach 2: No Queue</h4>
+<p><strong>Intuition</strong></p>
+<p>Each player that is not <code>maxElement</code> has two possibilities:</p>
+<ol>
+    <li>They come after <code>maxElement</code> in <code>arr</code>.</li>
+    <li>They come before <code>maxElement</code> in <code>arr</code>.</li>
+</ol>
+<p>If a player comes after <code>maxElement</code>, they will not play any rounds in our simulation, since we
+    immediately terminate upon finding <code>maxElement</code>.</p>
+<p>If a player comes before <code>maxElement</code> and loses, they will move to the back of the line <strong>behind
+    <code>maxElement</code></strong>. This means they will never appear in the simulation again, because <code>maxElement</code>
+    will play before them, and we immediately terminate the simulation once <code>maxElement</code> plays.</p>
+<p>Thus, in our simulation, when a player loses, they never play again. That means we don't actually need the queue to
+    maintain their positions at all! We can simply use a for loop to iterate over the opponents while implementing the
+    same simulation.</p>
+<p><strong>Algorithm</strong></p>
+<ol>
+    <li>Initialize:
+        <ul>
+            <li><code>maxElement</code> as the maximum element in <code>arr</code>.</li>
+            <li><code>curr = arr[0]</code>.</li>
+            <li><code>winstreak = 0</code>.</li>
+        </ul>
+    </li>
+    <li>Iterate <code>i</code> over the indices of <code>arr</code>, starting from <code>1</code>:
+        <ul>
+            <li>Set <code>opponent = arr[i]</code>.</li>
+            <li>If <code>curr &gt; opponent</code>:
+                <ul>
+                    <li>Increment <code>winstreak</code>.</li>
+                </ul>
+            </li>
+            <li>Else:
+                <ul>
+                    <li>Set <code>curr = opponent</code>.</li>
+                    <li>Set <code>winstreak = 1</code>.</li>
+                </ul>
+            </li>
+            <li>If <code>winstreak = k</code> or <code>curr = maxElement</code>, return <code>curr</code>.</li>
+        </ul>
+    </li>
+    <li>The code should never reach this point since we would surely find <code>maxElement</code>. Return anything.</li>
+</ol>
+<p><strong>Implementation</strong></p>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int getWinner(int[] arr, int k) {
+        int maxElement = arr[0];
+        for (int i = 1; i < arr.length; i++) {
+            maxElement = Math.max(maxElement, arr[i]);
+        }
+
+        int curr = arr[0];
+        int winstreak = 0;
+
+        for (int i = 1; i < arr.length; i++) {
+            int opponent = arr[i];
+
+            if (curr > opponent) {
+                winstreak++;
+            } else {
+                curr = opponent;
+                winstreak = 1;
+            }
+
+            if (winstreak == k || curr == maxElement) {
+                return curr;
+            }
+        }
+
+        return -1;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int getWinner(vector<int>& arr, int k) {
+        int maxElement = arr[0];
+        for (int i = 1; i < arr.size(); i++) {
+            maxElement = max(maxElement, arr[i]);
+        }
+
+        int curr = arr[0];
+        int winstreak = 0;
+
+        for (int i = 1; i < arr.size(); i++) {
+            int opponent = arr[i];
+
+            if (curr > opponent) {
+                winstreak++;
+            } else {
+                curr = opponent;
+                winstreak = 1;
+            }
+
+            if (winstreak == k || curr == maxElement) {
+                return curr;
+            }
+        }
+
+        return -1;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def getWinner(self, arr: List[int], k: int) -> int:
+        max_element = max(arr)
+        curr = arr[0]
+        winstreak = 0
+
+        for i in range(1, len(arr)):
+            opponent = arr[i]
+            if curr > opponent:
+                winstreak += 1
+            else:
+                curr = opponent
+                winstreak = 1
+
+            if winstreak == k or curr == max_element:
+                return curr
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<p>Given <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    as the length of <code>arr</code>,</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <p>We spend <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> to find <code>maxElement</code>.
+        </p>
+        <p>Then, we perform a for loop over the indices of <code>arr</code>. Each iteration costs <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord">1</span><span class="mclose">)</span></span></span></span></span>, so this loop costs <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> in total.</p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord">1</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <p>We are only using a few integer variables.</p>
+    </li>
+</ul>
+<br>
+<hr>
+</body>
+</html>
