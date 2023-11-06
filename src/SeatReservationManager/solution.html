@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Seat Reservation Manager - Solution</title>
+</head>
+<body>
+<h2 id="solution">Seat Reservation Manager - Solution</h2>
+<hr>
+<h3 id="approach-1-min-heap">Approach 1: Min Heap</h3>
+<h4 id="intuition">Intuition</h4>
+<p>In this problem, we need to keep track of the reserved status of each seat. If a seat is already reserved, we can't
+    reserve it again. We can use a boolean array <code>availableSeats</code> of size <code>n</code> to indicate whether
+    the seat is available (i.e., not reserved) or not.</p>
+<ul>
+    <li>In the <code>unreserve(seatNumber)</code> method, we will set <code>availableSeats[seatNumber]</code> to <code>true</code>
+        to mark the seat as unreserved.
+    </li>
+    <li>In the <code>reserve()</code> method, to find the smallest-numbered unreserved seat, we can iterate over the
+        entire <code>availableSeats</code> array from the start index (<code>0</code>) to the end, and the first index
+        where <code>availableSeats[index]</code> is <code>true</code> will be the preferred seat, but iterating over the
+        entire array for each <code>reserve()</code> method call is not optimal.
+    </li>
+</ul>
+<p><strong>Can we dynamically maintain a collection of numbers and find the smallest number from the collection in the
+    shortest time?</strong><br>
+    Yes, we can use a <strong>min-heap</strong> data structure here.</p>
+<blockquote>
+    <p>This data structure is a complete binary tree, where the parent nodes are always smaller than the corresponding
+        child nodes, in order to keep the minimum-valued element at the root node of the tree. Here, pushing an element
+        and popping an element are both logarithmic time operations, but getting the minimum-valued element is a
+        constant time operation.</p>
+</blockquote>
+<p>If you are new to this data structure we recommend that you read <a
+        href="https://leetcode.com/explore/learn/card/heap/" target="_blank">Leetcode's Heap Explore Card</a>.</p>
+<p>For this given problem, we can push all available (i.e., unreserved) seats into the min-heap. To get the smallest
+    available seat, we can pop the top element from the heap in logarithmic time. Because of the properties of the
+    min-heap, when we need to maintain this heap in subsequent operations, we can achieve the required operations with a
+    time complexity of only <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡n)O(\log n)</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                      style="margin-right: 0.1667em;"></span><span
+            class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.</p>
+<h4 id="algorithm">Algorithm</h4>
+<ol>
+    <li>Create a min-heap <code>availableSeats</code> that initially contains all seats from <code>1</code> to
+        <code>n</code>.
+    </li>
+    <li>In the <code>reserve()</code> method, pop the first element of the <code>availableSeats</code> heap and return
+        it.
+    </li>
+    <li>In the <code>unreserve(seatNumber)</code> method, we push <code>seatNumber</code> into the
+        <code>availableSeats</code> heap.
+    </li>
+</ol>
+<h4 id="implementation">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class SeatManager {
+    // Min heap to store all unreserved seats.
+    private PriorityQueue<Integer> availableSeats;
+
+    public SeatManager(int n) {
+        // Initially all seats are unreserved.
+        availableSeats = new PriorityQueue<>();
+        for (int seatNumber = 1; seatNumber <= n; ++seatNumber) {
+            availableSeats.offer(seatNumber);
+        }
+    }
+
+    public int reserve() {
+        // Get the smallest-numbered unreserved seat from the min heap.
+        int seatNumber = availableSeats.poll();
+        return seatNumber;
+    }
+
+    public void unreserve(int seatNumber) {
+        // Push the unreserved seat back into the min heap.
+        availableSeats.offer(seatNumber);
+    }
+}
+    </code>
+    C++
+    <code>
+        class SeatManager {
+    // Min heap to store all unreserved seats.
+    priority_queue<int, vector<int>, greater<int>> availableSeats;
+
+public:
+    SeatManager(int n) {
+        // Initially all seats are unreserved.
+        for (int seatNumber = 1; seatNumber <= n; ++seatNumber) {
+            availableSeats.push(seatNumber);
+        }
+    }
+
+    int reserve() {
+        // Get the smallest-numbered unreserved seat from the min heap.
+        int seatNumber = availableSeats.top();
+        availableSeats.pop();
+        return seatNumber;
+    }
+
+    void unreserve(int seatNumber) {
+        // Push the unreserved seat in the min heap.
+        availableSeats.push(seatNumber);
+    }
+};
+    </code>
+    Python3
+    <code>
+        class SeatManager:
+    def __init__(self, n):
+        # Min heap to store all unreserved seats.
+        self.available_seats = [i for i in range(1, n + 1)]
+
+    def reserve(self):
+        # Get the smallest-numbered unreserved seat from the min heap.
+        seat_number = heapq.heappop(self.available_seats)
+        return seat_number
+
+    def unreserve(self, seat_number):
+        # Push the unreserved seat back into the min heap.
+        heapq.heappush(self.available_seats, seat_number)
+    </code>
+</pre>
+<h4 id="complexity-analysis">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">mm</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">m</span></span></span></span></span>
+    be the maximum number of calls made.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O((m+n)⋅log⁡n)O((m + n) \cdot \log n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">((</span><span
+                class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span><span class="mspace"
+                                                                                   style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                      style="margin-right: 0.1667em;"></span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>While initializing the <code>SeatManager</code> object, we iterate over all <code>n</code> seats and
+                push it into our heap, each push operation takes <span class="math math-inline"><span
+                        class="katex"><span class="katex-mathml">O(log⁡n)O(\log n)</span><span class="katex-html"
+                                                                                               aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span
+                        class="mspace" style="margin-right: 0.1667em;"></span><span
+                        class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> time,
+                thus, overall it will take <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(nlog⁡n)O(n \log n)</span><span class="katex-html"
+                                                                              aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mspace"
+                                                                                          style="margin-right: 0.1667em;"></span><span
+                        class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                                  style="margin-right: 0.1667em;"></span><span
+                        class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> time.
+            </li>
+            <li>In the <code>reserve()</code> method, we pop the minimum-valued element from the
+                <code>availableSeats</code> heap, which takes <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(log⁡n)O(\log n)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span
+                        class="mspace" style="margin-right: 0.1667em;"></span><span
+                        class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> time.
+            </li>
+            <li>In the <code>unreserve(seatNumber)</code> method, we push the <code>seatNumber</code> into the <code>availableSeats</code>
+                heap which will also take <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡n)O(\log n)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span
+                        class="mspace" style="margin-right: 0.1667em;"></span><span
+                        class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> time.
+            </li>
+            <li>There are a maximum of <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">mm</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                    class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">m</span></span></span></span></span>
+                calls to <code>reserve()</code> or <code>unreserve()</code> methods, thus the overall time complexity is
+                <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(m⋅log⁡n)O(m \cdot\log n)</span><span class="katex-html"
+                                                                                    aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">m</span><span class="mspace"
+                                                                                          style="margin-right: 0.2222em;"></span><span
+                        class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                                  style="margin-right: 0.1667em;"></span><span
+                        class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <ul>
+            <li>The <code>availableSeats</code> heap contains all <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 0.4306em;"></span><span
+                    class="mord mathnormal">n</span></span></span></span></span> elements, taking <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> space.
+            </li>
+        </ul>
+    </li>
+</ul>
+<br>
+<hr>
+<h3 id="approach-2-min-heap-without-pre-initialization">Approach 2: Min Heap (without pre-initialization)</h3>
+<h4 id="intuition-1">Intuition</h4>
+<p>In the previous approach, we require initializing the min-heap with all the <code>n</code> seats, when the
+    <code>n</code> will be large and the number of calls to <code>reverse</code> and <code>unreserve</code> methods will
+    be small, then the most computationally expensive step will be the initializing of the min-heap.<br>
+    Therefore, we will try to improve the previous approach by eliminating the pre-initialization of the min-heap.</p>
+<p>Let's keep a variable <code>marker</code> to indicate that all seats greater than or equal to <code>marker</code>
+    have never been reserved.<br>
+    Whenever the <code>reserve</code> method is called, we return the current <code>marker</code> seat and move the
+    <code>marker</code> to the next seat.</p>
+<p>For example, suppose we had 15 seats and called the <code>reserve</code> method four times.</p>
+<p>Initially the <code>marker</code> is equal to <code>1</code>, we returned <code>1</code> and moved to the next seat.
+</p>
+<p><img src="Slide1a.PNG" alt="slide_1"></p>
+<p>Similarly, in the subsequent three calls, it will return <code>2</code>, <code>3</code>, and <code>4</code>
+    respectively.</p>
+<p><img src="Slide1b.PNG" alt="slide_2"></p>
+<p>But, what if <code>unreserve(2)</code> is called now? Now we can't return the <code>marker</code> seat as a seat with
+    a lower number than the <code>marker</code> became unreserved.</p>
+<p>We can keep these unreserved seats separately in a separate container (data structure).</p>
+<p>As it's stated in the problem statement <code>unreserve(seatNumber)</code> is only called if <code>seatNumber</code>
+    has already been reserved, so the elements in this separate container will always be less than <code>marker</code>
+    (Because the <code>seatNumber</code> was reserved earlier when the <code>marker</code> was on it and now the <code>marker</code>
+    would have moved on).<br>
+    Hence, we can conclude that, if any element is present in this separate container, then it contains the
+    minimum-numbered seat, otherwise, if this separate container is empty then the <code>marker</code> points to the
+    minimum-numbered unreserved seat.</p>
+<p>To fetch the minimum valued element among all elements from this separate container again we can use a min-heap.</p>
+<p><img src="Slide2.PNG" alt="slide_3"></p>
+<h4 id="algorithm-1">Algorithm</h4>
+<ol>
+    <li>Create an empty min heap <code>availableSeats</code> and <code>marker</code> initialized to <code>1</code>.</li>
+    <li>In the <code>reserve()</code> method, if the <code>availableSeats</code> heap is not empty then pop the top
+        element and return it, otherwise, return the value stored by <code>marker</code> and increment
+        <code>marker</code> by <code>1</code>.
+    </li>
+    <li>In the <code>unreserve(seatNumber)</code> method, we push <code>seatNumber</code> into the
+        <code>availableSeats</code> heap.
+    </li>
+</ol>
+<h4 id="implementation-1">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class SeatManager {
+    // Marker to point to unreserved seats.
+    int marker;
+
+    // Min heap to store all unreserved seats.
+    PriorityQueue<Integer> availableSeats;
+
+    public SeatManager(int n) {
+        // Set marker to the first unreserved seat.
+        marker = 1;
+        // Initialize the min heap.
+        availableSeats = new PriorityQueue<>();
+    }
+
+    public int reserve() {
+        // If min-heap has any element in it, then,
+        // get the smallest-numbered unreserved seat from the min heap.
+        if (!availableSeats.isEmpty()) {
+            int seatNumber = availableSeats.poll();
+            return seatNumber;
+        }
+
+        // Otherwise, the marker points to the smallest-numbered seat.
+        int seatNumber = marker;
+        marker++;
+        return seatNumber;
+    }
+
+    public void unreserve(int seatNumber) {
+        // Push unreserved seat in the min heap.
+        availableSeats.offer(seatNumber);
+    }
+}
+    </code>
+    C++
+    <code>
+        class SeatManager {
+    // Marker to point to unreserved seats.
+    int marker;
+
+    // Min heap to store all unreserved seats.
+    priority_queue<int, vector<int>, greater<int>> availableSeats;
+
+public:
+    SeatManager(int n) {
+        // Set marker to the first unreserved seat.
+        marker = 1;
+    }
+
+    int reserve() {
+        // If min-heap has any element in it, then,
+        // get the smallest-numbered unreserved seat from the min heap.
+        if (!availableSeats.empty()) {
+            int seatNumber = availableSeats.top();
+            availableSeats.pop();
+            return seatNumber;
+        }
+
+        // Otherwise, the marker points to the smallest-numbered seat.
+        int seatNumber = marker;
+        marker++;
+        return seatNumber;
+    }
+
+    void unreserve(int seatNumber) {
+        // Push unreserved seat in the min heap.
+        availableSeats.push(seatNumber);
+    }
+};
+    </code>
+    Python3
+    <code>
+        class SeatManager:
+    def __init__(self, n):
+        # Set marker to the first unreserved seat.
+        self.marker = 1
+
+        # Min heap to store all unreserved seats.
+        self.available_seats = []
+
+    def reserve(self):
+        # If min-heap has any element in it, then,
+        # get the smallest-numbered unreserved seat from the min heap.
+        if self.available_seats:
+            seat_number = heapq.heappop(self.available_seats)
+            return seat_number
+
+        # Otherwise, the marker points to the smallest-numbered seat.
+        seat_number = self.marker
+        self.marker += 1
+        return seat_number
+
+    def unreserve(self, seat_number):
+        # Push unreserved seat in the min heap.
+        heapq.heappush(self.available_seats, seat_number)
+    </code>
+</pre>
+<h4 id="complexity-analysis-1">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">mm</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">m</span></span></span></span></span>
+    be the maximum number of calls made.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(m⋅log⁡n)O(m \cdot \log n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                      style="margin-right: 0.1667em;"></span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>While initializing the <code>SeatManager</code> object, we perform constant time operations.</li>
+            <li>In the <code>reserve()</code> method, in the worst-case, we will pop the minimum-valued element from the
+                <code>availableSeats</code> heap which will take <span class="math math-inline"><span
+                        class="katex"><span class="katex-mathml">O(log⁡n)O(\log n)</span><span class="katex-html"
+                                                                                               aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span
+                        class="mspace" style="margin-right: 0.1667em;"></span><span
+                        class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.
+            </li>
+            <li>In the <code>unreserve(seatNumber)</code> method, we push the <code>seatNumber</code> into the <code>availableSeats</code>
+                heap which will also take <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡n)O(\log n)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span
+                        class="mspace" style="margin-right: 0.1667em;"></span><span
+                        class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> time.
+            </li>
+            <li>There are a maximum of <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">mm</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                    class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">m</span></span></span></span></span>
+                calls to <code>reserve()</code> or <code>unreserve()</code> methods, thus the overall time complexity is
+                <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(m⋅log⁡n)O(m \cdot \log n)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">m</span><span class="mspace"
+                                                                                          style="margin-right: 0.2222em;"></span><span
+                        class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                                  style="margin-right: 0.1667em;"></span><span
+                        class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <ul>
+            <li>The <code>availableSeats</code> heap can contain <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 0.4306em;"></span><span
+                    class="mord mathnormal">n</span></span></span></span></span> elements in it. So in the worst case,
+                it will take <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+                space.
+            </li>
+        </ul>
+    </li>
+</ul>
+<br>
+<hr>
+<h3 id="approach-3-sortedordered-set">Approach 3: Sorted/Ordered Set</h3>
+<h4 id="intuition-2">Intuition</h4>
+<p>Like min-heap, we can use another advanced built-in data structure, the sorted set, to help dynamically maintain the
+    ordered state of the reserved seat.</p>
+<blockquote>
+    <p>This data structure internally uses a height-balanced binary search tree (like, a red-black tree, AVL tree, etc.)
+        to keep the data sorted. Thus, pushing an element, popping an element, and getting the minimum-valued element
+        are all logarithmic time operations because the tree balances itself after each operation.</p>
+</blockquote>
+<p>You can read more about <a
+        href="https://leetcode.com/explore/learn/card/introduction-to-data-structure-binary-search-tree/143/appendix-height-balanced-bst/1021/"
+        target="_blank">Height-Balanced BST</a> in our explore card.</p>
+<p>Thus, in this approach, we will implement the previous approach using a sorted set.</p>
+<blockquote>
+    <p>You can also implement the first approach using a sorted set.</p>
+</blockquote>
+<blockquote>
+    <p><strong>Note:</strong> The sorted set approach is not expected during the interview, but we are including it here
+        for the completeness of the article and to familiarize you with a built-in advanced data structure.</p>
+</blockquote>
+<h4 id="algorithm-2">Algorithm</h4>
+<ol>
+    <li>Create a sorted set <code>availableSeats</code> and <code>marker</code> initialized to <code>1</code>.</li>
+    <li>In the <code>reserve()</code> method, if the <code>availableSeats</code> set is not empty, then pop its first
+        element and return it, otherwise, return the value stored by <code>marker</code> and increment
+        <code>marker</code> by <code>1</code>.
+    </li>
+    <li>In the <code>unreserve(seatNumber)</code> method, we push <code>seatNumber</code> into the
+        <code>availableSeats</code> set.
+    </li>
+</ol>
+<h4 id="implementation-2">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class SeatManager {
+    // Marker to point to unreserved seats.
+    int marker;
+
+    // Sorted set to store all unreserved seats.
+    TreeSet<Integer> availableSeats;
+
+    public SeatManager(int n) {
+        // Set marker to the first unreserved seat.
+        marker = 1;
+        // Initialize the sorted set.
+        availableSeats = new TreeSet<>();
+    }
+
+    public int reserve() {
+        // If the sorted set has any element in it, then,
+        // get the smallest-numbered unreserved seat from it.
+        if (!availableSeats.isEmpty()) {
+            int seatNumber = availableSeats.first();
+            availableSeats.remove(seatNumber);
+            return seatNumber;
+        }
+
+        // Otherwise, the marker points to the smallest-numbered seat.
+        int seatNumber = marker;
+        marker++;
+        return seatNumber;
+    }
+
+    public void unreserve(int seatNumber) {
+        // Push the unreserved seat in the sorted set.
+        availableSeats.add(seatNumber);
+    }
+}
+    </code>
+    C++
+    <code>
+        class SeatManager {
+    // Marker to point to unreserved seats.
+    int marker;
+
+    // Sorted set to store all unreserved seats.
+    set<int> availableSeats;
+
+public:
+    SeatManager(int n) {
+        // Set marker to the first unreserved seat.
+        marker = 1;
+    }
+
+    int reserve() {
+        // If the sorted set has any element in it, then,
+        // get the smallest-numbered unreserved seat from it.
+        if (!availableSeats.empty()) {
+            int seatNumber = *availableSeats.begin();
+            availableSeats.erase(availableSeats.begin());
+            return seatNumber;
+        }
+
+        // Otherwise, the marker points to the smallest-numbered seat.
+        int seatNumber = marker;
+        marker++;
+        return seatNumber;
+    }
+
+    void unreserve(int seatNumber) {
+        // Push unreserved seat in the sorted set.
+        availableSeats.insert(seatNumber);
+    }
+};
+    </code>
+    Python3
+    <code>
+        from sortedcontainers import SortedSet
+
+class SeatManager:
+    def __init__(self, n):
+        # Set marker to the first unreserved seat.
+        self.marker = 1
+
+        # Sorted set to store all unreserved seats.
+        self.available_seats = SortedSet()
+
+    def reserve(self):
+        # If the sorted set has any element in it, then,
+        # get the smallest-numbered unreserved seat from it.
+        if self.available_seats:
+            seat_number = self.available_seats.pop(0)
+            return seat_number
+
+        # Otherwise, the marker points to the smallest-numbered seat.
+        seat_number = self.marker
+        self.marker += 1
+        return seat_number
+
+
+    def unreserve(self, seat_number):
+        # Push the unreserved seat in the sorted set.
+        self.available_seats.add(seat_number)
+    </code>
+</pre>
+<h4 id="complexity-analysis-2">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">mm</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">m</span></span></span></span></span>
+    be the maximum number of calls made.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(m⋅log⁡n)O(m \cdot \log n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                      style="margin-right: 0.1667em;"></span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>While initializing the <code>SeatManager</code> object, we perform constant time operations.</li>
+            <li>In the <code>reserve()</code> method, we pop the minimum-valued element from the
+                <code>availableSeats</code> set which takes <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(log⁡n)O(\log n)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span
+                        class="mspace" style="margin-right: 0.1667em;"></span><span
+                        class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> time.
+            </li>
+            <li>In the <code>unreserve(seatNumber)</code> method, we push the <code>seatNumber</code> into the <code>availableSeats</code>
+                set which will also take <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡n)O(\log n)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span
+                        class="mspace" style="margin-right: 0.1667em;"></span><span
+                        class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> time.
+            </li>
+            <li>There are a maximum of <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">mm</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                    class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">m</span></span></span></span></span>
+                calls to <code>reserve()</code> or <code>unreserve()</code> methods, thus the overall time complexity is
+                <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(m⋅log⁡n)O(m \cdot \log n)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">m</span><span class="mspace"
+                                                                                          style="margin-right: 0.2222em;"></span><span
+                        class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                                  style="margin-right: 0.1667em;"></span><span
+                        class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <ul>
+            <li>The <code>availableSeats</code> set can contain <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                    class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+                elements in it. So in the worst case, it will take <span class="math math-inline"><span
+                        class="katex"><span class="katex-mathml">O(n)O(n)</span><span class="katex-html"
+                                                                                      aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+                space.
+            </li>
+        </ul>
+    </li>
+</ul>
+</body>
+</html>
