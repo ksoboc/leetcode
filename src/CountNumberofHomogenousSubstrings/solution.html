@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Count Number of Homogenous Substrings - Solution</title>
+</head>
+<body>
+<h2 id="solution">Count Number of Homogenous Substrings - Solution</h2>
+<hr>
+<h4 id="approach-counting-streaks">Approach: Counting Streaks</h4>
+<p><strong>Intuition</strong></p>
+<p>To solve this problem, we will make use of a very common counting trick that shows up in many LeetCode problems. The
+    trick rests on the simple fact:</p>
+<ul>
+    <li>In a string of length <code>n</code>, there are <code>n</code> substrings that <strong>end</strong> with the
+        final character.
+    </li>
+</ul>
+<p>What do we mean by this? Let's say you had the string <code>"abcd"</code>. How many substrings <strong>end</strong>
+    with <code>d</code>?</p>
+<ol>
+    <li>If we choose <code>a</code> as the first character, we have the substring <code>"abcd"</code>.</li>
+    <li>If we choose <code>b</code> as the first character, we have the substring <code>"bcd"</code>.</li>
+    <li>If we choose <code>c</code> as the first character, we have the substring <code>"cd"</code>.</li>
+    <li>If we choose <code>d</code> as the first character, we have the substring <code>"d"</code>.</li>
+</ol>
+<p>In general, we lock in the final character, and then have <code>n</code> choices for the first character. Thus, the
+    answer is always the length of the string.</p>
+<p>In this problem, we need to find the number of substrings where every character is equal. We can start by separating
+    each group of similar characters in the string:</p>
+<p><img src="1.png" alt="example"><br>
+    <br></p>
+<p>We can consider each group individually and sum up their answers to find the overall answer. Let's take a look at the
+    blue group, <code>"bbb"</code>:</p>
+<p><img src="2.png" alt="example"><br>
+    <br></p>
+<p>This group has a length of <code>3</code>. If we want to form a substring from this group, we need to decide on two
+    things: the starting index and the ending index.</p>
+<p>For the ending index, we have <code>3</code> choices. For each ending index <code>i</code>, as we established above,
+    we have <code>i + 1</code> choices for the starting index. From the example, you can see that by choosing index
+    <code>2</code> as the ending index, we can choose index <code>0</code>, <code>1</code>, or <code>2</code> as the
+    starting index.</p>
+<p>This brings us to our solution. We will iterate over the string <code>s</code> and keep track of the current streak
+    of consecutive characters we have seen. Let's say we use a variable <code>currStreak</code> to track this.</p>
+<p>For an index <code>i</code>, if <code>s[i] == s[i - 1]</code>, then we increment <code>currStreak</code>. Otherwise,
+    we reset <code>currStreak = 1</code> as we have lost our streak and must start a new one with <code>s[i]</code>.</p>
+<p>Now, at each index, we consider: how many homogenous substrings can <strong>end</strong> at this index? <code>currStreak</code>
+    tells us the length of our current group, and since we are treating the current index as the <strong>ending</strong>
+    index, the answer to this question is <code>currStreak</code>.</p>
+<p>Thus, we simply add <code>currStreak</code> to our answer at each iteration. Going back to our example with <code>"bbb"</code>,
+    when we encounter the first <code>"b"</code>, we have <code>currStreak = 1</code> and add <code>1</code> to our
+    answer. This is because the only homogenous substring that could end at this character is the substring which is the
+    character itself.</p>
+<p>At the next <code>"b"</code>, we increase <code>currStreak</code> to <code>2</code>. Then, we add <code>2</code> to
+    our answer. We have two choices for starting indices: the first <code>"b"</code> and the current <code>"b"</code>.
+</p>
+<p>Lastly, we go to the final <code>"b"</code> and increase <code>currStreak</code> to <code>3</code>. Now, we add
+    <code>3</code> to our answer as we have three choices for starting indices: the first, second, and current
+    <code>"b"</code>.</p>
+<p><strong>Algorithm</strong></p>
+<p>Note: to avoid overflow, all arithmetic should be done MOD <span class="math math-inline"><span class="katex"><span
+        class="katex-mathml">109+710^9 + 7</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+        class="strut" style="height: 0.8974em; vertical-align: -0.0833em;"></span><span class="mord">1</span><span
+        class="mord"><span class="mord">0</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span
+        class="vlist" style="height: 0.8141em;"><span style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                                         style="height: 2.7em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span
+        class="mord mtight">9</span></span></span></span></span></span></span></span><span class="mspace"
+                                                                                           style="margin-right: 0.2222em;"></span><span
+        class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+        class="strut" style="height: 0.6444em;"></span><span class="mord">7</span></span></span></span></span>.</p>
+<ol>
+    <li>Initialize:
+        <ul>
+            <li>The answer <code>ans = 0</code>.</li>
+            <li>The current streak <code>currStreak = 0</code>.</li>
+            <li>The modulus <code>MOD = </code> <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">109+710^9 + 7</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 0.8974em; vertical-align: -0.0833em;"></span><span
+                    class="mord">1</span><span class="mord"><span class="mord">0</span><span class="msupsub"><span
+                    class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                    style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                       style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span
+                    class="mord mtight">9</span></span></span></span></span></span></span></span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span><span
+                    class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">7</span></span></span></span></span>.
+            </li>
+        </ul>
+    </li>
+    <li>Iterate <code>i</code> over the indices of <code>s</code>:
+        <ul>
+            <li>If <code>i == 0</code> or <code>s[i] == s[i - 1]</code>, increment <code>currStreak</code>.</li>
+            <li>Otherwise, reset <code>currStreak = 1</code>.</li>
+            <li>Add <code>currStreak</code> to <code>ans</code>.</li>
+        </ul>
+    </li>
+    <li>Return <code>ans</code>.</li>
+</ol>
+<p><strong>Implementation</strong></p>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int countHomogenous(String s) {
+        int ans = 0;
+        int currStreak = 0;
+        int MOD = (int) 1e9 + 7;
+
+        for (int i = 0; i < s.length(); i++) {
+            if (i == 0 || s.charAt(i) == s.charAt(i - 1)) {
+                currStreak++;
+            } else {
+                currStreak = 1;
+            }
+
+            ans = (ans + currStreak) % MOD;
+        }
+
+        return ans;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int countHomogenous(string s) {
+        int ans = 0;
+        int currStreak = 0;
+        int MOD = 1e9 + 7;
+
+        for (int i = 0; i < s.size(); i++) {
+            if (i == 0 || s[i] == s[i - 1]) {
+                currStreak++;
+            } else {
+                currStreak = 1;
+            }
+
+            ans = (ans + currStreak) % MOD;
+        }
+
+        return ans;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def countHomogenous(self, s: str) -> int:
+        ans = 0
+        curr_streak = 0
+        MOD = 10 ** 9 + 7
+
+        for i in range(len(s)):
+            if i == 0 or s[i] == s[i - 1]:
+                curr_streak += 1
+            else:
+                curr_streak = 1
+
+            ans = (ans + curr_streak) % MOD
+
+        return ans
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<p>Given <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    as the length of <code>s</code>,</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <p>We iterate over each index of <code>s</code> once, performing <span class="math math-inline"><span
+                class="katex"><span class="katex-mathml">O(1)O(1)</span><span class="katex-html"
+                                                                              aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord">1</span><span class="mclose">)</span></span></span></span></span> work at each iteration.
+        </p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord">1</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <p>We aren't using any extra space except for a few integer variables.</p>
+    </li>
+</ul>
+<br>
+<hr>
+</body>
+</html>
