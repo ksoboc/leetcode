@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Design Graph With Shortest Path Calculator - Solution</title>
+</head>
+<body>
+<h2 id="solution">Design Graph With Shortest Path Calculator - Solution</h2>
+<hr>
+<h3 id="overview">Overview</h3>
+<p>Imagine you're tasked with navigating a complex web of interconnected locations, each with its unique path and cost
+    associated with traveling from one place to another. This is precisely the challenge presented in this problem.</p>
+<p>You're given a directed weighted graph, represented by an array of edges. Each edge signifies a one-way connection
+    between two locations, complete with a cost. Your mission is to create a "Graph" class that can efficiently manage
+    this network and provide two essential services.</p>
+<ol>
+    <li>
+        <p><strong>Setting Up the Map (<code>Graph(int n, int[][] edges)</code>):</strong> Just like preparing a map for
+            a journey, you initialize the graph with "n" locations and the given edges. This step lays out the
+            foundation for your navigation.</p>
+    </li>
+    <li>
+        <p><strong>Plotting New Routes (<code>addEdge(int[] edge)</code>):</strong> As your journey unfolds, you'll come
+            across new routes. The "addEdge" method allows you to add these paths to your map. It's worth noting that
+            this method ensures no duplicate paths between locations.</p>
+    </li>
+    <li>
+        <p><strong>Finding the Optimal Path (<code>int shortestPath(int node1, int node2)</code>):</strong> The core of
+            this adventure lies in discovering the shortest and most cost-effective path from one location to another.
+            This method calculates the minimum cost required to travel from "node1" to "node2." If a path doesn't exist,
+            it signals your GPS to return -1.</p>
+    </li>
+</ol>
+<p>Solving this problem involves creating a powerful navigation tool (the "Graph" class) that not only builds and
+    updates the map as new routes are discovered but also efficiently guides you to your destination, ensuring that you
+    reach your target location with the least possible cost.</p>
+<p>This problem mirrors real-world scenarios where you might be navigating transportation networks, optimizing data flow
+    in networks, or even finding the shortest connections in social networks. So, crafting a robust solution here not
+    only solves the immediate challenge but can also have practical applications in various fields.</p>
+<h3 id="approach-1-dijkstras-algorithm">Approach 1: Dijkstra's Algorithm</h3>
+<h4 id="intuition">Intuition</h4>
+<p>If you are not familiar with Dijkstra's Algorithm, please refer to our explore cards <a
+        href="https://leetcode.com/explore/learn/card/graph/622/single-source-shortest-path-algorithm/3862/"
+        target="_blank">Dijkstra's Algorithm</a>. We will focus on the usage in this article and not the underlying
+    principles or implementation details.</p>
+<p>We first use Dijkstra's algorithm, a well-known method for finding the shortest path in weighted graphs, which is
+    particularly effective for this type of problem. The algorithm maintains a priority queue of nodes to explore,
+    prioritizing those with the lowest tentative distances.</p>
+<p>We begin by setting the cost of the source node to 0 and enqueue it in a priority queue. Simultaneously, we
+    initialize an array to store the cost associated with each node when starting from the source node. While there are
+    nodes remaining in the queue, we dequeue the node with the lowest cost, examine whether it corresponds to the
+    destination node, and return its cost if it does. If not, we explore its neighboring nodes, compute new costs for
+    the neighboring nodes, and if these new costs are lower than the previously recorded costs in our node cost array,
+    we enqueue the neighboring nodes into the priority queue. In the event that the destination node cannot be reached,
+    we return -1 to indicate the absence of a viable path.</p>
+<p>We implement this approach by creating a <code>Graph</code> class with methods for initialization, adding edges, and
+    finding the shortest path using Dijkstra's algorithm. This approach logically addresses the problem's requirements
+    while leveraging a well-established algorithm for efficiency and correctness.</p>
+<p>
+<div class="relative mx-auto mb-6 flex flex-col overflow-hidden rounded-lg border-[1px] border-label-1"
+     style="max-width: 3000px;">
+    <div class="rounded-lg" style="max-height: 1687px;"><img alt="Current"
+                                                             class="object-fit-contain !mb-0 max-h-full max-w-full"
+                                                             src="blob:https://leetcode.com/06d073b1-fa2a-40dc-8511-12395e467b9e">
+    </div>
+    <div class="absolute top-[50%] left-[50%] flex h-12 w-12 translate-x-[-50%] translate-y-[-50%] items-center justify-center rounded-full bg-black/30">
+        <div class="flex h-4 w-4 cursor-pointer items-center justify-center text-[35px]">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="h-full w-full text-white">
+                <path fill-rule="evenodd"
+                      d="M18.97 12.871l-12.96 7.29a1 1 0 01-1.49-.87V4.71a1 1 0 011.49-.872l12.96 7.29a1 1 0 010 1.743z"
+                      clip-rule="evenodd"></path>
+            </svg>
+        </div>
+    </div>
+    <div class="relative flex h-8 select-none items-center justify-around bg-black">
+        <div class="flex items-center space-x-7">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M16.091 4.929l-7.057 7.078 7.057 7.064a1 1 0 01-1.414 1.414l-7.764-7.77a1 1 0 010-1.415l7.764-7.785a1 1 0 111.415 1.414z"
+                      clip-rule="evenodd"></path>
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M18.97 12.871l-12.96 7.29a1 1 0 01-1.49-.87V4.71a1 1 0 011.49-.872l12.96 7.29a1 1 0 010 1.743z"
+                      clip-rule="evenodd"></path>
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M7.913 19.071l7.057-7.078-7.057-7.064a1 1 0 011.414-1.414l7.764 7.77a1 1 0 010 1.415l-7.764 7.785a1 1 0 01-1.414-1.414z"
+                      clip-rule="evenodd"></path>
+            </svg>
+        </div>
+        <div class="absolute right-0 mr-5 text-xs font-medium text-white">1 / 6</div>
+    </div>
+</div>
+</p>
+<h4 id="algorithm">Algorithm</h4>
+<ol>
+    <li>
+        <p><strong>Initialization:</strong></p>
+        <ul>
+            <li>When we initialize the <code>Graph</code> class with <code>n</code> nodes and a list of
+                <code>edges</code>, we create an adjacency list representation for the directed weighted graph.
+            </li>
+            <li>We initialize an empty adjacency list <code>adj_list</code>, where each node's outgoing edges will be
+                stored along with their cost.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p><strong>Adding Edges:</strong></p>
+        <ul>
+            <li>When we call the <code>addEdge</code> method to add an edge to the graph, we provide an
+                <code>edge</code> in the form of a list <code>[from, to, edgeCost]</code>.
+            </li>
+            <li>We extract the <code>from_node</code>, <code>to_node</code>, and <code>cost</code> from the input edge.
+            </li>
+            <li>We append a tuple/pair <code>(to_node, cost)</code> to the adjacency list entry for
+                <code>from_node</code>. This represents a directed edge from <code>from_node</code> to
+                <code>to_node</code> with the specified cost.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p><strong>Shortest Path Calculation:</strong></p>
+        <ul>
+            <li>When we call the <code>shortestPath</code> method to find the minimum cost path from <code>node1</code>
+                to <code>node2</code>, we use Dijkstra's algorithm.
+            </li>
+            <li>We initialize an array <code>costForNode</code> to keep track of the minimum costs to reach each node
+                when starting from <code>node1</code> and a priority queue <code>pq</code> to explore nodes in ascending
+                order of their accumulated cost from <code>node1</code>.
+            </li>
+            <li>We set <code>costForNode[node1]</code> to 0 since we are starting here.</li>
+            <li>We start by adding <code>(0, node1)</code> to <code>pq</code> with an initial cost of 0 for
+                <code>node1</code>.
+            </li>
+            <li>While <code>pq</code> is not empty, we continue exploring nodes.</li>
+            <li>For each iteration:
+                <ul>
+                    <li>We pop the node with the smallest accumulated cost (<code>curr_cost</code>) from <code>pq</code>.
+                    </li>
+                    <li>If <code>curr_node</code> is equal to <code>node2</code>, we have found the shortest path, and
+                        we return <code>curr_cost</code>.
+                    </li>
+                    <li>We iterate through the neighbors of <code>curr_node</code> stored in the adjacency list.</li>
+                    <li>For each neighbor, we calculate the new cost (<code>new_cost</code>) by adding the cost of the
+                        current edge to the <code>curr_cost</code>.
+                    </li>
+                    <li>If the neighbor's <code>new_cost</code> is less than its cost in <code>costForNode</code>
+                        (<code>costForNode[node1]</code>), we add <code>(new_cost, neighbor)</code> to <code>pq</code>,
+                        which means we will explore this neighbor with the updated cost. We additionally assign the
+                        value of <code>new_cost</code> to <code>costForNode[node1]</code>.
+                    </li>
+                </ul>
+            </li>
+            <li>If the priority queue is empty and we have not found <code>node2</code>, it means there is no path from
+                <code>node1</code> to <code>node2</code>, so we return -1.
+            </li>
+        </ul>
+    </li>
+</ol>
+<h4 id="implementation">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Graph {
+    List<List<Pair<Integer, Integer>>> adjList;
+    public Graph(int n, int[][] edges) {
+        adjList = new ArrayList<>();
+        for (int i = 0; i < n; i++)
+            adjList.add(new ArrayList<>());
+        for (int[] e : edges)
+            adjList.get(e[0]).add(new Pair<>(e[1], e[2]));
+    }
+
+    public void addEdge(int[] edge) {
+        adjList.get(edge[0]).add(new Pair<>(edge[1], edge[2]));
+    }
+
+    public int shortestPath(int node1, int node2) {
+        int n = adjList.size();
+        var pq = new PriorityQueue<List<Integer>>(Comparator.comparingInt(list -> list.get(0)));
+        int[] costForNode = new int[n];
+        Arrays.fill(costForNode, Integer.MAX_VALUE);
+        costForNode[node1] = 0;
+        pq.offer(Arrays.asList(0, node1));
+
+        while (!pq.isEmpty()) {
+            var curr = pq.poll();
+            int currCost = curr.get(0);
+            int currNode = curr.get(1);
+
+            if (currCost > costForNode[currNode]) {
+                continue;
+            }
+            if (currNode == node2) {
+                return currCost;
+            }
+            for (var neighbor : adjList.get(currNode)) {
+                int neighborNode = neighbor.getKey();
+                int cost = neighbor.getValue();
+                int newCost = currCost + cost;
+
+                if (newCost < costForNode[neighborNode]) {
+                    costForNode[neighborNode] = newCost;
+                    pq.offer(Arrays.asList(newCost, neighborNode));
+                }
+            }
+        }
+
+        return -1;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Graph {
+public:
+    vector<vector<pair<int, int>>> adjList;
+    Graph(int n, vector<vector<int>>& edges) {
+        adjList.resize(n);
+        for (auto& e: edges)
+            adjList[e[0]].push_back(make_pair(e[1], e[2]));
+    }
+
+    void addEdge(vector<int> edge) {
+        adjList[edge[0]].push_back(make_pair(edge[1], edge[2]));
+    }
+
+    int shortestPath(int node1, int node2) {
+        int n = adjList.size();
+        priority_queue<vector<int>, vector<vector<int>>, greater<vector<int>>> pq;
+        vector<int> costForNode(n, INT_MAX);
+        costForNode[node1] = 0;
+        pq.push({0, node1});
+
+        while (!pq.empty()) {
+            int currCost = pq.top()[0];
+            int currNode = pq.top()[1];
+            pq.pop();
+
+            if (currCost > costForNode[currNode]) {
+                continue;
+            }
+            if (currNode == node2) {
+                return currCost;
+            }
+            for (auto& neighbor : adjList[currNode]) {
+                int neighborNode = neighbor.first;
+                int cost = neighbor.second;
+                int newCost = currCost + cost;
+
+                if (newCost < costForNode[neighborNode]) {
+                    costForNode[neighborNode] = newCost;
+                    pq.push({newCost, neighborNode});
+                }
+            }
+        }
+        return -1;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Graph:
+
+    def __init__(self, n: int, edges: List[List[int]]):
+        self.adj_list = [[] for _ in range(n)]
+        for from_node, to_node, cost in edges:
+            self.adj_list[from_node].append((to_node, cost))
+
+    def addEdge(self, edge: List[int]) -> None:
+        from_node, to_node, cost = edge
+        self.adj_list[from_node].append((to_node, cost))
+
+    def shortestPath(self, node1: int, node2: int) -> int:
+        n = len(self.adj_list)
+        pq = [(0, node1)]
+        cost_for_node = [inf] * (n)
+        cost_for_node[node1] = 0
+
+        while pq:
+            curr_cost, curr_node = heappop(pq)
+            if curr_cost > cost_for_node[curr_node]:
+                continue
+            if curr_node == node2:
+                return curr_cost
+            for neighbor, cost in self.adj_list[curr_node]:
+                new_cost = curr_cost + cost
+                if new_cost < cost_for_node[neighbor]:
+                    cost_for_node[neighbor] = new_cost
+                    heappush(pq, (new_cost, neighbor))
+        return -1
+    </code>
+</pre>
+<h4 id="complexity-analysis">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">EE</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                style="margin-right: 0.05764em;">E</span></span></span></span></span>
+    be number of edges in the graph when the call to any method is made.<br>
+    Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">VV</span><span class="katex-html"
+                                                                                                     aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                    style="margin-right: 0.22222em;">V</span></span></span></span></span>
+    be the number of vertices in the graph when the call to any method is made.<br>
+    Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">NN</span><span class="katex-html"
+                                                                                                     aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                    style="margin-right: 0.10903em;">N</span></span></span></span></span>
+    be the maximum number of calls made to <code>addEdge</code>.<br>
+    Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">MM</span><span class="katex-html"
+                                                                                                     aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                    style="margin-right: 0.10903em;">M</span></span></span></span></span>
+    be the maximum number of calls made to <code>shortestPath</code>.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(N+M⋅(V+E⋅logV))O(N + M\cdot (V + E\cdot logV))</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span class="mspace"
+                                                                                       style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                        style="margin-right: 0.10903em;">M</span><span
+                class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.22222em;">V</span><span
+                class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                        style="margin-right: 0.05764em;">E</span><span
+                class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.01968em;">l</span><span
+                class="mord mathnormal">o</span><span class="mord mathnormal"
+                                                      style="margin-right: 0.03588em;">g</span><span
+                class="mord mathnormal" style="margin-right: 0.22222em;">V</span><span
+                class="mclose">))</span></span></span></span></span></p>
+        <ul>
+            <li>initialization: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(E+V)O(E + V)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.05764em;">E</span><span class="mspace"
+                                                                                           style="margin-right: 0.2222em;"></span><span
+                    class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.22222em;">V</span><span
+                    class="mclose">)</span></span></span></span></span>. Initializing a list to the size of <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">VV</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.6833em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.22222em;">V</span></span></span></span></span> costs
+                <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(V)O(V)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal"
+                                                    style="margin-right: 0.22222em;">V</span><span
+                        class="mclose">)</span></span></span></span></span> and iterating over all the edges costs <span
+                        class="math math-inline"><span class="katex"><span class="katex-mathml">O(E)O(E)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal"
+                                                    style="margin-right: 0.05764em;">E</span><span
+                        class="mclose">)</span></span></span></span></span></li>
+            <li>addEdge: <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(N)O(N)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                    class="mclose">)</span></span></span></span></span>. Appending an element to a list costs <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord">1</span><span class="mclose">)</span></span></span></span></span>, and when this
+                operation is performed <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">NN</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                                style="margin-right: 0.10903em;">N</span></span></span></span></span>
+                times, it results in a linear time complexity of <span class="math math-inline"><span
+                        class="katex"><span class="katex-mathml">O(N)O(N)</span><span class="katex-html"
+                                                                                      aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal"
+                                                    style="margin-right: 0.10903em;">N</span><span
+                        class="mclose">)</span></span></span></span></span>.
+            </li>
+            <li>shortestPath: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(M⋅(V+E⋅logV))O(M\cdot (V + E\cdot logV))</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">M</span><span class="mspace"
+                                                                                           style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.22222em;">V</span><span
+                    class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span
+                    class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut"
+                                                                                                          style="height: 0.6833em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.05764em;">E</span><span class="mspace"
+                                                                                           style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.01968em;">l</span><span
+                    class="mord mathnormal">o</span><span class="mord mathnormal"
+                                                          style="margin-right: 0.03588em;">g</span><span
+                    class="mord mathnormal" style="margin-right: 0.22222em;">V</span><span
+                    class="mclose">))</span></span></span></span></span>. Initializing the <code>seen</code> list will
+                incur a time complexity of <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(V)O(V)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal"
+                                                    style="margin-right: 0.22222em;">V</span><span
+                        class="mclose">)</span></span></span></span></span>. The time complexity for Dijkstra's
+                algorithm is <span class="math math-inline"><span class="katex"><span class="katex-mathml">(E⋅logV)(E\cdot logV)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mopen">(</span><span class="mord mathnormal"
+                                                    style="margin-right: 0.05764em;">E</span><span class="mspace"
+                                                                                                   style="margin-right: 0.2222em;"></span><span
+                        class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.01968em;">l</span><span
+                        class="mord mathnormal">o</span><span class="mord mathnormal"
+                                                              style="margin-right: 0.03588em;">g</span><span
+                        class="mord mathnormal" style="margin-right: 0.22222em;">V</span><span
+                        class="mclose">)</span></span></span></span></span>. Calling <code>shortestPath</code> <span
+                        class="math math-inline"><span class="katex"><span class="katex-mathml">MM</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 0.6833em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.10903em;">M</span></span></span></span></span>
+                times leads to a combined time complexity of <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(M⋅(V+E⋅logV))O(M\cdot (V + E\cdot logV))</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal"
+                                                    style="margin-right: 0.10903em;">M</span><span class="mspace"
+                                                                                                   style="margin-right: 0.2222em;"></span><span
+                        class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mopen">(</span><span class="mord mathnormal"
+                                                    style="margin-right: 0.22222em;">V</span><span class="mspace"
+                                                                                                   style="margin-right: 0.2222em;"></span><span
+                        class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                        class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                                style="margin-right: 0.05764em;">E</span><span
+                        class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span
+                        class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+                        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                                 style="margin-right: 0.01968em;">l</span><span
+                        class="mord mathnormal">o</span><span class="mord mathnormal"
+                                                              style="margin-right: 0.03588em;">g</span><span
+                        class="mord mathnormal" style="margin-right: 0.22222em;">V</span><span class="mclose">))</span></span></span></span></span>.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(E+V+N)O(E + V + N)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal" style="margin-right: 0.05764em;">E</span><span class="mspace"
+                                                                                       style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.7667em; vertical-align: -0.0833em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.22222em;">V</span><span class="mspace"
+                                                                                       style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>initialization: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(E+V)O(E + V)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.05764em;">E</span><span class="mspace"
+                                                                                           style="margin-right: 0.2222em;"></span><span
+                    class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.22222em;">V</span><span
+                    class="mclose">)</span></span></span></span></span>. This is the cost to initialize the adjacency
+                list.
+            </li>
+            <li>addEdge: <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(N)O(N)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span
+                    class="mclose">)</span></span></span></span></span>. Adding an element in the adjacency list will
+                incur a space complexity of <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord">1</span><span
+                        class="mclose">)</span></span></span></span></span>, and when this operation is performed <span
+                        class="math math-inline"><span class="katex"><span class="katex-mathml">NN</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 0.6833em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.10903em;">N</span></span></span></span></span>
+                times, it results in a linear space complexity of <span class="math math-inline"><span
+                        class="katex"><span class="katex-mathml">O(N)O(N)</span><span class="katex-html"
+                                                                                      aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal"
+                                                    style="margin-right: 0.10903em;">N</span><span
+                        class="mclose">)</span></span></span></span></span>.
+            </li>
+            <li>shortestPath: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(E+V)O(E + V)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.05764em;">E</span><span class="mspace"
+                                                                                           style="margin-right: 0.2222em;"></span><span
+                    class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.22222em;">V</span><span
+                    class="mclose">)</span></span></span></span></span>. The <code>seen</code> list will incur a space
+                complexity of <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(V)O(V)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal"
+                                                    style="margin-right: 0.22222em;">V</span><span
+                        class="mclose">)</span></span></span></span></span>. The priority queue will will incur a space
+                complexity of <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(E)O(E)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal"
+                                                    style="margin-right: 0.05764em;">E</span><span
+                        class="mclose">)</span></span></span></span></span>.
+            </li>
+        </ul>
+    </li>
+</ul>
+<hr>
+<h3 id="approach-2-floydwarshall-algorithm">Approach 2: Floyd–Warshall algorithm</h3>
+<h4 id="intuition-1">Intuition</h4>
+<p>We start by considering how to represent the graph. Given that it's a weighted directed graph, we opt for an
+    adjacency matrix to store the edge costs between nodes. This matrix, <code>adj_matrix</code>, will be initialized
+    with a very large value (infinity) to signify that there's no direct edge between two nodes.</p>
+<p>In the constructor, we take the number of nodes <code>n</code> and the initial <code>edges</code> as input. We
+    initialize the adjacency matrix with infinity values for all pairs of nodes. Then, we iterate through the given
+    edges and update the corresponding positions in the adjacency matrix with the edge costs. To maintain consistency,
+    we also set the diagonal entries to 0 since the cost from a node to itself is zero.</p>
+<p><strong>Floyd-Warshall Algorithm:</strong> We recognize the need to find the shortest paths between all pairs of
+    nodes efficiently. To achieve this, we implement the Floyd-Warshall algorithm. We use nested loops to iterate
+    through all possible intermediate nodes (<code>k</code>), source nodes (<code>i</code>), and destination nodes
+    (<code>j</code>). For each pair of nodes (<code>i, j</code>), we update the minimum cost if there's a shorter path
+    through the intermediate node (<code>k</code>).</p>
+<p>In the <code>addEdge</code> method, we address the requirement to add a new edge to the graph. We take the edge
+    information as input (from_node, to_node, and cost). To update the adjacency matrix efficiently, we iterate through
+    all pairs of nodes (<code>i, j</code>) and check if the path from <code>i</code> to <code>j</code> can be improved
+    by going through the newly added edge. If there's an improvement, we update the cost accordingly. This is commonly
+    known as the "relaxation" step.</p>
+<p><strong>Finding Shortest Path:</strong> In the <code>shortestPath</code> method, we provide a simple interface for
+    users to find the shortest path between two nodes. We return the cost stored in the adjacency matrix for the given
+    pair of nodes (node1, node2). Since we have already relaxed all paths in the <code>addEdge</code> method, the
+    adjacent matrix is guaranteed to store the cost of the shortest path. If the cost is still infinite, it indicates
+    there's no path between those nodes, and we return -1.</p>
+<p>The key insight here is that the Floyd-Warshall algorithm efficiently computes the shortest paths between all pairs
+    of nodes, making the <code>shortestPath</code> method fast and time-constant.</p>
+<h4 id="algorithm-1">Algorithm</h4>
+<ol>
+    <li>
+        <p><strong>Initialization:</strong></p>
+        <ul>
+            <li>When we initialize the <code>Graph</code> class with <code>n</code> nodes and a list of
+                <code>edges</code>, we create an adjacency matrix representation for the directed weighted graph.
+            </li>
+            <li>We initialize an empty adjacency matrix <code>adj_matrix</code> of size <code>n x n</code>, where <code>n</code>
+                is the number of nodes.
+            </li>
+            <li>For each edge in the input <code>edges</code>, we update the corresponding entry in the adjacency matrix
+                with the provided cost.
+            </li>
+            <li>We set the diagonal elements of the adjacency matrix to 0 because the cost to reach a node from itself
+                is always 0.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p><strong>Floyd-Warshall Algorithm:</strong></p>
+        <ul>
+            <li>After initializing the adjacency matrix, we apply the Floyd-Warshall algorithm to compute the shortest
+                paths between all pairs of nodes.
+            </li>
+            <li>We use three nested loops:
+                <ul>
+                    <li>The outermost loop iterates over all intermediate nodes (indexed by <code>i</code>).</li>
+                    <li>The middle loop iterates over all source nodes (indexed by <code>j</code>).</li>
+                    <li>The innermost loop iterates over all destination nodes (indexed by <code>k</code>).</li>
+                </ul>
+            </li>
+            <li>During each iteration, we update the entry <code>adj_matrix[j][k]</code> by taking the minimum of its
+                current value and the sum of the values <code>adj_matrix[j][i]</code> and <code>adj_matrix[i][k]</code>.
+                This represents the minimum cost to reach node <code>k</code> from node <code>j</code> via an
+                intermediate node <code>i</code>.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p><strong>Adding Edges:</strong></p>
+        <ul>
+            <li>When we call the <code>addEdge</code> method to add an edge to the graph, we provide an
+                <code>edge</code> in the form of a list <code>[from, to, edgeCost]</code>.
+            </li>
+            <li>We iterate over all pairs of nodes in the adjacency matrix and update the entry
+                <code>adj_matrix[i][j]</code> by taking the minimum of its current value and the sum of the values
+                <code>adj_matrix[i][from_node]</code>, <code>adj_matrix[to_node][j]</code>, and <code>cost</code>. This
+                represents the updated minimum cost considering the new edge.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p><strong>Shortest Path Calculation:</strong></p>
+        <ul>
+            <li>When we call the <code>shortestPath</code> method to find the minimum cost path from <code>node1</code>
+                to <code>node2</code>, we check if the value at <code>adj_matrix[node1][node2]</code> is still equal to
+                infinity(<code>inf</code>). If it is, there is no path between the two nodes, so we return -1.
+            </li>
+            <li>Otherwise, we return <code>adj_matrix[node1][node2]</code>, which represents the minimum cost to reach
+                <code>node2</code> from <code>node1</code> based on the computed shortest paths.
+            </li>
+        </ul>
+    </li>
+</ol>
+<h4 id="implementation-1">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Graph {
+    private int[][] adjMatrix;
+
+    public Graph(int n, int[][] edges) {
+        adjMatrix = new int[n][n];
+        Arrays.stream(adjMatrix).forEach(row -> Arrays.fill(row, (int)1e9));
+        for (int[] e : edges) {
+            adjMatrix[e[0]][e[1]] = e[2];
+        }
+        for (int i = 0; i < n; i++) {
+            adjMatrix[i][i] = 0;
+        }
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                for (int k = 0; k < n; k++) {
+                    adjMatrix[j][k] = Math.min(adjMatrix[j][k],
+                                               adjMatrix[j][i] +
+                                               adjMatrix[i][k]);
+                }
+            }
+        }
+    }
+
+    public void addEdge(int[] edge) {
+        int n = adjMatrix.length;
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                adjMatrix[i][j] = Math.min(adjMatrix[i][j],
+                                           adjMatrix[i][edge[0]] +
+                                           adjMatrix[edge[1]][j] +
+                                           edge[2]);
+            }
+        }
+    }
+
+    public int shortestPath(int node1, int node2) {
+        if (adjMatrix[node1][node2] == (int)1e9)
+            return -1;
+        return adjMatrix[node1][node2];
+    }
+}
+    </code>
+    C++
+    <code>
+        class Graph {
+    private int[][] adjMatrix;
+
+    public Graph(int n, int[][] edges) {
+        adjMatrix = new int[n][n];
+        Arrays.stream(adjMatrix).forEach(row -> Arrays.fill(row, (int)1e9));
+        for (int[] e : edges) {
+            adjMatrix[e[0]][e[1]] = e[2];
+        }
+        for (int i = 0; i < n; i++) {
+            adjMatrix[i][i] = 0;
+        }
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                for (int k = 0; k < n; k++) {
+                    adjMatrix[j][k] = Math.min(adjMatrix[j][k],
+                                               adjMatrix[j][i] +
+                                               adjMatrix[i][k]);
+                }
+            }
+        }
+    }
+
+    public void addEdge(int[] edge) {
+        int n = adjMatrix.length;
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                adjMatrix[i][j] = Math.min(adjMatrix[i][j],
+                                           adjMatrix[i][edge[0]] +
+                                           adjMatrix[edge[1]][j] +
+                                           edge[2]);
+            }
+        }
+    }
+
+    public int shortestPath(int node1, int node2) {
+        if (adjMatrix[node1][node2] == (int)1e9)
+            return -1;
+        return adjMatrix[node1][node2];
+    }
+}
+    </code>
+    Python3
+    <code>
+        class Graph:
+
+    def __init__(self, n, edges):
+        self.adj_matrix = [[inf] * n for _ in range(n)]
+        for from_node, to_node, cost in edges:
+            self.adj_matrix[from_node][to_node] = cost
+        for i in range(n):
+            self.adj_matrix[i][i] = 0
+        for i in range(n):
+            for j in range(n):
+                for k in range(n):
+                    self.adj_matrix[j][k] = min(self.adj_matrix[j][k],
+                                                self.adj_matrix[j][i] +
+                                                self.adj_matrix[i][k])
+
+    def addEdge(self, edge: List[int]) -> None:
+        from_node, to_node, cost = edge
+        n = len(self.adj_matrix)
+        for i in range(n):
+            for j in range(n):
+                self.adj_matrix[i][j] = min(self.adj_matrix[i][j],
+                                            self.adj_matrix[i][from_node] +
+                                            self.adj_matrix[to_node][j] +
+                                            cost)
+
+    def shortestPath(self, node1, node2):
+        if self.adj_matrix[node1][node2] == inf: return -1
+        return self.adj_matrix[node1][node2]
+    </code>
+</pre>
+<h4 id="complexity-analysis-1">Complexity Analysis</h4>
+<p>Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">EE</span><span class="katex-html"
+                                                                                                    aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                style="margin-right: 0.05764em;">E</span></span></span></span></span>
+    be number of edges in the graph when the call to any method is made.<br>
+    Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">VV</span><span class="katex-html"
+                                                                                                     aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                    style="margin-right: 0.22222em;">V</span></span></span></span></span>
+    be the number of vertices in the graph when the call to any method is made.<br>
+    Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">NN</span><span class="katex-html"
+                                                                                                     aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                    style="margin-right: 0.10903em;">N</span></span></span></span></span>
+    be the maximum number of calls made to <code>addEdge</code>.<br>
+    Let <span class="math math-inline"><span class="katex"><span class="katex-mathml">MM</span><span class="katex-html"
+                                                                                                     aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                    style="margin-right: 0.10903em;">M</span></span></span></span></span>
+    be the maximum number of calls made to <code>shortestPath</code>.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(M+N⋅V2+V3)O(M + N\cdot V^2 + V^3)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal" style="margin-right: 0.10903em;">M</span><span class="mspace"
+                                                                                       style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                        style="margin-right: 0.10903em;">N</span><span
+                class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.8974em; vertical-align: -0.0833em;"></span><span
+                class="mord"><span class="mord mathnormal" style="margin-right: 0.22222em;">V</span><span
+                class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                  style="height: 0.8141em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mspace"
+                                                                                                   style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                class="mord"><span class="mord mathnormal" style="margin-right: 0.22222em;">V</span><span
+                class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                  style="height: 0.8141em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight">3</span></span></span></span></span></span></span></span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>initialization: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(V3)O(V^3)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord"><span class="mord mathnormal" style="margin-right: 0.22222em;">V</span><span
+                    class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                      style="height: 0.8141em;"><span
+                    style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                       style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span
+                    class="mord mtight">3</span></span></span></span></span></span></span></span><span
+                    class="mclose">)</span></span></span></span></span>. The Floyd-Warshall Algorithm incurs a cost of
+                <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(V3)O(V^3)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord"><span class="mord mathnormal"
+                                                                       style="margin-right: 0.22222em;">V</span><span
+                        class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                          style="height: 0.8141em;"><span
+                        style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                        class="sizing reset-size6 size3 mtight"><span class="mord mtight">3</span></span></span></span></span></span></span></span><span
+                        class="mclose">)</span></span></span></span></span> to find the minimum cost between all pairs
+                of vertices.
+            </li>
+            <li>addEdge: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(N⋅V2)O(N\cdot V^2)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span class="mspace"
+                                                                                           style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                    class="mord"><span class="mord mathnormal" style="margin-right: 0.22222em;">V</span><span
+                    class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                      style="height: 0.8141em;"><span
+                    style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                       style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span
+                    class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                    class="mclose">)</span></span></span></span></span>. When adding an edge, we iterate over the whole
+                matrix to check if the new edge lowers the cost between any of the vertices. This operation costs <span
+                        class="math math-inline"><span class="katex"><span class="katex-mathml">O(V2)O(V^2)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord"><span class="mord mathnormal"
+                                                                       style="margin-right: 0.22222em;">V</span><span
+                        class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                          style="height: 0.8141em;"><span
+                        style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                        class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                        class="mclose">)</span></span></span></span></span>. When this operation is performed <span
+                        class="math math-inline"><span class="katex"><span class="katex-mathml">NN</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 0.6833em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.10903em;">N</span></span></span></span></span>
+                times, it results in a time complexity of <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(N⋅V2)O(N\cdot V^2)</span><span class="katex-html"
+                                                                              aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal"
+                                                    style="margin-right: 0.10903em;">N</span><span class="mspace"
+                                                                                                   style="margin-right: 0.2222em;"></span><span
+                        class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                        class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                        class="mord"><span class="mord mathnormal" style="margin-right: 0.22222em;">V</span><span
+                        class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                          style="height: 0.8141em;"><span
+                        style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                        class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                        class="mclose">)</span></span></span></span></span>.
+            </li>
+            <li>shortestPath: <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(M)O(M)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">M</span><span
+                    class="mclose">)</span></span></span></span></span>. Finding the <code>shortestPath</code> doesn't
+                require any additional computation. Hence, it incurs a constant time complexity of <span
+                        class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord">1</span><span
+                        class="mclose">)</span></span></span></span></span>. When this operation is performed <span
+                        class="math math-inline"><span class="katex"><span class="katex-mathml">MM</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 0.6833em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.10903em;">M</span></span></span></span></span>
+                times, it results in a linear time complexity of <span class="math math-inline"><span
+                        class="katex"><span class="katex-mathml">O(M)O(M)</span><span class="katex-html"
+                                                                                      aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal"
+                                                    style="margin-right: 0.10903em;">M</span><span
+                        class="mclose">)</span></span></span></span></span>.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(V2)O(V^2)</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord"><span class="mord mathnormal" style="margin-right: 0.22222em;">V</span><span
+                class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                  style="height: 0.8141em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>initialization: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(V2)O(V^2)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord"><span class="mord mathnormal" style="margin-right: 0.22222em;">V</span><span
+                    class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                      style="height: 0.8141em;"><span
+                    style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                       style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span
+                    class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                    class="mclose">)</span></span></span></span></span>. We initialize a 2-D adjacency matrix that
+                stores the minimum cost between all vertices. This matrix incurs a cost of <span
+                        class="math math-inline"><span class="katex"><span class="katex-mathml">O(V2)O(V^2)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord"><span class="mord mathnormal"
+                                                                       style="margin-right: 0.22222em;">V</span><span
+                        class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                          style="height: 0.8141em;"><span
+                        style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                        class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                        class="mclose">)</span></span></span></span></span>.
+            </li>
+            <li>addEdge: <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord">1</span><span class="mclose">)</span></span></span></span></span>. We will not need any
+                extra space to add an edge.
+            </li>
+            <li>shortestPath: <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord">1</span><span class="mclose">)</span></span></span></span></span>. We will not need any
+                extra space to return the cost of the shortest path.
+            </li>
+        </ul>
+    </li>
+</ul>
+<hr>
+<h3 id="notes">Notes:</h3>
+<p>If there is a significant imbalance between the frequency of <code>shortestPath</code> calls compared to the
+    frequency of <code>addEdge</code> calls, the choice between using the Floyd-Warshall algorithm and Dijkstra's
+    algorithm should be based on the number of times these two operations are performed:</p>
+<ul>
+    <li>When <code>shortestPath</code> is called much more often than <code>addEdge</code>, it is more efficient to
+        utilize the Floyd-Warshall algorithm.
+    </li>
+    <li>Conversely, if <code>addEdge</code> is called significantly more often than <code>shortestPath</code>, it is
+        more practical to employ Dijkstra's algorithm for this problem.
+    </li>
+</ul>
+</body>
+</html>
