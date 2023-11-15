@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Maximum Element After Decreasing and Rearranging - Solution</title>
+</head>
+<body>
+<h2 id="solution">Maximum Element After Decreasing and Rearranging - Solution</h2>
+<hr>
+<h4 id="approach-1-greedy">Approach 1: Greedy</h4>
+<p><strong>Intuition</strong></p>
+<p>In this problem, we need to maximize any value under the following rules:</p>
+<ol>
+    <li><code>arr[0] = 1</code>.</li>
+    <li>Each adjacent element differs by at most <code>1</code>.</li>
+    <li>We can decrease any value, but we can't increase values.</li>
+    <li>We can rearrange values.</li>
+</ol>
+<p>For an array of length <code>n</code>, the biggest value we could have is <code>n</code>. This scenario would be when
+    the array is <code>[1, 2, 3, ..., n]</code>.</p>
+<p><img src="1.png" alt="example"><br>
+    <br></p>
+<p>This is because each adjacent element differs by at most <code>1</code>, so the best we could do is to just count up
+    from <code>1</code>, which the first element must be. When is this scenario impossible?</p>
+<p>Because we are not allowed to increase elements, the best-case scenario is impossible when the original elements are
+    not large enough to support the counting.</p>
+<p><img src="2.png" alt="example"><br>
+    <br></p>
+<p>So what should our strategy be? We start at the first index with our answer <code>ans = 1</code>. This is because by
+    the rules of the problem, the first element must be equal to <code>1</code>. Now, we iterate over the rest of the
+    indices and try to increment by <code>1</code> each time.</p>
+<p>If we can successfully increment, we update <code>ans = ans + 1</code>. We can successfully increment if there is an
+    element in <code>arr</code> that is greater than or equal to <code>ans + 1</code>. Any element that is greater than
+    or equal to <code>ans + 1</code> can be reduced to <code>ans + 1</code> according to the rules. However, once we
+    reduce it, we can't use that element anymore in the future.</p>
+<p>So which element should we choose at each step? We should greedily choose the <strong>smallest</strong> element that
+    is greater than or equal to <code>ans + 1</code>. The reason we want the smallest element is because choosing a
+    larger element does not give us any additional benefit - we will only increment our answer by <code>1</code>
+    regardless. However, choosing the smallest element "saves" the larger elements to be reduced in the future.</p>
+<p>For example, let's say you had <code>ans = 3</code> and there was a <code>4</code> and a <code>5</code> in the array.
+    If you chose to reduce the <code>5</code> to a <code>4</code>, you would not be able to reach <code>ans = 5</code>
+    anymore. However, if we use the <code>4</code> instead, then the <code>5</code> remains available when we want to
+    increment <code>ans</code> to <code>5</code>.</p>
+<p>Note that because we are allowed to rearrange elements freely, their initial order is irrelevant. As such, we will
+    start by sorting <code>arr</code> so we can process the elements in ascending order.</p>
+<p>We also initialize <code>ans = 1</code> and begin iterating over <code>arr</code>, starting from index <code>1</code>.
+    The reason we skip index <code>0</code> is because <code>arr[0] = 1</code> - we have no choice. At each index <code>i</code>,
+    we try to increment <code>ans</code> by using <code>arr[i]</code>. If <code>arr[i]</code> is greater than or equal
+    to <code>ans + 1</code>, then we can reduce <code>arr[i]</code> (or keep it the same) to <code>ans + 1</code>.</p>
+<p><img src="3.png" alt="example"><br>
+    <br></p>
+<p>In the above example, we have an original sorted <code>arr = [1, 2, 2, 2, 5, 11, 17]</code>. Up to index <code>i =
+    3</code>, we cannot have <code>ans = 3</code> because none of the elements are large enough to support it. However,
+    once we reach the <code>5</code>, we can reduce it to <code>3</code>. Then we reduce the <code>11</code> to
+    <code>4</code> and the <code>17</code> to <code>5</code>. This makes sure we follow the rule where each adjacent
+    element differs by at most <code>1</code> while also maximizing a value since we are incrementing at every
+    opportunity.</p>
+<p><strong>Algorithm</strong></p>
+<ol>
+    <li>Sort <code>arr</code> in ascending order.</li>
+    <li>Initialize <code>ans = 1</code>.</li>
+    <li>Iterate <code>i</code> over the indices of <code>arr</code>, starting from <code>i = 1</code>:
+        <ul>
+            <li>If <code>arr[i] &gt;= ans + 1</code>, increment <code>ans</code>.</li>
+        </ul>
+    </li>
+    <li>Return <code>ans</code>.</li>
+</ol>
+<p><strong>Implementation</strong></p>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int maximumElementAfterDecrementingAndRearranging(int[] arr) {
+        Arrays.sort(arr);
+        int ans = 1;
+
+        for (int i = 1; i < arr.length; i++) {
+            if (arr[i] >= ans + 1) {
+                ans++;
+            }
+        }
+
+        return ans;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int maximumElementAfterDecrementingAndRearranging(vector<int>& arr) {
+        sort(arr.begin(), arr.end());
+        int ans = 1;
+
+        for (int i = 1; i < arr.size(); i++) {
+            if (arr[i] >= ans + 1) {
+                ans++;
+            }
+        }
+
+        return ans;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def maximumElementAfterDecrementingAndRearranging(self, arr: List[int]) -> int:
+        arr.sort()
+        ans = 1
+        for i in range(1, len(arr)):
+            if arr[i] >= ans + 1:
+                ans += 1
+
+        return ans
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<p>Given <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    as the length of <code>arr</code>,</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅log⁡n)O(n \cdot \log{}n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                      style="margin-right: 0.1667em;"></span><span
+                class="mord"></span><span class="mord mathnormal">n</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <p>We sort <code>arr</code> which costs <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n⋅log⁡n)O(n \cdot \log{}n)</span><span class="katex-html"
+                                                                              aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                      style="margin-right: 0.1667em;"></span><span
+                class="mord"></span><span class="mord mathnormal">n</span><span
+                class="mclose">)</span></span></span></span></span>. Then, we iterate over it once which costs <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+    <li>
+        <p>Space Complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡n)O(\log n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                          style="margin-right: 0.1667em;"></span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> or <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></p>
+        <p>The space complexity of the sorting algorithm depends on the implementation of each programming language:</p>
+        <ul>
+            <li>In Java, Arrays.sort() for primitives is implemented using a variant of the Quick Sort algorithm, which
+                has a space complexity of <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡n)O(\log n)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span
+                        class="mspace" style="margin-right: 0.1667em;"></span><span
+                        class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></li>
+            <li>In C++, the sort() function provided by STL uses a hybrid of Quick Sort, Heap Sort and Insertion Sort,
+                with a worst case space complexity of <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(log⁡n)O(\log n)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span
+                        class="mspace" style="margin-right: 0.1667em;"></span><span
+                        class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></li>
+            <li>In Python, the sort() function is implemented using the Timsort algorithm, which has a worst-case space
+                complexity of <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+            </li>
+        </ul>
+    </li>
+</ul>
+<br>
+<hr>
+<h4 id="approach-2-no-sort">Approach 2: No Sort</h4>
+<p><strong>Intuition</strong></p>
+<blockquote>
+    <p>While we are not directly sorting any data, this approach uses similar principles as Counting Sort.</p>
+</blockquote>
+<p>Recall that in the best-case scenario of an array of length <code>n</code>, our answer will be <code>n</code>. This
+    is because the first element must be <code>1</code>, and we can only increment by <code>1</code> for each additional
+    element. Thus, <strong>we will never have any elements greater than <code>n</code></strong> in our final array.
+    Since our range of values is bounded by <code>[1, n]</code>, we don't actually need to sort the array. Instead, we
+    will iterate over its bounded values in a more efficient way.</p>
+<p>We will initialize an array <code>counts</code> as a counter, where <code>counts[x]</code> is equal to the frequency
+    of <code>x</code> in <code>arr</code>. Because we don't care about values greater than <code>n</code>, if there are
+    any numbers in <code>arr</code> that are greater than <code>n</code>, we will simply treat them as <code>n</code>.
+    For example, if we had <code>arr = [1, 100, 100, 100]</code>, then we would have <code>counts[4] = 3</code>. Here,
+    we have <code>n = 4</code>, so we treat each of the <code>100</code> as <code>4</code>, and thus the count of <code>4</code>
+    is <code>3</code>.</p>
+<p>Once we have the frequency of each element, we will follow a process similar to the one from the previous approach.
+    First, we set <code>ans = 1</code>. Now, we iterate over each value <code>num</code> in the range <code>[2,
+        n]</code>. For each value <code>num</code>, we check how many times <code>num</code> appears in <code>arr</code>
+    by referencing <code>count[num]</code>. We have two possibilities:</p>
+<ol>
+    <li><code>ans + count[num] &lt;= num</code>. This would happen in a scenario like <code>[1, 2, 3, 100, 100]</code>.
+        It means that there are less occurrences of <code>num</code> in <code>arr</code> than there are "spots" in the
+        range <code>[ans + 1, num]</code>. In the above example, if <code>ans = 3</code> and we have <code>num =
+            100</code>, there are 97 "spots" between <code>3</code> and <code>100</code>: the spots are <code>4, 5, 6,
+            ..., 99, 100</code>. Thus, we can reduce every instance of <code>num</code> to improve on <code>ans</code>,
+        and we perform <code>ans += counts[num]</code>, resulting in <code>ans = 5</code>. Note that the case of <code>count[num]
+            = 0</code> is handled by this scenario since adding <code>0</code> doesn't change anything.
+    </li>
+</ol>
+<p><img src="4.png" alt="example"><br>
+    <br></p>
+<ol start="2">
+    <li><code>ans + count[num] &gt; num</code>. This would happen in a scenario like <code>[1, 3, 3, 3, 3, 3, 3]</code>.
+        It means there are more <code>num</code> than there are spots. In scenario 1, we are happy to reduce every
+        instance of <code>num</code> to improve our answer. In this scenario, we can't improve our answer by reducing
+        all of <code>num</code>, because we would need elements greater than <code>num</code>. So far, we can only raise
+        <code>ans</code> to a maximum of <code>num</code>. Thus, we simply set <code>ans = num</code>.
+    </li>
+</ol>
+<p><img src="5.png" alt="example"><br>
+    <br></p>
+<p>The two possibilities can be summarized with the following line:</p>
+<p><code>ans = min(ans + counts[num], num)</code></p>
+<p>Essentially, at each <code>num</code>, we increment <code>ans</code> by filling as many "spots" as we can using
+    reduced <code>num</code>. However, the total number of filled "spots" cannot exceed <code>num</code> as the range
+    <code>[1, 2, ..., num]</code> is fixed and we cannot increase our current elements to be larger than
+    <code>num</code>.</p>
+<p><strong>Algorithm</strong></p>
+<ol>
+    <li>Initialize an array <code>counts</code> with length <code>n + 1</code> and values of <code>0</code>.</li>
+    <li>Iterate over each <code>num</code> in <code>arr</code>:
+        <ul>
+            <li>Increment <code>counts[min(num, n)]</code>.</li>
+        </ul>
+    </li>
+    <li>Initialize <code>ans = 1</code>.</li>
+    <li>Iterate <code>num</code> from <code>2</code> to <code>n</code>:
+        <ul>
+            <li>Set <code>ans = min(ans + counts[num], num)</code>.</li>
+        </ul>
+    </li>
+    <li>Return <code>ans</code>.</li>
+</ol>
+<p><strong>Implementation</strong></p>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int maximumElementAfterDecrementingAndRearranging(int[] arr) {
+        int n = arr.length;
+        int[] counts = new int[n + 1];
+
+        for (int num : arr) {
+            counts[Math.min(num, n)]++;
+        }
+
+        int ans = 1;
+        for (int num = 2; num <= n; num++) {
+            ans = Math.min(ans + counts[num], num);
+        }
+
+        return ans;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int maximumElementAfterDecrementingAndRearranging(vector<int>& arr) {
+        int n = arr.size();
+        vector<int> counts = vector(n + 1, 0);
+
+        for (int num : arr) {
+            counts[min(num, n)]++;
+        }
+
+        int ans = 1;
+        for (int num = 2; num <= n; num++) {
+            ans = min(ans + counts[num], num);
+        }
+
+        return ans;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def maximumElementAfterDecrementingAndRearranging(self, arr: List[int]) -> int:
+        n = len(arr)
+        counts = [0] * (n + 1)
+
+        for num in arr:
+            counts[min(num, n)] += 1
+
+        ans = 1
+        for num in range(2, n + 1):
+            ans = min(ans + counts[num], num)
+
+        return ans
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<p>Given <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    as the length of <code>arr</code>,</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <p>To calculate <code>counts</code>, we iterate over <code>arr</code> once which costs <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>. Then, we
+            iterate between <code>2</code> and <code>n</code>. which costs <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <p><code>counts</code> has a length of <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">n+1n + 1</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 0.6667em; vertical-align: -0.0833em;"></span><span class="mord mathnormal">n</span><span
+                class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.6444em;"></span><span
+                class="mord">1</span></span></span></span></span>.</p>
+    </li>
+</ul>
+<br>
+<hr>
+</body>
+</html>
