@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Frequency of the Most Frequent Element - Solution</title>
+</head>
+<body>
+<h2 id="solution">Frequency of the Most Frequent Element - Solution</h2>
+<hr>
+<h4 id="approach-1-sliding-window">Approach 1: Sliding Window</h4>
+<p><strong>Intuition</strong></p>
+<p>In this problem, we want to make as many elements as we can equal using <code>k</code> increments.</p>
+<p>Let's say that we choose a number <code>target</code> and want to maximize its frequency. Intuitively, the elements
+    that we would increment would be the elements that are closest to <code>target</code> (and less than
+    <code>target</code>, since we can only increment).</p>
+<p>So what number should we choose for <code>target</code>? The optimal <code>target</code> will already exist in the
+    array. Why?</p>
+<ul>
+    <li>Assume <code>target</code> is in <code>nums</code>, but <code>target - 1</code> and <code>target + 1</code> are
+        not in <code>nums</code>. Let's say that we can increment <code>x</code> elements to be equal to
+        <code>target</code> using at most <code>k</code> operations. We will prove that making <code>target - 1</code>
+        or <code>target + 1</code> the most frequent element does not lead to better results.
+    </li>
+</ul>
+<p><img src="1.png" alt="example"><br>
+    <br></p>
+<ul>
+    <li>It would be pointless to instead try to make <code>target + 1</code> the most frequent element, since this would
+        cost us <code>x</code> extra operations and we would not improve on our answer. The same goes for even larger
+        elements <code>target + 2</code> and etc.
+    </li>
+</ul>
+<p><img src="2.png" alt="example"><br>
+    <br></p>
+<ul>
+    <li>What about <code>target - 1</code>? Compared with making <code>target</code> the most frequent element, we would
+        lose the values representing these <code>target</code>s from our max frequency, but we would save <code>x</code>
+        operations which we could potentially use to increment more than one extra element and thus improve our answer.
+    </li>
+</ul>
+<p><img src="3.png" alt="example"><br>
+    <br></p>
+<ul>
+    <li>The above statement is true, but meaningless! Consider the greatest element in <code>nums</code> that is less
+        than <code>target</code>. That is, if we were to sort <code>nums</code>, consider the element that comes right
+        before <code>target</code>. If we were to instead consider this element as the target, we would save more than
+        <code>x</code> operations without negatively affecting the frequency relative to considering <code>target -
+            1</code>.
+    </li>
+</ul>
+<p><img src="4.png" alt="example"><br>
+    <br></p>
+<ul>
+    <li>In summary, for any given number <code>absent</code> that is not in <code>nums</code>, consider the greatest
+        number in <code>nums</code> smaller than <code>absent</code> as <code>smallerTarget</code>. The number of
+        operations to raise some number of elements to <code>smallerTarget</code> will always be less than the number of
+        steps needed to raise them to <code>absent</code>.
+    </li>
+    <li>Thus, the optimal value of <code>target</code> must exist in <code>nums</code>. We can iterate over
+        <code>nums</code> and consider each element as <code>target</code>.
+    </li>
+</ul>
+<p>For a given value of <code>target</code>, how can we efficiently check the frequency we could achieve? As we
+    mentioned at the start, we would want to increment elements that are closest to <code>target</code>. As such, we
+    will start by sorting <code>nums</code> so that as we iterate over the elements, we know the elements closest to
+    <code>target</code> are just to the left of <code>target</code>.</p>
+<p>Now that <code>nums</code> is sorted, consider the first element to the left of <code>target</code> as
+    <code>smaller</code>. As <code>smaller</code> is the closest element to <code>target</code>, we want to increment it
+    to equal <code>target</code>. This will cost us <code>target - smaller</code> operations. Now, consider the next
+    element to the left as <code>smaller2</code>. Now this is the element closest to <code>target</code>, so we
+    increment it using <code>target - smaller2</code> operations. We continue this process until we run out of
+    operations.</p>
+<p>As you can see, the number of operations required is simply the difference between <code>target</code> and the
+    numbers we are incrementing. Let's say that the final frequency of <code>target</code> was <code>4</code>. We would
+    have a sum of <code>4 * target</code>. The number of operations would be this sum minus the sum of the elements
+    before we incremented them. Consider the following example:</p>
+<p><img src="5.png" alt="example"><br>
+    <br></p>
+<blockquote>
+    <p>If you aren't already familiar with the sliding window technique, we highly recommend reading <a
+            href="https://leetcode.com/explore/interview/card/leetcodes-interview-crash-course-data-structures-and-algorithms/703/arraystrings/4502/"
+            target="_blank">this free article</a> from LeetCode's official DSA course, where sliding window is explained
+        in detail with multiple examples.</p>
+</blockquote>
+<p>This brings us to our solution. We will use a sliding window over the sorted <code>nums</code>. For each element
+    <code>nums[right]</code>, we will treat <code>target</code> as this element and try to make every element in our
+    window equal to <code>target</code>.</p>
+<p>The size of the window is <code>right - left + 1</code>. That means we would have a final sum of <code>(right - left
+    + 1) * target</code>. If we track the sum of our window in a variable <code>curr</code>, then we can calculate the
+    required operations as <code>(right - left + 1) * target - curr</code>. If it requires more than <code>k</code>
+    operations, we must shrink our window. Like in all sliding window problems, we will use a <code>while</code> loop to
+    shrink our window by incrementing <code>left</code> until <code>k</code> operations are sufficient.</p>
+<p>Once the <code>while</code> loop ends, we know that we can make all elements in the window equal to
+    <code>target</code>. We can now update our answer with the current window size. The final answer will be the largest
+    valid window we find after iterating <code>right</code> over the entire input.</p>
+<p><strong>Algorithm</strong></p>
+<ol>
+    <li>Sort <code>nums</code>.</li>
+    <li>Initialize the following integers:
+        <ul>
+            <li><code>left = 0</code>, the left pointer.</li>
+            <li><code>ans = 0</code>, the best answer we have seen so far.</li>
+            <li><code>curr = 0</code>, the sum of the elements currently in our window.</li>
+        </ul>
+    </li>
+    <li>Iterate <code>right</code> over the indices of <code>nums</code>:
+        <ul>
+            <li>Consider <code>target = nums[right]</code>.</li>
+            <li>Add <code>target</code> to <code>curr</code>.</li>
+            <li>While the size of the window <code>right - left + 1</code> multiplied by <code>target</code>, minus
+                <code>curr</code> is greater than <code>k</code>:
+                <ul>
+                    <li>Subtract <code>nums[left]</code> from <code>curr</code>.</li>
+                    <li>Increment <code>left</code>.</li>
+                </ul>
+            </li>
+            <li>Update <code>ans</code> with the current window size if it is larger.</li>
+        </ul>
+    </li>
+    <li>Return <code>ans</code>.</li>
+</ol>
+<p><strong>Implementation</strong></p>
+<blockquote>
+    <p>Be careful! Given the constraints, we may run into integer overflow. Use <code>long</code> accordingly in Java
+        and C++ (Python doesn't have overflow).</p>
+</blockquote>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int maxFrequency(int[] nums, int k) {
+        Arrays.sort(nums);
+        int left = 0;
+        int ans = 0;
+        long curr = 0;
+
+        for (int right = 0; right < nums.length; right++) {
+            int target = nums[right];
+            curr += target;
+
+            while ((right - left + 1) * target - curr > k) {
+                curr -= nums[left];
+                left++;
+            }
+
+            ans = Math.max(ans, right - left + 1);
+        }
+
+        return ans;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int maxFrequency(vector<int>& nums, int k) {
+        sort(nums.begin(), nums.end());
+        int left = 0;
+        int ans = 0;
+        long curr = 0;
+
+        for (int right = 0; right < nums.size(); right++) {
+            long target = nums[right];
+            curr += target;
+
+            while ((right - left + 1) * target - curr > k) {
+                curr -= nums[left];
+                left++;
+            }
+
+            ans = max(ans, right - left + 1);
+        }
+
+        return ans;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def maxFrequency(self, nums: List[int], k: int) -> int:
+        nums.sort()
+        left = 0
+        ans = 0
+        curr = 0
+
+        for right in range(len(nums)):
+            target = nums[right]
+            curr += target
+
+            while (right - left + 1) * target - curr > k:
+                curr -= nums[left]
+                left += 1
+
+            ans = max(ans, right - left + 1)
+
+        return ans
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<p>Given <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    as the length of <code>nums</code>,</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅log⁡n)O(n \cdot \log{}n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                      style="margin-right: 0.1667em;"></span><span
+                class="mord"></span><span class="mord mathnormal">n</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <p>Despite the while loop, each iteration of the for loop is amortized <span class="math math-inline"><span
+                class="katex"><span class="katex-mathml">O(1)O(1)</span><span class="katex-html"
+                                                                              aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord">1</span><span class="mclose">)</span></span></span></span></span>. The while loop only runs
+            <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> times
+            across all iterations. This is because each iteration of the while loop increments <code>left</code>. As
+            <code>left</code> can only increase and cannot exceed <code>n</code>, the while loop never performs more
+            than <code>n</code> iterations total. This means the sliding window process runs in <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.</p>
+        <p>However, we need to sort the array, which costs <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n⋅log⁡n)O(n \cdot \log{}n)</span><span class="katex-html"
+                                                                              aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                      style="margin-right: 0.1667em;"></span><span
+                class="mord"></span><span class="mord mathnormal">n</span><span
+                class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+    <li>
+        <p>Space Complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡n)O(\log n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                          style="margin-right: 0.1667em;"></span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> or <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></p>
+        <p>We only use a few integer variables, but some space is used to sort.</p>
+        <p>The space complexity of the sorting algorithm depends on the implementation of each programming language:</p>
+        <ul>
+            <li>In Java, Arrays.sort() for primitives is implemented using a variant of the Quick Sort algorithm, which
+                has a space complexity of <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡n)O(\log n)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span
+                        class="mspace" style="margin-right: 0.1667em;"></span><span
+                        class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></li>
+            <li>In C++, the sort() function provided by STL uses a hybrid of Quick Sort, Heap Sort and Insertion Sort,
+                with a worst case space complexity of <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(log⁡n)O(\log n)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span
+                        class="mspace" style="margin-right: 0.1667em;"></span><span
+                        class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></li>
+            <li>In Python, the sort() function is implemented using the Timsort algorithm, which has a worst-case space
+                complexity of <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+            </li>
+        </ul>
+    </li>
+</ul>
+<br>
+<hr>
+<h4 id="approach-2-advanced-sliding-window">Approach 2: Advanced Sliding Window</h4>
+<p><strong>Intuition</strong></p>
+<blockquote>
+    <p>This approach is an extension of the previous one.</p>
+</blockquote>
+<p>Notice that the only thing we care about is the <strong>length</strong> of the longest window. We don't need to know
+    what the window itself is. As we slide the window over the array, let's say we find a valid window with a length of
+    <code>len</code>. <strong>We no longer care about any windows with lengths less than <code>len</code></strong>,
+    because they could not possibly improve on our answer.</p>
+<p>The purpose of the while loop in the previous approach is to shrink the window until it is valid again. In this
+    approach, we will not shrink the window - we will just try to grow it as large as we can.</p>
+<p>We will keep the same condition in the while loop that checks if the current window <code>[left, right]</code> is
+    valid, but instead of using a while loop, we will just use an if statement. This means <code>left</code> never
+    increases by more than <code>1</code> per iteration. Because <code>right</code> also increases by <code>1</code> per
+    iteration, if we cannot find a valid window, we will simply be sliding a window with static size across the array.
+</p>
+<p>However, if we add an element <code>nums[right]</code> to the window and the window is valid, then the if statement
+    will not trigger, and <code>left</code> will not be incremented. Thus, we will increase our window size by
+    <code>1</code>. In this scenario, it implies the current window <code>[left, right]</code> is the best window we
+    have seen so far.</p>
+<blockquote>
+    <p>As you can see, it is actually impossible for our window size to decrease, since each iteration increases <code>right</code>
+        by <code>1</code> and <code>left</code> by either <code>0</code> or <code>1</code>.</p>
+</blockquote>
+<p>Because our window size cannot decrease, it also means that the size of the window always represents the length of
+    the best window we have found so far - analogous to <code>ans</code> from the previous approach.</p>
+<p>At the end of the iteration, the size of our window is <code>n - left</code>. We return this as the answer.</p>
+<p><strong>Algorithm</strong></p>
+<ol>
+    <li>Sort <code>nums</code>.</li>
+    <li>Initialize the following integers:
+        <ul>
+            <li><code>left = 0</code>, the left pointer.</li>
+            <li><code>curr = 0</code>, the sum of the elements currently in our window.</li>
+        </ul>
+    </li>
+    <li>Iterate <code>right</code> over the indices of <code>nums</code>:
+        <ul>
+            <li>Consider <code>target = nums[right]</code>.</li>
+            <li>Add <code>target</code> to <code>curr</code>.</li>
+            <li>If the size of the window <code>right - left + 1</code> multiplied by <code>target</code>, minus <code>curr</code>
+                is greater than <code>k</code>:
+                <ul>
+                    <li>Subtract <code>nums[left]</code> from <code>curr</code>.</li>
+                    <li>Increment <code>left</code>.</li>
+                </ul>
+            </li>
+        </ul>
+    </li>
+    <li>Return <code>nums.length - left</code>.</li>
+</ol>
+<p><strong>Implementation</strong></p>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int maxFrequency(int[] nums, int k) {
+        Arrays.sort(nums);
+        int left = 0;
+        long curr = 0;
+
+        for (int right = 0; right < nums.length; right++) {
+            int target = nums[right];
+            curr += target;
+
+            if ((right - left + 1) * target - curr > k) {
+                curr -= nums[left];
+                left++;
+            }
+        }
+
+        return nums.length - left;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int maxFrequency(vector<int>& nums, int k) {
+        sort(nums.begin(), nums.end());
+        int left = 0;
+        long curr = 0;
+
+        for (int right = 0; right < nums.size(); right++) {
+            long target = nums[right];
+            curr += target;
+
+            if ((right - left + 1) * target - curr > k) {
+                curr -= nums[left];
+                left++;
+            }
+        }
+
+        return nums.size() - left;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def maxFrequency(self, nums: List[int], k: int) -> int:
+        nums.sort()
+        left = 0
+        curr = 0
+
+        for right in range(len(nums)):
+            target = nums[right]
+            curr += target
+
+            if (right - left + 1) * target - curr > k:
+                curr -= nums[left]
+                left += 1
+
+        return len(nums) - left
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<p>Given <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    as the length of <code>nums</code>,</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅log⁡n)O(n \cdot \log{}n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                      style="margin-right: 0.1667em;"></span><span
+                class="mord"></span><span class="mord mathnormal">n</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <p>Each iteration of the for loop costs <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord">1</span><span
+                class="mclose">)</span></span></span></span></span>. This means the sliding window process runs in <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.</p>
+        <p>However, we need to sort the array, which costs <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n⋅log⁡n)O(n \cdot \log{}n)</span><span class="katex-html"
+                                                                              aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                      style="margin-right: 0.1667em;"></span><span
+                class="mord"></span><span class="mord mathnormal">n</span><span
+                class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+    <li>
+        <p>Space Complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡n)O(\log n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                          style="margin-right: 0.1667em;"></span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> or <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></p>
+        <p>We only use a few integer variables, but some space is used to sort.</p>
+        <p>The space complexity of the sorting algorithm depends on the implementation of each programming language:</p>
+        <ul>
+            <li>In Java, Arrays.sort() for primitives is implemented using a variant of the Quick Sort algorithm, which
+                has a space complexity of <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡n)O(\log n)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span
+                        class="mspace" style="margin-right: 0.1667em;"></span><span
+                        class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></li>
+            <li>In C++, the sort() function provided by STL uses a hybrid of Quick Sort, Heap Sort and Insertion Sort,
+                with a worst case space complexity of <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(log⁡n)O(\log n)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span
+                        class="mspace" style="margin-right: 0.1667em;"></span><span
+                        class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></li>
+            <li>In Python, the sort() function is implemented using the Timsort algorithm, which has a worst-case space
+                complexity of <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+            </li>
+        </ul>
+    </li>
+</ul>
+<br>
+<hr>
+<h4 id="approach-3-binary-search">Approach 3: Binary Search</h4>
+<p><strong>Intuition</strong></p>
+<blockquote>
+    <p>Note: the previous two approaches are the optimal solutions and are sufficient to solve the problem. Here, we
+        will look at another unique way to approach the problem for the sake of completeness.</p>
+</blockquote>
+<p>Given an index <code>i</code>, if we treat <code>nums[i]</code> as <code>target</code>, we are concerned with how
+    many elements on the left we can take. In the earlier approaches, we used a sliding window. In this approach, we
+    will directly find the left-most index of these elements using binary search.</p>
+<p>Let's say that <code>best</code> is the index of the furthest element to the left that we could increment to <code>target
+    = nums[i]</code>. Note that here, <code>best</code> is analogous to what <code>left</code> was after the while loop
+    finished in the first approach. How do we find <code>best</code>?</p>
+<p>The value of <code>best</code> must be in the range <code>[0, i]</code>. We will perform a binary search on this
+    range. For a given index <code>mid</code>:</p>
+<ul>
+    <li>The number of elements in the window would be <code>count = i - mid + 1</code>.</li>
+    <li>Thus, the final sum after making every element in the window equal to <code>target</code> would be <code>finalSum
+        = count * target</code>.
+    </li>
+    <li>The original sum of the elements is the sum of the elements from index <code>mid</code> to index <code>i</code>.
+        We can use a prefix sum to find this <code>originalSum</code>.
+    </li>
+    <li>Thus, the number of operations we need is <code>operationsRequired = finalSum - originalSum</code>.</li>
+    <li>If <code>operationsRequired &gt; k</code>, it's impossible to include the index <code>mid</code>. We update
+        <code>left = mid + 1</code>.
+    </li>
+    <li>Otherwise, the task is possible and we should look for a better index. We update <code>best = mid</code> and
+        <code>right = mid - 1</code>.
+    </li>
+</ul>
+<p>Essentially, we are binary searching the left bound from the first approach for a given right bound <code>i</code>.
+    If we pre-process a prefix sum, then for each <code>mid</code>, we have all the necessary information to find <code>operationsRequired</code>.
+</p>
+<p><strong>Algorithm</strong></p>
+<ol>
+    <li>Define a function <code>check(i)</code>:
+        <ul>
+            <li>Initialize the following integers:
+                <ul>
+                    <li><code>target = nums[i]</code>, the current target.</li>
+                    <li><code>left = 0</code>, the left bound of the binary search.</li>
+                    <li><code>right = i</code>, the right bound of the binary search.</li>
+                    <li><code>best = i</code>, the best (furthest left) index that we can increment to
+                        <code>target</code>.
+                    </li>
+                </ul>
+            </li>
+            <li>While <code>left &lt;= right</code>
+                <ul>
+                    <li>Calculate <code>mid = (left + right) / 2</code>.</li>
+                    <li>Calculate <code>count = i - mid + 1</code>.</li>
+                    <li>Calculate <code>finalSum = count * target</code>.</li>
+                    <li>Calculate <code>originalSum = prefix[i] - prefix[mid] + nums[mid]</code>.</li>
+                    <li>Calculate <code>operationsRequired = finalSum - originalSum</code>.</li>
+                    <li>If <code>operationsRequired &gt; k</code>, move <code>left = mid + 1</code>.</li>
+                    <li>Otherwise, update <code>best = mid</code> and <code>right = mid - 1</code>.</li>
+                </ul>
+            </li>
+            <li>Return <code>i - best + 1</code>.</li>
+        </ul>
+    </li>
+    <li>Sort <code>nums</code>.</li>
+    <li>Create a <code>prefix</code> sum of <code>nums</code>.</li>
+    <li>Initialize <code>ans = 0</code>.</li>
+    <li>Iterate <code>i</code> over the indices of <code>nums</code>:
+        <ul>
+            <li>Update <code>ans</code> with <code>check(i)</code> if it is larger.</li>
+        </ul>
+    </li>
+    <li>Return <code>ans</code>.</li>
+</ol>
+<p><strong>Implementation</strong></p>
+<blockquote>
+    <p>Be careful! Given the constraints, we may run into integer overflow. Use <code>long</code> accordingly in Java
+        and C++ (Python doesn't have overflow).</p>
+</blockquote>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int check(int i, int k, int[] nums, long[] prefix) {
+        int target = nums[i];
+        int left = 0;
+        int right = i;
+        int best = i;
+
+        while (left <= right) {
+            int mid = (left + right) / 2;
+            long count = i - mid + 1;
+            long finalSum = count * target;
+            long originalSum = prefix[i] - prefix[mid] + nums[mid];
+            long operationsRequired = finalSum - originalSum;
+
+            if (operationsRequired > k) {
+                left = mid + 1;
+            } else {
+                best = mid;
+                right = mid - 1;
+            }
+        }
+
+        return i - best + 1;
+    }
+
+    public int maxFrequency(int[] nums, int k) {
+        Arrays.sort(nums);
+        long[] prefix = new long[nums.length];
+        prefix[0] = nums[0];
+
+        for (int i = 1; i < nums.length; i++) {
+            prefix[i] = nums[i] + prefix[i - 1];
+        }
+
+        int ans = 0;
+        for (int i = 0; i < nums.length; i++) {
+            ans = Math.max(ans, check(i, k, nums, prefix));
+        }
+
+        return ans;
+
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int check(int i, int k, vector<int>& nums, vector<long>& prefix) {
+        int target = nums[i];
+        int left = 0;
+        int right = i;
+        int best = i;
+
+        while (left <= right) {
+            int mid = (left + right) / 2;
+            long count = i - mid + 1;
+            long finalSum = count * target;
+            int originalSum = prefix[i] - prefix[mid] + nums[mid];
+            int operationsRequired = finalSum - originalSum;
+
+            if (operationsRequired > k) {
+                left = mid + 1;
+            } else {
+                best = mid;
+                right = mid - 1;
+            }
+        }
+
+        return i - best + 1;
+    }
+
+    int maxFrequency(vector<int>& nums, int k) {
+        sort(nums.begin(), nums.end());
+        vector<long> prefix;
+        prefix.push_back(nums[0]);
+
+        for (int i = 1; i < nums.size(); i++) {
+            prefix.push_back(nums[i] + prefix.back());
+        }
+
+        int ans = 0;
+        for (int i = 0; i < nums.size(); i++) {
+            ans = max(ans, check(i, k, nums, prefix));
+        }
+
+        return ans;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def maxFrequency(self, nums: List[int], k: int) -> int:
+        def check(i):
+            target = nums[i]
+            left = 0
+            right = i
+            best = i
+
+            while left <= right:
+                mid = (left + right) // 2
+                count = i - mid + 1
+                final_sum = count * target
+                original_sum = prefix[i] - prefix[mid] + nums[mid]
+                operations_required = final_sum - original_sum
+
+                if operations_required > k:
+                    left = mid + 1
+                else:
+                    best = mid
+                    right = mid - 1
+
+            return i - best + 1
+
+        nums.sort()
+        prefix = [nums[0]]
+
+        for i in range(1, len(nums)):
+            prefix.append(nums[i] + prefix[-1])
+
+        ans = 0
+        for i in range(len(nums)):
+            ans = max(ans, check(i))
+
+        return ans
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<p>Given <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    as the length of <code>nums</code>,</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅log⁡n)O(n \cdot \log{}n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                      style="margin-right: 0.1667em;"></span><span
+                class="mord"></span><span class="mord mathnormal">n</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <p>First, we sort <code>nums</code> which costs <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n⋅log⁡n)O(n \cdot \log{}n)</span><span class="katex-html"
+                                                                              aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                      style="margin-right: 0.1667em;"></span><span
+                class="mord"></span><span class="mord mathnormal">n</span><span
+                class="mclose">)</span></span></span></span></span>.</p>
+        <p>Next, we iterate over the indices of <code>nums</code>. For each of the <span class="math math-inline"><span
+                class="katex"><span class="katex-mathml">O(n)O(n)</span><span class="katex-html"
+                                                                              aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> indices, we
+            call <code>check</code>, which costs up to <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(log⁡n)O(\log{}n)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                              style="margin-right: 0.1667em;"></span><span
+                    class="mord"></span><span class="mord mathnormal">n</span><span
+                    class="mclose">)</span></span></span></span></span> as its a binary search over the array's
+            elements. The total cost is <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅log⁡n)O(n \cdot \log{}n)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                              style="margin-right: 0.1667em;"></span><span
+                    class="mord"></span><span class="mord mathnormal">n</span><span
+                    class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <p>The <code>prefix</code> array uses <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+            space.</p>
+    </li>
+</ul>
+<br>
+<hr>
+</body>
+</html>
