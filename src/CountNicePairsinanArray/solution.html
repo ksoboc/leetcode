@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Count Nice Pairs in an Array - Solution</title>
+</head>
+<body>
+<h2 id="solution">Count Nice Pairs in an Array - Solution</h2>
+<hr>
+<h4 id="approach-counting-with-hash-map">Approach: Counting With Hash Map</h4>
+<p><strong>Intuition</strong></p>
+<p>In this problem, we are presented with the following formula:</p>
+<p><code>nums[i] + rev(nums[j]) == nums[j] + rev(nums[i])</code></p>
+<p>Let's denote <code>x = nums[i]</code> and <code>y = nums[j]</code> and rewrite the formula:</p>
+<p><code>x + rev(y) == y + rev(x)</code></p>
+<p>Now, let's rearrange the formula so that all terms involving <code>x</code> are on one side and all terms involving
+    <code>y</code> are on the other:</p>
+<p><code>x - rev(x) == y - rev(y)</code></p>
+<p>We have simplified the problem. As you can see, for a given <code>num</code>, we are interested in <code>num -
+    rev(num)</code>. Let's define a new array <code>arr</code> with the same length as <code>nums</code> where:</p>
+<p><code>arr[i] = nums[i] - rev(nums[i])</code></p>
+<p><img src="1.png" alt="example"><br>
+    <br></p>
+<p>To reverse the digits of a given integer <code>num</code> as described by the problem, we can initialize an integer
+    <code>result = 0</code> as the reversed number. We then continuously take the last digit of <code>num</code> using
+    the modulo operator <code>%</code> and append it to <code>result</code> as the least significant digit, this could
+    be done by multiplying <code>result</code> by 10 and adding the last digit. Then we remove the last digit from
+    <code>num</code> by dividing it by 10.</p>
+<p>The process above continues until <code>num</code> becomes 0, at which point, <code>result</code> contains the
+    reversed integer.</p>
+<p>Now, the problem becomes "how many pairs in <code>arr</code> are equal?". This can be solved using a counting trick
+    with a hash map. We will iterate over <code>arr</code> and keep a hash map <code>dic</code> (short for dictionary)
+    that keeps track of how many times we have seen a number. For each <code>num</code> we iterate over, we check how
+    many times we have already seen <code>num</code>. Each <code>num</code> we had already seen earlier can be paired
+    with the current <code>num</code> to form a pair. Thus, we would add <code>dic[num]</code> to the answer, and
+    finally increment <code>dic[num]</code> by 1, keeping track of the current <code>num</code>.</p>
+<p>The following animation demonstrates this counting process using an arbitrary <code>arr</code>:</p>
+<p>
+<div class="relative mx-auto mb-6 flex flex-col overflow-hidden rounded-lg border-[1px] border-label-1"
+     style="max-width: 960px;">
+    <div class="rounded-lg" style="max-height: 540px;"><img alt="Current"
+                                                            class="object-fit-contain !mb-0 max-h-full max-w-full"
+                                                            src="blob:https://leetcode.com/6dd2ba3d-015e-40cf-8da0-efce6ffc2e92">
+    </div>
+    <div class="absolute top-[50%] left-[50%] flex h-12 w-12 translate-x-[-50%] translate-y-[-50%] items-center justify-center rounded-full bg-black/30">
+        <div class="flex h-4 w-4 cursor-pointer items-center justify-center text-[35px]">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="h-full w-full text-white">
+                <path fill-rule="evenodd"
+                      d="M18.97 12.871l-12.96 7.29a1 1 0 01-1.49-.87V4.71a1 1 0 011.49-.872l12.96 7.29a1 1 0 010 1.743z"
+                      clip-rule="evenodd"></path>
+            </svg>
+        </div>
+    </div>
+    <div class="relative flex h-8 select-none items-center justify-around bg-black">
+        <div class="flex items-center space-x-7">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M16.091 4.929l-7.057 7.078 7.057 7.064a1 1 0 01-1.414 1.414l-7.764-7.77a1 1 0 010-1.415l7.764-7.785a1 1 0 111.415 1.414z"
+                      clip-rule="evenodd"></path>
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M18.97 12.871l-12.96 7.29a1 1 0 01-1.49-.87V4.71a1 1 0 011.49-.872l12.96 7.29a1 1 0 010 1.743z"
+                      clip-rule="evenodd"></path>
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M7.913 19.071l7.057-7.078-7.057-7.064a1 1 0 011.414-1.414l7.764 7.77a1 1 0 010 1.415l-7.764 7.785a1 1 0 01-1.414-1.414z"
+                      clip-rule="evenodd"></path>
+            </svg>
+        </div>
+        <div class="absolute right-0 mr-5 text-xs font-medium text-white">1 / 10</div>
+    </div>
+</div>
+<br>
+<br></p>
+<p><strong>Algorithm</strong></p>
+<p>Note: to avoid overflow, calculating the answer should be done MOD <span class="math math-inline"><span
+        class="katex"><span class="katex-mathml">109+710^9 + 7</span><span class="katex-html" aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.8974em; vertical-align: -0.0833em;"></span><span class="mord">1</span><span
+        class="mord"><span class="mord">0</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span
+        class="vlist" style="height: 0.8141em;"><span style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                                                         style="height: 2.7em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span
+        class="mord mtight">9</span></span></span></span></span></span></span></span><span class="mspace"
+                                                                                           style="margin-right: 0.2222em;"></span><span
+        class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+        class="strut" style="height: 0.6444em;"></span><span class="mord">7</span></span></span></span></span>.</p>
+<ol>
+    <li>Implement the function <code>rev</code> as described by the problem description.</li>
+    <li>Create <code>arr</code>, where <code>arr[i] = nums[i] - rev(nums[i])</code>.</li>
+    <li>Initialize an empty hash map <code>dic</code> and the answer variable, <code>ans</code>.</li>
+    <li>Iterate over each <code>num</code> in <code>arr</code>:
+        <ul>
+            <li>Add <code>dic[num]</code> to <code>ans</code>.</li>
+            <li>Increment <code>dic[num]</code>.</li>
+        </ul>
+    </li>
+    <li>Return <code>ans</code>.</li>
+</ol>
+<p><strong>Implementation</strong></p>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int countNicePairs(int[] nums) {
+        int[] arr = new int[nums.length];
+        for (int i = 0; i < nums.length; i++) {
+            arr[i] = nums[i] - rev(nums[i]);
+        }
+
+        Map<Integer, Integer> dic = new HashMap();
+        int ans = 0;
+        int MOD = (int) 1e9 + 7;
+        for (int num : arr) {
+            ans = (ans + dic.getOrDefault(num, 0)) % MOD;
+            dic.put(num, dic.getOrDefault(num, 0) + 1);
+        }
+
+        return ans;
+    }
+
+    public int rev(int num) {
+        int result = 0;
+        while (num > 0) {
+            result = result * 10 + num % 10;
+            num /= 10;
+        }
+
+        return result;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int countNicePairs(vector<int>& nums) {
+        vector<int> arr;
+        for (int i = 0; i < nums.size(); i++) {
+            arr.push_back(nums[i] - rev(nums[i]));
+        }
+
+        unordered_map<int, int> dic;
+        int ans = 0;
+        int MOD = 1e9 + 7;
+        for (int num : arr) {
+            ans = (ans + dic[num]) % MOD;
+            dic[num]++;
+        }
+
+        return ans;
+    }
+
+    int rev(int num) {
+        int result = 0;
+        while (num > 0) {
+            result = result * 10 + num % 10;
+            num /= 10;
+        }
+
+        return result;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def countNicePairs(self, nums: List[int]) -> int:
+        def rev(num):
+            result = 0
+            while num:
+                result = result * 10 + num % 10
+                num //= 10
+
+            return result
+
+        arr = []
+        for i in range(len(nums)):
+            arr.append(nums[i] - rev(nums[i]))
+
+        dic = defaultdict(int)
+        ans = 0
+        MOD = 10 ** 9 + 7
+        for num in arr:
+            ans = (ans + dic[num]) % MOD
+            dic[num] += 1
+
+        return ans
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<p>Given <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    as the length of <code>nums</code>,</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <p>First, we create <code>arr</code> which costs <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.
+        </p>
+        <p>Next, we iterate over <code>arr</code> which has a length of <code>n</code>. At each iteration, we perform
+            <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord">1</span><span class="mclose">)</span></span></span></span></span> work, so this costs
+            <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> as well.
+        </p>
+        <p>Note that <code>rev(num)</code> has a cost that is logarithmic with <code>num</code>. However, it is standard
+            on LeetCode to treat the size of integers and mathematical operations performed on them as <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord">1</span><span class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <p><code>arr</code> uses <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+            space. In the scenario where all <code>num - rev(num)</code> is unique, then <code>dic</code> will also grow
+            to a size of <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+</ul>
+<br>
+<hr>
+</body>
+</html>
