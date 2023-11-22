@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Diagonal Traverse II - Solution</title>
+</head>
+<body>
+<h2 id="solution">Diagonal Traverse II - Solution</h2>
+<hr>
+<h4 id="approach-1-group-elements-by-the-sum-of-row-and-column-indices">Approach 1: Group Elements by the Sum of Row and
+    Column Indices</h4>
+<p><strong>Intuition</strong></p>
+<p>The crux of the problem is figuring out how to identify the diagonals and how to iterate over them. We will make use
+    of an important property of diagonals in this approach.</p>
+<p>Let's say you are currently at the start of a diagonal (bottom-left) and your coordinates are <code>row, col</code>.
+    How do you get to the next value in the diagonal? You go up and right. By going up, you move to <code>row - 1</code>.
+    By going right, you move to <code>col + 1</code>. That is, our <code>row</code> decreases by <code>1</code>, and our
+    <code>col</code> increases by <code>1</code>.</p>
+<p>This is true for any given point in any given diagonal. If we were to consider the sum <code>row, col</code>, it
+    would be constant along the diagonal since the <code>-1</code> from moving up cancels out the <code>+1</code> from
+    moving right!</p>
+<p><img src="1.png" alt="img"><br>
+    <br></p>
+<p>As you can see in the above image, every square is annotated with <code>row + col</code>. Each diagonal shares the
+    same values.</p>
+<p>For each square, we will use the sum <code>row + col</code> as an identifier to the diagonal that it belongs to. We
+    will use a hash map <code>groups</code> where <code>groups[x]</code> is a list of all values that appear in the
+    diagonal with identifier <code>x</code>.</p>
+<p>To collect the cells on each diagonal in the correct order, we will iterate through each row from left to right
+    starting with the bottom row. The reason we choose the bottom-up, left-to-right order is that the diagonals move
+    upward and to the right, so by iterating to the upper right, we will visit the squares in the correct order.</p>
+<p>Once we have populated <code>groups</code>, we simply need to iterate over the identifiers and add each list to our
+    answer. Notice that conveniently, the order in which we visit the diagonals is the same as the identifier order!
+    What we mean by this is that the first diagonal we traverse is <code>0</code>, then <code>1</code>, then
+    <code>2</code>, and so on.</p>
+<p>Thus, we can use an integer <code>curr</code> initialized to <code>0</code> that represents the current diagonal we
+    are adding to our answer. We add <code>groups[curr]</code> to the answer, then increment <code>curr</code>, and
+    repeat until <code>curr</code> is no longer in <code>groups</code>.</p>
+<p><strong>Algorithm</strong></p>
+<ol>
+    <li>Initialize a hash map <code>groups</code>.</li>
+    <li>Iterate <code>row</code> from <code>nums.length - 1</code> to <code>0</code>:
+        <ul>
+            <li>Iterate <code>col</code> from <code>0</code> until <code>groups[row].length</code>:
+                <ul>
+                    <li>Calculate <code>diagonal = row + col</code>.</li>
+                    <li>Add <code>nums[row][col]</code> to <code>groups[diagonal]</code>.</li>
+                </ul>
+            </li>
+        </ul>
+    </li>
+    <li>Initialize the answer list <code>ans</code> and <code>curr = 0</code>.</li>
+    <li>While <code>curr</code> is in <code>groups</code>:
+        <ul>
+            <li>Add all the elements of <code>groups[curr]</code> to <code>ans</code> in order.</li>
+            <li>Increment <code>curr</code>.</li>
+        </ul>
+    </li>
+    <li>Return <code>ans</code>.</li>
+</ol>
+<p><strong>Implementation</strong></p>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int[] findDiagonalOrder(List<List<Integer>> nums) {
+        Map<Integer, List<Integer>> groups = new HashMap();
+        int n = 0;
+        for (int row = nums.size() - 1; row >= 0; row--) {
+            for (int col = 0; col < nums.get(row).size(); col++) {
+                int diagonal = row + col;
+                if (!groups.containsKey(diagonal)) {
+                    groups.put(diagonal, new ArrayList<Integer>());
+                }
+
+                groups.get(diagonal).add(nums.get(row).get(col));
+                n++;
+            }
+        }
+
+        int[] ans = new int[n];
+        int i = 0;
+        int curr = 0;
+
+        while (groups.containsKey(curr)) {
+            for (int num : groups.get(curr)) {
+                ans[i] = num;
+                i++;
+            }
+
+            curr++;
+        }
+
+        return ans;
+    }
+}
+
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    vector<int> findDiagonalOrder(vector<vector<int>>& nums) {
+        unordered_map<int, vector<int>> groups;
+        for (int row = nums.size() - 1; row >= 0; row--) {
+            for (int col = 0; col < nums[row].size(); col++) {
+                int diagonal = row + col;
+                groups[diagonal].push_back(nums[row][col]);
+            }
+        }
+
+        vector<int> ans;
+        int curr = 0;
+
+        while (groups.find(curr) != groups.end()) {
+            for (int num : groups[curr]) {
+                ans.push_back(num);
+            }
+
+            curr++;
+        }
+
+        return ans;
+    }
+};
+
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def findDiagonalOrder(self, nums: List[List[int]]) -> List[int]:
+        groups = defaultdict(list)
+        for row in range(len(nums) - 1, -1, -1):
+            for col in range(len(nums[row])):
+                diagonal = row + col
+                groups[diagonal].append(nums[row][col])
+
+        ans = []
+        curr = 0
+
+        while curr in groups:
+            ans.extend(groups[curr])
+            curr += 1
+
+        return ans
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<p>Given <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    as the number of integers in <code>grid</code>,</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <p>We iterate over each of the <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 0.4306em;"></span><span
+                class="mord mathnormal">n</span></span></span></span></span> integers to populate <code>groups</code>,
+            then we iterate over them again to populate <code>ans</code>.</p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <p>The values of <code>groups</code> are lists that together will store exactly <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.4306em;"></span><span
+                class="mord mathnormal">n</span></span></span></span></span> integers, thus using <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> space.</p>
+    </li>
+</ul>
+<br>
+<hr>
+<h4 id="approach-2-breadth-first-search">Approach 2: Breadth First Search</h4>
+<p><strong>Intuition</strong></p>
+<p>In the previous approach, we require two passes. The first pass populates <code>groups</code>, and the second pass
+    populates <code>ans</code>. Can we do better, perhaps solving the problem in one pass?</p>
+<p>Yes! Let's think about the grid as a graph. Each square is a node, and we can imagine each node having an edge to the
+    squares below and to the right (if they exist). Let's take a look at the diagonal image again:</p>
+<p><img src="2.png" alt="img"><br>
+    <br></p>
+<p>As you can see, a node with identifier <code>x</code> has edges to nodes with identifier <code>x + 1</code>. If we
+    consider the top-left square <code>0, 0</code> as a "source" node, then each square's identifier is exactly equal to
+    its distance from the source. This allows us to visit the diagonals in order using BFS!</p>
+<blockquote>
+    <p>If you are not familiar with BFS, please check out the relevant <a
+            href="https://leetcode.com/explore/learn/card/queue-stack/231/practical-application-queue/" target="_blank">LeetCode
+        Explore Card</a>.</p>
+</blockquote>
+<p>We start a BFS from <code>0, 0</code>. At each node <code>row, col</code>, we first push <code>row + 1, col</code> to
+    the queue and then <code>row, col + 1</code>. Note that we only add a square to the queue if it both exists and has
+    not been visited yet.</p>
+<p>How do we know if a square has been visited yet? We could use a hash set to keep track of visited squares, but there
+    is a simpler way. We only need to consider the square <code>row + 1, col</code> (down) if we are at the start of a
+    diagonal. Otherwise, for every other square on the diagonal, the square below it has already been visited by the
+    right edge of the previous square.</p>
+<p><img src="3.png" alt="img"><br>
+    <br></p>
+<p>The level-wise nature of BFS will ensure that we visit all squares in a diagonal with identifier <code>x</code>
+    before we visit any square in a diagonal with identifier <code>x + 1</code>. This means we will visit the diagonals
+    in the correct order. Because we add the square <code>row + 1, col</code> before <code>row, col + 1</code>, we will
+    also traverse over each diagonal in the correct order as well. This means our entire BFS will traverse the input in
+    the same order as the answer, allowing us to solve the problem in one pass!</p>
+<p><strong>Algorithm</strong></p>
+<ol>
+    <li>Initialize a <code>queue</code> with <code>(0, 0)</code> and the answer list <code>ans</code>.</li>
+    <li>While <code>queue</code> is not empty:
+        <ul>
+            <li>Remove <code>(row, col)</code> from <code>queue</code>.</li>
+            <li>Add <code>nums[row][col]</code> to <code>ans</code>.</li>
+            <li>If <code>col == 0</code> and <code>row + 1</code> is in bounds, add <code>(row + 1, col)</code> to
+                <code>queue</code>.
+            </li>
+            <li>If <code>col + 1</code> is in bounds for the current row, add <code>(row, col + 1)</code> to
+                <code>queue</code>.
+            </li>
+        </ul>
+    </li>
+    <li>Return <code>ans</code>.</li>
+</ol>
+<p><strong>Implementation</strong></p>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int[] findDiagonalOrder(List<List<Integer>> nums) {
+        Queue<Pair<Integer, Integer>> queue = new LinkedList();
+        queue.offer(new Pair(0, 0));
+        List<Integer> ans = new ArrayList();
+
+        while (!queue.isEmpty()) {
+            Pair<Integer, Integer> p = queue.poll();
+            int row = p.getKey();
+            int col = p.getValue();
+            ans.add(nums.get(row).get(col));
+
+            if (col == 0 && row + 1 < nums.size()) {
+                queue.offer(new Pair(row + 1, col));
+            }
+
+            if (col + 1 < nums.get(row).size()) {
+                queue.offer(new Pair(row, col + 1));
+            }
+        }
+
+        // Java needs conversion
+        int[] result = new int[ans.size()];
+        int i = 0;
+        for (int num : ans) {
+            result[i] = num;
+            i++;
+        }
+
+        return result;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    vector<int> findDiagonalOrder(vector<vector<int>>& nums) {
+        queue<pair<int, int>> queue;
+        queue.push({0, 0});
+        vector<int> ans;
+
+        while (!queue.empty()) {
+            auto [row, col] = queue.front();
+            queue.pop();
+            ans.push_back(nums[row][col]);
+
+            if (col == 0 && row + 1 < nums.size()) {
+                queue.push({row + 1, col});
+            }
+
+            if (col + 1 < nums[row].size()) {
+                queue.push({row, col + 1});
+            }
+        }
+
+        return ans;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def findDiagonalOrder(self, nums: List[List[int]]) -> List[int]:
+        queue = deque([(0, 0)])
+        ans = []
+
+        while queue:
+            row, col = queue.popleft()
+            ans.append(nums[row][col])
+
+            if col == 0 and row + 1 < len(nums):
+                queue.append((row + 1, col))
+
+            if col + 1 < len(nums[row]):
+                queue.append((row, col + 1))
+
+        return ans
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<p>Given <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    as the number of integers in <code>grid</code>,</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <p>During the BFS, we visit each square once, performing <span class="math math-inline"><span
+                class="katex"><span class="katex-mathml">O(1)O(1)</span><span class="katex-html"
+                                                                              aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord">1</span><span class="mclose">)</span></span></span></span></span> work at each iteration.
+        </p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(\sqrt{n})</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1.0503em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord sqrt"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist"
+                                                                                             style="height: 0.8003em;"><span
+                class="svg-align" style="top: -3em;"><span class="pstrut" style="height: 3em;"></span><span class="mord"
+                                                                                                            style="padding-left: 0.833em;"><span
+                class="mord mathnormal">n</span></span></span><span style="top: -2.7603em;"><span class="pstrut"
+                                                                                                  style="height: 3em;"></span><span
+                class="hide-tail" style="min-width: 0.853em; height: 1.08em;"><svg width="400em" height="1.08em"
+                                                                                   viewBox="0 0 400000 1080"
+                                                                                   preserveAspectRatio="xMinYMin slice"><path
+                d="M95,702
+c-2.7,0,-7.17,-2.7,-13.5,-8c-5.8,-5.3,-9.5,-10,-9.5,-14
+c0,-2,0.3,-3.3,1,-4c1.3,-2.7,23.83,-20.7,67.5,-54
+c44.2,-33.3,65.8,-50.3,66.5,-51c1.3,-1.3,3,-2,5,-2c4.7,0,8.7,3.3,12,10
+s173,378,173,378c0.7,0,35.3,-71,104,-213c68.7,-142,137.5,-285,206.5,-429
+c69,-144,104.5,-217.7,106.5,-221
+l0 -0
+c5.3,-9.3,12,-14,20,-14
+H400000v40H845.2724
+s-225.272,467,-225.272,467s-235,486,-235,486c-2.7,4.7,-9,7,-19,7
+c-6,0,-10,-1,-12,-3s-194,-422,-194,-422s-65,47,-65,47z
+M834 80h400000v40h-400000z"></path></svg></span></span></span><span class="vlist-s">​</span></span><span
+                class="vlist-r"><span class="vlist"
+                                      style="height: 0.2397em;"><span></span></span></span></span></span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <p>The extra space we use is for <code>queue</code>. The largest size <code>queue</code> will be is proportional
+            to the size of the largest diagonal.</p>
+        <p>Let's say you had a diagonal with a size of <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">kk</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 0.6944em;"></span><span class="mord mathnormal"
+                                                                     style="margin-right: 0.03148em;">k</span></span></span></span></span>
+            starting from the bottom left of the input and going to the top right. What are the fewest squares possible
+            that could support such a diagonal existing? The first square in the diagonal can be the only square in its
+            row. The second square in the diagonal needs one square to its left. The third square in the diagonal needs
+            two squares to its left, and so on.</p>
+        <p><img src="4.png" alt="img"><br>
+            <br></p>
+        <p>As you can see in the above image, the green diagonal requires many squares to its left to support its
+            existence. In fact, we can notice that if we extended the image to a square, we would have a grid of size
+            <span class="math math-inline"><span class="katex"><span class="katex-mathml">k∗kk * k</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.6944em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span class="mspace"
+                                                                                           style="margin-right: 0.2222em;"></span><span
+                    class="mbin">∗</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord mathnormal"
+                                                                                            style="margin-right: 0.03148em;">k</span></span></span></span></span>.
+            That means to support a diagonal of size <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">kk</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                    class="strut" style="height: 0.6944em;"></span><span class="mord mathnormal"
+                                                                         style="margin-right: 0.03148em;">k</span></span></span></span></span>,
+            we require <span class="math math-inline"><span class="katex"><span class="katex-mathml">k22=O(k2)\dfrac{k^2}{2} = O(k^2)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 2.1771em; vertical-align: -0.686em;"></span><span
+                    class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span
+                    class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 1.4911em;"><span
+                    style="top: -2.314em;"><span class="pstrut" style="height: 3em;"></span><span class="mord"><span
+                    class="mord">2</span></span></span><span style="top: -3.23em;"><span class="pstrut"
+                                                                                         style="height: 3em;"></span><span
+                    class="frac-line" style="border-bottom-width: 0.04em;"></span></span><span
+                    style="top: -3.677em;"><span class="pstrut" style="height: 3em;"></span><span class="mord"><span
+                    class="mord"><span class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                    class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                      style="height: 0.8141em;"><span
+                    style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                       style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span
+                    class="mord mtight">2</span></span></span></span></span></span></span></span></span></span></span><span
+                    class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                               style="height: 0.686em;"><span></span></span></span></span></span><span
+                    class="mclose nulldelimiter"></span></span><span class="mspace"
+                                                                     style="margin-right: 0.2778em;"></span><span
+                    class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord"><span class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                    class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                      style="height: 0.8141em;"><span
+                    style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                       style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span
+                    class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                    class="mclose">)</span></span></span></span></span> squares.</p>
+        <p>The conclusion is that a grid of size <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(k2)O(k^2)</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord"><span class="mord mathnormal" style="margin-right: 0.03148em;">k</span><span
+                class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist"
+                                                                                  style="height: 0.8141em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                class="mclose">)</span></span></span></span></span> can only support a diagonal of size <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">kk</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.6944em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.03148em;">k</span></span></span></span></span>. In our
+            problem, we defined the input grid to have a size of <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 0.4306em;"></span><span
+                    class="mord mathnormal">n</span></span></span></span></span>. Thus, the largest diagonal it could
+            support would be <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(\sqrt{n})</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1.0503em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord sqrt"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist"
+                                                                                                 style="height: 0.8003em;"><span
+                    class="svg-align" style="top: -3em;"><span class="pstrut" style="height: 3em;"></span><span
+                    class="mord" style="padding-left: 0.833em;"><span
+                    class="mord mathnormal">n</span></span></span><span style="top: -2.7603em;"><span class="pstrut"
+                                                                                                      style="height: 3em;"></span><span
+                    class="hide-tail" style="min-width: 0.853em; height: 1.08em;"><svg width="400em" height="1.08em"
+                                                                                       viewBox="0 0 400000 1080"
+                                                                                       preserveAspectRatio="xMinYMin slice"><path
+                    d="M95,702
+c-2.7,0,-7.17,-2.7,-13.5,-8c-5.8,-5.3,-9.5,-10,-9.5,-14
+c0,-2,0.3,-3.3,1,-4c1.3,-2.7,23.83,-20.7,67.5,-54
+c44.2,-33.3,65.8,-50.3,66.5,-51c1.3,-1.3,3,-2,5,-2c4.7,0,8.7,3.3,12,10
+s173,378,173,378c0.7,0,35.3,-71,104,-213c68.7,-142,137.5,-285,206.5,-429
+c69,-144,104.5,-217.7,106.5,-221
+l0 -0
+c5.3,-9.3,12,-14,20,-14
+H400000v40H845.2724
+s-225.272,467,-225.272,467s-235,486,-235,486c-2.7,4.7,-9,7,-19,7
+c-6,0,-10,-1,-12,-3s-194,-422,-194,-422s-65,47,-65,47z
+M834 80h400000v40h-400000z"></path></svg></span></span></span><span class="vlist-s">​</span></span><span
+                    class="vlist-r"><span class="vlist"
+                                          style="height: 0.2397em;"><span></span></span></span></span></span><span
+                    class="mclose">)</span></span></span></span></span>.
+        </p>
+    </li>
+</ul>
+<br>
+<hr>
+</body>
+</html>
