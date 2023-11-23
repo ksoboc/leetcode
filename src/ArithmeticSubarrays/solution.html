@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Arithmetic Subarrays - Solution</title>
+</head>
+<body>
+<h2 id="solution">Arithmetic Subarrays - Solution</h2>
+<hr>
+<h4 id="approach-1-sort-and-check">Approach 1: Sort and Check</h4>
+<p><strong>Intuition</strong></p>
+<p>The first thing to notice is that any arithmetic sequence must be sorted. This is because each successive element
+    differs by a constant amount, so the entire sequence must be monotone since the change is constant.</p>
+<p>For a given subarray <code>arr</code>, how do we check if we can form an arithmetic sequence? The problem states that
+    we are allowed to rearrange <code>arr</code>. Thus, we should start by sorting <code>arr</code>, since if we can
+    form an arithmetic sequence, the sequence must be sorted.</p>
+<p>Once we have sorted <code>arr</code>, we can simply iterate over each adjacent element and check if the differences
+    are constant. We will initialize <code>diff = arr[1] - arr[0]</code> as the difference between the first two
+    elements.</p>
+<p><img src="1.png" alt="img"><br>
+    <br></p>
+<p>We will then iterate over all other adjacent elements and check if their difference is equal to <code>diff</code>. If
+    <strong>any</strong> difference is not equal to <code>diff</code>, then we cannot form an arithmetic sequence.</p>
+<p><img src="2.png" alt="img"><br>
+    <br></p>
+<p>If all differences are equal to <code>diff</code>, then we can form an arithmetic sequence. This brings us to our
+    solution. We will define a function <code>check(arr)</code> that takes a subarray <code>arr</code> and applies the
+    above process to determine if it is an arithmetic sequence.</p>
+<p>Then, we will iterate over all pairs <code>l[i], r[i]</code> and form <code>arr</code> as the subarray of
+    <code>nums</code> from <code>l[i]</code> <code>r[i]</code>. Once we have <code>arr</code>, we will pass it into
+    <code>check</code> to find the answer for the <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">ithi^{th}</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.8491em;"></span><span class="mord"><span
+            class="mord mathnormal">i</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span
+            class="vlist" style="height: 0.8491em;"><span style="top: -3.063em; margin-right: 0.05em;"><span
+            class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span
+            class="mord mtight"><span class="mord mathnormal mtight">t</span><span
+            class="mord mathnormal mtight">h</span></span></span></span></span></span></span></span></span></span></span></span></span>
+    query.</p>
+<p><strong>Algorithm</strong></p>
+<ol>
+    <li>Define <code>check(arr)</code>:
+        <ul>
+            <li>Sort <code>arr</code>.</li>
+            <li>Initialize <code>diff = arr[1] - arr[0]</code>.</li>
+            <li>Iterate <code>i</code> over the indices of <code>arr</code>, starting from <code>2</code>:
+                <ul>
+                    <li>If <code>arr[i] - arr[i - 1] != diff</code>, return <code>false</code>.</li>
+                </ul>
+            </li>
+            <li>Return <code>true</code>.</li>
+        </ul>
+    </li>
+    <li>Initialize the answer <code>ans</code>.</li>
+    <li>Iterate <code>i</code> over the indices of <code>l</code>:
+        <ul>
+            <li>Create <code>arr</code> as the subarray of <code>nums</code> from indices <code>l[i]</code> to <code>r[i]</code>.
+            </li>
+            <li>Add <code>check(arr)</code> to <code>ans</code>.</li>
+        </ul>
+    </li>
+    <li>Return <code>ans</code>.</li>
+</ol>
+<p><strong>Implementation</strong></p>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public Boolean check(int[] arr) {
+        Arrays.sort(arr);
+        int diff = arr[1] - arr[0];
+
+        for (int i = 2; i < arr.length; i++) {
+            if (arr[i] - arr[i - 1] != diff) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public List<Boolean> checkArithmeticSubarrays(int[] nums, int[] l, int[] r) {
+        List<Boolean> ans = new ArrayList();
+        for (int i = 0; i < l.length; i++) {
+            int[] arr = new int[r[i] - l[i] + 1];
+            for (int j = 0; j < arr.length; j++) {
+                arr[j] = nums[l[i] + j];
+            }
+
+            ans.add(check(arr));
+        }
+
+        return ans;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    bool check(vector<int>& arr) {
+        sort(arr.begin(), arr.end());
+        int diff = arr[1] - arr[0];
+
+        for (int i = 2; i < arr.size(); i++) {
+            if (arr[i] - arr[i - 1] != diff) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    vector<bool> checkArithmeticSubarrays(vector<int>& nums, vector<int>& l, vector<int>& r) {
+        vector<bool> ans;
+        for (int i = 0; i < l.size(); i++) {
+            vector<int> arr(begin(nums) + l[i], begin(nums) + r[i] + 1);
+            ans.push_back(check(arr));
+        }
+
+        return ans;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def checkArithmeticSubarrays(self, nums: List[int], l: List[int], r: List[int]) -> List[bool]:
+        def check(arr):
+            arr.sort()
+            diff = arr[1] - arr[0]
+
+            for i in range(2, len(arr)):
+                if arr[i] - arr[i - 1] != diff:
+                    return False
+
+            return True
+
+        ans = []
+        for i in range(len(l)):
+            arr = nums[l[i] : r[i] + 1]
+            ans.append(check(arr))
+
+        return ans
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<p>Given <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    as the length of <code>nums</code> and <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">mm</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.4306em;"></span><span
+            class="mord mathnormal">m</span></span></span></span></span> as the length of <code>l</code> and
+    <code>r</code>,</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(m⋅n⋅log⁡n)O(m \cdot n \cdot \log{}n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.4445em;"></span><span class="mord mathnormal">n</span><span
+                class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                      style="margin-right: 0.1667em;"></span><span
+                class="mord"></span><span class="mord mathnormal">n</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <p>There are <span class="math math-inline"><span class="katex"><span class="katex-mathml">mm</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.4306em;"></span><span
+                class="mord mathnormal">m</span></span></span></span></span> queries. In the worst-case scenario, each
+            query would have <code>r[i] - l[i]</code> = <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>,
+            representing an array of size <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.</p>
+        <p>Then, we would require <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+            to create <code>arr</code>, <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅log⁡n)O(n \cdot \log{}n)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                              style="margin-right: 0.1667em;"></span><span
+                    class="mord"></span><span class="mord mathnormal">n</span><span
+                    class="mclose">)</span></span></span></span></span> to sort <code>arr</code>, and <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> to iterate
+            over <code>arr</code>.</p>
+        <p>Thus, in the worst-case scenario, each of the <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">mm</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 0.4306em;"></span><span
+                class="mord mathnormal">m</span></span></span></span></span> queries costs <span
+                class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n⋅log⁡m)O(n \cdot \log{}m)</span><span class="katex-html"
+                                                                              aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                      style="margin-right: 0.1667em;"></span><span
+                class="mord"></span><span class="mord mathnormal">m</span><span
+                class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <p>We create <code>arr</code>, which may use up to <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+            space.</p>
+    </li>
+</ul>
+<br>
+<hr>
+<h4 id="approach-2-no-sorting">Approach 2: No Sorting</h4>
+<p><strong>Intuition</strong></p>
+<p>We can implement <code>check</code> more efficiently! While it is true that any arithmetic sequence is sorted, we
+    don't need to exploit this fact to determine if <code>arr</code> is an arithmetic sequence.</p>
+<p>Let's say <code>arr</code> has a length of <code>n</code>, and we have the maximum element in <code>arr</code> as
+    <code>max</code> and the minimum element as <code>min</code>.</p>
+<p>If <code>arr</code> were to form an arithmetic sequence, then the difference <code>diff</code> that defines the
+    sequence must be equal to <span class="math math-inline"><span class="katex"><span class="katex-mathml">max−minn−1\dfrac{\text{max} - \text{min}}{n - 1}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 2.1142em; vertical-align: -0.7693em;"></span><span
+            class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span
+            class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 1.3449em;"><span
+            style="top: -2.314em;"><span class="pstrut" style="height: 3em;"></span><span class="mord"><span
+            class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mord">1</span></span></span><span
+            style="top: -3.23em;"><span class="pstrut" style="height: 3em;"></span><span class="frac-line"
+                                                                                         style="border-bottom-width: 0.04em;"></span></span><span
+            style="top: -3.677em;"><span class="pstrut" style="height: 3em;"></span><span class="mord"><span
+            class="mord text"><span class="mord">max</span></span><span class="mspace"
+                                                                        style="margin-right: 0.2222em;"></span><span
+            class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mord text"><span class="mord">min</span></span></span></span></span><span
+            class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                       style="height: 0.7693em;"><span></span></span></span></span></span><span
+            class="mclose nulldelimiter"></span></span></span></span></span></span>.</p>
+<p>Why? Because <code>min</code> must be the first element of the sequence and <code>max</code> must be the final
+    element of the sequence. Thus, if we started at <code>min</code> and iterated to <code>max</code>, we would require
+    <span class="math math-inline"><span class="katex"><span class="katex-mathml">n−1n - 1</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+            class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span>
+    iterations. On each iteration, our value would increase by <code>diff</code> (by definition).</p>
+<p>Therefore, we increment by a total of <span class="math math-inline"><span class="katex"><span class="katex-mathml">diff⋅(n−1)\text{diff} \cdot (n - 1)</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.6944em;"></span><span
+        class="mord text"><span class="mord">diff</span></span><span class="mspace"
+                                                                     style="margin-right: 0.2222em;"></span><span
+        class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mopen">(</span><span
+        class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+        class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span
+        class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord">1</span><span
+        class="mclose">)</span></span></span></span></span>. By starting at <code>min</code> and ending at
+    <code>max</code>, we cover a total distance of <code>max - min</code>. Thus, we have <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">diff⋅(n−1)=max−min\text{diff} \cdot (n - 1) = \text{max} - \text{min}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.6944em;"></span><span
+            class="mord text"><span class="mord">diff</span></span><span class="mspace"
+                                                                         style="margin-right: 0.2222em;"></span><span
+            class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mopen">(</span><span class="mord mathnormal">n</span><span class="mspace"
+                                                                              style="margin-right: 0.2222em;"></span><span
+            class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord">1</span><span class="mclose">)</span><span class="mspace"
+                                                                    style="margin-right: 0.2778em;"></span><span
+            class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+            class="mord text"><span class="mord">max</span></span><span class="mspace"
+                                                                        style="margin-right: 0.2222em;"></span><span
+            class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+            class="base"><span class="strut" style="height: 0.6679em;"></span><span class="mord text"><span
+            class="mord">min</span></span></span></span></span></span>, which we can rearrange as <span
+            class="math math-inline"><span class="katex"><span class="katex-mathml">diff=max−minn−1\text{diff} = \dfrac{\text{max} - \text{min}}{n - 1}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.6944em;"></span><span
+            class="mord text"><span class="mord">diff</span></span><span class="mspace"
+                                                                         style="margin-right: 0.2778em;"></span><span
+            class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+            class="base"><span class="strut" style="height: 2.1142em; vertical-align: -0.7693em;"></span><span
+            class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span
+            class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 1.3449em;"><span
+            style="top: -2.314em;"><span class="pstrut" style="height: 3em;"></span><span class="mord"><span
+            class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mord">1</span></span></span><span
+            style="top: -3.23em;"><span class="pstrut" style="height: 3em;"></span><span class="frac-line"
+                                                                                         style="border-bottom-width: 0.04em;"></span></span><span
+            style="top: -3.677em;"><span class="pstrut" style="height: 3em;"></span><span class="mord"><span
+            class="mord text"><span class="mord">max</span></span><span class="mspace"
+                                                                        style="margin-right: 0.2222em;"></span><span
+            class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+            class="mord text"><span class="mord">min</span></span></span></span></span><span
+            class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                       style="height: 0.7693em;"><span></span></span></span></span></span><span
+            class="mclose nulldelimiter"></span></span></span></span></span></span>.</p>
+<p><img src="3.png" alt="img"><br>
+    <br></p>
+<p>If <code>diff</code> is not an integer, then we cannot have an arithmetic sequence. If it is, how do we verify if
+    <code>arr</code> is an arithmetic sequence or not?</p>
+<p>If <code>arr</code> is an arithmetic sequence, then <code>min + diff</code> must be in <code>arr</code>. Similarly,
+    <code>min + 2 * diff</code> must be in <code>arr</code>. In fact, every value of <code>min + k * diff</code> that is
+    less than <code>max</code> must be in <code>arr</code>. We can check if all of these numbers are in <code>arr</code>,
+    and if they are, then <code>arr</code> must be an arithmetic sequence. For efficient <span class="math math-inline"><span
+            class="katex"><span class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+            class="mord">1</span><span class="mclose">)</span></span></span></span></span> checks, we will convert
+    <code>arr</code> to a hash set.</p>
+<p>We can then check if all necessary numbers exist with a while loop. We initialize <code>curr = min + diff</code> as
+    the first number to check. If <code>curr</code> is not in <code>arr</code>, we can immediately return
+    <code>false</code>. Otherwise, we check the next number by incrementing <code>curr</code> by <code>diff</code>. We
+    repeat this process until <code>curr = max</code>. If all the numbers are in the hash set, then we return
+    <code>true</code>.</p>
+<p><strong>Algorithm</strong></p>
+<ol>
+    <li>Define <code>check(arr)</code>:
+        <ul>
+            <li>Iterate over <code>arr</code> to do the following:
+                <ul>
+                    <li>Find <code>minElement</code>, the minimum element in <code>arr</code>,</li>
+                    <li>Find <code>maxElement</code>, the maximum element in <code>arr</code>.</li>
+                    <li>Create <code>arrSet</code>, a hash set with all the elements of <code>arr</code>.</li>
+                </ul>
+            </li>
+            <li>Calculate <code>diff = (maxElement - minElement) / (arr.length - 1)</code>. If it is not an integer,
+                return <code>false</code>.
+            </li>
+            <li>Initialize <code>curr = minElement + diff</code>.</li>
+            <li>While <code>curr &lt; maxElement</code>:
+                <ul>
+                    <li>If <code>curr</code> is not in <code>arrSet</code>, return <code>false</code>.</li>
+                    <li>Increment <code>curr</code> by <code>diff</code>.</li>
+                </ul>
+            </li>
+        </ul>
+    </li>
+    <li>Initialize the answer <code>ans</code>.</li>
+    <li>Iterate <code>i</code> over the indices of <code>l</code>:
+        <ul>
+            <li>Create <code>arr</code> as the subarray of <code>nums</code> from indices <code>l[i]</code> to <code>r[i]</code>.
+            </li>
+            <li>Add <code>check(arr)</code> to <code>ans</code>.</li>
+        </ul>
+    </li>
+    <li>Return <code>ans</code>.</li>
+</ol>
+<p><strong>Implementation</strong></p>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public Boolean check(int[] arr) {
+        int minElement = Integer.MAX_VALUE;
+        int maxElement = Integer.MIN_VALUE;
+        Set<Integer> arrSet = new HashSet();
+
+        for (int num : arr) {
+            minElement = Math.min(minElement, num);
+            maxElement = Math.max(maxElement, num);
+            arrSet.add(num);
+        }
+
+        if ((maxElement - minElement) % (arr.length - 1) != 0) {
+            return false;
+        }
+
+        int diff = (maxElement - minElement) / (arr.length - 1);
+        int curr = minElement + diff;
+
+        while (curr < maxElement) {
+            if (!arrSet.contains(curr)) {
+                return false;
+            }
+
+            curr += diff;
+        }
+
+        return true;
+    }
+
+    public List<Boolean> checkArithmeticSubarrays(int[] nums, int[] l, int[] r) {
+        List<Boolean> ans = new ArrayList();
+        for (int i = 0; i < l.length; i++) {
+            int[] arr = new int[r[i] - l[i] + 1];
+            for (int j = 0; j < arr.length; j++) {
+                arr[j] = nums[l[i] + j];
+            }
+
+            ans.add(check(arr));
+        }
+
+        return ans;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    bool check(vector<int>& arr) {
+        int minElement = INT_MAX;
+        int maxElement = INT_MIN;
+        unordered_set<int> arrSet;
+
+        for (int num : arr) {
+            minElement = min(minElement, num);
+            maxElement = max(maxElement, num);
+            arrSet.insert(num);
+        }
+
+        if ((maxElement - minElement) % (arr.size() - 1) != 0) {
+            return false;
+        }
+
+        int diff = (maxElement - minElement) / (arr.size() - 1);
+        int curr = minElement + diff;
+
+        while (curr < maxElement) {
+            if (arrSet.find(curr) == arrSet.end()) {
+                return false;
+            }
+
+            curr += diff;
+        }
+
+        return true;
+    }
+
+    vector<bool> checkArithmeticSubarrays(vector<int>& nums, vector<int>& l, vector<int>& r) {
+        vector<bool> ans;
+        for (int i = 0; i < l.size(); i++) {
+            vector<int> arr(begin(nums) + l[i], begin(nums) + r[i] + 1);
+            ans.push_back(check(arr));
+        }
+
+        return ans;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def checkArithmeticSubarrays(self, nums: List[int], l: List[int], r: List[int]) -> List[bool]:
+        def check(arr):
+            min_element = min(arr)
+            max_element = max(arr)
+
+            if (max_element - min_element) % (len(arr) - 1) != 0:
+                return False
+
+            diff = (max_element - min_element) / (len(arr) - 1)
+
+            arr_set = set(arr)
+            curr = min_element + diff
+            while curr < max_element:
+                if curr not in arr_set:
+                    return False
+
+                curr += diff
+
+            return True
+
+        ans = []
+        for i in range(len(l)):
+            arr = nums[l[i] : r[i] + 1]
+            ans.append(check(arr))
+
+        return ans
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<p>Given <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    as the length of <code>nums</code> and <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">mm</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.4306em;"></span><span
+            class="mord mathnormal">m</span></span></span></span></span> as the length of <code>l</code> and
+    <code>r</code>,</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(m⋅n)O(m \cdot n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></p>
+        <p>There are <span class="math math-inline"><span class="katex"><span class="katex-mathml">mm</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 0.4306em;"></span><span
+                class="mord mathnormal">m</span></span></span></span></span> queries. In the worst-case scenario, each
+            query would have <code>r[i] - l[i]</code> = <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>,
+            representing an array of size <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.</p>
+        <p>Then, we would require <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+            to create <code>arr</code>, <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> to create
+            <code>arrSet</code>, and <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> to verify
+            if <code>arr</code> is an arithmetic sequence.</p>
+        <p>Thus, in the worst-case scenario, each of the <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">mm</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 0.4306em;"></span><span
+                class="mord mathnormal">m</span></span></span></span></span> queries costs <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <p>We create <code>arr</code> and <code>arrSet</code>, which may use up to <span class="math math-inline"><span
+                class="katex"><span class="katex-mathml">O(n)O(n)</span><span class="katex-html"
+                                                                              aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> space.</p>
+    </li>
+</ul>
+<br>
+<hr>
+</body>
+</html>
