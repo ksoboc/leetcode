@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Maximum Number of Coins You Can Get - Solution</title>
+</head>
+<body>
+<h2 id="solution">Maximum Number of Coins You Can Get - Solution</h2>
+<hr>
+<h4 id="approach-1-greedy-simulation-with-deque">Approach 1: Greedy Simulation With Deque</h4>
+<p><strong>Intuition</strong></p>
+<p>In this game, we pick three numbers at a time and gain score equal to the element with the middle value. Note that at
+    the end:</p>
+<p><span class="math math-inline"><span class="katex"><span class="katex-mathml">scoreAlice+scoreBob+scoreUs=SUM(piles)\text{score}_\text{Alice} + \text{score}_\text{Bob} + \text{score}_\text{Us} = \text{SUM}(\text{piles})</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.7333em; vertical-align: -0.15em;"></span><span
+        class="mord"><span class="mord text"><span class="mord">score</span></span><span class="msupsub"><span
+        class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.3361em;"><span
+        style="top: -2.55em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span
+        class="mord mtight">Alice</span></span></span></span></span><span class="vlist-s">​</span></span><span
+        class="vlist-r"><span class="vlist"
+                              style="height: 0.15em;"><span></span></span></span></span></span></span><span
+        class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace"
+                                                                                               style="margin-right: 0.2222em;"></span></span><span
+        class="base"><span class="strut" style="height: 0.7333em; vertical-align: -0.15em;"></span><span
+        class="mord"><span class="mord text"><span class="mord">score</span></span><span class="msupsub"><span
+        class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.3361em;"><span
+        style="top: -2.55em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span
+        class="mord mtight">Bob</span></span></span></span></span><span class="vlist-s">​</span></span><span
+        class="vlist-r"><span class="vlist"
+                              style="height: 0.15em;"><span></span></span></span></span></span></span><span
+        class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace"
+                                                                                               style="margin-right: 0.2222em;"></span></span><span
+        class="base"><span class="strut" style="height: 0.5806em; vertical-align: -0.15em;"></span><span
+        class="mord"><span class="mord text"><span class="mord">score</span></span><span class="msupsub"><span
+        class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.3283em;"><span
+        style="top: -2.55em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+        class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span
+        class="mord mtight">Us</span></span></span></span></span><span class="vlist-s">​</span></span><span
+        class="vlist-r"><span class="vlist"
+                              style="height: 0.15em;"><span></span></span></span></span></span></span><span
+        class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace"
+                                                                                               style="margin-right: 0.2778em;"></span></span><span
+        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+        class="mord text"><span class="mord">SUM</span></span><span class="mopen">(</span><span class="mord text"><span
+        class="mord">piles</span></span><span class="mclose">)</span></span></span></span></span></p>
+<p>Because the sum of <code>piles</code> is a constant for a given test case, we can maximize our score by minimizing
+    the score of the other two players.</p>
+<p>Let's think: at the start of the game, what are the most points we can gain with our first move? Is it possible for
+    us to take the pile with the most coins?</p>
+<p>No, it is impossible for us to <strong>ever</strong> take this pile. On any choice of piles that contains the maximum
+    pile, the maximum pile will necessarily be the largest pile chosen, and thus will go to Alice.</p>
+<p>Thus, the best we can do is to take the pile with the second most coins, after giving the pile with the most coins to
+    Alice. Which pile should we choose for Bob? As mentioned above, we want to minimize <span
+            class="math math-inline"><span class="katex"><span
+            class="katex-mathml">scoreBob\text{score}_\text{Bob}</span><span class="katex-html" aria-hidden="true"><span
+            class="base"><span class="strut" style="height: 0.5806em; vertical-align: -0.15em;"></span><span
+            class="mord"><span class="mord text"><span class="mord">score</span></span><span class="msupsub"><span
+            class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.3361em;"><span
+            style="top: -2.55em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord text mtight"><span class="mord mtight">Bob</span></span></span></span></span><span
+            class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                       style="height: 0.15em;"><span></span></span></span></span></span></span></span></span></span></span>,
+    so we will give Bob the smallest pile.</p>
+<p>In our first choice, we removed the smallest pile and the two largest piles. This resulted in us gaining the maximum
+    possible score while minimizing the score that Bob would gain and was an optimal first choice. What should we do for
+    our second choice?</p>
+<p>As every choice is independent of each other (except for the fact that we remove some piles), there is no reason for
+    us to use a different strategy. Again, of the remaining piles, we should give Alice the largest pile, Bob the
+    smallest pile, and take the second largest pile for ourselves.</p>
+<p>The reason this greedy strategy works is because, at any given moment, it is <strong>impossible</strong> for us to
+    ever claim the largest pile. In fact, this pile will <strong>always</strong> go to Alice. The largest pile we can
+    claim is the second largest pile, but we can only accomplish this by giving Alice the largest pile. While increasing
+    Alice's final score decreases our final score (from the equation above), <strong>Alice will inevitably obtain the
+        largest pile anyway</strong>.</p>
+<p>Since Alice will inevitably claim the largest pile regardless of our choices, we may as well use her to obtain the
+    second-largest pile. This maximizes our own score. Then, we hand Bob the smallest pile to minimize his score. While
+    unintuitive, this is also minimizing Alice's score (since she will take the largest pile regardless, but we take the
+    second largest pile so that she can't later).</p>
+<p>To implement this strategy, we will sort <code>piles</code> and then put the sorted piles into a double-ended queue
+    (deque) <code>queue</code>. At each step, we pop from the back of <code>queue</code> and give the pile to Alice.
+    Then we pop from the back again and take this pile for ourselves. Finally, we pop from the front of
+    <code>queue</code> and give this pile to Bob. The above process will continue until we have emptied all the piles in
+    <code>queue</code>.</p>
+<p>Note that the problem only wants our score, so we don't need to track Alice's or Bob's score.</p>
+<p><strong>Algorithm</strong></p>
+<ol>
+    <li>Sort <code>piles</code>.</li>
+    <li>Create a deque <code>queue</code> with the elements of <code>piles</code>.</li>
+    <li>Initialize the answer <code>ans = 0</code>.</li>
+    <li>While the <code>queue</code> is not empty:
+        <ul>
+            <li>Pop from the back of <code>queue</code>.</li>
+            <li>Pop from the back of <code>queue</code> and add the element to <code>ans</code>.</li>
+            <li>Pop from the front of <code>queue</code>.</li>
+        </ul>
+    </li>
+    <li>Return <code>ans</code>.</li>
+</ol>
+<p><strong>Implementation</strong></p>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int maxCoins(int[] piles) {
+        Arrays.sort(piles);
+        ArrayDeque<Integer> queue = new ArrayDeque();
+        for (int num : piles) {
+            queue.addLast(num);
+        }
+
+        int ans = 0;
+        while (!queue.isEmpty()) {
+            queue.removeLast(); // alice
+            ans += queue.removeLast(); // us
+            queue.removeFirst(); // bob
+        }
+
+        return ans;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int maxCoins(vector<int>& piles) {
+        sort(piles.begin(), piles.end());
+        deque<int> queue;
+        for (int num : piles) {
+            queue.push_back(num);
+        }
+
+        int ans = 0;
+        while (!queue.empty()) {
+            queue.pop_back(); // alice
+            ans += queue.back(); // us
+            queue.pop_back();
+            queue.pop_front(); // bob
+        }
+
+        return ans;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def maxCoins(self, piles: List[int]) -> int:
+        piles.sort()
+        queue = deque(piles)
+        ans = 0
+        while queue:
+            queue.pop() # alice
+            ans += queue.pop() # us
+            queue.popleft() # bob
+
+        return ans
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<p>Given <span class="math math-inline"><span class="katex"><span class="katex-mathml">3n3n</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.6444em;"></span><span
+        class="mord">3</span><span class="mord mathnormal">n</span></span></span></span></span> as the length of <code>piles</code>,
+</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅log⁡n)O(n \cdot \log{}n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                      style="margin-right: 0.1667em;"></span><span
+                class="mord"></span><span class="mord mathnormal">n</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <p>We sort <code>piles</code>, which costs <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n⋅log⁡n)O(n \cdot \log{}n)</span><span class="katex-html"
+                                                                              aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                      style="margin-right: 0.1667em;"></span><span
+                class="mord"></span><span class="mord mathnormal">n</span><span
+                class="mclose">)</span></span></span></span></span>. Then, we convert it to a <code>queue</code> and pop
+            each element from <code>queue</code>, which would cost <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> in total.
+        </p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <p><code>queue</code> uses <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> space.</p>
+        <p>The space complexity of the sorting algorithm depends on the implementation of each programming language:</p>
+        <ul>
+            <li>In Java, Arrays.sort() for primitives is implemented using a variant of the Quick Sort algorithm, which
+                has a space complexity of <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡n)O(\log n)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span
+                        class="mspace" style="margin-right: 0.1667em;"></span><span
+                        class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></li>
+            <li>In C++, the sort() function provided by STL uses a hybrid of Quick Sort, Heap Sort and Insertion Sort,
+                with a worst case space complexity of <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(log⁡n)O(\log n)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span
+                        class="mspace" style="margin-right: 0.1667em;"></span><span
+                        class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></li>
+            <li>In Python, the sort() function is implemented using the Timsort algorithm, which has a worst-case space
+                complexity of <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+            </li>
+        </ul>
+    </li>
+</ul>
+<br>
+<hr>
+<h4 id="approach-2-no-queue">Approach 2: No Queue</h4>
+<p><strong>Intuition</strong></p>
+<p>We don't actually need to simulate the process, because our choice is the same at every step. Notice that Bob will
+    always get the <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.4306em;"></span><span
+            class="mord mathnormal">n</span></span></span></span></span> smallest piles, and the remaining piles
+    alternate between us and Alice. Of the remaining piles, Alice gets the largest one, then we get the second largest
+    one. Then Alice would get the third largest one, and we would get the fourth largest one, and so on. When we sort
+    <code>piles</code>, we get the following pattern:</p>
+<p><img src="1.png" alt="img"><br>
+    <br></p>
+<p>Here, B stands for piles that Bob will get, A stands for piles Alice will get, and US are the piles that we will
+    get.</p>
+<p>As such, we can find the piles that we will claim by iterating over <code>piles</code>. We will start iterating at
+    index <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.4306em;"></span><span
+            class="mord mathnormal">n</span></span></span></span></span> as this is the first pile after Bob's piles. We
+    iterate two indices at a time, as every other index belongs to Alice.</p>
+<blockquote>
+    <p>Recall that in the problem description, the length of the array is given as <code>3n</code>. That's why we say we
+        start iterating at index <code>n</code>, not <code>n / 3</code>.</p>
+</blockquote>
+<p><strong>Algorithm</strong></p>
+<ol>
+    <li>Sort <code>piles</code>.</li>
+    <li>Initialize <code>ans = 0</code>.</li>
+    <li>Iterate <code>i</code> over the indices of <code>piles</code>, starting from <code>piles.length / 3</code> and
+        incrementing <code>i</code> by <code>2</code> per iteration:
+        <ul>
+            <li>Add <code>piles[i]</code> to <code>ans</code>.</li>
+        </ul>
+    </li>
+    <li>Return <code>ans</code>.</li>
+</ol>
+<p><strong>Implementation</strong></p>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int maxCoins(int[] piles) {
+        Arrays.sort(piles);
+        int ans = 0;
+
+        for (int i = piles.length / 3; i < piles.length; i += 2) {
+            ans += piles[i];
+        }
+
+        return ans;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int maxCoins(vector<int>& piles) {
+        sort(piles.begin(), piles.end());
+        int ans = 0;
+
+        for (int i = piles.size() / 3; i < piles.size(); i += 2) {
+            ans += piles[i];
+        }
+
+        return ans;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def maxCoins(self, piles: List[int]) -> int:
+        piles.sort()
+        ans = 0
+
+        for i in range(len(piles) // 3, len(piles), 2):
+            ans += piles[i]
+
+        return ans
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<p>Given <span class="math math-inline"><span class="katex"><span class="katex-mathml">3n3n</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 0.6444em;"></span><span
+        class="mord">3</span><span class="mord mathnormal">n</span></span></span></span></span> as the length of <code>piles</code>,
+</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅log⁡n)O(n \cdot \log{}n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                      style="margin-right: 0.1667em;"></span><span
+                class="mord"></span><span class="mord mathnormal">n</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <p>We sort <code>piles</code>, which costs <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n⋅log⁡n)O(n \cdot \log{}n)</span><span class="katex-html"
+                                                                              aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                      style="margin-right: 0.1667em;"></span><span
+                class="mord"></span><span class="mord mathnormal">n</span><span
+                class="mclose">)</span></span></span></span></span>. Then, we iterate over <code>piles</code>, which
+            costs <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+    <li>
+        <p>Space Complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡n)O(\log n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                          style="margin-right: 0.1667em;"></span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> or <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></p>
+        <p>We aren't explicitly allocating any extra space. However, sorting may use some space.</p>
+        <p>The space complexity of the sorting algorithm depends on the implementation of each programming language:</p>
+        <ul>
+            <li>In Java, Arrays.sort() for primitives is implemented using a variant of the Quick Sort algorithm, which
+                has a space complexity of <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡n)O(\log n)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span
+                        class="mspace" style="margin-right: 0.1667em;"></span><span
+                        class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></li>
+            <li>In C++, the sort() function provided by STL uses a hybrid of Quick Sort, Heap Sort and Insertion Sort,
+                with a worst case space complexity of <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(log⁡n)O(\log n)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span
+                        class="mspace" style="margin-right: 0.1667em;"></span><span
+                        class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></li>
+            <li>In Python, the sort() function is implemented using the Timsort algorithm, which has a worst-case space
+                complexity of <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+            </li>
+        </ul>
+    </li>
+</ul>
+<br>
+<hr>
+</body>
+</html>
