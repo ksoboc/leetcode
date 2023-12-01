@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Check If Two String Arrays are Equivalent - Solution</title>
+</head>
+<body>
+<h2 id="solution">Check If Two String Arrays are Equivalent - Solution</h2>
+<hr>
+<h3 id="approach-1-concatenate-and-compare">Approach 1: Concatenate and Compare</h3>
+<h4 id="intuition">Intuition</h4>
+<p>We are given two arrays of strings. We need to find out if both arrays represent the same string, for this, the two
+    strings formed by concatenating the strings in the respective arrays must be equal.</p>
+<p>In this approach, we will do as the problem says. We will find the string represented by each array and then check if
+    the two strings are equal or not. To find the string represented by the array, we just need to append all the
+    strings present in it to one another in the same order they are present in the array.</p>
+<h4 id="algorithm">Algorithm</h4>
+<ol>
+    <li>Iterate over strings present in the array <code>word1</code>, append each string to a string
+        <code>word1Combined</code>.
+    </li>
+    <li>Iterate over strings present in the array <code>word2</code>, append each string to a string
+        <code>word2Combined</code>.
+    </li>
+    <li>Compare the above strings and return true if both are the same, otherwise return false.</li>
+</ol>
+<p>Note: In Java, we must use <code>StringBuilder</code> as strings are Immutable in Java.</p>
+<h4 id="implementation">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public boolean arrayStringsAreEqual(String[] word1, String[] word2) {
+        // Creates a new string by combining all the strings in word1.
+        StringBuilder word1Combined = new StringBuilder();
+        for (String s : word1) {
+            word1Combined.append(s);
+        }
+        // Creates a new string by combining all the strings in word2.
+        StringBuilder word2Combined = new StringBuilder();
+        for (String s : word2) {
+            word2Combined.append(s);
+        }
+        // Returns true if both string are the same.
+        return word1Combined.compareTo(word2Combined) == 0;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    bool arrayStringsAreEqual(vector<string>& word1, vector<string>& word2) {
+        // Creates a new string by combining all the strings in word1.
+        string word1Combined;
+        for (string s : word1) {
+            word1Combined += s;
+        }
+        // Creates a new string by combining all the strings in word2.
+        string word2Combined;
+        for (string s : word2) {
+            word2Combined += s;
+        }
+        // Returns true if both string are the same.
+        return word1Combined == word2Combined;
+    }
+};
+    </code>
+</pre>
+<h4 id="complexity-analysis">Complexity Analysis</h4>
+<p>Here <span class="math math-inline"><span class="katex"><span class="katex-mathml">NN</span><span class="katex-html"
+                                                                                                     aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                style="margin-right: 0.10903em;">N</span></span></span></span></span>
+    is the number of strings in the list and <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">KK</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                 style="margin-right: 0.07153em;">K</span></span></span></span></span>
+    is the maximum length of a string in it.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(N∗K)O(N * K)</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span class="mspace"
+                                                                                       style="margin-right: 0.2222em;"></span><span
+                class="mbin">∗</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.07153em;">K</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <ul>
+            <li>We iterate over each string in the arrays to append them. This cost us <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(N∗K)O(N * K)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span class="mspace"
+                                                                                           style="margin-right: 0.2222em;"></span><span
+                    class="mbin">∗</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.07153em;">K</span><span
+                    class="mclose">)</span></span></span></span></span> as we traversed over each character of the
+                string to perform an append operation.
+            </li>
+            <li>In the end, the comparison between the two strings also takes <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">O(N∗K)O(N * K)</span><span class="katex-html"
+                                                                                        aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span class="mspace"
+                                                                                           style="margin-right: 0.2222em;"></span><span
+                    class="mbin">∗</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.07153em;">K</span><span
+                    class="mclose">)</span></span></span></span></span> time.
+            </li>
+            <li>Hence, the total time complexity is equal to <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(N∗K)O(N * K)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span class="mspace"
+                                                                                           style="margin-right: 0.2222em;"></span><span
+                    class="mbin">∗</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.07153em;">K</span><span
+                    class="mclose">)</span></span></span></span></span>.
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(N∗K)O(N * K)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span class="mspace"
+                                                                                       style="margin-right: 0.2222em;"></span><span
+                class="mbin">∗</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.07153em;">K</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <p>We need to have two strings to store the strings represented by the arrays. Therefore, the total space
+            complexity is equal to <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(N∗K)O(N * K)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span class="mspace"
+                                                                                           style="margin-right: 0.2222em;"></span><span
+                    class="mbin">∗</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.07153em;">K</span><span
+                    class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+</ul>
+<hr>
+<h3 id="approach-2-two-pointers">Approach 2: Two Pointers</h3>
+<h4 id="intuition-1">Intuition</h4>
+<p>If we observe closely, we can notice that we need to compare each character at corresponding positions in the two
+    arrays. Also, this comparison needs to be continuous over the strings in the array i.e., we can just assume the
+    whole array to be a single string (what we did in the previous approach).</p>
+<p>We can keep two pointers, one pointing to the first character of the first string in the array <code>word1</code> and
+    the other pointing to the first character of the first string in the array <code>word2</code>. Then we will compare
+    the characters at these indices and can return false if they aren't the same, otherwise, we will increment both
+    pointers. Now it might be possible that after incrementing the pointers one or both of them have exhausted the whole
+    string and are now pointing to the non-existing indices. We need to move to the next string in the array in such
+    cases. Hence we need to have two more pointers that will be pointing to the strings in the two array lists.</p>
+<h4 id="algorithm-1">Algorithm</h4>
+<ol>
+    <li>
+        <p>Initialize <code>word1Pointer</code> and <code>word2Pointer</code> to <code>0</code>. These pointers will be
+            pointing to the current string in the array <code>word1</code> and <code>word2</code> respectively.</p>
+    </li>
+    <li>
+        <p>Initialize <code>string1Pointer</code> and <code>string2Pointer</code> to <code>0</code>. These pointers will
+            be pointing to the current characters in the strings pointed by the above two pointers.</p>
+    </li>
+    <li>
+        <p>While we still have strings to iterate over in both the lists:</p>
+        <ul>
+            <li>
+                <p>If the character at <code>string1Pointer</code> in the string at index <code>word1Pointer</code> in
+                    the list <code>word1</code> isn't equal to the character at <code>string2Pointer</code> in the
+                    string at index <code>word2Pointer</code> in the list <code>word2</code>, then return false.
+                    Otherwise, increment both the string pointers i.e., <code>string1Pointer</code> and <code>string2Pointer</code>
+                    to check the next characters.</p>
+            </li>
+            <li>
+                <p>If the pointer <code>string1Pointer</code> has reached the end of string then reset it to zero and
+                    increment the word pointer <code>word1Pointer</code>.</p>
+            </li>
+            <li>
+                <p>If the pointer <code>string2Pointer</code> has reached the end of string then reset it to zero and
+                    increment the word pointer <code>word2Pointer</code>.</p>
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p>Return true if the <code>word1Pointer</code> and <code>word2Pointer</code> has reached the end of array. This
+            is important as it might happen that one of the list has no more strings but the other one still has some
+            and in that case we must return false.</p>
+    </li>
+</ol>
+<p>
+<div class="relative mx-auto mb-6 flex flex-col overflow-hidden rounded-lg border-[1px] border-label-1"
+     style="max-width: 960px;">
+    <div class="rounded-lg" style="max-height: 720px;"><img alt="Current"
+                                                            class="object-fit-contain !mb-0 max-h-full max-w-full"
+                                                            src="blob:https://leetcode.com/2b77a278-89af-4b88-b7b0-4263131ad913">
+    </div>
+    <div class="absolute top-[50%] left-[50%] flex h-12 w-12 translate-x-[-50%] translate-y-[-50%] items-center justify-center rounded-full bg-black/30">
+        <div class="flex h-4 w-4 cursor-pointer items-center justify-center text-[35px]">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="h-full w-full text-white">
+                <path fill-rule="evenodd"
+                      d="M18.97 12.871l-12.96 7.29a1 1 0 01-1.49-.87V4.71a1 1 0 011.49-.872l12.96 7.29a1 1 0 010 1.743z"
+                      clip-rule="evenodd"></path>
+            </svg>
+        </div>
+    </div>
+    <div class="relative flex h-8 select-none items-center justify-around bg-black">
+        <div class="flex items-center space-x-7">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M16.091 4.929l-7.057 7.078 7.057 7.064a1 1 0 01-1.414 1.414l-7.764-7.77a1 1 0 010-1.415l7.764-7.785a1 1 0 111.415 1.414z"
+                      clip-rule="evenodd"></path>
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M18.97 12.871l-12.96 7.29a1 1 0 01-1.49-.87V4.71a1 1 0 011.49-.872l12.96 7.29a1 1 0 010 1.743z"
+                      clip-rule="evenodd"></path>
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"
+                 class="w-4 cursor-pointer text-gray-6 dark:text-dark-gray-6 hover:text-gray-7 dark:hover:text-dark-gray-7">
+                <path fill-rule="evenodd"
+                      d="M7.913 19.071l7.057-7.078-7.057-7.064a1 1 0 011.414-1.414l7.764 7.77a1 1 0 010 1.415l-7.764 7.785a1 1 0 01-1.414-1.414z"
+                      clip-rule="evenodd"></path>
+            </svg>
+        </div>
+        <div class="absolute right-0 mr-5 text-xs font-medium text-white">1 / 5</div>
+    </div>
+</div>
+<br></p>
+<h4 id="implementation-1">Implementation</h4>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public boolean arrayStringsAreEqual(String[] word1, String[] word2) {
+        // Pointers to mark the current word in the given two lists.
+        int word1Pointer = 0, word2Pointer = 0;
+        // Pointers to mark the character in the string pointed by the above pointers.
+        int string1Pointer = 0, string2Pointer = 0;
+
+        // While we still have the string in any of the two given lists.
+        while (word1Pointer < word1.length && word2Pointer < word2.length) {
+            // If the characters at the two string are same, increment the string pointers
+            // Otherwise return false.
+            if (word1[word1Pointer].charAt(string1Pointer++) !=
+                word2[word2Pointer].charAt(string2Pointer++)) {
+                return false;
+            }
+            // If the string pointer reaches the end of string in the list word1,
+            // Move to the next string in the list and, reset the string pointer to 0.
+            if (string1Pointer == word1[word1Pointer].length()) {
+                word1Pointer++;
+                string1Pointer = 0;
+            }
+            // If the string pointer reaches the end of string in the list word2,
+            // Move to the next string in the list and, reset the string pointer to 0.
+            if (string2Pointer == word2[word2Pointer].length()) {
+                word2Pointer++;
+                string2Pointer = 0;
+            }
+        }
+        // Strings in both the lists should be traversed.
+        return word1Pointer == word1.length && word2Pointer == word2.length;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    bool arrayStringsAreEqual(vector<string>& word1, vector<string>& word2) {
+        // Pointers to mark the current word in the given two lists.
+        int word1Pointer = 0, word2Pointer = 0;
+        // Pointers to mark the character in the string pointed by the above pointers.
+        int string1Pointer = 0, string2Pointer = 0;
+
+        // While we still have the string in any of the two given lists.
+        while (word1Pointer < word1.size() && word2Pointer < word2.size()) {
+            // If the characters at the two string are same, increment the string pointers
+            // Otherwise return false.
+            if (word1[word1Pointer][string1Pointer++] != word2[word2Pointer][string2Pointer++]) {
+                return false;
+            }
+            // If the string pointer reaches the end of string in the list word1,
+            // Move to the next string in the list and, reset the string pointer to 0.
+            if (string1Pointer == word1[word1Pointer].size()) {
+                word1Pointer++;
+                string1Pointer = 0;
+            }
+            // If the string pointer reaches the end of string in the list word2,
+            // Move to the next string in the list and, reset the string pointer to 0.
+            if (string2Pointer == word2[word2Pointer].size()) {
+                word2Pointer++;
+                string2Pointer = 0;
+            }
+        }
+        // Strings in both the lists should be traversed.
+        return word1Pointer == word1.size() && word2Pointer == word2.size();
+    }
+};
+    </code>
+</pre>
+<h4 id="complexity-analysis-1">Complexity Analysis</h4>
+<p>Here <span class="math math-inline"><span class="katex"><span class="katex-mathml">NN</span><span class="katex-html"
+                                                                                                     aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                                style="margin-right: 0.10903em;">N</span></span></span></span></span>
+    is the number of strings in the list and <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">KK</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal"
+                                                                 style="margin-right: 0.07153em;">K</span></span></span></span></span>
+    is the maximum length of a string in it.</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(N∗K)O(N * K)</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span class="mspace"
+                                                                                       style="margin-right: 0.2222em;"></span><span
+                class="mbin">∗</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.07153em;">K</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <p>We are iterating over each character of every string present in the given lists and hence the total time
+            complexity will be equal to <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(N∗K)O(N * K)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span class="mspace"
+                                                                                           style="margin-right: 0.2222em;"></span><span
+                    class="mbin">∗</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.07153em;">K</span><span
+                    class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord">1</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <p>We don't require any extra space as we are not building any string as we did in the previous approach and
+            therefore the total space complexity is equal to <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord">1</span><span class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+</ul>
+<hr>
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Check If Two String Arrays are Equivalent</title>
+</head>
+<body>
+<div class="flex items-start justify-between gap-4">
+    <div class="flex items-start gap-2">
+        <div class="text-title-large font-semibold text-text-primary dark:text-text-primary"><a
+                class="no-underline hover:text-blue-s dark:hover:text-dark-blue-s truncate cursor-text whitespace-normal hover:!text-[inherit]"
+                href="/problems/check-if-two-string-arrays-are-equivalent/">1662. Check If Two String Arrays are
+            Equivalent</a>
+            <div class="text-body ml-2 inline-flex items-center gap-2 py-1">
+                <div class="inline-flex items-center space-x-2"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="flex gap-1">
+    <div class="relative inline-flex items-center justify-center text-caption px-2 py-1 gap-1 rounded-full bg-fill-secondary text-difficulty-easy dark:text-difficulty-easy">
+        Easy
+    </div>
+</div>
+<div class="elfjS" data-track-load="description_content"><p>Given two string arrays <code>word1</code> and
+    <code>word2</code>, return<em> </em><code>true</code><em> if the two arrays <strong>represent</strong> the same
+        string, and </em><code>false</code><em> otherwise.</em></p>
+
+    <p>A string is <strong>represented</strong> by an array if the array elements concatenated <strong>in order</strong>
+        forms the string.</p>
+
+    <p>&nbsp;</p>
+    <p><strong class="example">Example 1:</strong></p>
+
+    <pre><strong>Input:</strong> word1 = ["ab", "c"], word2 = ["a", "bc"]
+<strong>Output:</strong> true
+<strong>Explanation:</strong>
+word1 represents string "ab" + "c" -&gt; "abc"
+word2 represents string "a" + "bc" -&gt; "abc"
+The strings are the same, so return true.</pre>
+
+    <p><strong class="example">Example 2:</strong></p>
+
+    <pre><strong>Input:</strong> word1 = ["a", "cb"], word2 = ["ab", "c"]
+<strong>Output:</strong> false
+</pre>
+
+    <p><strong class="example">Example 3:</strong></p>
+
+    <pre><strong>Input:</strong> word1  = ["abc", "d", "defg"], word2 = ["abcddefg"]
+<strong>Output:</strong> true
+</pre>
+
+    <p>&nbsp;</p>
+    <p><strong>Constraints:</strong></p>
+
+    <ul>
+        <li><code>1 &lt;= word1.length, word2.length &lt;= 10<sup>3</sup></code></li>
+        <li><code>1 &lt;= word1[i].length, word2[i].length &lt;= 10<sup>3</sup></code></li>
+        <li><code>1 &lt;= sum(word1[i].length), sum(word2[i].length) &lt;= 10<sup>3</sup></code></li>
+        <li><code>word1[i]</code> and <code>word2[i]</code> consist of lowercase letters.</li>
+    </ul>
+</div>
+</body>
+</html>
