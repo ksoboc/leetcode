@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Count of Matches in Tournament - Solution</title>
+</head>
+<body>
+<h2 id="solution">Count of Matches in Tournament - Solution</h2>
+<hr>
+<h4 id="approach-1-simulate">Approach 1: Simulate</h4>
+<p><strong>Intuition</strong></p>
+<p>The problem description describes what happens at each round:</p>
+<ul>
+    <li>If <code>n</code> is even, <code>n / 2</code> matches are played and <code>n / 2</code> teams play next round.
+    </li>
+    <li>If <code>n</code> is odd, <code>(n - 1) / 2</code> matches are played and <code>(n - 1) / 2 + 1</code> teams
+        play next round.
+    </li>
+</ul>
+<p>We can simply simulate the tournament according to the rules. We create a while loop that runs until <code>n =
+    1</code>.</p>
+<p>At each iteration, we check if <code>n</code> is even or odd. If <code>n % 2 = 0</code>, then <code>n</code> is even.
+    Otherwise, <code>n % 2 = 1</code> and <code>n</code> is odd. Here, <code>%</code> is the modulus operator.</p>
+<p>If <code>n</code> is even, we add <code>n / 2</code> to our answer and set <code>n = n / 2</code>.</p>
+<p>If <code>n</code> is odd, we add <code>(n - 1) / 2</code> to our answer and set <code>n = (n - 1) / 2 + 1</code>.</p>
+<p><strong>Algorithm</strong></p>
+<ol>
+    <li>Initialize the answer <code>ans = 0</code>.</li>
+    <li>While <code>n &gt; 1</code>:
+        <ul>
+            <li>If <code>n % 2 == 0</code>:
+                <ul>
+                    <li>Add <code>n / 2</code> to <code>ans</code>.</li>
+                    <li>Set <code>n</code> to <code>n / 2</code>.</li>
+                </ul>
+            </li>
+            <li>Else:
+                <ul>
+                    <li>Add <code>(n - 1) / 2</code> to <code>ans</code>.</li>
+                    <li>Set <code>n</code> to <code>(n - 1) / 2 + 1</code>.</li>
+                </ul>
+            </li>
+        </ul>
+    </li>
+    <li>Return <code>ans</code>.</li>
+</ol>
+<p><strong>Implementation</strong></p>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int numberOfMatches(int n) {
+        int ans = 0;
+        while (n > 1) {
+            if (n % 2 == 0) {
+                ans += n / 2;
+                n = n / 2;
+            } else {
+                ans += (n - 1) / 2;
+                n = (n - 1) / 2 + 1;
+            }
+        }
+
+        return ans;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int numberOfMatches(int n) {
+        int ans = 0;
+        while (n > 1) {
+            if (n % 2 == 0) {
+                ans += n / 2;
+                n = n / 2;
+            } else {
+                ans += (n - 1) / 2;
+                n = (n - 1) / 2 + 1;
+            }
+        }
+
+        return ans;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def numberOfMatches(self, n: int) -> int:
+        ans = 0
+        while n > 1:
+            if n % 2 == 0:
+                ans += n // 2
+                n = n // 2
+            else:
+                ans += (n - 1) // 2
+                n = ((n - 1) // 2) + 1
+
+        return ans
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡n)O(\log{}n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                          style="margin-right: 0.1667em;"></span><span
+                class="mord"></span><span class="mord mathnormal">n</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <p>At each step in the while loop, we divide <code>n</code> or <code>n - 1</code> by two. <code>n</code> will
+            reach <code>1</code> in approximately <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">log⁡2n\log_2{n}</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 0.9386em; vertical-align: -0.2441em;"></span><span
+                    class="mop"><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span
+                    class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist"
+                                                                                               style="height: 0.207em;"><span
+                    style="top: -2.4559em; margin-right: 0.05em;"><span class="pstrut"
+                                                                        style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span
+                    class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                               style="height: 0.2441em;"><span></span></span></span></span></span></span><span
+                    class="mspace" style="margin-right: 0.1667em;"></span><span class="mord"><span
+                    class="mord mathnormal">n</span></span></span></span></span></span> steps. We perform <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord">1</span><span class="mclose">)</span></span></span></span></span> work at each step.
+        </p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord">1</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <p>We aren't using any extra space.</p>
+    </li>
+</ul>
+<br>
+<hr>
+<h4 id="approach-2-logic">Approach 2: Logic</h4>
+<p><strong>Intuition</strong></p>
+<p>Instead of simulating the entire tournament, here we will directly consider the beginning and end of the
+    tournament.</p>
+<p>In this tournament, when a team loses, they are eliminated and will no longer play any matches.</p>
+<p>There are <code>n</code> teams, and <code>1</code> winner. Thus, <code>n - 1</code> teams will be eliminated.</p>
+<p>Each match is played between two teams. One team wins, one team loses. Thus, each match eliminates exactly one
+    team.</p>
+<p>As <code>n - 1</code> teams will be eliminated, there will be <code>n - 1</code> matches played, with each match
+    eliminating a team.</p>
+<p><strong>Algorithm</strong></p>
+<ol>
+    <li>Return <code>n - 1</code>.</li>
+</ol>
+<p><strong>Implementation</strong></p>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int numberOfMatches(int n) {
+        return n - 1;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int numberOfMatches(int n) {
+        return n - 1;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def numberOfMatches(self, n: int) -> int:
+        return n - 1
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord">1</span><span
+                class="mclose">)</span></span></span></span></span></p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord">1</span><span
+                class="mclose">)</span></span></span></span></span></p>
+    </li>
+</ul>
+<br>
+<hr>
+</body>
+</html>
