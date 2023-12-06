@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Calculate Money in Leetcode Bank - Solution</title>
+</head>
+<body>
+<h2 id="solution">Calculate Money in Leetcode Bank - Solution</h2>
+<hr>
+<h4 id="approach-1-simulate">Approach 1: Simulate</h4>
+<p><strong>Intuition</strong></p>
+<p>The problem description describes a step-by-step process of how much money we add to the bank every day. We can
+    follow these steps and simulate the process for each of the <code>n</code> days.</p>
+<p>Initially, it is Monday and we deposit <code>1</code> dollar. Each day of the week, we deposit <code>1</code> more
+    dollar than the previous. So on the first week, we deposit <code>1 + 2 + 3 + 4 + 5 + 6 + 7</code> dollars.</p>
+<p>Next week, we deposit <code>2</code> dollars on Monday, <code>3</code> dollars on Tuesday, and so on. The week after
+    that, we deposit <code>3</code> dollars on Monday, <code>4</code> on Tuesday, and so on.</p>
+<p>Let's handle each week one at a time. Initially, we set a variable <code>monday = 1</code> that represents the amount
+    of money we will deposit on Monday. We then iterate over each day of the week. How many days will we deposit money
+    this week? If <code>n &lt; 7</code>, we will only deposit money on the first <code>n</code> days of this week. If
+    <code>n &gt;= 7</code>, we will deposit money on all <code>7</code> days of this week. Thus, we will iterate <code>min(n,
+        7)</code> days.</p>
+<p>To iterate over the days of the week, we will use a variable <code>day</code> starting from <code>0</code>. Monday is
+    the <span class="math math-inline"><span class="katex"><span class="katex-mathml">0th0^{th}</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.8491em;"></span><span
+            class="mord"><span class="mord">0</span><span class="msupsub"><span class="vlist-t"><span
+            class="vlist-r"><span class="vlist" style="height: 0.8491em;"><span
+            style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+            class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+            class="mord mathnormal mtight">t</span><span
+            class="mord mathnormal mtight">h</span></span></span></span></span></span></span></span></span></span></span></span></span>
+    day. At each iteration, we will add <code>monday + day</code> dollars to the answer. This way, we add
+    <code>monday</code> dollars on Monday, <code>monday + 1</code> dollars on Tuesday, <code>monday + 2</code> dollars
+    on Wednesday, and so on.</p>
+<p>Once we have finished adding money for the week, we subtract <code>7</code> from <code>n</code> and increment <code>monday</code>.
+    We then move on to the next week and repeat the process until <code>n &lt;= 0</code>.</p>
+<p><strong>Algorithm</strong></p>
+<ol>
+    <li>Initialize the answer <code>ans = 0</code> and <code>monday = 1</code>.</li>
+    <li>While <code>n &gt; 0</code>:
+        <ul>
+            <li>Iterate <code>day</code> from <code>0</code> until <code>min(n, 7)</code>:
+                <ul>
+                    <li>Add <code>monday + day</code> to <code>ans</code>.</li>
+                </ul>
+            </li>
+            <li>Subtract <code>7</code> from <code>n</code>.</li>
+            <li>Increment <code>monday</code>.</li>
+        </ul>
+    </li>
+    <li>Return <code>ans</code>.</li>
+</ol>
+<p><strong>Implementation</strong></p>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int totalMoney(int n) {
+        int ans = 0;
+        int monday = 1;
+
+        while (n > 0) {
+            for (int day = 0; day < Math.min(n, 7); day++) {
+                ans += monday + day;
+            }
+
+            n -= 7;
+            monday++;
+        }
+
+        return ans;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int totalMoney(int n) {
+        int ans = 0;
+        int monday = 1;
+
+        while (n > 0) {
+            for (int day = 0; day < min(n, 7); day++) {
+                ans += monday + day;
+            }
+
+            n -= 7;
+            monday++;
+        }
+
+        return ans;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def totalMoney(self, n: int) -> int:
+        ans = 0
+        monday = 1
+
+        while n > 0:
+            for day in range(min(n, 7)):
+                ans += monday + day
+
+            n -= 7
+            monday += 1
+
+        return ans
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <p>The while loop handles one week per iteration. Thus, the while loop will iterate <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">n7\dfrac{n}{7}</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1.7936em; vertical-align: -0.686em;"></span><span
+                class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span
+                class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 1.1076em;"><span
+                style="top: -2.314em;"><span class="pstrut" style="height: 3em;"></span><span class="mord"><span
+                class="mord">7</span></span></span><span style="top: -3.23em;"><span class="pstrut"
+                                                                                     style="height: 3em;"></span><span
+                class="frac-line" style="border-bottom-width: 0.04em;"></span></span><span style="top: -3.677em;"><span
+                class="pstrut" style="height: 3em;"></span><span class="mord"><span
+                class="mord mathnormal">n</span></span></span></span><span class="vlist-s">​</span></span><span
+                class="vlist-r"><span class="vlist"
+                                      style="height: 0.686em;"><span></span></span></span></span></span><span
+                class="mclose nulldelimiter"></span></span></span></span></span></span> times. In each iteration, we
+            iterate up to <span class="math math-inline"><span class="katex"><span class="katex-mathml">77</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.6444em;"></span><span
+                    class="mord">7</span></span></span></span></span> times. Thus, we will have <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+            iterations. At each step, we perform <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord">1</span><span class="mclose">)</span></span></span></span></span> work.</p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord">1</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <p>We aren't using any extra space other than a few integers.</p>
+    </li>
+</ul>
+<br>
+<hr>
+<h4 id="approach-2-math">Approach 2: Math</h4>
+<p><strong>Intuition</strong></p>
+<p>The manner in which we add money is static. Each week we add:</p>
+<ol>
+    <li><code>1 + 2 + 3 + 4 + 5 + 6 + 7 = 28</code></li>
+    <li><code>2 + 3 + 4 + 5 + 6 + 7 + 8 = 35</code></li>
+    <li><code>3 + 4 + 5 + 6 + 7 + 8 + 9 = 42</code></li>
+    <li>and so on...</li>
+</ol>
+<p>As you can see, each week we add <code>7</code> more dollars than the previous week. Perhaps we can formulate a
+    mathematical solution to this problem.</p>
+<p>We have <code>k = n / 7</code> full weeks. Here, we are performing integer/floor division. These full weeks form an
+    <a href="https://en.wikipedia.org/wiki/Arithmetic_progression" target="_blank">arithmetic sequence</a>. An
+    arithmetic sequence is a sequence of numbers such that the difference between every adjacent element is the same.
+    Here, we have a common difference of <code>7</code>.</p>
+<p>The sum of an arithmetic sequence can be found very quickly if we know the following information:</p>
+<ol>
+    <li>The first element in the sequence <span class="math math-inline"><span class="katex"><span class="katex-mathml">FF</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.6833em;"></span><span
+            class="mord mathnormal" style="margin-right: 0.13889em;">F</span></span></span></span></span>.
+    </li>
+    <li>The final element in the sequence <span class="math math-inline"><span class="katex"><span class="katex-mathml">LL</span><span
+            class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                           style="height: 0.6833em;"></span><span
+            class="mord mathnormal">L</span></span></span></span></span>.
+    </li>
+    <li>The number of elements in the sequence <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">kk</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.6944em;"></span><span class="mord mathnormal"
+                                                                 style="margin-right: 0.03148em;">k</span></span></span></span></span>.
+    </li>
+</ol>
+<p>Then, the sum is <span class="math math-inline"><span class="katex"><span class="katex-mathml">k⋅(F+L)2\dfrac{k \cdot (F + L)}{2}</span><span
+        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                       style="height: 2.113em; vertical-align: -0.686em;"></span><span
+        class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span
+        class="vlist-r"><span class="vlist" style="height: 1.427em;"><span style="top: -2.314em;"><span class="pstrut"
+                                                                                                        style="height: 3em;"></span><span
+        class="mord"><span class="mord">2</span></span></span><span style="top: -3.23em;"><span class="pstrut"
+                                                                                                style="height: 3em;"></span><span
+        class="frac-line" style="border-bottom-width: 0.04em;"></span></span><span style="top: -3.677em;"><span
+        class="pstrut" style="height: 3em;"></span><span class="mord"><span class="mord mathnormal"
+                                                                            style="margin-right: 0.03148em;">k</span><span
+        class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace"
+                                                                                               style="margin-right: 0.2222em;"></span><span
+        class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.13889em;">F</span><span
+        class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace"
+                                                                                               style="margin-right: 0.2222em;"></span><span
+        class="mord mathnormal">L</span><span class="mclose">)</span></span></span></span><span class="vlist-s">​</span></span><span
+        class="vlist-r"><span class="vlist" style="height: 0.686em;"><span></span></span></span></span></span><span
+        class="mclose nulldelimiter"></span></span></span></span></span></span>.</p>
+<p>We know the first element in the sequence is <code>28</code> and that there are <code>k</code> elements in the
+    sequence, since each element represents a week. What is the final element in the sequence? The final element in the
+    sequence represents how much money we add in the final full week, and we know that the value must be <code>28 + (k -
+        1) * 7</code>, since we add <code>28</code> dollars on the first week and <code>7</code> more dollars each
+    additional week.</p>
+<p>Let <code>F = 28</code>, <code>k = n / 7</code>, <code>L = 28 + (k - 1) * 7</code>. We can then plug each of these
+    values into the above equation to get the total money we deposit in all full weeks as <code>arithmeticSum</code>.
+</p>
+<p>What if <code>n</code> is not divisible by <code>7</code>? Then, the final week will have less than <code>7</code>
+    days. How do we calculate how much money we get from the final week? First, we need to know how many days are in the
+    final week. We can obtain this by taking <code>n</code> modulo <code>7</code>, i.e. <code>n % 7</code>.</p>
+<p>Note that we will have <code>k</code> full weeks before the final week, therefore, on the Monday of the final week,
+    we will deposit <code>1 + k</code> dollars. We can either form another arithmetic sequence for the final week (since
+    we know its first value and how many elements there will be, we can deduce the final value and thus the overall
+    sum), or we could simply iterate over the final week explicitly.</p>
+<p>For the sake of simplicity, we will iterate over the final week explicitly and calculate the money we deposit as
+    <code>finalWeek</code>.</p>
+<p>Finally, the answer to the problem is <code>arithmeticSum + finalWeek</code>.</p>
+<p><strong>Algorithm</strong></p>
+<ol>
+    <li>Set the following values:
+        <ul>
+            <li><code>k = n / 7</code>.</li>
+            <li><code>F = 28</code>.</li>
+            <li><code>L = 28 + (k - 1) * 7</code>.</li>
+        </ul>
+    </li>
+    <li>Calculate <code>arithmeticSum = k * (F + L) / 2</code>.</li>
+    <li>Initialize <code>monday = 1 + k</code> and <code>finalWeek = 0</code>.</li>
+    <li>Iterate <code>day</code> from <code>0</code> until <code>n % 7</code>:
+        <ul>
+            <li>Add <code>monday + day</code> to <code>finalWeek</code>.</li>
+        </ul>
+    </li>
+    <li>Return <code>arithmeticSum + finalWeek</code>.</li>
+</ol>
+<p><strong>Implementation</strong></p>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int totalMoney(int n) {
+        int ans = 0;
+        int monday = 1;
+
+        while (n > 0) {
+            for (int day = 0; day < Math.min(n, 7); day++) {
+                ans += monday + day;
+            }
+
+            n -= 7;
+            monday++;
+        }
+
+        return ans;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int totalMoney(int n) {
+        int ans = 0;
+        int monday = 1;
+
+        while (n > 0) {
+            for (int day = 0; day < min(n, 7); day++) {
+                ans += monday + day;
+            }
+
+            n -= 7;
+            monday++;
+        }
+
+        return ans;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def totalMoney(self, n: int) -> int:
+        ans = 0
+        monday = 1
+
+        while n > 0:
+            for day in range(min(n, 7)):
+                ans += monday + day
+
+            n -= 7
+            monday += 1
+
+        return ans
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord">1</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <p>Assuming we treat arithmetic operations as <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord">1</span><span
+                class="mclose">)</span></span></span></span></span>, which is a very standard practice on LeetCode, this
+            algorithm runs in constant time.</p>
+        <p>To calculate <code>arithmeticSum</code>, we perform a few calculations that do not change with the input
+            size. To calculate <code>finalWeek</code>, we never iterate more than <code>6</code> times.</p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord">1</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <p>We aren't using any extra space other than a few integers.</p>
+    </li>
+</ul>
+<br>
+<hr>
+</body>
+</html>
