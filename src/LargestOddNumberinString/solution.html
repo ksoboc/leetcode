@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Largest Odd Number in String - Solution</title>
+</head>
+<body>
+<h2 id="solution">Largest Odd Number in String - Solution</h2>
+<hr>
+<h4 id="approach-find-the-rightmost-odd-digit">Approach: Find the Rightmost Odd Digit</h4>
+<p><strong>Intuition</strong></p>
+<p>A number is odd if and only if its rightmost digit is odd.</p>
+<p>For any given substring of <code>num</code>, if the final character of the substring represents an odd number, then
+    the entire substring's integer representation will also be odd.</p>
+<p>As we are looking for the largest-valued substring, we should aim to maximize the length of our substring, as each
+    additional character increases the integer representation's value by a magnitude.</p>
+<p>Where should our substring start? The answer is at the beginning of <code>num</code>. Why? The only factor that
+    determines if a number is odd is the final character - nothing else matters. Thus, there is no downside to <strong>starting</strong>
+    from a given location, and by starting at the beginning of <code>num</code>, we are maximizing the size of our
+    substring.</p>
+<p>Where should our substring end? As mentioned above, we need it to end on a character that represents an odd digit. Of
+    all the odd digits in <code>num</code>, which one should we choose? As we are trying to maximize the length, we
+    should choose the rightmost one.</p>
+<p><img src="1.png" alt="example"><br>
+    <br></p>
+<p>This brings us to our solution. We will iterate over each letter of <code>nums</code>, starting from the right. The
+    first time we find an odd digit, we know this digit is the rightmost odd digit. Thus, we immediately return the
+    substring of <code>nums</code> that begins at index <code>0</code> and ends at the current digit. We can determine
+    if a character represents an odd digit by casting it to an integer and calculating its remainder when divided by 2
+    (which is also commonly known as taking its value mod 2). If the result is <code>0</code>, then it is an even digit,
+    otherwise, it is an odd digit.</p>
+<p>If <code>nums</code> doesn't have any odd digits, then it's impossible to form an odd number. We return
+    <code>""</code> in that case.</p>
+<p><strong>Algorithm</strong></p>
+<ol>
+    <li>Iterate <code>i</code> starting from <code>nums.length - 1</code> to <code>0</code>:
+        <ul>
+            <li>Cast <code>nums[i]</code> to an integer and take its value mod <code>2</code>. If the result is not
+                <code>0</code>:
+                <ul>
+                    <li>Return the substring of <code>nums</code> starting at index <code>0</code> and ending with index
+                        <code>i</code>.
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </li>
+    <li>Return <code>""</code>.</li>
+</ol>
+<p><strong>Implementation</strong></p>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public String largestOddNumber(String num) {
+        for (int i = num.length() - 1; i >= 0; i--) {
+            if (Character.getNumericValue(num.charAt(i)) % 2 != 0) {
+                return num.substring(0, i + 1);
+            }
+        }
+
+        return "";
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    string largestOddNumber(string num) {
+        for (int i = num.size() - 1; i >= 0; i--) {
+            if ((num[i] - '0') % 2 != 0) {
+                return num.substr(0, i + 1);
+            }
+        }
+
+        return "";
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def largestOddNumber(self, num: str) -> str:
+        for i in range(len(num) - 1, -1, -1):
+            if int(num[i]) % 2 != 0:
+                return num[:i + 1]
+
+        return ""
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<p>Given <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    as the length of <code>num</code>,</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <p>In the worst-case scenario, we iterate over every character in <code>num</code>, performing <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord">1</span><span class="mclose">)</span></span></span></span></span> work at each iteration.
+        </p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord">1</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <p>We aren't using any extra space. We don't count the answer as part of the space complexity.</p>
+    </li>
+</ul>
+<br>
+<hr>
+</body>
+</html>
