@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Maximum Product of Two Elements in an Array - Solution</title>
+</head>
+<body>
+<h2 id="solution">Maximum Product of Two Elements in an Array - Solution</h2>
+<hr>
+<h4 id="approach-1-brute-force">Approach 1: Brute Force</h4>
+<p><strong>Intuition</strong></p>
+<p>To start, we will simply check every pair of indices <code>(i, j)</code> and calculate <code>(nums[i] - 1) * (nums[j]
+    - 1)</code>. We will take the maximum value as the answer.</p>
+<p>Note that a pair of indices <code>(i, j)</code> will have the same result as <code>(j, i)</code>. Thus, to be more
+    efficient, we will start iterating <code>j</code> from <code>i + 1</code>. This way, we don't check any duplicate
+    pairs.</p>
+<p><strong>Algorithm</strong></p>
+<ol>
+    <li>Initialize the answer <code>ans = 0</code>.</li>
+    <li>Iterate <code>i</code> over the indices of <code>nums</code>:
+        <ul>
+            <li>Iterate <code>j</code> over the indices of <code>nums</code>, starting from <code>i + 1</code>:
+                <ul>
+                    <li>Calculate <code>(nums[i] - 1) * (nums[j] - 1)</code> and update <code>ans</code> if it is
+                        larger.
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </li>
+    <li>Return <code>ans</code>.</li>
+</ol>
+<p><strong>Implementation</strong></p>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int maxProduct(int[] nums) {
+        int ans = 0;
+        for (int i = 0; i < nums.length; i++) {
+            for (int j = i + 1; j < nums.length; j++) {
+                ans = Math.max(ans, (nums[i] - 1) * (nums[j] - 1));
+            }
+        }
+
+        return ans;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int maxProduct(vector<int>& nums) {
+        int ans = 0;
+        for (int i = 0; i < nums.size(); i++) {
+            for (int j = i + 1; j < nums.size(); j++) {
+                ans = max(ans, (nums[i] - 1) * (nums[j] - 1));
+            }
+        }
+
+        return ans;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def maxProduct(self, nums: List[int]) -> int:
+        ans = 0
+        for i in range(len(nums)):
+            for j in range(i + 1, len(nums)):
+                ans = max(ans, (nums[i] - 1) * (nums[j] - 1))
+
+        return ans
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<p>Given <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    as the length of <code>nums</code>,</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n2)O(n^2)</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+                class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <p>We have a nested for loop over the indices of <code>nums</code>. For <code>i = 0</code>, we will iterate
+            <code>j</code> over <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                    class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+            indices. For <code>i = 1</code>, we will iterate <code>j</code> over <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">n−1n - 1</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+                    class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span>
+            indices. For <code>i = 2</code>, we will iterate <code>j</code> over <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">n−2n - 2</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+                    class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">2</span></span></span></span></span>
+            indices, and so on.</p>
+        <p>In total, we iterate <code>j</code> over <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">1+2+3+...+n1 + 2 + 3 + ... + n</span><span class="katex-html"
+                                                                                aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 0.7278em; vertical-align: -0.0833em;"></span><span
+                class="mord">1</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.7278em; vertical-align: -0.0833em;"></span><span
+                class="mord">2</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.7278em; vertical-align: -0.0833em;"></span><span
+                class="mord">3</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.6667em; vertical-align: -0.0833em;"></span><span
+                class="mord">...</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+            indices. This is the partial sum of <a
+                    href="https://en.wikipedia.org/wiki/1_%2B_2_%2B_3_%2B_4_%2B_%E2%8B%AF#Partial_sums" target="_blank">this
+                series</a>, which is equal to <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">n⋅(n+1)2=O(n2)\frac{n \cdot (n + 1)}{2} = O(n^2)</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1.355em; vertical-align: -0.345em;"></span><span
+                    class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span
+                    class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 1.01em;"><span
+                    style="top: -2.655em;"><span class="pstrut" style="height: 3em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">2</span></span></span></span><span
+                    style="top: -3.23em;"><span class="pstrut" style="height: 3em;"></span><span class="frac-line"
+                                                                                                 style="border-bottom-width: 0.04em;"></span></span><span
+                    style="top: -3.485em;"><span class="pstrut" style="height: 3em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span
+                    class="mord mathnormal mtight">n</span><span class="mbin mtight">⋅</span><span class="mopen mtight">(</span><span
+                    class="mord mathnormal mtight">n</span><span class="mbin mtight">+</span><span
+                    class="mord mtight">1</span><span class="mclose mtight">)</span></span></span></span></span><span
+                    class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist"
+                                                                               style="height: 0.345em;"><span></span></span></span></span></span><span
+                    class="mclose nulldelimiter"></span></span><span class="mspace"
+                                                                     style="margin-right: 0.2778em;"></span><span
+                    class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+                    class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                    style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut"
+                                                                       style="height: 2.7em;"></span><span
+                    class="sizing reset-size6 size3 mtight"><span
+                    class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                    class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord">1</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <p>We aren't using any extra space.</p>
+    </li>
+</ul>
+<br>
+<hr>
+<h4 id="approach-2-sort">Approach 2: Sort</h4>
+<p><strong>Intuition</strong></p>
+<p>Intuitively, given all the candidates are non-negative, if you wanted to maximize the product of <code>x * y</code>,
+    you would choose the largest values for <code>x</code> and <code>y</code>.</p>
+<p>In this problem, we need to subtract one from our numbers before multiplying them. However, this doesn't change the
+    logic of choosing the largest numbers, since <strong>every</strong> element will be reduced by the same amount and
+    will still be non-negative. Thus, it is optimal for us to choose the two largest elements.</p>
+<p>We can sort the array to easily find the two largest elements.</p>
+<p><strong>Algorithm</strong></p>
+<ol>
+    <li>Sort <code>nums</code> in ascending order.</li>
+    <li>Set <code>x</code> as the last element in <code>nums</code> and <code>y</code> as the second last element in
+        <code>nums</code>.
+    </li>
+    <li>Return <code>(x - 1) * (y - 1)</code>.</li>
+</ol>
+<p><strong>Implementation</strong></p>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int maxProduct(int[] nums) {
+        Arrays.sort(nums);
+        int x = nums[nums.length - 1];
+        int y = nums[nums.length - 2];
+        return (x - 1) * (y - 1);
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int maxProduct(vector<int>& nums) {
+        sort(nums.begin(), nums.end());
+        int x = nums[nums.size() - 1];
+        int y = nums[nums.size() - 2];
+        return (x - 1) * (y - 1);
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def maxProduct(self, nums: List[int]) -> int:
+        nums.sort()
+        x = nums[-1]
+        y = nums[-2]
+        return (x - 1) * (y - 1)
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<p>Given <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    as the length of <code>nums</code>,</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n⋅log⁡n)O(n \cdot \log{}n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                      style="margin-right: 0.1667em;"></span><span
+                class="mord"></span><span class="mord mathnormal">n</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <p>We sort <code>nums</code>, which costs <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n⋅log⁡n)O(n \cdot \log{}n)</span><span class="katex-html"
+                                                                              aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mop">lo<span
+                style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                      style="margin-right: 0.1667em;"></span><span
+                class="mord"></span><span class="mord mathnormal">n</span><span
+                class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+    <li>
+        <p>Space Complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡n)O(\log n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mspace"
+                                                                                          style="margin-right: 0.1667em;"></span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> or <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></p>
+        <p>The space complexity of the sorting algorithm depends on the implementation of each programming language:</p>
+        <ul>
+            <li>In Java, Arrays.sort() for primitives is implemented using a variant of the Quick Sort algorithm, which
+                has a space complexity of <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(log⁡n)O(\log n)</span><span
+                        class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                       style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span
+                        class="mspace" style="margin-right: 0.1667em;"></span><span
+                        class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></li>
+            <li>In C++, the sort() function provided by STL uses a hybrid of Quick Sort, Heap Sort and Insertion Sort,
+                with a worst case space complexity of <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(log⁡n)O(\log n)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span
+                        class="mspace" style="margin-right: 0.1667em;"></span><span
+                        class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></li>
+            <li>In Python, the sort() function is implemented using the Timsort algorithm, which has a worst-case space
+                complexity of <span class="math math-inline"><span class="katex"><span
+                        class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span
+                        class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                        class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span
+                        class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+            </li>
+        </ul>
+    </li>
+</ul>
+<br>
+<hr>
+<h4 id="approach-3-track-second-biggest">Approach 3: Track Second Biggest</h4>
+<p><strong>Intuition</strong></p>
+<p>Without sorting, we can easily find the maximum element in <code>nums</code> by iterating over <code>nums</code> and
+    continuously updating a variable with the largest value we see. However, we need the second largest value as well.
+    Can we accomplish this without sorting?</p>
+<p>We will use two variables: <code>biggest</code> to represent the biggest element we have seen so far, and <code>secondBiggest</code>
+    to represent the second biggest element we have seen so far.</p>
+<p>We then iterate over each <code>num</code> in <code>nums</code>. For each <code>num</code>, there are two
+    possibilities:</p>
+<ol>
+    <li><code>num &gt; biggest</code>. We have found a new biggest element and should update <code>biggest = num</code>.
+        However, before we do this, we update <code>secondBiggest = biggest</code> since the old biggest element we saw
+        will become the new second biggest element.
+    </li>
+    <li><code>num &lt;= biggest</code>. We should not update <code>biggest</code>. However, <code>num</code> may be
+        larger than <code>secondBiggest</code>, in which case it would be the new second biggest element. We update
+        <code>secondBiggest</code> with <code>num</code> if it is larger.
+    </li>
+</ol>
+<p>After iterating over all elements, we simply return <code>(biggest - 1) * (secondBiggest - 1)</code>.</p>
+<p><strong>Algorithm</strong></p>
+<ol>
+    <li>Initialize <code>biggest = 0</code> and <code>secondBiggest = 0</code>.</li>
+    <li>Iterate over each <code>num</code> in <code>nums</code>:
+        <ul>
+            <li>If <code>num &gt; biggest</code>:
+                <ul>
+                    <li>Update <code>secondBiggest = biggest</code>.</li>
+                    <li>Update <code>biggest = num</code>.</li>
+                </ul>
+            </li>
+            <li>Else:
+                <ul>
+                    <li>Update <code>secondBiggest</code> with <code>num</code> if it is larger.</li>
+                </ul>
+            </li>
+        </ul>
+    </li>
+    <li>Return <code>(biggest - 1) * (secondBiggest - 1)</code>.</li>
+</ol>
+<p><strong>Implementation</strong></p>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int maxProduct(int[] nums) {
+        int biggest = 0;
+        int secondBiggest = 0;
+        for (int num : nums) {
+            if (num > biggest) {
+                secondBiggest = biggest;
+                biggest = num;
+            } else {
+                secondBiggest = Math.max(secondBiggest, num);
+            }
+        }
+
+        return (biggest - 1) * (secondBiggest - 1);
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int maxProduct(vector<int>& nums) {
+        int biggest = 0;
+        int secondBiggest = 0;
+        for (int num : nums) {
+            if (num > biggest) {
+                secondBiggest = biggest;
+                biggest = num;
+            } else {
+                secondBiggest = max(secondBiggest, num);
+            }
+        }
+
+        return (biggest - 1) * (secondBiggest - 1);
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def maxProduct(self, nums: List[int]) -> int:
+        biggest = 0
+        second_biggest = 0
+        for num in nums:
+            if num > biggest:
+                second_biggest = biggest
+                biggest = num
+            else:
+                second_biggest = max(second_biggest, num)
+
+        return (biggest - 1) * (second_biggest - 1)
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<p>Given <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    as the length of <code>nums</code>,</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <p>We iterate over <code>nums</code> once, performing <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord">1</span><span
+                class="mclose">)</span></span></span></span></span> work at each iteration.</p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord">1</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <p>We aren't using any extra space other than a few integers.</p>
+    </li>
+</ul>
+<br>
+<hr>
+</body>
+</html>
