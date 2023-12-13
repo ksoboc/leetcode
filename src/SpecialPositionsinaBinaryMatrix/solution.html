@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Special Positions in a Binary Matrix - Solution</title>
+</head>
+<body>
+<h2 id="solution">Special Positions in a Binary Matrix - Solution</h2>
+<hr>
+<h4 id="approach-1-brute-force">Approach 1: Brute Force</h4>
+<p><strong>Intuition</strong></p>
+<p>For our first approach, we will apply a brute force search for each square in <code>mat</code>.</p>
+<p>We iterate over every square <code>(row, col)</code> in <code>mat</code>. For each <code>(row, col)</code>, we first
+    check if <code>mat[row][col] = 1</code>. If it is, then it could possibly be a special position. Next, we check if
+    there are any squares with the same <code>row</code> or same <code>col</code> that have a value of <code>1</code>.
+    If there are, then the current square <code>(row, col)</code> is not special, otherwise, <code>(row, col)</code> is
+    special.</p>
+<p>To perform this check, we initialize a boolean flag <code>good = true</code> indicating that the current square is
+    special. We then iterate over each row in the <code>mat</code> using another variable <code>r</code>. For each value
+    of <code>r</code> other than <code>row</code>, we check if <code>mat[r][col] = 1</code>. If it is, it means that
+    there is another cell with value 1 in the same column, so the current square is not special, and we set <code>good =
+        false</code>.</p>
+<p>Then, we do the same for the columns with a variable <code>c</code>. For each value of <code>c</code> other than
+    <code>col</code>, we check if <code>mat[row][c] = 1</code>. If it is, we set <code>good = false</code>.</p>
+<p><img src="1.png" alt="example"><br>
+    <br></p>
+<p>After checking the rows and columns, if <code>good</code> is still <code>true</code>, then the current square is
+    special. We can increment our answer.</p>
+<p><strong>Algorithm</strong></p>
+<ol>
+    <li>Set the answer <code>ans = 0</code>, and the size of the matrix <code>m = mat.length, n = mat[0].length</code>.
+    </li>
+    <li>Iterate <code>row</code> from <code>0</code> until <code>m</code>:
+        <ul>
+            <li>Iterate <code>col</code> from <code>0</code> until <code>n</code>:
+                <ul>
+                    <li>If <code>mat[row][col] = 0</code>, <code>continue</code> to the next iteration.</li>
+                    <li>Set <code>good = true</code>.</li>
+                    <li>Iterate <code>r</code> from <code>0</code> until <code>m</code>:
+                        <ul>
+                            <li>If <code>r != row</code> and <code>mat[r][col] = 1</code>, set <code>good = false</code>
+                                and <code>break</code> from the loop.
+                            </li>
+                        </ul>
+                    </li>
+                    <li>Iterate <code>c</code> from <code>0</code> until <code>n</code>:
+                        <ul>
+                            <li>If <code>c != col</code> and <code>mat[row][c] = 1</code>, set <code>good = false</code>
+                                and <code>break</code> from the loop.
+                            </li>
+                        </ul>
+                    </li>
+                    <li>If <code>good = true</code>, increment <code>ans</code>.</li>
+                </ul>
+            </li>
+        </ul>
+    </li>
+    <li>Return <code>ans</code>.</li>
+</ol>
+<p><strong>Implementation</strong></p>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int numSpecial(int[][] mat) {
+        int ans = 0;
+        int m = mat.length;
+        int n = mat[0].length;
+
+        for (int row = 0; row < m; row++) {
+            for (int col = 0; col < n; col++) {
+                if (mat[row][col] == 0) {
+                    continue;
+                }
+
+                boolean good = true;
+                for (int r = 0; r < m; r++) {
+                    if (r != row && mat[r][col] == 1) {
+                        good = false;
+                        break;
+                    }
+                }
+
+                for (int c = 0; c < n; c++) {
+                    if (c != col && mat[row][c] == 1) {
+                        good = false;
+                        break;
+                    }
+                }
+
+                if (good) {
+                    ans++;
+                }
+            }
+        }
+
+        return ans;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int numSpecial(vector<vector<int>>& mat) {
+        int ans = 0;
+        int m = mat.size();
+        int n = mat[0].size();
+
+        for (int row = 0; row < m; row++) {
+            for (int col = 0; col < n; col++) {
+                if (mat[row][col] == 0) {
+                    continue;
+                }
+
+                bool good = true;
+                for (int r = 0; r < m; r++) {
+                    if (r != row && mat[r][col] == 1) {
+                        good = false;
+                        break;
+                    }
+                }
+
+                for (int c = 0; c < n; c++) {
+                    if (c != col && mat[row][c] == 1) {
+                        good = false;
+                        break;
+                    }
+                }
+
+                if (good) {
+                    ans++;
+                }
+            }
+        }
+
+        return ans;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def numSpecial(self, mat: List[List[int]]) -> int:
+        ans = 0
+        m = len(mat)
+        n = len(mat[0])
+
+        for row in range(m):
+            for col in range(n):
+                if mat[row][col] == 0:
+                    continue
+
+                good = True
+                for r in range(m):
+                    if r != row and mat[r][col] == 1:
+                        good = False
+                        break
+
+                for c in range(n):
+                    if c != col and mat[row][c] == 1:
+                        good = False
+                        break
+
+                if good:
+                    ans += 1
+
+        return ans
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<p>Given <span class="math math-inline"><span class="katex"><span class="katex-mathml">mm</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">m</span></span></span></span></span>
+    as the number of rows in <code>mat</code> and <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.4306em;"></span><span
+            class="mord mathnormal">n</span></span></span></span></span> as the number of columns in <code>mat</code>,
+</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(m⋅n⋅(m+n))O(m \cdot n \cdot (m + n))</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.4445em;"></span><span class="mord mathnormal">n</span><span
+                class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mopen">(</span><span class="mord mathnormal">m</span><span class="mspace"
+                                                                                  style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal">n</span><span class="mclose">))</span></span></span></span></span></p>
+        <p>There are <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">m⋅nm \cdot n</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 0.4445em;"></span><span class="mord mathnormal">m</span><span
+                class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">⋅</span><span class="mspace"
+                                                                                                       style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+            squares. For each square, in the worst case, we perform iterations over <span class="math math-inline"><span
+                    class="katex"><span class="katex-mathml">mm</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 0.4306em;"></span><span
+                    class="mord mathnormal">m</span></span></span></span></span> squares of the same column and <span
+                    class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.4306em;"></span><span
+                    class="mord mathnormal">n</span></span></span></span></span> squares of the same row. Thus, the time
+            complexity is <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(m⋅n⋅(m+n))O(m \cdot n \cdot (m + n))</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 0.4445em;"></span><span
+                    class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mopen">(</span><span class="mord mathnormal">m</span><span class="mspace"
+                                                                                      style="margin-right: 0.2222em;"></span><span
+                    class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal">n</span><span class="mclose">))</span></span></span></span></span>.</p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord">1</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <p>We aren't using any extra space other than a few integers.</p>
+    </li>
+</ul>
+<br>
+<hr>
+<h4 id="approach-2-precompute-the-number-of-ones-in-each-row-and-column">Approach 2: Precompute the Number of Ones in
+    each Row and Column</h4>
+<p><strong>Intuition</strong></p>
+<p>In the previous approach, for each square <code>(row, col)</code>, we iterated over every other square that shared a
+    <code>row</code> or <code>col</code> to determine if the current square was special, but you might have noticed that
+    this involved a lot of repetitive traversals. Is there a more efficient way for us to determine if a square is
+    special?</p>
+<p>For a given <code>(row, col)</code>, we are trying to answer: "is there another square in this <code>row</code> or
+    this <code>col</code> with a value of <code>1</code>?".</p>
+<p>We can pre-process two arrays <code>rowCount</code> and <code>colCount</code> that tell us how many squares each row
+    or column have with a value of <code>1</code>. For example, <code>rowCount[3]</code> would tell us how many squares
+    in the row with index <code>3</code> have a value of <code>1</code>. Similarly, <code>colCount[7]</code> would tell
+    us how many squares in the column with index <code>7</code> have a value of <code>1</code>.</p>
+<p><img src="2.png" alt="example"><br>
+    <br></p>
+<p>Once we have these arrays, we iterate over every square <code>(row, col)</code> and first check if <code>mat[row][col]
+    = 1</code>. If it is, we now check if there are any other squares that share a row or column with a value of
+    <code>1</code>. Because <code>(row, col)</code> itself has a value of <code>1</code>, it is special if <code>rowCount[row]
+        = 1</code> and <code>colCount[col] = 1</code>.</p>
+<p>If these values are both <code>1</code>, then it means <code>(row, col)</code> is the <strong>only</strong> square
+    with either coordinate that has a value of <code>1</code>, and thus it is special.</p>
+<p><strong>Algorithm</strong></p>
+<ol>
+    <li>Initialize the size of the matrix <code>m = mat.length, n = mat[0].length</code>.</li>
+    <li>Initialize two integer arrays <code>rowCount</code> of length <code>m</code> and <code>colCount</code> of length
+        <code>n</code>.
+    </li>
+    <li>Iterate <code>row</code> from <code>0</code> until <code>m</code>:
+        <ul>
+            <li>Iterate <code>col</code> from <code>0</code> until <code>n</code>:
+                <ul>
+                    <li>If <code>mat[row][col] = 1</code>, increment <code>rowCount[row]</code> and
+                        <code>colCount[col]</code>.
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </li>
+    <li>Initialize the answer <code>ans = 0</code>.</li>
+    <li>Iterate <code>row</code> from <code>0</code> until <code>m</code>:
+        <ul>
+            <li>Iterate <code>col</code> from <code>0</code> until <code>n</code>:
+                <ul>
+                    <li>If <code>mat[row][col] = 1</code>:
+                        <ul>
+                            <li>If <code>rowCount[row] = 1</code> and <code>colCount[col] = 1</code>, increment <code>ans</code>.
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </li>
+    <li>Return <code>ans</code>.</li>
+</ol>
+<p><strong>Implementation</strong></p>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public int numSpecial(int[][] mat) {
+        int m = mat.length;
+        int n = mat[0].length;
+        int[] rowCount = new int[m];
+        int[] colCount = new int[n];
+
+        for (int row = 0; row < m; row++) {
+            for (int col = 0; col < n; col++) {
+                if (mat[row][col] == 1) {
+                    rowCount[row]++;
+                    colCount[col]++;
+                }
+            }
+        }
+
+        int ans = 0;
+        for (int row = 0; row < m; row++) {
+            for (int col = 0; col < n; col++) {
+                if (mat[row][col] == 1) {
+                    if (rowCount[row] == 1 && colCount[col] == 1) {
+                        ans++;
+                    }
+                }
+            }
+        }
+
+        return ans;
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    int numSpecial(vector<vector<int>>& mat) {
+        int m = mat.size();
+        int n = mat[0].size();
+        vector<int> rowCount(m, 0);
+        vector<int> colCount(n, 0);
+
+        for (int row = 0; row < m; row++) {
+            for (int col = 0; col < n; col++) {
+                if (mat[row][col] == 1) {
+                    rowCount[row]++;
+                    colCount[col]++;
+                }
+            }
+        }
+
+        int ans = 0;
+        for (int row = 0; row < m; row++) {
+            for (int col = 0; col < n; col++) {
+                if (mat[row][col] == 1) {
+                    if (rowCount[row] == 1 && colCount[col] == 1) {
+                        ans++;
+                    }
+                }
+            }
+        }
+
+        return ans;
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def numSpecial(self, mat: List[List[int]]) -> int:
+        m = len(mat)
+        n = len(mat[0])
+        row_count = [0] * m
+        col_count = [0] * n
+
+        for row in range(m):
+            for col in range(n):
+                if mat[row][col] == 1:
+                    row_count[row] += 1
+                    col_count[col] += 1
+
+        ans = 0
+        for row in range(m):
+            for col in range(n):
+                if mat[row][col] == 1:
+                    if row_count[row] == 1 and col_count[col] == 1:
+                        ans += 1
+
+        return ans
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<p>Given <span class="math math-inline"><span class="katex"><span class="katex-mathml">mm</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">m</span></span></span></span></span>
+    as the number of rows in <code>mat</code> and <span class="math math-inline"><span class="katex"><span
+            class="katex-mathml">nn</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+            class="strut" style="height: 0.4306em;"></span><span
+            class="mord mathnormal">n</span></span></span></span></span> as the number of columns in <code>mat</code>,
+</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(m⋅n)O(m \cdot n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></p>
+        <p>To calculate <code>rowCount</code> and <code>colCount</code>, we iterate over each square once, which costs
+            <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(m⋅n)O(m \cdot n)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.</p>
+        <p>Next, we iterate over each square again to determine if it is special. Each iteration costs <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">O(1)O(1)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord">1</span><span class="mclose">)</span></span></span></span></span>, so in total we spend
+            <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(m⋅n)O(m \cdot n)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                    class="mbin">⋅</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span> here.</p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(m+n)O(m + n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">m</span><span class="mspace" style="margin-right: 0.2222em;"></span><span
+                class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span
+                class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span></p>
+        <p><code>rowCount</code> has a size of <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">mm</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 0.4306em;"></span><span
+                class="mord mathnormal">m</span></span></span></span></span> and <code>colCount</code> has a size of
+            <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 0.4306em;"></span><span
+                    class="mord mathnormal">n</span></span></span></span></span>.</p>
+    </li>
+</ul>
+<br>
+<hr>
+</body>
+</html>
