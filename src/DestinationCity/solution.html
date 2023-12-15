@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Destination City - Solution</title>
+</head>
+<body>
+<h2 id="solution">Destination City - Solution</h2>
+<hr>
+<h4 id="approach-1-brute-force">Approach 1: Brute Force</h4>
+<p><strong>Intuition</strong></p>
+<p>Each element in <code>paths</code> can be represented as two cities <code>[a, b]</code>. It indicates that we leave
+    <code>a</code> and go to <code>b</code>.</p>
+<p>The destination city is the city that does not appear as <code>a</code> (the first element) in any of the
+    <code>paths</code>. The destination city would appear as <code>b</code> for one path.</p>
+<p>We will check every city individually. For each index <code>i</code>, we let <code>candidate = paths[i][1]</code>.
+</p>
+<p>For this <code>candidate</code>, we then iterate over each <code>path</code> in <code>paths</code> with a nested loop
+    and check if <code>path[0] = candidate</code>. If we find ANY <code>path</code> with <code>path[0] =
+        candidate</code>, we know the current <code>candidate</code> cannot be the destination city since there is a
+    path starting with <code>candidate</code>.</p>
+<p>We continue for each index <code>i</code> until we eventually find the destination city, as it is guaranteed that a
+    destination city exists. Essentially, we are searching for the city that does not appear as the first element in any
+    <code>path</code>.</p>
+<p>To implement this check, we will initialize a boolean flag <code>good = true</code> at the beginning of each
+    iteration. If we find that <code>path[0] = candidate</code> for any <code>path</code>, we set <code>good =
+        false</code> and break from the inner loop. At the end of the inner loop, we check if <code>good = true</code>.
+    If it is, then <code>candidate</code> is the destination city.</p>
+<p><strong>Algorithm</strong></p>
+<ol>
+    <li>Iterate <code>i</code> over the indices of <code>paths</code>:
+        <ul>
+            <li>Set <code>candidate = paths[i][1]</code> and a boolean flag <code>good = true</code>.</li>
+            <li>Iterate <code>j</code> over the indices of <code>paths</code>:
+                <ul>
+                    <li>If <code>paths[j][0] == candidate</code>, set <code>good = false</code> and break from the loop.
+                    </li>
+                </ul>
+            </li>
+            <li>If <code>good = true</code>, return <code>candidate</code>.</li>
+        </ul>
+    </li>
+    <li>The code should never reach this point. Return anything.</li>
+</ol>
+<p><strong>Implementation</strong></p>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public String destCity(List<List<String>> paths) {
+        for (int i = 0; i < paths.size(); i++) {
+            String candidate = paths.get(i).get(1);
+            boolean good = true;
+
+            for (int j = 0; j < paths.size(); j++) {
+                if (paths.get(j).get(0).equals(candidate)) {
+                    good = false;
+                    break;
+                }
+            }
+
+            if (good) {
+                return candidate;
+            }
+        }
+
+        return "";
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    string destCity(vector<vector<string>>& paths) {
+        for (int i = 0; i < paths.size(); i++) {
+            string candidate = paths[i][1];
+            bool good = true;
+
+            for (int j = 0; j < paths.size(); j++) {
+                if (paths[j][0] == candidate) {
+                    good = false;
+                    break;
+                }
+            }
+
+            if (good) {
+                return candidate;
+            }
+        }
+
+        return "";
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def destCity(self, paths: List[List[str]]) -> str:
+        for i in range(len(paths)):
+            candidate = paths[i][1]
+            good = True
+
+            for j in range(len(paths)):
+                if paths[j][0] == candidate:
+                    good = False
+                    break
+
+            if good:
+                return candidate
+
+        return ""
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<p>Given <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    as the length of <code>paths</code>,</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n2)O(n^2)</span><span class="katex-html" aria-hidden="true"><span
+                class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span
+                class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span
+                style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span
+                class="sizing reset-size6 size3 mtight"><span
+                class="mord mtight">2</span></span></span></span></span></span></span></span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <p>We have a nested for loop, both iterating <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+            times.</p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord">1</span><span
+                class="mclose">)</span></span></span></span></span></p>
+        <p>We aren't using any extra space except for a few variables like <code>candidate</code> and <code>good</code>.
+        </p>
+    </li>
+</ul>
+<br>
+<hr>
+<h4 id="approach-2-hash-set">Approach 2: Hash Set</h4>
+<p><strong>Intuition</strong></p>
+<p>In the previous approach, we used an outer for loop to lock in a <code>candidate</code>. We then used an inner for
+    loop to check if <code>candidate</code> had any outgoing path. This inner for loop is expensive, and we can check a
+    given <code>candidate</code> in a much more efficient manner using a hash set.</p>
+<p>We will create a hash set <code>hasOutgoing</code> that represents all the cities that have an outgoing path. We
+    iterate over <code>paths</code> and for each index <code>i</code>, add <code>paths[i][0]</code> to
+    <code>hasOutgoing</code>.</p>
+<p>Now, we can iterate over <code>paths</code> again and select a <code>candidate = paths[i][1]</code> as we did in the
+    previous approach. However, now that we have <code>hasOutgoing</code>, we can simply check if <code>candidate</code>
+    is in <code>hasOutgoing</code> instead of using a nested for loop. If <code>hasOutgoing</code> contains <code>candidate</code>,
+    then <code>candidate</code> cannot be the destination city. We simply check all candidates until we eventually find
+    the destination city.</p>
+<p><strong>Algorithm</strong></p>
+<ol>
+    <li>Initialize a hash set <code>hasOutgoing</code>.</li>
+    <li>Iterate <code>i</code> over the indices of <code>paths</code>:
+        <ul>
+            <li>Add <code>paths[i][0]</code> to <code>hasOutgoing</code>.</li>
+        </ul>
+    </li>
+    <li>Iterate <code>i</code> over the indices of <code>paths</code>:
+        <ul>
+            <li>Set <code>candidate = paths[i][1]</code>.</li>
+            <li>If <code>candidate</code> is not in <code>hasOutgoing</code>, return <code>candidate</code>.</li>
+        </ul>
+    </li>
+    <li>The code should never reach this point. Return anything.</li>
+</ol>
+<p><strong>Implementation</strong></p>
+<pre>
+    Java
+    <code>
+        class Solution {
+    public String destCity(List<List<String>> paths) {
+        Set<String> hasOutgoing = new HashSet();
+        for (int i = 0; i < paths.size(); i++) {
+            hasOutgoing.add(paths.get(i).get(0));
+        }
+
+        for (int i = 0; i < paths.size(); i++) {
+            String candidate = paths.get(i).get(1);
+            if (!hasOutgoing.contains(candidate)) {
+                return candidate;
+            }
+        }
+
+        return "";
+    }
+}
+    </code>
+    C++
+    <code>
+        class Solution {
+public:
+    string destCity(vector<vector<string>>& paths) {
+        unordered_set<string> hasOutgoing;
+        for (int i = 0; i < paths.size(); i++) {
+            hasOutgoing.insert(paths[i][0]);
+        }
+
+        for (int i = 0; i < paths.size(); i++) {
+            string candidate = paths[i][1];
+            if (hasOutgoing.find(candidate) == hasOutgoing.end()) {
+                return candidate;
+            }
+        }
+
+        return "";
+    }
+};
+    </code>
+    Python3
+    <code>
+        class Solution:
+    def destCity(self, paths: List[List[str]]) -> str:
+        has_outgoing = set()
+        for i in range(len(paths)):
+            has_outgoing.add(paths[i][0])
+
+        for i in range(len(paths)):
+            candidate = paths[i][1]
+            if candidate not in has_outgoing:
+                return candidate
+
+        return ""
+    </code>
+</pre>
+<p><strong>Complexity Analysis</strong></p>
+<p>Given <span class="math math-inline"><span class="katex"><span class="katex-mathml">nn</span><span class="katex-html"
+                                                                                                      aria-hidden="true"><span
+        class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span></span>
+    as the length of <code>paths</code>,</p>
+<ul>
+    <li>
+        <p>Time complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <p>We first iterate over <code>paths</code> to populate <code>hasOutgoing</code>, this costs <span
+                class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                               style="height: 1em; vertical-align: -0.25em;"></span><span
+                class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.</p>
+        <p>Next, we iterate over <code>paths</code> again to find the answer, checking at each step whether <code>candidate</code>
+            is in the hash set, which takes <span class="math math-inline"><span class="katex"><span
+                    class="katex-mathml">O(1)O(1)</span><span class="katex-html" aria-hidden="true"><span
+                    class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord">1</span><span class="mclose">)</span></span></span></span></span>. Thus the iteration
+            costs <span class="math math-inline"><span class="katex"><span class="katex-mathml">O(n)O(n)</span><span
+                    class="katex-html" aria-hidden="true"><span class="base"><span class="strut"
+                                                                                   style="height: 1em; vertical-align: -0.25em;"></span><span
+                    class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span
+                    class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.</p>
+    </li>
+    <li>
+        <p>Space complexity: <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>
+        </p>
+        <p><code>hasOutgoing</code> will grow to a size of <span class="math math-inline"><span class="katex"><span
+                class="katex-mathml">O(n)O(n)</span><span class="katex-html" aria-hidden="true"><span class="base"><span
+                class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal"
+                                                                                         style="margin-right: 0.02778em;">O</span><span
+                class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span></span>.
+        </p>
+    </li>
+</ul>
+<br>
+<hr>
+</body>
+</html>
